@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/mainFragment">
+
+    <fragment
+        android:id="@+id/mainFragment"
+        android:name="com.akhnaton.foodvisits.ui.main.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
+        <action
+            android:id="@+id/action_mainFragment_to_profileFragment"
+            app:destination="@id/profileFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/foodFragment"
+        android:name="com.akhnaton.foodvisits.ui.printFood.FoodFragment"
+        android:label="fragment_food"
+        tools:layout="@layout/fragment_food" />
+
+    <fragment
+        android:id="@+id/visitsFragment"
+        android:name="com.akhnaton.foodvisits.ui.visits.VisitsFragment"
+        android:label="fragment_visits"
+        tools:layout="@layout/fragment_visits" />
+
+    <fragment
+        android:id="@+id/ticketsFragment"
+        android:name="com.akhnaton.foodvisits.ui.tickets.TicketsFragment"
+        android:label="fragment_tickets"
+        tools:layout="@layout/fragment_tickets" />
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.akhnaton.foodvisits.ui.profile.ProfileActivity"
+        android:label="fragment_profile"
+        tools:layout="@layout/activity_profile"/>
+</navigation>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "572328427197",
+    "project_id": "foodvisits",
+    "storage_bucket": "foodvisits.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:572328427197:android:4367dab59dad4b52aac1d4",
+        "android_client_info": {
+          "package_name": "com.akhnaton.foodvisits"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "572328427197-r8n2jimunvoq1fvujq3p0vn57hrcbrv3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBnMEu58t2WvrpR7zG7LttskbRwtUk_qQc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "572328427197-r8n2jimunvoq1fvujq3p0vn57hrcbrv3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

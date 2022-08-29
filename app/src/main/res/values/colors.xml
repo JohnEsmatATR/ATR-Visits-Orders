@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimary">#ff8340</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorAccent">#ff8340</color>
+    <color name="color">#fff</color>
+    <color name="green">#42af3a</color>
+    <color name="botomNav">#FF5722</color>
+    <color name="returnBtnColor">#462446</color>
+    <color name="color_one">#fb7268</color>
+    <color name="color_white">#ededf2</color>
+    <color name="color_two">#E3E0E0</color>
+    <color name="orange">#FFA726</color>
+    <color name="red">#EF5350</color>
+    <color name="blue">#29B6F6</color>
+    <color name="main_button">#E6E6E5</color>
+    <color name="default_color_dark">#52a6b8</color>
+    <color name="gray">#35323D</color>
+    <color name="float_transparent">#00000000</color>
+    <color name="testing">#F5F5FA</color>
+    <color name="spinner_color">#F5F5F8</color>
+
+</resources>

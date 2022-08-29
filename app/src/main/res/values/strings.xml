@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">Food Visits</string>
+    <string name="welcome_to_visits">Welcome to Visits</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="learn_more">Learn More</string>
+    <string name="welcome_visits">now you can enter visits with an android mobile application very easy to use Choose customer ,order type and Go on..</string>
+    <string name="home">Home</string>
+    <string name="order_type">Order Type:</string>
+    <string name="tickets">Tickets</string>
+    <string name="message">الرسالة</string>
+    <string name="something_went_wrong">Somthing went wrong</string>
+    <string name="try_again">Try Again</string>
+    <string name="employee_name">اسم العميل:</string>
+    <string name="invoice_number">رقم الفاتورة:</string>
+    <string name="customer_type">Customer Type:</string>
+    <string name="select_line">Select Line:</string>
+    <string name="customer_line">Customer Line:</string>
+    <string name="choose_customer">Choose Customer</string>
+    <string name="select_visibility">Select visibility</string>
+    <string name="visits_details">Visits Details</string>
+    <string name="payment_type">Payment Type :</string>
+    <string name="payments_term">Payments Term</string>
+    <string name="continue_to_order">Continue To Order</string>
+    <string name="add_order">Add Order</string>
+    <string name="items">Items</string>
+    <string name="bonus_vis">Bonus:</string>
+    <string name="items_name">رصيد()—2386306—40001—PROZAC PULV 20MG X14BLCD XE</string>
+    <string name="unit_price">Price</string>
+    <string name="price">100</string>
+    <string name="tax_value">Tax Value:</string>
+    <string name="choose_item">Choose item</string>
+    <string name="turn_over">Turn Over</string>
+    <string-array name="spinner_payment_type">
+        <item>1000--نقدى بدون خصم </item>
+        <item>10010--خصم نقدى 3% فقط--خاص باصناف ادوية معينة ولا يتم اختيارها لعميل معين </item>
+        <item>52013--مطالبة </item>
+        <item>101014--نقدي 3% فتح 2% أجل 90 يوم </item>
+        <item>106014--نقدى مع السيارة </item>
+    </string-array>
+
+    <string-array name="spinner_items">
+        <item>LIMITLESS VEGAN PROTEIN STRAWBERRY </item>
+        <item>LIMITLESS VEGAN PROTEIN STRAWBERRY </item>
+        <item>LIMITLESS VEGAN PROTEIN STRAWBERRY </item>
+        <item>LIMITLESS VEGAN PROTEIN STRAWBERRY </item>
+    </string-array>
+
+    <string-array name="spinner_bonus">
+        <item> عادي </item>
+        <item> عرض 1 </item>
+        <item> عرض 2 </item>
+        <item> Stand Order </item>
+    </string-array>
+
+</resources>
