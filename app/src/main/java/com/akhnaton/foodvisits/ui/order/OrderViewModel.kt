@@ -5,16 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.order.OrderIntent
 import com.akhnaton.foodvisits.data.statusValue.order.OrderStatus
 import com.akhnaton.foodvisits.domin.OrderRepository
-import com.akhnaton.foodvisits.domin.VisitsRepository
 import com.google.gson.JsonElement
-import com.squareup.okhttp.RequestBody
-import com.squareup.okhttp.ResponseBody
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class OrderViewModel : ViewModel() {
 

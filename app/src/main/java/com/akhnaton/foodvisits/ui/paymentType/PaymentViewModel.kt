@@ -4,10 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.payment.PaymentIntent
 import com.akhnaton.foodvisits.data.statusValue.payment.PaymentStatus
-import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
-import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.domin.PaymentRepository
-import com.akhnaton.foodvisits.domin.VisitsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

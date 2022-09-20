@@ -22,10 +22,10 @@ class ProgressDialog {
     }
 
 
-    fun showAlertProgress(context: Context): ProgressDialog {
+    fun showAlertProgress(context: Context,message :String): ProgressDialog {
         val progressBar = ProgressDialog(context)
         progressBar.setCancelable(true)
-        progressBar.setMessage("Order Sending..")
+        progressBar.setMessage(message)
         progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER)
         return progressBar
     }
@@ -33,6 +33,13 @@ class ProgressDialog {
     fun orderLimitAlert(context: Context, message :String) {
         val limitAlert = SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
         limitAlert.setTitleText("Order Limit!..").contentText = message
+        limitAlert.setCancelable(false)
+        limitAlert.show()
+    }
+
+    fun gpsAlert(context: Context) {
+        val limitAlert = SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
+        limitAlert.setTitleText("GPS Error").contentText = "You Should Open Your Gps To continue"
         limitAlert.setCancelable(false)
         limitAlert.show()
     }

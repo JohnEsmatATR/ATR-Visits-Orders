@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
-import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +18,6 @@ import com.akhnaton.foodvisits.databinding.ActivityPaymentBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.ui.order.OrderActivity
-import com.akhnaton.foodvisits.ui.visits.VisitsFragment
 import kotlinx.coroutines.launch
 
 class PaymentActivity : AppCompatActivity(), View.OnClickListener {

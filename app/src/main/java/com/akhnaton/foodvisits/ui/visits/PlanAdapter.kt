@@ -3,22 +3,29 @@ package com.akhnaton.foodvisits.ui.visits
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.akhnaton.foodvisits.data.model.VisitsPlaneData
+import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
+import com.akhnaton.foodvisits.data.model.VisitsPlan
+import com.akhnaton.foodvisits.data.model.VisitsPlaneDataDumy
+import com.akhnaton.foodvisits.data.model.visits.CustomerSiteData
 import com.akhnaton.foodvisits.databinding.ListPlanBinding
 
 class PlanAdapter : RecyclerView.Adapter<PlanViewHolder>() {
 
-    private var mPlan = mutableListOf<VisitsPlaneData>()
+    private var mPlan = mutableListOf<CustomerVisitPlan>()
+    private lateinit var listener: PlanViewHolder.OnSelectEmployeeClickListener
 
-    fun setPlan(plan: List<VisitsPlaneData>) {
+    fun setPlan(
+        plan: List<CustomerVisitPlan>, listener: PlanViewHolder.OnSelectEmployeeClickListener
+    ) {
         this.mPlan = plan.toMutableList()
+        this.listener = listener
         notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlanViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         val binding = ListPlanBinding.inflate(inflater, parent, false)
-        return PlanViewHolder(binding)
+        return PlanViewHolder(binding, listener)
     }
 
     override fun onBindViewHolder(holder: PlanViewHolder, position: Int) {
@@ -30,10 +37,15 @@ class PlanAdapter : RecyclerView.Adapter<PlanViewHolder>() {
     }
 }
 
-class PlanViewHolder(val binding: ListPlanBinding) : RecyclerView.ViewHolder(binding.root) {
-    fun bind(data: VisitsPlaneData) {
+class PlanViewHolder(val binding: ListPlanBinding, val listener: OnSelectEmployeeClickListener) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(data: CustomerVisitPlan) {
         binding.plan = data
+        binding.visitCard.setOnClickListener { listener.onSelectEmployeeClickListener(data,adapterPosition) }
         binding.executePendingBindings()
     }
 
+    interface OnSelectEmployeeClickListener {
+        fun onSelectEmployeeClickListener(data: CustomerVisitPlan,position: Int)
+    }
 }

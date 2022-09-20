@@ -5,32 +5,32 @@
     <item
         android:id="@+id/visitsFragment"
         android:icon="@drawable/location"
-        android:title="Visits"
+        android:title="@string/visits"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/ticketsFragment"
         android:icon="@drawable/ticket64"
         android:iconTint="@color/colorPrimary"
-        android:title="Tickets"
+        android:title="@string/tickets"
         app:showAsAction="always" />
 
     <item
         android:id="@+id/mainFragment"
         android:title=""
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/weborder"
-        android:icon="@drawable/woldwideweb"
-        android:title="Web Order"
+        android:id="@+id/visitPhoneFragment"
+        android:icon="@drawable/ic_phone_24"
+        android:title="@string/phone_visit"
         android:visible="true"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/foodFragment"
         android:icon="@drawable/ic_print"
-        android:title="Print"
-        app:showAsAction="always" />
+        android:title="@string/print"
+        app:showAsAction="ifRoom" />
 
 </menu>

@@ -1,5 +1,10 @@
 package com.akhnaton.foodvisits.shared
 
+import android.app.DatePickerDialog
+import android.content.Context
+import android.util.Log
+import android.widget.DatePicker
+import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,7 +32,14 @@ object ConvertDate {
         return ts
     }
 
-    fun getDateTimeStamp2(): String {
-        return ts
+    fun getDateTime(sDate: Long): String {
+        val sdf = SimpleDateFormat("MM/dd/yyyy")
+
+//      val stamp = Timestamp(sDate)
+        val date = Date(sDate * 1000)
+
+        return sdf.format(date)
     }
+
+
 }

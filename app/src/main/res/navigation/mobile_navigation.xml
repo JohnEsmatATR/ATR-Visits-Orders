@@ -28,7 +28,7 @@
         android:id="@+id/visitsFragment"
         android:name="com.akhnaton.foodvisits.ui.visits.VisitsFragment"
         android:label="fragment_visits"
-        tools:layout="@layout/fragment_visits" />
+        tools:layout="@layout/fragment_phone_visits" />
 
     <fragment
         android:id="@+id/ticketsFragment"
@@ -40,5 +40,11 @@
         android:id="@+id/profileFragment"
         android:name="com.akhnaton.foodvisits.ui.profile.ProfileActivity"
         android:label="fragment_profile"
-        tools:layout="@layout/activity_profile"/>
+        tools:layout="@layout/activity_profile" />
+
+    <fragment
+        android:id="@+id/visitPhoneFragment"
+        android:name="com.akhnaton.foodvisits.ui.phoneVisit.PhoneVisitsFragment"
+        android:label="fragment_visit_phone"
+        tools:layout="@layout/fragment_phone_visits" />
 </navigation>

@@ -19,6 +19,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.chart.ChartIntent
 import com.akhnaton.foodvisits.data.statusValue.chart.ChartStatus
@@ -39,7 +40,7 @@ class MainFragment : Fragment() {
     companion object {
         private const val TAG = "MainFragment"
     }
-
+    private val versionName = BuildConfig.VERSION_NAME
     private val viewModel: MainViewModel by viewModels()
     private lateinit var binding: FragmentMainBinding
     private var mAdapter: ChartDataAdapter = ChartDataAdapter()
@@ -59,7 +60,7 @@ class MainFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.chartIntent.send(
                 ChartIntent.Chart(
-                    "1.0",
+                    versionName,
                     SharedPreferencesHelper.getInstance().getUserToken()
                 )
             )
@@ -92,12 +93,13 @@ class MainFragment : Fragment() {
 
                     is ChartStatus.ChartData -> {
                         if (it.data.status == 200) {
+                            if (it.data.data.user_chart_info.isEmpty()){
+                                binding.details.visibility = View.GONE
+                                Log.d(TAG, "fetchData: ${it.data.data.user_chart_info.size}")
+                            }
                             setChart(it.data.data.user_chart_info)
                             setAdapterData(it.data.data.user_chart_info)
-                            Log.d(
-                                TAG,
-                                "makeLogin Login: ${it.data.data.user_chart_info[0].percentage}"
-                            )
+
                         }else{
                             startActivity(Intent(requireContext(),LoginActivity::class.java))
                         }

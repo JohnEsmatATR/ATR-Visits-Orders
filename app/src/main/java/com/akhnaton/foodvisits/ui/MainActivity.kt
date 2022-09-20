@@ -13,7 +13,9 @@ import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.orderHistory.OrdersHistoryActivity
 import com.akhnaton.foodvisits.ui.profile.ProfileActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -28,6 +30,7 @@ import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
+    private lateinit var binding: ActivityMainBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBinding()
@@ -35,8 +38,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun setupBinding() {
 
-        val binding: ActivityMainBinding =
-            DataBindingUtil.setContentView(this, R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.executePendingBindings()
 
@@ -49,14 +51,18 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val nav = findNavController(navHostFragment)
             nav.navigateUp() || super.onSupportNavigateUp()
         }
-//        FirebaseApp.initializeApp(/*context=*/this)
-//        val firebaseAppCheck = FirebaseAppCheck.getInstance()
-//        firebaseAppCheck.installAppCheckProviderFactory(
-//            PlayIntegrityAppCheckProviderFactory.getInstance()
-//        )
-//        getProfileImage(binding)
+
+        FirebaseApp.initializeApp(/*context=*/this)
+        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+        firebaseAppCheck.installAppCheckProviderFactory(
+            PlayIntegrityAppCheckProviderFactory.getInstance()
+        )
+
+        getProfileImage(binding)
 
         binding.profileBtn.setOnClickListener(this)
+        binding.addCustomerBtn.setOnClickListener(this)
+        binding.ordersHistoryBtn.setOnClickListener(this)
     }
 
     override fun onStart() {
@@ -66,10 +72,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            binding.addCustomerBtn.id -> {
+                startActivity(Intent(this@MainActivity, AddCustomerActivity::class.java))
+            }
+
+            binding.profileBtn.id -> {
+                startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
+            }
+
+            binding.ordersHistoryBtn.id -> {
+                startActivity(Intent(this@MainActivity, OrdersHistoryActivity::class.java))
+            }
+        }
+    }
+
+
     private fun getProfileImage(binding: ActivityMainBinding) {
         val db = Firebase.firestore
 
-        db.collection("Users").document("146070").get()
+        db.collection("Users").document(SharedPreferencesHelper.getInstance().getUserToken()).get()
             .addOnCompleteListener { task: Task<DocumentSnapshot> ->
                 if (task.isSuccessful) {
                     if (task.result.exists()) {
@@ -88,10 +111,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     ).show()
                 }
             }
-    }
-
-    override fun onClick(p0: View?) {
-        startActivity(Intent(this@MainActivity, ProfileActivity::class.java))
     }
 
 }

@@ -14,12 +14,16 @@
     <color name="color_two">#E3E0E0</color>
     <color name="orange">#FFA726</color>
     <color name="red">#EF5350</color>
-    <color name="blue">#29B6F6</color>
+    <color name="blue">#29B6F6</color>.
+    <color name="order_card">#32449A</color>.
+<!--    <color name="order_card">#001787</color>.-->
     <color name="main_button">#E6E6E5</color>
     <color name="default_color_dark">#52a6b8</color>
     <color name="gray">#35323D</color>
     <color name="float_transparent">#00000000</color>
     <color name="testing">#F5F5FA</color>
     <color name="spinner_color">#F5F5F8</color>
+
+    <color name="receipt_color">#04074A</color>
 
 </resources>

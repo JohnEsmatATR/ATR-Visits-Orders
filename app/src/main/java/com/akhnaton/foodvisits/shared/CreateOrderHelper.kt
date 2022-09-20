@@ -1,8 +1,9 @@
 package com.akhnaton.foodvisits.shared
 
 import com.akhnaton.foodvisits.BuildConfig
-import com.akhnaton.foodvisits.data.model.order.Item
+import com.akhnaton.foodvisits.data.model.order.OrderItem
 import com.akhnaton.foodvisits.data.model.order.ItemsList
+import com.akhnaton.foodvisits.data.model.order.ReturnItem
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
@@ -17,14 +18,14 @@ class CreateOrderHelper {
         customerPartySiteId: String,
         payTermId: String,
         turnOver: Boolean,
-        mItemCardAdded: MutableList<Item>
+        mOrderItemCardAdded: MutableList<OrderItem>,
+        mReturnItemCardAdded: MutableList<ReturnItem>
     ): JsonElement {
 
         val itemsList = ItemsList(
             versionName, SharedPreferencesHelper.getInstance().getUserToken(),
             orderType, orderNumber, customerType, customerPartySiteId, payTermId, turnOver,
-            mItemCardAdded
-        )
+            mOrderItemCardAdded,mReturnItemCardAdded)
 
         val gson: Gson = GsonBuilder().create()
         return gson.toJsonTree(itemsList)

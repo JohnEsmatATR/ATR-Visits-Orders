@@ -1,5 +1,7 @@
 package com.akhnaton.foodvisits.data.model.order
 
+import java.io.Serializable
+
 data class Product(
     var status: Int,
     var data: CollectData
@@ -7,7 +9,8 @@ data class Product(
 
 data class CollectData(
     var products_bonus: List<BonusData>,
-    var products: List<ProductData>
+    var order_products: List<ProductData>,
+    var return_products: List<ProductData>
 )
 
 data class BonusData(
@@ -15,6 +18,7 @@ data class BonusData(
     var item_description: String
 )
 
+@kotlinx.serialization.Serializable
 class ProductData(
     var item_id: Int,
     var item_code: Int,
@@ -22,5 +26,5 @@ class ProductData(
     var item_availability: Int,
     var item_price: Double,
     var item_tax: Double
-)
+) : Serializable
 

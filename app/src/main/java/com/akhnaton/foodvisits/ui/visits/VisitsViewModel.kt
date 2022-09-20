@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.domin.VisitsRepository
+import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,29 +30,6 @@ class VisitsViewModel : ViewModel() {
             visitsIntent.consumeAsFlow().collect {
                 when (it) {
                     is VisitsIntent.GetPlan -> fetchPlan(it.version, it.token)
-                    is VisitsIntent.GetCustomerType -> fetchCustomerType(it.version, it.token)
-                    is VisitsIntent.GetLines -> fetchLines(
-                        it.version,
-                        it.token,
-                        it.customerType,
-                        it.orderType
-                    )
-                    is VisitsIntent.GetCustomerLines -> fetchCustomerLine(
-                        it.version,
-                        it.token,
-                        it.customerType,
-                        it.orderType,
-                        it.lineId
-                    )
-
-                    is VisitsIntent.GetCustomersSite -> fetchCustomersSite(
-                        it.version,
-                        it.token,
-                        it.customerType,
-                        it.orderType,
-                        it.lineId,
-                        it.customerCode
-                    )
                     is VisitsIntent.SaveVisit -> saveVisit(
                         it.version,
                         it.token,
@@ -82,94 +60,6 @@ class VisitsViewModel : ViewModel() {
         }
     }
 
-    private fun fetchCustomerType(version: String, token: String) {
-        viewModelScope.launch {
-            _status.value = VisitsStatus.Idle
-            _status.value = try {
-                VisitsStatus.GetCustomerType(VisitsRepository().getCustomerType(version, token))
-            } catch (e: Exception) {
-                VisitsStatus.Error(e.message)
-            }
-        }
-    }
-
-
-    private fun fetchLines(
-        version: String,
-        token: String,
-        customerType: String,
-        orderType: String
-    ) {
-        viewModelScope.launch {
-            _status.value = VisitsStatus.Idle
-            _status.value = try {
-                VisitsStatus.GetLines(
-                    VisitsRepository().getLines(
-                        version,
-                        token,
-                        customerType,
-                        orderType
-                    )
-                )
-            } catch (e: Exception) {
-                VisitsStatus.Error(e.message)
-            }
-        }
-    }
-
-
-    private fun fetchCustomerLine(
-        version: String,
-        token: String,
-        customerType: String,
-        orderType: String,
-        linesId: String
-    ) {
-        viewModelScope.launch {
-            _status.value = VisitsStatus.Idle
-            _status.value = try {
-                VisitsStatus.GetCustomerLines(
-                    VisitsRepository().getMainLineCustomer(
-                        version,
-                        token,
-                        customerType,
-                        orderType,
-                        linesId
-                    )
-                )
-            } catch (e: Exception) {
-                VisitsStatus.Error(e.message)
-            }
-        }
-    }
-
-    private fun fetchCustomersSite(
-        version: String,
-        token: String,
-        customerType: String,
-        orderType: String,
-        lineId: String,
-        customer_code: String
-    ) {
-        viewModelScope.launch {
-            _status.value = VisitsStatus.Idle
-            _status.value = try {
-                VisitsStatus.GetCustomersSite(
-                    VisitsRepository().getCustomersSite(
-                        version,
-                        token,
-                        customerType,
-                        orderType,
-                        lineId,
-                        customer_code
-                    )
-                )
-            } catch (e: Exception) {
-                VisitsStatus.Error(e.message)
-            }
-        }
-    }
-
     private fun saveVisit(
         version: String,
         token: String,
@@ -189,7 +79,7 @@ class VisitsViewModel : ViewModel() {
             _status.value = VisitsStatus.Idle
             _status.value = try {
                 VisitsStatus.SaveVisits(
-                    VisitsRepository().saveVisit(
+                    PhoneVisitsRepository().saveVisit(
                         version,
                         token,
                         customerPartySiteId,
@@ -206,9 +96,9 @@ class VisitsViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 VisitsStatus.Error(e.message)
-
             }
         }
 
     }
+
 }

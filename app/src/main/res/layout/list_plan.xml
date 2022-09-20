@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-
         <variable
             name="plan"
-            type="com.akhnaton.foodvisits.data.model.VisitsPlaneData" />
+            type="com.akhnaton.foodvisits.data.model.CustomerVisitPlan" />
     </data>
 
     <LinearLayout
+        android:id="@+id/visitCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/_8sdp">
@@ -42,6 +42,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
+                android:text="@{plan.customer_name}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/_15ssp"
@@ -59,6 +60,7 @@
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:text="@{plan.customer_address}"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/_10ssp"
                 app:layout_constraintBottom_toBottomOf="@+id/image_view_media"

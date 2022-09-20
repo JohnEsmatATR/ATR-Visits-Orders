@@ -32,6 +32,15 @@
     <string name="tax_value">Tax Value:</string>
     <string name="choose_item">Choose item</string>
     <string name="turn_over">Turn Over</string>
+    <string name="add_return">Add Return</string>
+    <string name="phone_visit">Phone Visits</string>
+    <string name="print">Print</string>
+    <string name="visits">Visits</string>
+    <string name="customer_name">Customer Name</string>
+    <string name="add_new_customer">Add New Customer</string>
+    <string name="order_details">Order Details</string>
+    <string name="confirmed">Confirmed</string>
+    <string name="orders_history">Orders History</string>
     <string-array name="spinner_payment_type">
         <item>1000--نقدى بدون خصم </item>
         <item>10010--خصم نقدى 3% فقط--خاص باصناف ادوية معينة ولا يتم اختيارها لعميل معين </item>
@@ -53,5 +62,11 @@
         <item> عرض 2 </item>
         <item> Stand Order </item>
     </string-array>
+
+    <string-array name="orderOrReturn">
+        <item> Order </item>
+        <item> Return </item>
+    </string-array>
+
 
 </resources>

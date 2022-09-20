@@ -12,7 +12,6 @@
         android:layout_height="match_parent"
         tools:context=".ui.profile.SetupProfileActivity">
 
-
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imgProfile"
             android:layout_width="@dimen/_150sdp"
@@ -26,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/setup_btn"
+            android:id="@+id/saveImg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_12sdp"

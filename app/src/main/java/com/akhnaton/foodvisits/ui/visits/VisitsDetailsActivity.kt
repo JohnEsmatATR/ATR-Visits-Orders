@@ -21,7 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
-import com.akhnaton.foodvisits.data.model.visits.SitesData
+import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
@@ -52,7 +52,7 @@ class VisitsDetailsActivity : AppCompatActivity(), LocationListener, View.OnClic
     private var customerTypePosition = ""
     private var enteredTime = ""
     private var zoneFlag = ""
-    private lateinit var customerData: SitesData
+    private lateinit var customerData: CustomerVisitPlan
     private lateinit var progressBar: SweetAlertDialog
 
 
@@ -60,22 +60,19 @@ class VisitsDetailsActivity : AppCompatActivity(), LocationListener, View.OnClic
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
 
-
-
-
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         enteredTime = intent.getStringExtra("time").toString()
-        customerData = intent.getSerializableExtra("customerSiteData") as SitesData
+        customerData = intent.getSerializableExtra("customerSiteData") as CustomerVisitPlan
 
         binding.custName.text = customerData.customer_name
-        binding.custAddress.text = customerData.customer_addresses
+        binding.custAddress.text = customerData.customer_address
         binding.custCode.text = customerPartySiteId
-
 
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
+
 
         setSpinnerAdapter()
         fetchData()
@@ -86,7 +83,6 @@ class VisitsDetailsActivity : AppCompatActivity(), LocationListener, View.OnClic
 
 
     private fun getLocation() {
-
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if ((ContextCompat.checkSelfPermission(
@@ -116,11 +112,6 @@ class VisitsDetailsActivity : AppCompatActivity(), LocationListener, View.OnClic
     }
 
     override fun onLocationChanged(location: Location) {
-        Toast.makeText(
-            this,
-            "Long: ${location.longitude} + Lat: ${location.latitude}",
-            Toast.LENGTH_SHORT
-        ).show()
 
         Log.d(
             TAG,
@@ -185,6 +176,7 @@ class VisitsDetailsActivity : AppCompatActivity(), LocationListener, View.OnClic
 
     override fun onClick(onClick: View?) {
         compareLocation()
+        getLocation()
     }
 
     private fun customerLocationMissing(): String {
@@ -197,24 +189,30 @@ class VisitsDetailsActivity : AppCompatActivity(), LocationListener, View.OnClic
     }
 
     private fun compareLocation() {
-        val customerLocation = Location("")
-        customerLocation.latitude = latitude
-        customerLocation.longitude = longitude
-
-        val myLocation = Location("")
-//        myLocation.latitude = latitude
-//        myLocation.longitude = longitude
-        myLocation.latitude = 30.5082604
-        myLocation.longitude = 31.4061817
-        val distanceInMeters = customerLocation.distanceTo(myLocation)
-
-        if (distanceInMeters < 100.0) {
+        if (customerData.customer_latitude == "") {
             zoneFlag = "IN"
             saveVisits()
-
         } else {
-            zoneFlag = customerLocationMissing()
-            progressBar.show()
+            val customerLocation = Location("")
+            customerLocation.latitude = latitude
+            customerLocation.longitude = longitude
+
+            val myLocation = Location("")
+            myLocation.latitude = customerData.customer_latitude.toDouble()
+            myLocation.longitude = customerData.customer_longitude.toDouble()
+            //myLocation.latitude = 30.5082604
+            //myLocation.longitude = 31.4061817
+
+            val distanceInMeters = customerLocation.distanceTo(myLocation)
+
+            if (distanceInMeters < 100.0) {
+                zoneFlag = "IN"
+                saveVisits()
+
+            } else {
+                zoneFlag = customerLocationMissing()
+                progressBar.show()
+            }
         }
     }
 
