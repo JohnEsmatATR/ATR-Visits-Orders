@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.data.statusValue.phoneVisits
 
-import com.akhnaton.foodvisits.data.statusValue.order.OrderIntent
 
 sealed class PhoneVisitsIntent {
 
@@ -45,10 +44,11 @@ sealed class PhoneVisitsIntent {
         val zoneFlag: String,
         val checkInDate: String,
         val dateVisit: String,
+        val phoneVisit: Boolean
     ) : PhoneVisitsIntent()
 
 
-    data class GetOrderLimit(
+    data class GetAppSetting(
         val app_version: String
     ) : PhoneVisitsIntent()
 

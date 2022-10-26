@@ -73,21 +73,12 @@
                 android:layout_height="@dimen/_24sdp"
                 android:layout_marginTop="@dimen/_4sdp"
                 android:layout_marginEnd="@dimen/_6sdp"
-                android:padding="@dimen/_12sdp"
                 android:background="@drawable/clock"
+                android:padding="@dimen/_12sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/addCustomerBtn"
-                android:layout_width="@dimen/_22sdp"
-                android:layout_height="@dimen/_22sdp"
-                android:layout_marginEnd="@dimen/_12sdp"
-                android:background="@drawable/ic_baseline_person_add_alt_24"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/ordersHistoryBtn"
-                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <fragment
@@ -107,7 +98,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/ic_ripple"
-            android:padding="@dimen/_4sdp"
             app:fabCradleRoundedCornerRadius="0dp"
             app:itemIconTint="@drawable/bottom_navigation_selector"
             app:labelVisibilityMode="labeled"
@@ -116,21 +106,22 @@
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/floating"
-            android:layout_width="wrap_content"
+        <com.akhnaton.foodvisits.shared.GooeyMenu
+            android:id="@+id/gooeyMenu"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/_18sdp"
+            android:layout_marginBottom="30dp"
             android:contentDescription="@string/home"
-            android:elevation="@dimen/_12sdp"
-            android:padding="@dimen/_50sdp"
-            android:src="@drawable/icon_home"
-            app:backgroundTint="@color/colorAccent"
+            app:gap_between_menu_fab="@dimen/min_gap"
+            android:padding="@dimen/_24sdp"
             app:layout_anchor="@+id/nav_view"
             app:layout_anchorGravity="top|center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:menu_drawable="@array/drawable_array"
+            app:menu_radius="@dimen/small_circle_radius"
+            app:no_of_menu="3"
             app:tint="@color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

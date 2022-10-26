@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.printFood.FoodFragment">
+        tools:context=".ui.home.printFood.FoodFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/food_recycler"
@@ -21,6 +21,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/food_list" />
+
+        <include
+            android:id="@+id/tryAgainButtons"
+            layout="@layout/try_again"
+            android:visibility="gone" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,4 +1,6 @@
 <resources>
+    <string name="web_order_activity">https://oso.akhnatontrade.com/menu.php?emp_id=</string>
+
     <string name="app_name">Food Visits</string>
     <string name="welcome_to_visits">Welcome to Visits</string>
     <string name="login">Login</string>
@@ -16,8 +18,8 @@
     <string name="invoice_number">رقم الفاتورة:</string>
     <string name="customer_type">Customer Type:</string>
     <string name="select_line">Select Line:</string>
-    <string name="customer_line">Customer Line:</string>
-    <string name="choose_customer">Choose Customer</string>
+    <string name="customer_line">Customer Name:</string>
+    <string name="choose_customer">Choose Site: </string>
     <string name="select_visibility">Select visibility</string>
     <string name="visits_details">Visits Details</string>
     <string name="payment_type">Payment Type :</string>
@@ -41,6 +43,7 @@
     <string name="order_details">Order Details</string>
     <string name="confirmed">Confirmed</string>
     <string name="orders_history">Orders History</string>
+
     <string-array name="spinner_payment_type">
         <item>1000--نقدى بدون خصم </item>
         <item>10010--خصم نقدى 3% فقط--خاص باصناف ادوية معينة ولا يتم اختيارها لعميل معين </item>
@@ -67,6 +70,19 @@
         <item> Order </item>
         <item> Return </item>
     </string-array>
+    <string name="enable_gps">Enable Device\'s GPS</string>
+    <string name="permission_request">Location Permissions Required</string>
+    <string name="location_successfully_received">Location updates...</string>
+    <string name="title_permission_permanently_denied">Location Permission Permanently Denied</string>
+    <string name="message_permission_permanently_denied">The app will not work without providing location permission.
+
+ Open App settings -> Permissions -> Allow permission.</string>
+    <string name="title_permission_denied">Location Permission Denied</string>
+    <string name="message_permission_denied">The app will not work without providing location permission. Allow permission?</string>
+    <string name="settings">Settings</string>
+    <string name="not_now">Not now</string>
+    <string name="cancel">Cancel</string>
+    <string name="allow">Allow</string>
 
 
 </resources>

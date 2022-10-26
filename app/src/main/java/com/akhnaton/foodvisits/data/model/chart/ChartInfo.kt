@@ -4,6 +4,6 @@ data class ChartInfo(
 
     val sell_value: String,
     val plan_value: String,
-    val percentage: String,
+    val percentage: Double,
     val order_type: String,
 )

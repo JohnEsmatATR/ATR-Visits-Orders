@@ -6,4 +6,9 @@ sealed class FoodIntent {
 
     data class OrderDetails(val version: String,val token: String,val orderNumber: String) : FoodIntent()
 
+
+    data class DeliveryPrint(val version: String,val token: String,val orderNumber: String) : FoodIntent()
+
+
+
 }

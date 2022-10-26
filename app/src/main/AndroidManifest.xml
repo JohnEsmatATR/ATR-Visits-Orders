@@ -36,18 +36,9 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:icon"
         tools:targetApi="31">
-        <activity
-            android:name=".ui.orderHistory.OrderHistoryDetailsActivity"
-            android:exported="false" />
 
         <activity
-            android:name=".ui.orderHistory.OrdersHistoryActivity"
-            android:exported="true"/>
-        <activity
-            android:name=".ui.addCustomer.AddCustomerActivity"
-            android:exported="true" />
-        <activity
-            android:name=".SplashActivity"
+            android:name=".ui.SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,39 +46,54 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity
-            android:name=".ui.order.ReturnActivity"
+            android:name="com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrderHistoryDetailsActivity"
             android:exported="false" />
+
         <activity
-            android:name=".ui.order.OrderActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.paymentType.PaymentActivity"
+            android:name="com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.phoneVisit.PhoneVisitsDetailsActivity"
+            android:name="com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity"
             android:exported="true" />
+
         <activity
-            android:name=".ui.visits.VisitsDetailsActivity"
-            android:exported="true" />
-        <activity
-            android:name=".ui.profile.SetupProfileActivity"
+            android:name="com.akhnaton.foodvisits.ui.home.visits.order.ReturnActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.printFood.FoodInvoiceActivity"
+            android:name="com.akhnaton.foodvisits.ui.home.visits.order.OrderActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsDetailsActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.akhnaton.foodvisits.ui.home.profile.SetupProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.akhnaton.foodvisits.ui.home.printFood.FoodInvoiceActivity"
             android:exported="false" />
         <activity
             android:name=".ui.auth.LoginActivity"
             android:exported="true" />
         <activity
-            android:name=".ui.profile.ProfileActivity"
+            android:name="com.akhnaton.foodvisits.ui.home.profile.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.MainActivity"
+            android:name=".ui.home.MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.WebOrderActivity"
             android:exported="false" />
 
         <service
-            android:name=".shared.LocationService"
+            android:name=".shared.location.GetLocationService"
             android:enabled="true" />
     </application>
 

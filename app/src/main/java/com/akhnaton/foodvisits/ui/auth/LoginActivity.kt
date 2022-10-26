@@ -23,9 +23,9 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.login.LoginIntent
 import com.akhnaton.foodvisits.data.statusValue.login.LoginState
 import com.akhnaton.foodvisits.databinding.ActivityLoginBinding
-import com.akhnaton.foodvisits.shared.ProgressDialog
+import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
-import com.akhnaton.foodvisits.ui.MainActivity
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 import kotlinx.coroutines.launch
 
@@ -53,7 +53,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         if (!checkPermission()) requestPermission()
 
-        dialog = ProgressDialog().showProgress(this@LoginActivity)
+        binding.appVersion.text = "App Version: $versionName"
+        dialog = ProgressDialogHelper().showProgress(this@LoginActivity)
         binding.loginButton.setOnClickListener(this)
         makeLogin()
 
@@ -102,14 +103,13 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                     is LoginState.Error -> {
                         Log.d(TAG, "makeLogin Error: $it")
+                        dialog.hide()
                         val error = "Something went wrong"
                         binding.error.text = error
                     }
-
                 }
             }
         }
-
     }
 
     override fun onClick(p0: View?) {

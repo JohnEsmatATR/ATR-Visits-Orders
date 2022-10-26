@@ -20,6 +20,6 @@ sealed class PhoneVisitsStatus {
     data class GetCustomerLines(val data: CustomerLines) : PhoneVisitsStatus()
     data class GetCustomersSite(val data: CustomerSite) : PhoneVisitsStatus()
     data class SavePhoneVisits(val data: SaveVisit) : PhoneVisitsStatus()
-    data class GetLimitArea(val data: AppSetting) : PhoneVisitsStatus()
+    data class GetAppSetting(val data: AppSetting) : PhoneVisitsStatus()
     data class Error(val error: String?) : PhoneVisitsStatus()
 }

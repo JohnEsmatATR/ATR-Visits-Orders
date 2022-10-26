@@ -18,6 +18,7 @@
     <item
         android:id="@+id/mainFragment"
         android:title=""
+        android:enabled="false"
         app:showAsAction="ifRoom" />
 
     <item

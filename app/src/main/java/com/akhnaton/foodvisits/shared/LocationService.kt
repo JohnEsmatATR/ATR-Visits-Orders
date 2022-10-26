@@ -63,7 +63,7 @@ class LocationService : Service(), LocationListener {
         locationRequest = LocationRequest.create().apply {
             interval = 100
             fastestInterval = 50
-            priority = Priority.PRIORITY_HIGH_ACCURACY
+//            priority = Priority.PRIORITY_HIGH_ACCURACY
             maxWaitTime = 100
         }
 

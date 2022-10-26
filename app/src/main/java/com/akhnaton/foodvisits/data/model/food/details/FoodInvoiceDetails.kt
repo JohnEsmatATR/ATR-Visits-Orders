@@ -22,6 +22,10 @@ class FoodInvoiceDetails {
     @SerializedName("unit_selling_price")
     var listPrice: String? = ""
 
+    @SerializedName("unit_total_value")
+    var totalItemPrice: String? = ""
+
+
     @SerializedName("order_quantity")
     var orderQuantity: String? = ""
 

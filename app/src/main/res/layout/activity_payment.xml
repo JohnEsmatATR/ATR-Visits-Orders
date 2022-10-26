@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.paymentType.PaymentActivity">
+        tools:context=".ui.home.visits.paymentType.PaymentActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintToolbar"
@@ -88,16 +88,6 @@
                 android:focusable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <CheckBox
-            android:id="@+id/turnOver"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_8sdp"
-            android:text="@string/turn_over"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/paymentTypeLayout" />
-
         <Button
             android:id="@+id/submit"
             android:layout_width="match_parent"
@@ -109,7 +99,7 @@
             app:cornerRadius="@dimen/_30sdp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/turnOver" />
+            app:layout_constraintTop_toBottomOf="@+id/paymentTypeLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -20,4 +20,5 @@ class CustomerVisitPlan(
     var customer_latitude: String,
     var customer_longitude: String,
     var customer_address: String,
+    var is_visited_today : Boolean
 ): Serializable

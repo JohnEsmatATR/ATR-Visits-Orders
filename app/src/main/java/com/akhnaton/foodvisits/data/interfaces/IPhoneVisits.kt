@@ -77,16 +77,17 @@ interface IPhoneVisits {
         @Field("visit_target") visitarget: String,
         @Field("visit_actual_target") visitActualTarget: String,
         @Field("latitude") latitude: String,
-        @Field("longtitude") longtitude: String,
+        @Field("longitude") longitude: String,
         @Field("device_type") deviceType: String,
         @Field("zone_flag") zoneFlag: String,
         @Field("check_in_date") checkInDate: String,
         @Field("date_visit") dateVisit: String,
+        @Field("phone_visit") phoneVisit: Boolean,
     ): SaveVisit
 
     @FormUrlEncoded
     @POST(ConstantLinks.APP_SETTING)
-    suspend fun getLimitArea(
+    suspend fun getAppSetting(
         @Field("app_version") appVersion: String
     ): AppSetting
 

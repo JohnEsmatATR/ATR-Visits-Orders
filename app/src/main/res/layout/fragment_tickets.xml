@@ -10,7 +10,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.tickets.TicketsFragment">
+        tools:context=".ui.home.tickets.TicketsFragment">
 
         <TextView
             android:id="@+id/tickets"
@@ -31,6 +31,7 @@
             android:textColor="@color/red"
             android:textSize="@dimen/_12ssp"
             android:layout_marginStart="@dimen/_12sdp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/ticketTextInput"
             app:layout_constraintTop_toBottomOf="@+id/tickets"

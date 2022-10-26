@@ -12,4 +12,7 @@ class FoodRepository {
 
     suspend fun getOrderDetails(version: String, token: String, orderNumber: String) =
         retrofit.orderDetails(version, token, orderNumber)
+
+    suspend fun sendDeliveryPrint(version: String, token: String, orderNumber: String) =
+        retrofit.deliveryPrint(version, token, orderNumber)
 }

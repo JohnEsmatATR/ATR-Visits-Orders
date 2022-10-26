@@ -34,7 +34,6 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:fontFamily="sans-serif-light"
-            android:text="@{model.percentage +`%`}"
             android:textAlignment="textEnd"
             android:textColor="@color/color_one"
             android:textSize="18sp"

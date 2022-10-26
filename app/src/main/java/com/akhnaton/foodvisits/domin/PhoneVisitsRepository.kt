@@ -34,7 +34,7 @@ class PhoneVisitsRepository {
         customer_code: String
     ) = retrofit.getCustomersSite(version, token, customerType, orderType, lineId, customer_code)
 
-    suspend fun getAreaLimit(version: String) = retrofit.getLimitArea(version)
+    suspend fun getAppSetting(version: String) = retrofit.getAppSetting(version)
 
 
     suspend fun saveVisit(
@@ -45,11 +45,12 @@ class PhoneVisitsRepository {
         visitTarget: String,
         visitActualTarget: String,
         latitude: String,
-        longtitude: String,
+        longitude: String,
         deviceType: String,
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
+        phoneVisit:Boolean
     ) = retrofit.saveVisits(
         version,
         token,
@@ -58,11 +59,12 @@ class PhoneVisitsRepository {
         visitTarget,
         visitActualTarget,
         latitude,
-        longtitude,
+        longitude,
         deviceType,
         zoneFlag,
         checkInDate,
-        dateVisit
+        dateVisit,
+        phoneVisit
     )
 
 

@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="com.akhnaton.foodvisits.ui.main.MainFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.main.MainFragment"
         android:label="fragment_main"
         tools:layout="@layout/fragment_main">
         <action
@@ -20,31 +20,31 @@
 
     <fragment
         android:id="@+id/foodFragment"
-        android:name="com.akhnaton.foodvisits.ui.printFood.FoodFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.printFood.FoodFragment"
         android:label="fragment_food"
         tools:layout="@layout/fragment_food" />
 
     <fragment
         android:id="@+id/visitsFragment"
-        android:name="com.akhnaton.foodvisits.ui.visits.VisitsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.visits.VisitsFragment"
         android:label="fragment_visits"
         tools:layout="@layout/fragment_phone_visits" />
 
     <fragment
         android:id="@+id/ticketsFragment"
-        android:name="com.akhnaton.foodvisits.ui.tickets.TicketsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.tickets.TicketsFragment"
         android:label="fragment_tickets"
         tools:layout="@layout/fragment_tickets" />
 
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.akhnaton.foodvisits.ui.profile.ProfileActivity"
+        android:name="com.akhnaton.foodvisits.ui.home.profile.ProfileActivity"
         android:label="fragment_profile"
         tools:layout="@layout/activity_profile" />
 
     <fragment
         android:id="@+id/visitPhoneFragment"
-        android:name="com.akhnaton.foodvisits.ui.phoneVisit.PhoneVisitsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsFragment"
         android:label="fragment_visit_phone"
         tools:layout="@layout/fragment_phone_visits" />
 </navigation>

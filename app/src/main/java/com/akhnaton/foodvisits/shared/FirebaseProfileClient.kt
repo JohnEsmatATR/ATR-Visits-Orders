@@ -6,9 +6,10 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.ActivityProfileBinding
 import com.akhnaton.foodvisits.databinding.ActivitySetupProfileBinding
-import com.akhnaton.foodvisits.ui.MainActivity
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.tasks.Task
@@ -16,7 +17,6 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
-import com.google.firebase.storage.OnProgressListener
 import com.google.firebase.storage.UploadTask
 import java.io.File
 import java.util.*
@@ -37,12 +37,13 @@ class FirebaseProfileClient {
                         Log.d("TAG", "onFireStoreImage: $image")
 
                         Glide.with(context.applicationContext).load(image)
-                            .apply(RequestOptions.circleCropTransform())
+                            .placeholder(R.drawable.addprofile)
                             .into(binding.profileImg)
                     }
                 } else {
                     val error = task.exception!!.message
                     Log.d("TAG", "getProfileImage: $error")
+
                 }
             }
     }

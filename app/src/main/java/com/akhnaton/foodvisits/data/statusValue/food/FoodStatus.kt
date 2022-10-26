@@ -8,5 +8,6 @@ sealed class FoodStatus {
     object Loading : FoodStatus()
     data class FoodOrders(val data: Food) : FoodStatus()
     data class OrderDetails(val data: FoodOrderDetails) : FoodStatus()
+    data class DeliveryPrint(val data: FoodOrderDetails) : FoodStatus()
     data class Error(val error: String?) : FoodStatus()
 }

@@ -7,8 +7,11 @@ object ConstantLinks {
     const val APP_SETTING = "$ROUTS_API?path=get_app_settings"
     const val LOGIN_PATH = "$ROUTS_API?path=login"
     const val CHART_PATH = "$ROUTS_API?path=user_chart_info"
-    const val FOOD_ORDER = "$ROUTS_API?path=get_invoices_list"
-    const val FOOD_ORDER_Details = "$ROUTS_API?path=get_invoice_details"
+    const val TICKET_SYSTEM = "$ROUTS_API?path=create_new_ticket"
+
+    const val FOOD_ORDER = "$ROUTS_API?path=get_food_invoices_list"
+    const val FOOD_ORDER_DETAILS = "$ROUTS_API?path=get_food_invoice_details"
+
     const val VISITS_PATH = "$ROUTS_API?path=get_user_order_type"
     const val VISIT_PLAN = "$ROUTS_API?path=get_visit_plan"
     const val CUSTOMER_TYPE = "$ROUTS_API?path=get_user_customer_type"
@@ -29,6 +32,7 @@ object ConstantLinks {
     //Order History
     const val ORDER_HISTORY = "$ROUTS_API?path=get_orders_history"
     const val ORDER_HISTORY_DETAILS = "$ROUTS_API?path=get_orders_history_details"
+    const val DELIVERY_PRINT = "$ROUTS_API?path=print_food_invoice"
 
 
 }
