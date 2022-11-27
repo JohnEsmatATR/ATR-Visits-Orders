@@ -165,10 +165,13 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun openMap() {
+        if (customerData.customer_latitude.equals("")){
+            binding.btnMap.visibility = View.GONE
+        }
         binding.btnMap.setOnClickListener {
             val intent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("google.navigation:q=$longitude,$latitude")
+                Uri.parse("google.navigation:q=${customerData.customer_latitude},${customerData.customer_longitude}")
             )
             startActivity(intent)
         }

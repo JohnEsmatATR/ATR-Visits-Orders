@@ -2,7 +2,7 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-    const val BASE_URL = "http://oso.akhnatontrade.com/"
+    const val BASE_URL = "https://oso.akhnatontrade.com/"
     private const val ROUTS_API = "web_food_visit/routes.php"
     const val APP_SETTING = "$ROUTS_API?path=get_app_settings"
     const val LOGIN_PATH = "$ROUTS_API?path=login"

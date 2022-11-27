@@ -6,13 +6,20 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.shared.GooeyMenu
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingIntent
+import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
@@ -33,14 +40,17 @@ import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderF
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainActivityViewModel by viewModels()
     private var navHostFragment = NavHostFragment()
     private var googleApiClient: GoogleApiClient? = null
     private val REQUESTLOCATION = 199
     private var requestPermission = RequestPermission()
+    private var addCustomerEnable = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,11 +74,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             PlayIntegrityAppCheckProviderFactory.getInstance()
         )
 
-        getProfileImage(binding)
-
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
         binding.gooeyMenu.setOnMenuListener(this)
+
+        lifecycleScope.launch {
+            viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
+        }
+        fetchData()
+        getProfileImage(binding)
     }
 
     override fun onStart() {
@@ -76,9 +90,29 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         if (!SharedPreferencesHelper().isLogged()) {
             startActivity(Intent(this@MainActivity, LoginActivity::class.java))
         } else {
-
+            Log.d("TAG", "onStart: User Login Success")
         }
     }
+
+    private fun fetchData() {
+        lifecycleScope.launch {
+            viewModel.state.collect {
+                when (it) {
+                    is AppSettingStatus.Idle -> Log.d("TAG", "Idle: ")
+                    is AppSettingStatus.Loading -> Log.d("TAG", "Loading: ")
+                    is AppSettingStatus.GetAppSetting -> {
+                        Log.d(
+                            "TAG",
+                            "GetAppSetting: ${it.data.data.food_app_add_customer} "
+                        )
+                        addCustomerEnable = it.data.data.food_app_add_customer
+                    }
+                    is AppSettingStatus.Error -> Log.d("TAG", "Error: ${it.error.toString()} ")
+                }
+            }
+        }
+    }
+
 
     override fun onClick(v: View?) {
         when (v?.id) {
@@ -129,8 +163,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     override fun menuItemClicked(menuNumber: Int) {
 
         if (menuNumber == 1) {
-            startActivity(Intent(this, AddCustomerActivity::class.java))
+            if (addCustomerEnable) {
+                startActivity(Intent(this, AddCustomerActivity::class.java))
+            } else {
+                Toast.makeText(
+                    this@MainActivity,
+                    "غير متاحة حالياً",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
+
         if (menuNumber == 2) {
             startActivity(Intent(this, WebOrderActivity::class.java))
         }
