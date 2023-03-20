@@ -24,10 +24,9 @@ import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
+import com.akhnaton.foodvisits.ui.home.WebOrderActivity
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.common.api.PendingResult
-import com.google.android.gms.common.api.Status
+import com.akhnaton.foodvisits.ui.home.visits.promoters.PromotersActivity
 import com.google.android.gms.location.*
 import kotlinx.coroutines.launch
 
@@ -66,6 +65,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.custAddress.text = customerData.customer_address
         binding.custCode.text = customerPartySiteId
 
+
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
 
@@ -73,6 +73,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         fetchData()
         openMap()
         initWrongLocationDialog()
+        promotersUploadPhotos()
 
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -243,5 +244,19 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             binding.fieldLongitude.text = latitude.toString()
             binding.fieldLatitude.text = longitude.toString()
         }
+    }
+
+    private fun promotersUploadPhotos() {
+        binding.btnPromotersImages.setOnClickListener(View.OnClickListener { v: View? ->
+            val intent = Intent(
+                this@VisitsDetailsActivity,
+                PromotersActivity::class.java
+            )
+            intent.putExtra("cust_code", customerData.customer_name)
+            intent.putExtra("party_site", customerData.customer_party_site_id)
+            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getUserToken())
+            startActivity(intent)
+            Log.d("jkfvjkfjkf", "promotersUploadPhotos: " + customerPartySiteId + " | " + customerData.customer_party_site_id)
+        })
     }
 }

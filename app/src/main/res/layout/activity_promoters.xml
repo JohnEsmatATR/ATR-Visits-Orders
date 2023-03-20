@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        tools:context=".ui.home.visits.promoters.PromotersActivity">
+
+        <TextView
+            android:id="@+id/tv_promoter_title_add_images"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorAccent"
+            android:gravity="center"
+            android:padding="16dp"
+            android:text="@string/promoter"
+            android:textColor="@android:color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:drawableEndCompat="@android:drawable/ic_menu_camera" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_promoters_data"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_promoter_title_add_images" />
+
+        <Button
+            android:id="@+id/btn_send_images"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="bottom"
+            android:layout_margin="10dp"
+            android:background="@drawable/buttonstyle"
+            android:text="Upload Stock Images"
+            android:textColor="@android:color/white" />
+
+    </RelativeLayout>
+</layout>

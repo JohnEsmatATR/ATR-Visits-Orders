@@ -1,7 +1,5 @@
 package com.akhnaton.foodvisits.ui.home;
 
-
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.http.SslError;

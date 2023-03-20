@@ -36,7 +36,9 @@
         android:usesCleartextTraffic="true"
         tools:replace="android:icon"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.home.visits.promoters.PromotersActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.SplashActivity"
             android:exported="true">
@@ -46,32 +48,29 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
-            android:name="com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrderHistoryDetailsActivity"
+            android:name=".orderHistory.OrderHistoryDetailsActivity"
             android:exported="false" />
-
         <activity
-            android:name="com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity"
+            android:name=".orderHistory.OrdersHistoryActivity"
             android:exported="true" />
         <activity
             android:name="com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity"
             android:exported="true" />
-
         <activity
-            android:name="com.akhnaton.foodvisits.ui.home.visits.order.ReturnActivity"
+            android:name=".order.ReturnActivity"
             android:exported="false" />
         <activity
-            android:name="com.akhnaton.foodvisits.ui.home.visits.order.OrderActivity"
+            android:name=".order.OrderActivity"
             android:exported="false" />
         <activity
-            android:name="com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity"
+            android:name=".paymentType.PaymentActivity"
             android:exported="true" />
         <activity
             android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsDetailsActivity"
             android:exported="true" />
         <activity
-            android:name="com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity"
+            android:name=".ui.home.visits.VisitsDetailsActivity"
             android:exported="true" />
         <activity
             android:name="com.akhnaton.foodvisits.ui.home.profile.SetupProfileActivity"

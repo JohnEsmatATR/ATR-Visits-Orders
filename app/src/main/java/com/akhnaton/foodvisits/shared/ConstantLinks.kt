@@ -34,5 +34,7 @@ object ConstantLinks {
     const val ORDER_HISTORY_DETAILS = "$ROUTS_API?path=get_orders_history_details"
     const val DELIVERY_PRINT = "$ROUTS_API?path=print_food_invoice"
 
+    // Promoters
+    const val PROMOTER_ITEMS = "api/promoters.php"
 
 }
