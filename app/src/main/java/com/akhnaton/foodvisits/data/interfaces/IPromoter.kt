@@ -18,7 +18,7 @@ interface IPromoter {
         @Field("created_by") createdBy: String?,
         @Field("customer_code") customerCode: String?,
         @Field("party_site_id") partySiteId: String?,
-    ): List<PromoterItem?>
+    ): List<PromoterItem>
 
     @FormUrlEncoded
     @POST(ConstantLinks.PROMOTER_ITEMS)
@@ -32,7 +32,7 @@ interface IPromoter {
         @Field("return_quantity") returnQuantity: String?,
         @Field("price") price: String?,
         @Field("StockItem") funNum: String?
-    ): List<SubmitStock?>
+    ): List<SubmitStock>
 
 
     @FormUrlEncoded
@@ -44,7 +44,7 @@ interface IPromoter {
         @Field("creation_date") creationDate: String?,
         @Field("user_type") userType: String?,
         @Field("CurrentDayStock") funNum: String?
-    ): List<PromoterItem?>
+    ): List<PromoterItem>
 
 
     @FormUrlEncoded
@@ -69,7 +69,7 @@ interface IPromoter {
         @Field("customer_purchased") customerPurchase: String?,
         @Field("user_type") userType: String?,
         @Field("StockDayDetails") funNum: String?
-    ): List<SubmitStock?>
+    ): List<SubmitStock>
 
     @Multipart
     @POST(ConstantLinks.PROMOTER_ITEMS)
@@ -81,7 +81,7 @@ interface IPromoter {
         @Part("party_site_id") party_site_id: RequestBody?,
         @Part("user_type") user_type: RequestBody?,
         @Part("PromoterImage") funNum: RequestBody?
-    ): List<SubmitStock?>
+    ): List<SubmitStock>
 
 
 }

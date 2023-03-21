@@ -37,7 +37,10 @@
         tools:replace="android:icon"
         tools:targetApi="31">
         <activity
-            android:name=".ui.home.visits.promoters.PromotersActivity"
+            android:name=".ui.home.visits.promoters.promotersUploadImages.PromotersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.visits.promoters.promotersItems.PromoterItemsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.SplashActivity"

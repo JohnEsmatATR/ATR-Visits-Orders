@@ -141,4 +141,7 @@ dependencies {
     //Pick Image From Camera And Gallery
     implementation 'com.github.dhaval2404:imagepicker:2.1'
 
+    //quantity view
+    implementation 'me.himanshusoni.quantityview:quantity-view:1.2.0'
+
 }

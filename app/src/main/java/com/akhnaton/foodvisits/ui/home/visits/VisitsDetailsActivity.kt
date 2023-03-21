@@ -24,9 +24,9 @@ import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
-import com.akhnaton.foodvisits.ui.home.WebOrderActivity
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
-import com.akhnaton.foodvisits.ui.home.visits.promoters.PromotersActivity
+import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems.PromoterItemsActivity
+import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages.PromotersActivity
 import com.google.android.gms.location.*
 import kotlinx.coroutines.launch
 
@@ -74,6 +74,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         openMap()
         initWrongLocationDialog()
         promotersUploadPhotos()
+        promotersAddStockStatus()
 
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -258,5 +259,38 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             startActivity(intent)
             Log.d("jkfvjkfjkf", "promotersUploadPhotos: " + customerPartySiteId + " | " + customerData.customer_party_site_id)
         })
+    }
+
+    private fun promotersAddStockStatus() {
+        binding.btnPromotersStockStatus.setOnClickListener(View.OnClickListener { v: View? ->
+            val intent = Intent(
+                this@VisitsDetailsActivity,
+                PromoterItemsActivity::class.java
+            )
+            intent.putExtra("cust_code", customerData.customer_name)
+            intent.putExtra("party_site", customerData.customer_party_site_id)
+            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getUserToken())
+            startActivity(intent)
+        })
+//        binding.btnPromotersDetails.setOnClickListener(View.OnClickListener { v: View? ->
+//            val intent = Intent(
+//                this@VisitsDetailsActivity,
+//                PromoterDayDetailsActivity::class.java
+//            )
+//            intent.putExtra("cust_code", code)
+//            intent.putExtra("party_site", party_site)
+//            intent.putExtra("employee_id", employee_id)
+//            startActivity(intent)
+//        })
+//        binding.btnPromotersCompetitors.setOnClickListener(View.OnClickListener { v: View? ->
+//            val intent = Intent(
+//                this@VisitsDetailsActivity,
+//                PromoterCompetitorsActivity::class.java
+//            )
+//            intent.putExtra("cust_code", code)
+//            intent.putExtra("party_site", party_site)
+//            intent.putExtra("employee_id", employee_id)
+//            startActivity(intent)
+//        })
     }
 }

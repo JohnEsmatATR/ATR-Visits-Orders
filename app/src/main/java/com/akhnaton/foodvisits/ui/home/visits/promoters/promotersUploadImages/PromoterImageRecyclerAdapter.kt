@@ -1,7 +1,6 @@
-package com.akhnaton.foodvisits.ui.home.visits.promoters
+package com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages
 
 import android.content.Context
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,8 +8,6 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
-import java.io.File
 import java.io.FileNotFoundException
 
 class PromoterImageRecyclerAdapter(

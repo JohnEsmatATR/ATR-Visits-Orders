@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.visits.promoters
+package com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages
 
 import retrofit2.http.Part
 import androidx.lifecycle.ViewModel

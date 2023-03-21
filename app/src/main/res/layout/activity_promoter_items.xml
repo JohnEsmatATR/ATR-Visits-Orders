@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:animateLayoutChanges="true"
         android:orientation="vertical"
-        tools:context=".ui.home.visits.promoters.promotersUploadImages.PromotersActivity">
+        tools:context=".ui.Promoter.PromoterItemsActivity">
 
         <TextView
             android:id="@+id/tv_promoter_title_add_images"
@@ -24,26 +24,36 @@
             android:text="@string/promoter"
             android:textColor="@android:color/white"
             android:textSize="20sp"
-            android:textStyle="bold"
-            app:drawableEndCompat="@android:drawable/ic_menu_camera" />
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/sv_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_promoter_title_add_images"
+            app:queryHint="Search" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_promoters_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tv_promoter_title_add_images" />
+            android:layout_below="@+id/sv_search"
+            android:layout_marginBottom="65dp" />
 
         <Button
-            android:id="@+id/btn_send_images"
+            android:id="@+id/btn_send_stock"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:layout_gravity="bottom"
-            android:layout_margin="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/buttonstyle"
-            android:text="Upload Stock Images"
+            android:text="Send Stock"
             android:textColor="@android:color/white" />
 
     </RelativeLayout>

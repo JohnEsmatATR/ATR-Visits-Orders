@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.visits.promoters
+package com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages
 
 import android.content.Intent
 import android.content.SharedPreferences
@@ -12,17 +12,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.R
-import com.akhnaton.foodvisits.data.statusValue.payment.PaymentStatus
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
 import com.akhnaton.foodvisits.databinding.ActivityPromotersBinding
-import com.akhnaton.foodvisits.shared.SpinnerHelper
-import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
 import com.github.dhaval2404.imagepicker.ImagePicker.Companion.with
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody.*
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
