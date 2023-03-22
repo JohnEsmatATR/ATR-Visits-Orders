@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import me.himanshusoni.quantityview.QuantityView
 import me.himanshusoni.quantityview.QuantityView.OnQuantityChangeListener
 import java.util.*
 
@@ -128,7 +129,7 @@ class PromotersDataAdapter(
 
         //private final TextView itemQuantityET = itemView.findViewById(R.id.et_item_quantity);
         private val quantityView =
-            itemView.findViewById<me.himanshusoni.quantityview.QuantityView>(R.id.quantityView_default)
+            itemView.findViewById<QuantityView>(R.id.quantityView_default)
         private val priceET = itemView.findViewById<EditText>(R.id.et_price)
         private val returnET = itemView.findViewById<EditText>(R.id.et_return_quantity)
         private val saveButton = itemView.findViewById<Button>(R.id.btn_save_item)
@@ -184,7 +185,7 @@ class PromotersDataAdapter(
                         count: Int
                     ) {
                         if (TextUtils.isEmpty(s)) return
-                        if (me.himanshusoni.quantityview.QuantityView.isValidNumber(s.toString())) {
+                        if (QuantityView.isValidNumber(s.toString())) {
                             val intNewQuantity = s.toString().toInt()
                             // quantityView.setQuantity(intNewQuantity);
                         } else {

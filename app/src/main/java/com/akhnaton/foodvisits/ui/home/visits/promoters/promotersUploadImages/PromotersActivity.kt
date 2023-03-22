@@ -27,7 +27,7 @@ import java.util.*
 
 class PromotersActivity : AppCompatActivity() {
 
-    private val TAG = ""
+    private val TAG = "PromotersActivity"
     private val IMAGES_REQUEST_CODE = 100
     private var pDialog: SweetAlertDialog? = null
     lateinit var binding: ActivityPromotersBinding

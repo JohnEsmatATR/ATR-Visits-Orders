@@ -43,7 +43,7 @@ interface IPromoter {
         @Field("customer_code") code: String?,
         @Field("creation_date") creationDate: String?,
         @Field("user_type") userType: String?,
-        @Field("CurrentDayStock") funNum: String?
+        @Field("CurrentDayStock") funNum: String?,
     ): List<PromoterItem>
 
 

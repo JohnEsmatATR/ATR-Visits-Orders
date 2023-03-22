@@ -114,9 +114,11 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
 
         binding!!.btnSendStock.setOnClickListener { v -> closePage() }
         getItems()
+        getCurrentDayStockItems()
         getRequiredData()
         searchProducts()
         fetchGetItems()
+        fetchGetCurrentDayStockItems()
     }
 
     private fun getRequiredData() {
@@ -139,24 +141,22 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
     }
 
     fun fetchGetItems() {
-        Log.d(TAG, "fetchGetItems: " + "keroo")
-
         lifecycleScope.launch{
             viewModel.status.collect {
                 when (it) {
-                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData1: Idle")
+                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData: Idle")
                     is PromoterStatus.Loading -> {
                         showDialog()
-                        Log.d(TAG, "fetchData1: Loading")
+                        Log.d(TAG, "fetchData: Loading")
                     }
                     is PromoterStatus.GetItems -> {
-                        Log.d(TAG, "onResponse1: " + it.data.toString())
+                        Log.d(TAG, "onResponse: " + it.data.toString())
                         initAdapter(it.data)
                         getCurrentDayStockItems()
                         pDialog!!.dismiss()
                     }
                     is PromoterStatus.Error -> {
-                        Log.d(TAG, "fetchData1: ${it.error}")
+                        Log.d(TAG, "fetchData: ${it.error}")
                         Toast.makeText(
                             this@PromoterItemsActivity,
                             "Error: ${it.error}",
@@ -171,7 +171,6 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
     }
 
     private fun getItems() {
-        Log.d(TAG, "getItems: " + "keroo")
         lifecycleScope.launch {
             viewModel.promoterIntent.send(
                 PromoterIntent.GetItems(
@@ -184,10 +183,38 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
         }
     }
 
-    fun getCurrentDayStockItems() {
-//        showDialog()
-
-
+    fun fetchGetCurrentDayStockItems() {
+        lifecycleScope.launch{
+            viewModel.status.collect {
+                when (it) {
+                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData1: Idle")
+                    is PromoterStatus.Loading -> {
+                        showDialog()
+                        Log.d(TAG, "fetchData1: Loading")
+                    }
+                    is PromoterStatus.GetCurrentStockItems -> {
+                        Log.d(TAG, "onResponse1: " + it.data.toString())
+                        pDialog!!.dismiss()
+                        try {
+                            if (it.data.isNotEmpty()) {
+                                promotersDataAdapter!!.updateQuantity(it.data)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    }
+                    is PromoterStatus.Error -> {
+                        Log.d(TAG, "fetchData1: ${it.error}")
+                        Toast.makeText(
+                            this@PromoterItemsActivity,
+                            "Error: ${it.error}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        pDialog!!.dismiss()
+                    }
+                }
+            }
+        }
 
 //        viewModel.getCurrentStockMutable(
 //            employee_id,
@@ -208,6 +235,23 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
 //                e.printStackTrace()
 //            }
 //        }
+    }
+
+    fun getCurrentDayStockItems() {
+
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.GetCurrentStockItems(
+                    "139413",
+                    "3697642",
+                    "10759",
+                    "21-03-2023",
+                    "prom",
+                    "1",
+                )
+            )
+        }
+
     }
 
     private fun initAdapter(itemList: List<PromoterItem>) {

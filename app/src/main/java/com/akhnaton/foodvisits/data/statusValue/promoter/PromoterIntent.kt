@@ -43,16 +43,16 @@ sealed class PromoterIntent {
     ) : PromoterIntent()
 
     data class SendDetails(
-        val employeeId: String,
-        val date: String,
+        val createdBy: String,
+        val creationDate: String,
         val partySite: String,
-        val code: String,
+        val customerCode: String,
         val customerAvg: String,
         val customerCall: String,
         val customerPositiveCall: String,
         val customerPurchase: String,
         val userType: String,
-        val funNum: String,
+        val StockDayDetails: String,
     ) : PromoterIntent()
 
     data class UploadImages(

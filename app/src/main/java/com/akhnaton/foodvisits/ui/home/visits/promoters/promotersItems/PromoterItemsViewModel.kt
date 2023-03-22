@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
@@ -22,14 +21,12 @@ class PromoterItemsViewModel : ViewModel() {
 
     init {
         getItems()
+        getCurrentStockItems()
     }
 
     private fun getItems() {
         viewModelScope.launch {
-
             promoterIntent.consumeAsFlow().collect {
-                Log.d("PromoterItemActivity", "getItems: Viewmodel")
-
                 when (it) {
                     is PromoterIntent.GetItems -> fetchGetItems(
                         it.items,
@@ -49,8 +46,6 @@ class PromoterItemsViewModel : ViewModel() {
         partySiteId: String,
     ) {
         viewModelScope.launch {
-            Log.d("PromoterItemActivity", "fetchGetItems: Viewmodel")
-
             _status.value = PromoterStatus.Loading
             _status.value = try {
                 PromoterStatus.GetItems(
@@ -59,6 +54,50 @@ class PromoterItemsViewModel : ViewModel() {
                         createdBy,
                         customerCode,
                         partySiteId
+                    )
+                )
+            } catch (e: Exception) {
+                PromoterStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun getCurrentStockItems() {
+        viewModelScope.launch {
+            promoterIntent.consumeAsFlow().collect {
+                when (it) {
+                    is PromoterIntent.GetCurrentStockItems -> fetchGetCurrentStockItems(
+                        it.employeeId,
+                        it.partySite,
+                        it.code,
+                        it.creationDate,
+                        it.userType,
+                        it.funNum,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun fetchGetCurrentStockItems(
+        employeeId: String,
+        partySite: String,
+        code: String,
+        creationDate: String,
+        userType: String,
+        funNum: String,
+    ) {
+        viewModelScope.launch {
+            _status.value = PromoterStatus.Loading
+            _status.value = try {
+                PromoterStatus.GetCurrentStockItems(
+                    PromoterRepository().getCurrentStockItems(
+                        employeeId,
+                        partySite,
+                        code,
+                        creationDate,
+                        userType,
+                        funNum,
                     )
                 )
             } catch (e: Exception) {
