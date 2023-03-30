@@ -4,90 +4,86 @@ import com.akhnaton.foodvisits.data.interfaces.IPromoter
 import com.akhnaton.foodvisits.shared.RetrofitClient
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.Part
 
 class PromoterRepository {
     private val retrofit = RetrofitClient.getInstance(IPromoter::class.java)
 
-    suspend fun getItems(
-        items: String,
-        createdBy: String,
-        customerCode: String,
-        partySiteId: String
-    ) =
-        retrofit.getItems(
-            items,
-            createdBy,
-            customerCode,
-            partySiteId
-        )
-
 
     suspend fun submitItems(
-        createdBy: String,
-        partySite: String,
-        customerCode: String,
-        date: String,
-        itemId: String,
-        quantity: String,
-        returnQuantity: String,
-        price: String,
-        funNum: String,
+        appVersion: Double?,
+        apiToken: String?,
+        createdBy: Int?,
+        partySite: Int?,
+        date: String?,
+        itemId: Int?,
+        returnQuantity: Int?,
+        quantity: Int?,
+        price: Double?,
+        customerCode: Int?,
+        userType: String?,
     ) =
         retrofit.submitStock(
+            appVersion,
+            apiToken,
             createdBy,
             partySite,
-            customerCode,
             date,
             itemId,
-            quantity,
             returnQuantity,
+            quantity,
             price,
-            funNum
+            customerCode,
+            userType,
         )
 
 
     suspend fun getCurrentStockItems(
-        employeeId: String,
-        partySite: String,
-        code: String,
+        appVersion: Double,
+        apiToken: String,
+        createdBy: Int,
+        partySiteId: Int,
+        customerCode: Int,
         creationDate: String,
-        userType: String,
-        funNum: String
+        items: Int,
     ) =
         retrofit.getCurrentStockItems(
-            employeeId,
-            partySite,
-            code,
+            appVersion,
+            apiToken,
+            createdBy,
+            partySiteId,
+            customerCode,
             creationDate,
-            userType,
-            funNum
+            items,
         )
 
-    suspend fun getPromotersTargetNotes(
-        employeeId: String,
-        userType: String,
-        funNum: String
-    ) =
-        retrofit.getPromotersTargetNotes(
-            employeeId,
-            userType,
-            funNum
-        )
+//    suspend fun getPromotersTargetNotes(
+//        employeeId: String,
+//        userType: String,
+//        funNum: String
+//    ) =
+//        retrofit.getPromotersTargetNotes(
+//            employeeId,
+//            userType,
+//            funNum
+//        )
 
     suspend fun sendDetails(
-        employeeId: String,
+        appVersion: Double,
+        apiToken: String,
+        employeeId: Int,
         date: String,
-        partySite: String,
-        code: String,
-        customerAvg: String,
-        customerCall: String,
-        customerPositiveCall: String,
-        customerPurchase: String,
+        partySite: Int,
+        code: Int,
+        customerAvg: Int,
+        customerCall: Int,
+        customerPositiveCall: Int,
+        customerPurchase: Int,
         userType: String,
-        funNum: String
+        funNum: Int
     ) =
         retrofit.sendDetails(
+            appVersion,
+            apiToken,
             employeeId,
             date,
             partySite,
@@ -101,15 +97,19 @@ class PromoterRepository {
         )
 
     suspend fun uploadImages(
+        appVersion: RequestBody?,
+        apiToken: RequestBody?,
         image: Array<MultipartBody.Part?>?,
-        created_by: RequestBody,
-        creation_date: RequestBody,
-        customer_code: RequestBody,
-        party_site_id: RequestBody,
-        user_type: RequestBody,
-        funNum: RequestBody
+        created_by: RequestBody?,
+        creation_date: RequestBody?,
+        customer_code: RequestBody?,
+        party_site_id: RequestBody?,
+        user_type: RequestBody?,
+        funNum: RequestBody?,
     ) =
         retrofit.uploadImages(
+            appVersion,
+            apiToken,
             image,
             created_by,
             creation_date,
@@ -117,6 +117,46 @@ class PromoterRepository {
             party_site_id,
             user_type,
             funNum
+        )
+
+
+    suspend fun sendCompetitors(
+        appVersion: RequestBody,
+        apiToken: RequestBody,
+        image: Array<MultipartBody.Part?>,
+        created_by: RequestBody,
+        creation_date: RequestBody,
+        party_site_id: RequestBody,
+        customer_code: RequestBody,
+        product_id: RequestBody,
+        price: RequestBody,
+        price_after_disc: RequestBody,
+        product_name: RequestBody,
+        weight: RequestBody,
+        discount_rate: RequestBody,
+        prom_type: RequestBody,
+        prom_date: RequestBody,
+        user_type: RequestBody,
+        PromoterCompetitorCompress: RequestBody,
+    ) =
+        retrofit.sendCompetitors(
+            appVersion,
+            apiToken,
+            image,
+            created_by,
+            creation_date,
+            party_site_id,
+            customer_code,
+            product_id,
+            price,
+            price_after_disc,
+            product_name,
+            weight,
+            discount_rate,
+            prom_type,
+            prom_date,
+            user_type,
+            PromoterCompetitorCompress,
         )
 
 }

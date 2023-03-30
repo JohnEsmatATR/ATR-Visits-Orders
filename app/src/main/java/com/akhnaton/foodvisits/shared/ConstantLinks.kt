@@ -2,7 +2,7 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-    const val BASE_URL = "https://oso.akhnatontrade.com/"
+    const val BASE_URL = "http://oso.akhnatontrade.com/"
     private const val ROUTS_API = "web_food_visit/routes.php"
     const val APP_SETTING = "$ROUTS_API?path=get_app_settings"
     const val LOGIN_PATH = "$ROUTS_API?path=login"
@@ -35,6 +35,10 @@ object ConstantLinks {
     const val DELIVERY_PRINT = "$ROUTS_API?path=print_food_invoice"
 
     // Promoters
-    const val PROMOTER_ITEMS = "api/promoters.php"
+    const val PROMOTER_GET_ITEMS = "$ROUTS_API?path=get_item_data"
+    const val PROMOTER_SUBMIT_ITEMS = "$ROUTS_API?path=stock_item"
+    const val PROMOTER_INSERT_DETAILS = "$ROUTS_API?path=insertDayDetailsPerClient"
+    const val PROMOTER_SEND_COMPETITORS = "$ROUTS_API?path=send_competitors"
+    const val PROMOTER_UPLOAD_IMAGE = "$ROUTS_API?path=upload_image"
 
 }

@@ -22,6 +22,5 @@ data class PromoterItem(
     @SerializedName("price")
     var price: String? = null,
     @SerializedName("return_quantity")
-    var returnQuantity: String? = null
-
+    var returnQuantity: String? = null,
 )

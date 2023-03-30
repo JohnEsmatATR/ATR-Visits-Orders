@@ -1,4 +1,5 @@
 package com.akhnaton.foodvisits.data.model
+import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 data class VisitsPlan(
@@ -20,5 +21,6 @@ class CustomerVisitPlan(
     var customer_latitude: String,
     var customer_longitude: String,
     var customer_address: String,
-    var is_visited_today : Boolean
+    var is_visited_today : Boolean,
+    var CUSTOMER_CODE: String,
 ): Serializable

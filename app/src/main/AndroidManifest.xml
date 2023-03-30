@@ -37,7 +37,7 @@
         tools:replace="android:icon"
         tools:targetApi="31">
         <activity
-            android:name=".PromoterCompetitorsActivity"
+            android:name=".ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.promoters.promoterDayDetails.PromoterDayDetailsActivity"
@@ -58,22 +58,22 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".orderHistory.OrderHistoryDetailsActivity"
+            android:name=".ui.home.visits.orderHistory.OrderHistoryDetailsActivity"
             android:exported="false" />
         <activity
-            android:name=".orderHistory.OrdersHistoryActivity"
+            android:name=".ui.home.visits.orderHistory.OrdersHistoryActivity"
             android:exported="true" />
         <activity
             android:name="com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity"
             android:exported="true" />
         <activity
-            android:name=".order.ReturnActivity"
+            android:name=".ui.home.visits.order.ReturnActivity"
             android:exported="false" />
         <activity
-            android:name=".order.OrderActivity"
+            android:name=".ui.home.visits.order.OrderActivity"
             android:exported="false" />
         <activity
-            android:name=".paymentType.PaymentActivity"
+            android:name=".ui.home.visits.paymentType.PaymentActivity"
             android:exported="true" />
         <activity
             android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsDetailsActivity"

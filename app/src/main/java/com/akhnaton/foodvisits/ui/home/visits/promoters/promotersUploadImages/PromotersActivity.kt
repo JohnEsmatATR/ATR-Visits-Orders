@@ -34,9 +34,11 @@ class PromotersActivity : AppCompatActivity() {
     private val returnValue = ArrayList<String>()
     lateinit var code: String
     lateinit var party_site: String
+    lateinit var token: String
     lateinit var employee_id: String
+    private var customer_code: String? = null
     private var sharedpreferences: SharedPreferences? = null
-    private var userType = ""
+    private var userType = "prom"
     private var promoterImageRecyclerAdapter: PromoterImageRecyclerAdapter? = null
     var viewModel = PromotersActivityViewModel()
 
@@ -66,7 +68,9 @@ class PromotersActivity : AppCompatActivity() {
     private fun getRequiredData() {
         code = intent.getStringExtra("cust_code")!!
         party_site = intent.getStringExtra("party_site")!!
+        token = intent.getStringExtra("token")!!
         employee_id = intent.getStringExtra("employee_id")!!
+        customer_code = intent.getStringExtra("customer_code")
         Log.d(
             "TEEESTING", """cust_code: ${code}party_site : $party_site
  Employee_id: ${employee_id}UserType: $userType
@@ -77,17 +81,20 @@ class PromotersActivity : AppCompatActivity() {
     }
 
     private fun uploadImages(imagePathList: List<String>) {
+
+        val appVersion = 1.0.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val apiToken = token.toRequestBody("text/plain".toMediaTypeOrNull())
         val uploadImages: Array<Part?> = arrayOfNulls<Part>(imagePathList.size)
         val employee = employee_id.toRequestBody("text/plain".toMediaTypeOrNull())
         val date = formatCurrentDate().toRequestBody("text/plain".toMediaTypeOrNull())
-        val customerCode = code.toRequestBody("text/plain".toMediaTypeOrNull())
+        val customerCode = customer_code!!.toRequestBody("text/plain".toMediaTypeOrNull()) // صيدليه عمرو طراد
         val partySite = party_site.toRequestBody("text/plain".toMediaTypeOrNull())
         val user_Type = userType.toRequestBody("text/plain".toMediaTypeOrNull())
         val PromoterImage1 = "1".toRequestBody("text/plain".toMediaTypeOrNull())
 
         for (i in imagePathList.indices) {
             val mSaveBit = File(imagePathList[i])
-            val requestBody = mSaveBit.asRequestBody("text/plain".toMediaTypeOrNull())
+            val requestBody = mSaveBit.asRequestBody("image/jpeg".toMediaTypeOrNull())
             uploadImages[i] = Part.createFormData("image[$i]", mSaveBit.name, requestBody)
 
         }
@@ -95,6 +102,8 @@ class PromotersActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.promoterIntent.send(
                 PromoterIntent.UploadImages(
+                    appVersion,
+                    apiToken,
                     uploadImages,
                     employee,
                     date,
@@ -112,13 +121,13 @@ class PromotersActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData: Idle")
+                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData (Idle): Idle")
                     is PromoterStatus.Loading -> {
                         showDialog()
-                        Log.d(TAG, "fetchData: Loading")
+                        Log.d(TAG, "fetchData (Loading): Loading")
                     }
                     is PromoterStatus.UploadImages -> {
-                        Log.d(TAG, "onResponse: " + it.data.toString())
+                        Log.d(TAG, "onResponse (Success): " + it.response.toString())
                         pDialog!!.dismiss()
                         Toast.makeText(
                             this@PromotersActivity,
@@ -129,7 +138,7 @@ class PromotersActivity : AppCompatActivity() {
                         finish()
                     }
                     is PromoterStatus.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
+                        Log.d(TAG, "fetchData (Error): ${it.error}")
                         Toast.makeText(
                             this@PromotersActivity,
                             "Error: ${it.error}",
@@ -188,7 +197,7 @@ class PromotersActivity : AppCompatActivity() {
             if (uri != null) {
                 returnValue.add(uri.path!!)
             }
-            Log.d(TAG, "onActivityResult: " + uri!!.path)
+//            Log.d(TAG, "onActivityResult: " + uri!!.path)
         }
         initAdapter(returnValue)
     }

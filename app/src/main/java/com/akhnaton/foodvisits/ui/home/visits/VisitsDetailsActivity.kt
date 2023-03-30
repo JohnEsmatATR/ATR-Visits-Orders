@@ -25,6 +25,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
+import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterDayDetails.PromoterDayDetailsActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems.PromoterItemsActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages.PromotersActivity
@@ -256,7 +257,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             )
             intent.putExtra("cust_code", customerData.customer_name)
             intent.putExtra("party_site", customerData.customer_party_site_id)
-            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("token", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
+            intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
             startActivity(intent)
             Log.d("jkfvjkfjkf", "promotersUploadPhotos: " + customerPartySiteId + " | " + customerData.customer_party_site_id)
         })
@@ -270,7 +273,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             )
             intent.putExtra("cust_code", customerData.customer_name)
             intent.putExtra("party_site", customerData.customer_party_site_id)
-            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("token", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
+            intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
             startActivity(intent)
         })
         binding.btnPromotersDetails.setOnClickListener(View.OnClickListener { v: View? ->
@@ -280,18 +285,22 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             )
             intent.putExtra("cust_code", customerData.customer_name)
             intent.putExtra("party_site", customerData.customer_party_site_id)
-            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("token", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
+            intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
             startActivity(intent)
         })
-//        binding.btnPromotersCompetitors.setOnClickListener(View.OnClickListener { v: View? ->
-//            val intent = Intent(
-//                this@VisitsDetailsActivity,
-//                PromoterCompetitorsActivity::class.java
-//            )
-//            intent.putExtra("cust_code", code)
-//            intent.putExtra("party_site", party_site)
-//            intent.putExtra("employee_id", employee_id)
-//            startActivity(intent)
-//        })
+        binding.btnPromotersCompetitors.setOnClickListener(View.OnClickListener { v: View? ->
+            val intent = Intent(
+                this@VisitsDetailsActivity,
+                PromoterCompetitorsActivity::class.java
+            )
+            intent.putExtra("cust_code", customerData.customer_name)
+            intent.putExtra("party_site", customerData.customer_party_site_id)
+            intent.putExtra("token", SharedPreferencesHelper.getInstance().getUserToken())
+            intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
+            intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
+            startActivity(intent)
+        })
     }
 }

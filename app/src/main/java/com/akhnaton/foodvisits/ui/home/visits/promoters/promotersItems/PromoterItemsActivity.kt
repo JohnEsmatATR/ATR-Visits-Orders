@@ -1,7 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems
 
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
@@ -13,7 +12,6 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.pedant.SweetAlert.SweetAlertDialog
@@ -22,7 +20,6 @@ import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
 import com.akhnaton.foodvisits.databinding.ActivityPromoterItemsBinding
-import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,97 +31,38 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
     private var pDialog: SweetAlertDialog? = null
     private var code: String? = null
     private var party_site: String? = null
-    private var employee_id: String? = null
+    private var token:String? = null
+    private var employee_id:String? = null
+    private var customer_code: String? = null
     private var binding: ActivityPromoterItemsBinding? = null
     private var promotersDataAdapter: PromotersDataAdapter? = null
     private var sharedpreferences: SharedPreferences? = null
-    private var userType = ""
-    private val viewModel: PromoterItemsViewModel by viewModels()
+    private var userType = "prom"
+    private val getItemsViewModel: PromoterGetItemsViewModel by viewModels()
+//    private val submitStockViewModel: PromoterSubmitStockViewModel by viewModels()
     private var adapterTextViewPosition: TextView? = null
     private var mItem: PromoterItem? = null
+    var txt: View? = null
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_promoter_items)
 
-//        sharedpreferences = getSharedPreferences(getString(R.string.sharedpref), MODE_PRIVATE)
-//        userType = sharedpreferences.getString("user_type", "")!!
-
-//        viewModel = ViewModelProviders.of(this).get(PromoterItemsViewModel::class.java)
-//
-//        viewModel.getErrorGetItem().observe(this) { s ->
-//            if (!s.isEmpty()) {
-//                pDialog!!.dismiss()
-//                finish()
-//                Toast.makeText(
-//                    this@PromoterItemsActivity,
-//                    "Connection Error, Please try again later: $s",
-//                    Toast.LENGTH_LONG
-//                ).show()
-//            }
-//        }
-
-//        viewModel.getCurrentStockError().observe(this) { s ->
-//            if (!s.equals("End of input at line 2 column 1 path $")) {
-//                pDialog!!.dismiss()
-//                finish()
-//                Toast.makeText(
-//                    this@PromoterItemsActivity,
-//                    "Connection Error, Please try again later: $s",
-//                    Toast.LENGTH_LONG
-//                ).show()
-//            } else {
-//                pDialog!!.dismiss()
-//            }
-//        }
-
-//        viewModel.getErrorSubmitStock().observe(this) { s ->
-//            if (!s.isEmpty()) {
-//                Log.d(PromoterItemsActivity.TAG, "SubmitStockError: $s")
-//                (adapterTextViewPosition!!.findViewById<View>(R.id.tv_item_description) as TextView).setTextColor(
-//                    Color.RED
-//                )
-//                val pp =
-//                    SweetAlertDialog(this@PromoterItemsActivity, SweetAlertDialog.WARNING_TYPE)
-//                pp.setTitleText("تنبيه!... تأكد من اتصالك بالانترنت")
-//                    .setContentText(mItem.getDescription() + "\n" + "فشل ارسال المنتج ")
-//                    .setConfirmText("اعادة المحاولة")
-//                    .setConfirmClickListener { sDialog: SweetAlertDialog ->
-//                        sDialog.dismissWithAnimation()
-//                        viewModel.submitStock(
-//                            employee_id,
-//                            party_site,
-//                            code,
-//                            formatCurrentDate(),
-//                            mItem.getInventoryItemId(),
-//                            mItem.getQuantity(),
-//                            mItem.getReturnQuantity(),
-//                            mItem.getPrice(),
-//                            "1"
-//                        )
-//                    }
-//                    .setCancelButton(
-//                        "الغاء"
-//                    ) { obj: SweetAlertDialog -> obj.dismissWithAnimation() }
-//                pp.setCancelable(false)
-//                pp.show()
-//            }
-//        }
 
         binding!!.btnSendStock.setOnClickListener { v -> closePage() }
-        getItems()
-        getCurrentDayStockItems()
         getRequiredData()
+        getCurrentDayStockItems()
         searchProducts()
-        fetchGetItems()
-        fetchGetCurrentDayStockItems()
+        fetchItems()
     }
 
     private fun getRequiredData() {
         code = intent.getStringExtra("cust_code")
         party_site = intent.getStringExtra("party_site")
+        token = intent.getStringExtra("token")
         employee_id = intent.getStringExtra("employee_id")
+        customer_code = intent.getStringExtra("customer_code")
     }
 
     private fun searchProducts() {
@@ -140,52 +78,10 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
         })
     }
 
-    fun fetchGetItems() {
-        lifecycleScope.launch{
-            viewModel.status.collect {
-                when (it) {
-                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData: Idle")
-                    is PromoterStatus.Loading -> {
-                        showDialog()
-                        Log.d(TAG, "fetchData: Loading")
-                    }
-                    is PromoterStatus.GetItems -> {
-                        Log.d(TAG, "onResponse: " + it.data.toString())
-                        initAdapter(it.data)
-                        getCurrentDayStockItems()
-                        pDialog!!.dismiss()
-                    }
-                    is PromoterStatus.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
-                        Toast.makeText(
-                            this@PromoterItemsActivity,
-                            "Error: ${it.error}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        pDialog!!.dismiss()
-                    }
-                }
-            }
-        }
 
-    }
-
-    private fun getItems() {
+    fun fetchItems() {
         lifecycleScope.launch {
-            viewModel.promoterIntent.send(
-                PromoterIntent.GetItems(
-                    "1",
-                    "139413",
-                    "11769",
-                    "3699497",
-                )
-            )
-        }
-    }
-
-    fun fetchGetCurrentDayStockItems() {
-        lifecycleScope.launch{
-            viewModel.status.collect {
+            getItemsViewModel.status.collect {
                 when (it) {
                     is PromoterStatus.Idle -> Log.d(TAG, "fetchData1: Idle")
                     is PromoterStatus.Loading -> {
@@ -193,14 +89,31 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
                         Log.d(TAG, "fetchData1: Loading")
                     }
                     is PromoterStatus.GetCurrentStockItems -> {
-                        Log.d(TAG, "onResponse1: " + it.data.toString())
+                        Log.d(TAG, "onResponse1: " + it.response.data)
                         pDialog!!.dismiss()
                         try {
-                            if (it.data.isNotEmpty()) {
-                                promotersDataAdapter!!.updateQuantity(it.data)
+                            if (it.response.data!!.isNotEmpty()) {
+                                initAdapter(it.response.data!!)
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()
+                        }
+                    }
+                    is PromoterStatus.SubmitItems -> {
+                        Log.d(TAG, "onResponse: " + it.response.data!![0].message)
+                        pDialog!!.dismiss()
+                        if (txt != null) {
+                            (txt!!.findViewById<View>(R.id.tv_item_description) as TextView).setTextColor(
+                                Color.GREEN
+                            )
+                        }
+
+                        if (it.response.status!! > 0) {
+                            Toast.makeText(
+                                this@PromoterItemsActivity,
+                                it.response.data!![0].message,
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                     is PromoterStatus.Error -> {
@@ -216,38 +129,23 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
             }
         }
 
-//        viewModel.getCurrentStockMutable(
-//            employee_id,
-//            party_site,
-//            code,
-//            formatCurrentDate(),
-//            userType,
-//            "1"
-//        ).observe(
-//            this
-//        ) { items ->
-//            pDialog!!.dismiss()
-//            try {
-//                if (items.size() > 0) {
-//                    promotersDataAdapter!!.updateQuantity(items)
-//                }
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
     }
+
+
+
 
     fun getCurrentDayStockItems() {
 
         lifecycleScope.launch {
-            viewModel.promoterIntent.send(
+            getItemsViewModel.promoterIntent.send(
                 PromoterIntent.GetCurrentStockItems(
-                    "139413",
-                    "3697642",
-                    "10759",
-                    "21-03-2023",
-                    "prom",
-                    "1",
+                    1.0,
+                    token!!,
+                    employee_id!!.toInt(),
+                    party_site!!.toInt(),
+                    customer_code!!.toInt(),
+                    formatCurrentDate()!!,
+                    1,
                 )
             )
         }
@@ -298,32 +196,28 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
 
 
     override fun onSubmitClickListener(position: Int, item: PromoterItem?, textView: View?) {
-//        adapterTextViewPosition = textView.findViewById(R.id.tv_item_description)
-//        mItem = item
-//        viewModel.submitStock(
-//            employee_id,
-//            party_site,
-//            code,
-//            formatCurrentDate(),
-//            item.inventoryItemId,
-//            item.quantity,
-//            item.returnQuantity,
-//            item.price,
-//            "1"
-//        ).observe(
-//            this
-//        ) { sR ->
-//            Log.d(TAG, "onSubmitClickListener: $sR")
-//            val res: StaticResponse = sR.get(0)
-//            val MessageSuccess: String = res.getMessageS()
-//            Log.d("Message", MessageSuccess)
-//            val Statusm: Int = res.getStatus()
-//            if (Statusm > 0) {
-//                Toast.makeText(this@PromoterItemsActivity, MessageSuccess, Toast.LENGTH_LONG).show()
-//                (textView.findViewById<View>(R.id.tv_item_description) as TextView).setTextColor(
-//                    Color.GREEN
-//                )
-//            }
-//        }
+        adapterTextViewPosition = textView!!.findViewById(R.id.tv_item_description)
+        mItem = item
+
+        lifecycleScope.launch {
+            getItemsViewModel.promoterIntent.send(
+                PromoterIntent.SubmitStock(
+                    1.0,
+                    token,
+                    employee_id!!.toInt(),
+                    party_site!!.toInt(),
+                    formatCurrentDate(),
+                    item!!.inventoryItemId!!.toInt(),
+                    item!!.returnQuantity!!.toInt(),
+                    item!!.quantity!!.toInt(),
+                    item!!.price!!.toDouble(),
+                    customer_code!!.toInt(),
+                    userType
+                )
+            )
+            txt = textView
+        }
+
     }
+
 }

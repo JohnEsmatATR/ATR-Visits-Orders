@@ -32,6 +32,8 @@ class PromotersActivityViewModel : ViewModel() {
             promoterIntent.consumeAsFlow().collect {
                 when (it) {
                     is PromoterIntent.UploadImages -> fetchUploadPhotos(
+                        it.appVersion,
+                        it.apiToken,
                         it.image,
                         it.created_by,
                         it.creation_date,
@@ -46,19 +48,23 @@ class PromotersActivityViewModel : ViewModel() {
     }
 
     private fun fetchUploadPhotos(
+        appVersion: RequestBody?,
+        apiToken: RequestBody?,
         image: Array<MultipartBody.Part?>,
-        created_by: RequestBody,
-        creation_date: RequestBody,
-        customer_code: RequestBody,
-        party_site_id: RequestBody,
-        user_type: RequestBody,
-        funNum: RequestBody,
+        created_by: RequestBody?,
+        creation_date: RequestBody?,
+        customer_code: RequestBody?,
+        party_site_id: RequestBody?,
+        user_type: RequestBody?,
+        funNum: RequestBody?,
     ) {
         viewModelScope.launch {
             _status.value = PromoterStatus.Loading
             _status.value = try {
                 PromoterStatus.UploadImages(
                     PromoterRepository().uploadImages(
+                        appVersion,
+                        apiToken,
                         image,
                         created_by,
                         creation_date,

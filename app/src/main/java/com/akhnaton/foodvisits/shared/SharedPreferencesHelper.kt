@@ -41,11 +41,17 @@ class SharedPreferencesHelper : Application() {
             .getString("user_name", "").toString()
     }
 
-    fun setUserData(apiToken: String, username: String) {
+    fun getEmployeeId(): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString("employee_id", "").toString()
+    }
+
+    fun setUserData(apiToken: String, username: String, employeeId: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString("api_token", apiToken)
-            .putString("user_name", username).apply()
+            .putString("user_name", username)
+            .putString("employee_id", employeeId).apply()
     }
 
     fun isLogged(): Boolean {

@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.data.model.promoter
 
-data class SubmitStock(
+data class BaseResponse<T>(
     var status: Int? = null,
-    var message: String? = null
+    var data: List<T>? = null
 )

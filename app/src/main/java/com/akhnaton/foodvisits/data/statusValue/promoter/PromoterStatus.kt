@@ -1,19 +1,19 @@
 package com.akhnaton.foodvisits.data.statusValue.promoter
 
+import com.akhnaton.foodvisits.data.model.promoter.BaseResponse
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.data.model.promoter.PromoterTargetNotes
 import com.akhnaton.foodvisits.data.model.promoter.SubmitStock
-
 
 sealed class PromoterStatus {
 
     object Idle : PromoterStatus()
     object Loading : PromoterStatus()
-    data class GetItems(val data: List<PromoterItem>) : PromoterStatus()
-    data class SubmitItems(val data: List<SubmitStock>) : PromoterStatus()
-    data class GetCurrentStockItems(val data: List<PromoterItem>) : PromoterStatus()
+    data class SubmitItems(val response: BaseResponse<SubmitStock>) : PromoterStatus()
+    data class GetCurrentStockItems(val response: BaseResponse<PromoterItem>) : PromoterStatus()
     data class GetPromotersTargetNotes(val data: List<PromoterTargetNotes>) : PromoterStatus()
-    data class SendDetails(val data: List<SubmitStock>) : PromoterStatus()
-    data class UploadImages(val data: List<SubmitStock>) : PromoterStatus()
+    data class SendCompetitors(val response: BaseResponse<String>) : PromoterStatus()
+    data class SendDetails(val response: BaseResponse<SubmitStock>) : PromoterStatus()
+    data class UploadImages(val response: BaseResponse<SubmitStock>) : PromoterStatus()
     data class Error(val error: String?) : PromoterStatus()
 }

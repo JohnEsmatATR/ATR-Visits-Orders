@@ -20,6 +20,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import me.himanshusoni.quantityview.QuantityView
 import me.himanshusoni.quantityview.QuantityView.OnQuantityChangeListener
 import java.util.*
+import kotlin.collections.ArrayList
 
 class PromotersDataAdapter(
     ordersList: List<PromoterItem>,
@@ -58,14 +59,6 @@ class PromotersDataAdapter(
             }
         }
         notifyDataSetChanged()
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return position
-    }
-
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

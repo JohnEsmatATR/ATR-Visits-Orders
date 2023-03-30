@@ -22,11 +22,13 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
 
     private val TAG = "PromDayDetailsActivity"
     private var code: String? = null
-    private var party_site: kotlin.String? = null
-    private var employee_id: kotlin.String? = null
+    private var party_site: String? = null
+    private var token:String? = null
+    private var employee_id:String? = null
+    private var customer_code: String? = null
     private var pDialog: SweetAlertDialog? = null
     private var sharedpreferences: SharedPreferences? = null
-    private var userType = ""
+    private var userType = "prom"
     var viewModel = DayDetailsViewModel()
     lateinit var binding: ActivityPromoterDayDetailsBinding
 
@@ -37,7 +39,6 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
 
         getRequiredData()
         sendStockStatus()
-        sendDetails()
         fetchsendDetails()
     }
 
@@ -45,7 +46,9 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
     private fun getRequiredData() {
         code = intent.getStringExtra("cust_code")
         party_site = intent.getStringExtra("party_site")
+        token = intent.getStringExtra("token")
         employee_id = intent.getStringExtra("employee_id")
+        customer_code = intent.getStringExtra("customer_code")
     }
 
     private fun sendStockStatus() {
@@ -66,16 +69,16 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData: Idle")
+                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData: (Idle) Idle")
                     is PromoterStatus.Loading -> {
                         showDialog()
-                        Log.d(TAG, "fetchData: Loading")
+                        Log.d(TAG, "fetchData:(Loading) Loading")
                     }
                     is PromoterStatus.SendDetails -> {
-                        Log.d(TAG, "onResponse: " + it.data.toString())
-                        val messageSuccess: String = it.data[0].Message.toString()
+                        Log.d(TAG, "onResponse: (success)" + it.response.data!![0].message.toString())
+                        val messageSuccess: String = it.response.data!![0].message.toString()
                         Log.d("Message", messageSuccess)
-                        val Statusm: Int = it.data[0].status!!.toInt()
+                        val Statusm: Int = it.response.data!![0].status!!.toInt()
                         if (Statusm > 0) {
                             Toast.makeText(baseContext, messageSuccess, Toast.LENGTH_LONG).show()
                             finish()
@@ -85,7 +88,7 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
                         pDialog!!.dismiss()
                     }
                     is PromoterStatus.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
+                        Log.d(TAG, "fetchData: (error) ${it.error}")
                         Toast.makeText(
                             this@PromoterDayDetailsActivity,
                             "Error: ${it.error}",
@@ -103,16 +106,18 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.promoterIntent.send(
                 PromoterIntent.SendDetails(
-                    "1",
+                    1.0,
+                    token!!,
+                    employee_id!!.toInt(),
                     formatCurrentDate(),
-                    "11769",
-                    "3699497",
-                    binding.etCustomerAvg.text.toString(),
-                    binding.etCustomerCalls.text.toString(),
-                    binding.etCustomerPositiveCalls.text.toString(),
-                    binding.etCustomerPurchaseQuantity.text.toString(),
-                    "prom",
-                    "1",
+                    party_site!!.toInt(),
+                    customer_code!!.toInt(),
+                    1,
+                    binding.etCustomerCalls.text.toString().toInt(),
+                    binding.etCustomerPositiveCalls.text.toString().toInt(),
+                    1,
+                    userType,
+                    1,
                 )
             )
         }

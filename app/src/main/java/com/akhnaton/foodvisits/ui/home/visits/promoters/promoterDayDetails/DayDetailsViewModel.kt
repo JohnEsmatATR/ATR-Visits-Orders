@@ -27,6 +27,8 @@ class DayDetailsViewModel : ViewModel() {
             promoterIntent.consumeAsFlow().collect {
                 when (it) {
                     is PromoterIntent.SendDetails -> fetchSendCalls(
+                        it.appVersion,
+                        it.apiToken,
                         it.createdBy,
                         it.creationDate,
                         it.partySite,
@@ -44,22 +46,26 @@ class DayDetailsViewModel : ViewModel() {
     }
 
     private fun fetchSendCalls(
-        createdBy: String,
+        appVersion: Double,
+        apiToken: String,
+        createdBy: Int,
         creationDate: String,
-        partySiteId: String,
-        customerCode: String,
-        customerAvg: String,
-        customerCalls: String,
-        customerPositiveCalls: String,
-        customerPurchased: String,
+        partySiteId: Int,
+        customerCode: Int,
+        customerAvg: Int,
+        customerCalls: Int,
+        customerPositiveCalls: Int,
+        customerPurchased: Int,
         userType: String,
-        StockDayDetails: String,
+        StockDayDetails: Int,
     ) {
         viewModelScope.launch {
             _status.value = PromoterStatus.Loading
             _status.value = try {
                 PromoterStatus.SendDetails(
                     PromoterRepository().sendDetails(
+                        appVersion,
+                        apiToken,
                         createdBy,
                         creationDate,
                         partySiteId,
