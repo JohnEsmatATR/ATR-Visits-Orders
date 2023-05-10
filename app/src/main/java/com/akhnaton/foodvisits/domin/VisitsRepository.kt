@@ -1,13 +1,17 @@
 package com.akhnaton.foodvisits.domin
 
+import android.content.Context
+import android.util.Log
+import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
 import com.akhnaton.foodvisits.data.interfaces.IVisits
+import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
-class VisitsRepository {
-    private val retrofit = RetrofitClient.getInstance(IVisits::class.java)
+class VisitsRepository(context: Context) {
+    private val checkConnection = CheckConnection(context)
 
     suspend fun getPlan(version: String, token: String) =
-        retrofit.getPlan(version, token)
+        checkConnection.getPlan(version, token)
 
 
     suspend fun saveVisit(
@@ -23,8 +27,7 @@ class VisitsRepository {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
-        phoneVisit:Boolean
-    ) = retrofit.saveVisits(
+    ) = checkConnection.saveVisit(
         version,
         token,
         customerPartySiteId,
@@ -37,9 +40,11 @@ class VisitsRepository {
         zoneFlag,
         checkInDate,
         dateVisit,
-        phoneVisit
     )
 
-    suspend fun getAppSetting(version: String) = retrofit.getAppSetting(version)
+
+    suspend fun saveVisitOnline() = checkConnection.saveVisitOnline()
+
+    suspend fun getAppSetting(version: String) = checkConnection.getAppSetting(version)
 
 }

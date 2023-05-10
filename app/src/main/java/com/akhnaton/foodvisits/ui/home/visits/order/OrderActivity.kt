@@ -6,12 +6,16 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.order.*
@@ -25,6 +29,7 @@ import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import kotlinx.coroutines.launch
 
+
 class OrderActivity : AppCompatActivity(), View.OnClickListener,
     OrderViewHolder.OnItemClickListener {
     companion object {
@@ -35,6 +40,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private lateinit var binding: ActivityOrderBinding
     private val viewModel: OrderViewModel by viewModels()
     private val mAdapter = OrderAdapter()
+    private lateinit var progressBar: SweetAlertDialog
+    private lateinit var loadingDialog: AlertDialog
+
 
     private var orderLimit: Int = 0
     private var returnLimit: Int = 0
@@ -60,11 +68,15 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private var turnOver = false
     private var visitId = ""
     private var paymentTypePosition = ""
+    private var orderSourcePosition = ""
+    private var customerCode = ""
     private var totalOrder: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_order)
+
+        initLoadingDialog()
 
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
@@ -72,6 +84,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
 //      turnOver = intent.getBooleanExtra("turnOver", false)
         visitId = intent.getStringExtra("visitId").toString()
         paymentTypePosition = intent.getStringExtra("paymentTypePosition").toString()
+        orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
+        customerCode = intent.getStringExtra("customer_code").toString()
+
 
         lifecycleScope.launch {
             viewModel.orderIntent.send(
@@ -87,6 +102,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             )
 
             viewModel.orderIntent.send(OrderIntent.GetOrderLimit(versionName))
+            showLoadingDialog()
         }
 
         binding.itemsSpinner.setItems(mItemsOrdersNameList.toTypedArray())
@@ -107,14 +123,19 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                     OrderStatus.Idle -> Log.d(TAG, "fetchData: Idle")
                     OrderStatus.Loading -> Log.d(TAG, "fetchData: Loading")
                     is OrderStatus.GetOrderNumber -> {
-                        orderNumber = it.data.data.order_number
-                        viewModel.orderIntent.send(
-                            OrderIntent.GetCategories(
-                                app_version = versionName,
-                                api_token = SharedPreferencesHelper.getInstance().getUserToken(),
-                                orderType = orderType
+                        if (it.data.status == 200) {
+                            orderNumber = it.data.data.order_number
+                            viewModel.orderIntent.send(
+                                OrderIntent.GetCategories(
+                                    app_version = versionName,
+                                    api_token = SharedPreferencesHelper.getInstance()
+                                        .getUserToken(),
+                                    orderType = orderType
+                                )
                             )
-                        )
+                        } else {
+                            showAlertDialog(it.data.message)
+                        }
                     }
                     is OrderStatus.GetCategories -> {
                         SpinnerHelper().setNormalSpinnerAdapter(
@@ -131,12 +152,16 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                 orderType = orderType,
                                 sub_category = categoryName,
                                 customer_type = customerTypePosition.toInt(),
+                                customer_code = customerCode.toInt(),
                                 customer_party_site_id = customerPartySiteId.toInt()
                             )
                         )
+                        dismissdialog()
                     }
                     is OrderStatus.GetProducts -> {
                         // Items Product
+                        mItemsOrdersNameList.clear()
+                        mBonusNameList.clear()
                         mItemOrdersList = it.data.data.order_products
                         mItemReturnList = it.data.data.return_products
                         it.data.data.order_products.forEach { item ->
@@ -148,6 +173,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                         }
 
                         binding.itemsSpinner.setItems(mItemsOrdersNameList.toTypedArray())
+                        binding.itemsSpinner.setSelection(0)
 
                         //Bonus Spinner
                         mBonusList = it.data.data.products_bonus
@@ -160,6 +186,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             mBonusNameList,
                             this@OrderActivity
                         )
+                        dismissdialog()
                     }
                     is OrderStatus.SendOrder -> {
                         if (it.data.status == 400) {
@@ -167,11 +194,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                 this@OrderActivity,
                                 it.data.message
                             )
+                            dismissdialog()
                         } else {
-                            ProgressDialogHelper().showAlertProgress(
-                                this@OrderActivity,
-                                "Order Sending.."
-                            ).hide()
+                            dismissdialog()
                             startActivity(Intent(this@OrderActivity, MainActivity::class.java))
                         }
 
@@ -183,19 +208,61 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                     is OrderStatus.GetOrderLimit -> {
                         returnLimit = it.data.data.order_returns_limit_percentage
                         orderLimit = it.data.data.lowest_price_order
+                        dismissdialog()
                     }
                     is OrderStatus.Error -> {
                         Log.d(TAG, "fetchData: Error $it")
-                        ProgressDialogHelper().showAlertProgress(
-                            this@OrderActivity,
-                            "Order Sending.."
-                        ).hide()
+                        dismissdialog()
 
                     }
                 }
             }
         }
     }
+
+    private fun showAlertDialog(message: String) {
+        progressBar = SweetAlertDialog(this@OrderActivity, SweetAlertDialog.WARNING_TYPE)
+        progressBar.setTitleText("تنبيه!...")
+            .setContentText(message)
+            .setConfirmText("OK")
+            .setConfirmClickListener { sDialog ->
+                sDialog.dismissWithAnimation()
+                progressBar.dismiss()
+                finish()
+            }
+        progressBar.setCancelable(true)
+        progressBar.show()
+    }
+
+
+    private fun initLoadingDialog(){
+        val builder = AlertDialog.Builder(this)
+
+            builder.setTitle("Loading...")
+
+            val progressBar = ProgressBar(this)
+            val lp = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            progressBar.layoutParams = lp
+            builder.setView(progressBar)
+
+            builder.setCancelable(false)
+            loadingDialog = builder.create()
+    }
+
+
+    private fun showLoadingDialog() {
+        if (!loadingDialog.isShowing) {
+            loadingDialog.show()
+        }
+    }
+
+    fun dismissdialog() {
+        loadingDialog.dismiss()
+    }
+
 
     private fun selectedItemProduct() {
         binding.itemsSpinner.setOnItemClickListener { position ->
@@ -213,10 +280,41 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                 mBonusPositionSelected = mBonusList[position].item_name
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>) {
+            override fun onNothingSelected(p0: AdapterView<*>?) {
                 Log.d(TAG, "onNothingSelected: ")
             }
+
+
         }
+
+        binding.categorySpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    categoryName = binding.categorySpinner.selectedItem.toString()
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            OrderIntent.GetProducts(
+                                app_version = versionName,
+                                api_token = SharedPreferencesHelper.getInstance().getUserToken(),
+                                orderType = orderType,
+                                sub_category = categoryName,
+                                customer_type = customerTypePosition.toInt(),
+                                customer_code = customerCode.toInt(),
+                                customer_party_site_id = customerPartySiteId.toInt()
+                            )
+                        )
+                    }
+
+                    showLoadingDialog()
+                }
+
+
+                override fun onNothingSelected(parent: AdapterView<*>) {
+                    Log.d(TAG, "onNothingSelected: ")
+                }
+
+
+            }
     }
 
     private fun setupRecycler() {
@@ -250,12 +348,13 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                         paymentTypePosition,
                                         turnOver,
                                         mItemsCardAdded,
-                                        mReturnItemCardAdded
+                                        mReturnItemCardAdded,
+                                        orderSourcePosition.toInt()
                                     )
                                 )
                             )
+                            showLoadingDialog()
                         }
-                        ProgressDialogHelper().showAlertProgress(this, "Order Sending..").show()
                     }
 
 
@@ -268,14 +367,15 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                     binding.quantityED.error = "Choose Quantity"
                     binding.quantityED.isFocusable = true
                 } else {
-                    if (checkItemAddedBefore()) {
+                    if (checkItemAddedBefore() && mItemOrdersList.isNotEmpty()) {
 
                         val mItem = mItemOrdersList[mItemPositionSelected]
 
                         val orderItem = OrderItem(
                             mBonusPositionSelected,
                             mItem.item_id,
-                            binding.quantityED.text.toString()
+                            binding.quantityED.text.toString(),
+                            mItem.item_price_list
                         )
                         mItemsCardAdded.add(orderItem)
 
@@ -293,7 +393,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             mItem.item_tax.toFloat(),
                             binding.quantityED.text.toString(),
                             total.toFloat(),
-                            mBonusPositionSelected
+                            mBonusPositionSelected,
+                            mItem.item_price_list
                         )
 
                         mAdapterCardsProduct.add(cardItem)
@@ -317,6 +418,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                         .putExtra("total", totalOrder)
                         .putExtra("returnLimit", returnLimit)
                         .putExtra("totalOrder", binding.totalAmount.text.toString())
+                        .putExtra("customer_code", customerCode)
+                        .putExtra("orderSourcePosition", orderSourcePosition)
                         .putParcelableArrayListExtra("orderList", mItemsCardAdded)
                 )
             }
@@ -329,7 +432,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         val orderItemId = OrderItem(
             item.bonus,
             item.item_id,
-            item.quantity
+            item.quantity,
+            item.item_price_list
         )
         totalOrder -= item.item_price * item.quantity.toFloat()
         binding.totalAmount.text = totalOrder.toFloat().toString() + "EGP"

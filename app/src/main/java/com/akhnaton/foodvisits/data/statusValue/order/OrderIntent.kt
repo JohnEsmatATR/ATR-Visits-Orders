@@ -27,6 +27,7 @@ sealed class OrderIntent {
         val orderType: String,
         val sub_category: String,
         val customer_type: Int,
+        val customer_code: Int,
         val customer_party_site_id: Int,
     ) : OrderIntent()
 

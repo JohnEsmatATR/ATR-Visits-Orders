@@ -18,6 +18,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.CustomerType
@@ -55,6 +56,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     private var customerPartySiteId: String = ""
     private var limitArea: Int = 0
     private lateinit var dialog: ProgressDialog
+    private lateinit var progressBar: SweetAlertDialog
 
 
     override fun onCreateView(
@@ -68,7 +70,6 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                 container,
                 false
             )
-
 
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
@@ -85,6 +86,30 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
         return binding.root
     }
 
+    fun checkPromoters() {
+        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
+        Log.d("dvvdvdvdsvsdvds", "checkPromoters: $check")
+        if (!check) {
+            binding.orderTypeLayout.visibility = View.GONE
+            showDialog()
+        } else {
+            binding.orderTypeLayout.visibility = View.VISIBLE
+        }
+    }
+
+    private fun showDialog() {
+        progressBar = SweetAlertDialog(context, SweetAlertDialog.WARNING_TYPE)
+        progressBar.setTitleText("تنبيه!...")
+            .setContentText("لا يمكنك انشاء زيارة هاتفية")
+            .setConfirmText("OK")
+            .setConfirmClickListener { sDialog ->
+                sDialog.dismissWithAnimation()
+                progressBar.dismiss()
+            }
+        progressBar.setCancelable(false)
+        progressBar.show()
+    }
+
 
     private fun fetchData() {
         lifecycleScope.launch {
@@ -98,7 +123,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                         dialog.hide()
                         setAdapter(binding.orderType, it.data.data.user_order_type.toMutableList())
                         binding.tryAgainButtons.root.visibility = View.GONE
-                        binding.orderTypeLayout.visibility = View.VISIBLE
+                        checkPromoters()
 
                     }
 
@@ -152,7 +177,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     is PhoneVisitsStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
                         dialog.hide()
-                        binding.orderTypeLayout.visibility = View.GONE
+                        checkPromoters()
                         binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
 
@@ -298,6 +323,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     .putExtra("customerPartySiteId", customerPartySiteId)
                     .putExtra("time", tsLong.toString())
                     .putExtra("customerSiteData", mListPassedData)
+                    .putExtra("customer_code", mainCustomerLinePosition)
                     .putExtra("orderType", orderType)
                     .putExtra("customerTypePosition", customerTypePosition)
             )

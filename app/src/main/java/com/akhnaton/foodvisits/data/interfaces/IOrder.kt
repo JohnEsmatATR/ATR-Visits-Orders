@@ -50,6 +50,7 @@ interface IOrder {
         @Field("order_type") orderType: String,
         @Field("sub_category") sub_category: String,
         @Field("customer_type") customerType: Int,
+        @Field("customer_code") customerCode: Int,
         @Field("customer_party_site_id") customerPartySiteId: Int,
     ): Product
 

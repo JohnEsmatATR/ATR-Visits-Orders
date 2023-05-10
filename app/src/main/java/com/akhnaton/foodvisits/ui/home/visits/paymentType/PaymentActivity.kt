@@ -6,12 +6,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.payment.PaymentTermCustomer
+import com.akhnaton.foodvisits.data.model.payment.ordersourceId
 import com.akhnaton.foodvisits.data.statusValue.payment.PaymentIntent
 import com.akhnaton.foodvisits.data.statusValue.payment.PaymentStatus
 import com.akhnaton.foodvisits.databinding.ActivityPaymentBinding
@@ -30,11 +32,15 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var binding: ActivityPaymentBinding
     private val viewModel: PaymentViewModel by viewModels()
     private var mPaymentNameList: MutableList<String> = ArrayList()
+    private var mOrderSourceNameList: MutableList<String> = ArrayList()
     private var mPaymentList: List<PaymentTermCustomer> = ArrayList()
+    private var mOrderSourceList: List<ordersourceId> = ArrayList()
     private var mPaymentTypePosition: String = ""
+    private var mOrderSourcePosition: String = ""
     private var customerPartySiteId = ""
     private var orderType = ""
     private var customerTypePosition = ""
+    private var customerCode = ""
     private var visitId = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +50,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
+        customerCode = intent.getStringExtra("customer_code").toString()
         visitId = intent.getStringExtra("visitId").toString()
 
         lifecycleScope.launch {
@@ -54,8 +61,13 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                 )
             )
         }
+
         binding.paymentType.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
             mPaymentTypePosition = mPaymentList[position].payment_term_id.toString()
+        }
+
+        binding.spOrdersource.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
+            mOrderSourcePosition = mOrderSourceList[position].id.toString()
         }
 
         binding.backBtn.setOnClickListener { onBackPressed() }
@@ -72,13 +84,22 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                     is PaymentStatus.Loading -> Log.d(TAG, "fetchData: Loading")
                     is PaymentStatus.GetPayments -> {
                         mPaymentList = it.data.data.customer_payments_term
+                        mOrderSourceList = it.data.data.ordersource_id
 
                         it.data.data.customer_payments_term.forEach { data ->
                             mPaymentNameList.add(data.payment_term_description)
                         }
+                        it.data.data.ordersource_id.forEach { data ->
+                            mOrderSourceNameList.add(data.name)
+                        }
                         SpinnerHelper().setAutoCompleteSpinnerAdapter(
                             binding.paymentType,
                             mPaymentNameList,
+                            this@PaymentActivity
+                        )
+                        SpinnerHelper().setAutoCompleteSpinnerAdapter(
+                            binding.spOrdersource,
+                            mOrderSourceNameList,
                             this@PaymentActivity
                         )
                         Log.d(TAG, "fetchData: $it")
@@ -92,15 +113,20 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
 
-        startActivity(
-            Intent(this, OrderActivity::class.java)
-//                .putExtra("turnOver", turnOver)
-                .putExtra("customerPartySiteId", customerPartySiteId)
-                .putExtra("orderType", orderType)
-                .putExtra("customerTypePosition", customerTypePosition)
-                .putExtra("visitId", visitId)
-                .putExtra("paymentTypePosition", mPaymentTypePosition)
-        )
+        if (mPaymentTypePosition != "" && mOrderSourcePosition != "") {
+            startActivity(
+                Intent(this, OrderActivity::class.java)
+                    .putExtra("customerPartySiteId", customerPartySiteId)
+                    .putExtra("orderType", orderType)
+                    .putExtra("customerTypePosition", customerTypePosition)
+                    .putExtra("visitId", visitId)
+                    .putExtra("customer_code", customerCode)
+                    .putExtra("paymentTypePosition", mPaymentTypePosition)
+                    .putExtra("orderSourcePosition", mOrderSourcePosition)
+            )
+        } else {
+            Toast.makeText(this, "Some data required not selected", Toast.LENGTH_SHORT).show()
+        }
     }
 
 

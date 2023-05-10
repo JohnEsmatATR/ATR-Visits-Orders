@@ -5,8 +5,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -43,6 +47,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     private var mAdapterCardsProduct: MutableList<CardItem> = ArrayList()
     private var mItemPositionSelected: Int = 0
     private var mItemsCardAdded: ArrayList<ReturnItem> = ArrayList()
+    private lateinit var loadingDialog: AlertDialog
 
     private var totalReturn = 0.0
 
@@ -52,7 +57,9 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     var orderNumber = ""
     var customerTypePosition = ""
     var paymentTypePosition = ""
+    var orderSourcePosition = ""
     var customerPartySiteId = ""
+    var customerCode = ""
     var turnOver = false
     private var totalOrder = 0.0
     private var returnLimit = 0
@@ -62,13 +69,17 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_return)
 
+        initLoadingDialog()
+
         orderList = intent.getParcelableArrayListExtra<OrderItem>("orderList")!!
         categoryName = intent.getStringExtra("categoryName").toString()
         orderType = intent.getStringExtra("orderType").toString()
         orderNumber = intent.getStringExtra("orderNumber").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         paymentTypePosition = intent.getStringExtra("paymentTypePosition").toString()
+        orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
+        customerCode = intent.getStringExtra("customer_code").toString()
         turnOver = intent.getBooleanExtra("turnOver", false)
         totalOrder = intent.getDoubleExtra("total", 0.0)
         returnLimit = intent.getIntExtra("returnLimit", 0)
@@ -83,6 +94,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                     orderType = orderType,
                     sub_category = categoryName,
                     customer_type = customerTypePosition.toInt(),
+                    customer_code = customerCode.toInt(),
                     customer_party_site_id = customerPartySiteId.toInt()
                 )
             )
@@ -94,6 +106,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                     orderType.toString()
                 )
             )
+            showLoadingDialog()
 
         }
         binding.itemsSpinner.setOnItemClickListener { mItemPositionSelected = it }
@@ -105,6 +118,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         fetchData()
         setupRecycler()
         initBackPressedDialog()
+        selectedItemProduct()
 
     }
 
@@ -121,34 +135,125 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                 when (it) {
                     OrderStatus.Idle -> Log.d(TAG, "fetchData: Idle")
                     OrderStatus.Loading -> Log.d(TAG, "fetchData: Loading")
-                    is OrderStatus.GetProducts -> {
-                        mReturnList = it.data.data.return_products
-                        mReturnList.forEach { name ->
-                            mReturnNameList.add(name.item_description)
-                        }
-
-                        binding.itemsSpinner.setItems(mReturnNameList.toTypedArray())
-                        Log.d(TAG, "fetchData: ${it.data.data.return_products}")
-                    }
                     is OrderStatus.GetCategories -> {
                         SpinnerHelper().setNormalSpinnerAdapter(
                             binding.categorySpinner,
                             it.data.data.sub_categories.toMutableList(),
                             this@ReturnActivity
                         )
+                        categoryName = binding.categorySpinner.selectedItem.toString()
                         Log.d(TAG, "fetchData: ${it.data.data.sub_categories}")
+
+                        viewModel.orderIntent.send(
+                            OrderIntent.GetProducts(
+                                app_version = versionName,
+                                api_token = SharedPreferencesHelper.getInstance().getUserToken(),
+                                orderType = orderType,
+                                sub_category = categoryName,
+                                customer_type = customerTypePosition.toInt(),
+                                customer_code = customerCode.toInt(),
+                                customer_party_site_id = customerPartySiteId.toInt()
+                            )
+                        )
+                        dismissdialog()
+                    }
+                    is OrderStatus.GetProducts -> {
+
+                        mReturnNameList.clear()
+                        mReturnList = it.data.data.return_products
+                        mReturnList.forEach { name ->
+                            mReturnNameList.add(name.item_description)
+                        }
+
+                        binding.itemsSpinner.setItems(mReturnNameList.toTypedArray())
+                        binding.itemsSpinner.setSelection(0)
+                        Log.d(TAG, "fetchData: ${it.data.data.return_products}")
+
+                        dismissdialog()
                     }
                     is OrderStatus.SendOrder -> {
-                        ProgressDialogHelper().showAlertProgress(
-                            this@ReturnActivity,
-                            "Return Sending.."
-                        ).hide()
-                        startActivity(Intent(this@ReturnActivity, MainActivity::class.java))
+                        if (it.data.status == 400) {
+                            ProgressDialogHelper().orderLimitAlert(
+                                this@ReturnActivity,
+                                it.data.message
+                            )
+                            dismissdialog()
+                        } else {
+                            startActivity(Intent(this@ReturnActivity, MainActivity::class.java))
+                            dismissdialog()
+                        }
                     }
-                    is OrderStatus.Error -> Log.d(TAG, "fetchData: Error $it")
+                    is OrderStatus.Error -> {
+                        dismissdialog()
+                        Log.d(TAG, "fetchData: Error $it")
+                    }
                 }
             }
         }
+    }
+
+    private fun initLoadingDialog(){
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Loading...")
+
+        val progressBar = ProgressBar(this)
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        progressBar.layoutParams = lp
+        builder.setView(progressBar)
+
+        builder.setCancelable(false)
+        loadingDialog = builder.create()
+    }
+
+
+    private fun showLoadingDialog() {
+        if (!loadingDialog.isShowing) {
+            loadingDialog.show()
+        }
+    }
+
+    fun dismissdialog() {
+        loadingDialog.dismiss()
+    }
+
+    fun selectedItemProduct() {
+
+        binding.itemsSpinner.setOnItemClickListener { position ->
+            mItemPositionSelected = position
+        }
+
+
+        binding.categorySpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
+                    categoryName = binding.categorySpinner.selectedItem.toString()
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            OrderIntent.GetProducts(
+                                app_version = versionName,
+                                api_token = SharedPreferencesHelper.getInstance().getUserToken(),
+                                orderType = orderType,
+                                sub_category = categoryName,
+                                customer_type = customerTypePosition.toInt(),
+                                customer_code = customerCode.toInt(),
+                                customer_party_site_id = customerPartySiteId.toInt()
+                            )
+                        )
+                    }
+
+                    showLoadingDialog()
+                }
+
+                override fun onNothingSelected(p0: AdapterView<*>?) {
+                    Log.d(TAG, "onNothingSelected: ")
+                }
+
+
+            }
     }
 
     @SuppressLint("SetTextI18n")
@@ -168,12 +273,13 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                                     paymentTypePosition,
                                     turnOver,
                                     orderList,
-                                    mItemsCardAdded
+                                    mItemsCardAdded,
+                                    orderSourcePosition.toInt()
                                 )
                             )
                         )
                     }
-                    ProgressDialogHelper().showAlertProgress(this, "Return Sending..").show()
+                    showLoadingDialog()
                 } else {
                     ProgressDialogHelper().orderLimitAlert(
                         this,
@@ -211,7 +317,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                             mItem.item_tax.toFloat(),
                             binding.quantityED.text.toString(),
                             total.toFloat(),
-                            ""
+                            "",
+                            mItem.item_price_list
                         )
 
                         mAdapterCardsProduct.add(cardItem)

@@ -40,6 +40,7 @@ class OrderRepository {
         orderType: String,
         subCategory: String,
         customerType: Int,
+        customerCode: Int,
         customerPartySiteId: Int,
     ) = retrofit.getProduct(
         appVersion = appVersion,
@@ -47,6 +48,7 @@ class OrderRepository {
         orderType = orderType,
         subCategory,
         customerType,
+        customerCode,
         customerPartySiteId
     )
 

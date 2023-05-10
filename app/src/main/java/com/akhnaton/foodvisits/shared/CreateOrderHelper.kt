@@ -19,13 +19,14 @@ class CreateOrderHelper {
         payTermId: String,
         turnOver: Boolean,
         mOrderItemCardAdded: MutableList<OrderItem>,
-        mReturnItemCardAdded: MutableList<ReturnItem>
+        mReturnItemCardAdded: MutableList<ReturnItem>,
+        orderSource: Int
     ): JsonElement {
 
         val itemsList = ItemsList(
             versionName, SharedPreferencesHelper.getInstance().getUserToken(),
             orderType, orderNumber, customerType, customerPartySiteId, payTermId, turnOver,
-            mOrderItemCardAdded,mReturnItemCardAdded)
+            mOrderItemCardAdded,mReturnItemCardAdded,orderSource)
 
         val gson: Gson = GsonBuilder().create()
         return gson.toJsonTree(itemsList)

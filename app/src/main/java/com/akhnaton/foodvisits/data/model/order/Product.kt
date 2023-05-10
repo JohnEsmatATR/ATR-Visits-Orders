@@ -24,6 +24,7 @@ class ProductData(
     var item_code: Int,
     var item_description: String,
     var item_availability: Int,
+    var item_price_list: Int,
     var item_price: Double,
     var item_tax: Double
 ) : Serializable

@@ -88,6 +88,35 @@
                 android:focusable="false"/>
         </com.google.android.material.textfield.TextInputLayout>
 
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_order_source"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_12sdp"
+            android:hint="@string/order_source"
+            app:boxCornerRadiusBottomEnd="8dp"
+            app:boxCornerRadiusBottomStart="8dp"
+            app:boxCornerRadiusTopEnd="8dp"
+            app:boxCornerRadiusTopStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/paymentTypeLayout">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/sp_ordersource"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:gravity="start"
+                android:inputType="none"
+                android:textAlignment="viewStart"
+                android:textStyle="bold"
+                android:focusable="false"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
         <Button
             android:id="@+id/submit"
             android:layout_width="match_parent"
@@ -99,7 +128,7 @@
             app:cornerRadius="@dimen/_30sdp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/paymentTypeLayout" />
+            app:layout_constraintTop_toBottomOf="@+id/til_order_source" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -7,19 +7,24 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.db.VisitDatabase
+import com.akhnaton.foodvisits.data.db.dao.SaveVisitDao
+import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
+import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
@@ -29,16 +34,15 @@ import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActiv
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterDayDetails.PromoterDayDetailsActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems.PromoterItemsActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages.PromotersActivity
-import com.google.android.gms.location.*
 import kotlinx.coroutines.launch
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
         private const val TAG = "VisitsDetailsActivity"
     }
-
+    private lateinit var checkConnection: CheckConnection
+    private lateinit var viewModel: VisitsViewModel
     private val versionName = BuildConfig.VERSION_NAME
-    private val viewModel: VisitsViewModel by viewModels()
     private lateinit var binding: ActivityVisitsDetailsBinding
     private val locationPermissionCode = 199
     private var requestPermission = RequestPermission()
@@ -52,10 +56,15 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var zoneFlag = ""
     private lateinit var customerData: CustomerVisitPlan
     private lateinit var progressBar: SweetAlertDialog
+    var db = VisitDatabase.getDatabase(this)
+    lateinit var visitDao: SaveVisitDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
+        viewModel = ViewModelProvider(this, VisitsViewModelFactory(baseContext))[VisitsViewModel::class.java]
+        checkConnection = CheckConnection(baseContext)
+
 
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
@@ -67,6 +76,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.custAddress.text = customerData.customer_address
         binding.custCode.text = customerPartySiteId
 
+        visitDao = db.saveVisitDao()
 
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
@@ -77,6 +87,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         initWrongLocationDialog()
         promotersUploadPhotos()
         promotersAddStockStatus()
+        checkPromoters()
 
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -90,29 +101,86 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+
+    private fun checkPromoters() {
+        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
+        if (check) {
+            binding.btnPromotersImages.visibility = View.GONE
+            binding.btnPromotersStockStatus.visibility = View.GONE
+            binding.btnPromotersDetails.visibility = View.GONE
+            binding.btnPromotersCompetitors.visibility = View.GONE
+        } else {
+            binding.btnPromotersImages.visibility = View.VISIBLE
+            binding.btnPromotersStockStatus.visibility = View.VISIBLE
+            binding.btnPromotersDetails.visibility = View.VISIBLE
+            binding.btnPromotersCompetitors.visibility = View.VISIBLE
+        }
+    }
+
+
+
     private fun fetchData() {
         lifecycleScope.launch {
-            viewModel.status.collect {
+            viewModel.statusVisit.collect {
                 when (it) {
-                    is VisitsStatus.Idle -> Log.d(TAG, "fetchData: ")
-                    is VisitsStatus.Loading -> Log.d(TAG, "fetchData: ")
+                    is VisitsStatus.Idle -> Log.d(TAG, "fetchDataSaveVisits: Idle")
+                    is VisitsStatus.Loading -> Log.d(TAG, "fetchDataSaveVisits: Loading")
 
                     is VisitsStatus.SaveVisits -> {
-                        Log.d(TAG, "fetchData: ${it.data.data.visit_id}")
-                        startActivity(
-                            Intent(this@VisitsDetailsActivity, PaymentActivity::class.java)
-                                .putExtra("customerPartySiteId", customerPartySiteId)
-                                .putExtra("orderType", orderType)
-                                .putExtra("customerTypePosition", customerTypePosition)
-                                .putExtra("visitId", it.data.data.visit_id.toString())
-                        )
+                        Log.d(TAG, "fetchDataSaveVisits1111: ${it.data.data.visit_id}")
+                        checkVisitSituation(it.data.data.visit_id.toString())
+                        checkConnection.deleteSaveVisitFromDB()
                     }
                     is VisitsStatus.GetAppSetting -> {
-                        limitArea = it.data.data.limit_area
-                        Log.d(TAG, "LimitArea======: $limitArea")
+                        try {
+                            limitArea = it.data!!.data.limit_area
+                            Log.d(TAG, "LimitArea======: $limitArea")
+                        } catch (e:Exception) {
+                            limitArea = 100
+                            Log.d(TAG, "Exception======: $limitArea")
+                        }
                     }
-                    is VisitsStatus.Error -> Log.d(TAG, "Error====== ${it.error}")
+                    is VisitsStatus.Error -> {
+                        checkVisitSituation("")
+                        Log.d(TAG, "fetchDataSaveVisits1111Error${it.error}")
+                    }
 
+                }
+            }
+        }
+    }
+
+    private fun checkVisitSituation(visitId: String){
+        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
+        if (checkConnection.checkConnection()) {
+            if (binding.visitType.selectedItem.toString() == "سلبى"){
+                finish()
+            } else {
+                if (check) {
+                    startActivity(
+                        Intent(this@VisitsDetailsActivity, PaymentActivity::class.java)
+                            .putExtra("customerPartySiteId", customerPartySiteId)
+                            .putExtra("orderType", orderType)
+                            .putExtra("customerTypePosition", customerTypePosition)
+                            .putExtra("customer_code", customerData.CUSTOMER_CODE)
+                            .putExtra("visitId", visitId)
+                    )
+                } else {
+                    finish()
+                }
+            }
+        } else {
+            if (binding.visitType.selectedItem.toString() == "سلبى"){
+                finish()
+            } else {
+                if (check) {
+                    Toast.makeText(
+                        baseContext,
+                        "لا يمكن اكمال الطلبية لعدم توفر انترنت",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    finish()
                 }
             }
         }
@@ -150,7 +218,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val customerLocation = Location("")
             customerLocation.latitude = latitude
             customerLocation.longitude = longitude
-
+0
             val myLocation = Location("")
             myLocation.latitude = customerData.customer_latitude.toDouble()
             myLocation.longitude = customerData.customer_longitude.toDouble()
@@ -160,7 +228,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             if (distanceInMeters < limitArea) {
                 zoneFlag = "IN"
                 saveVisits()
-
             } else {
                 zoneFlag = customerLocationMissing()
                 progressBar.show()
@@ -197,6 +264,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 zoneFlag = "ERROR"
                 sDialog.dismissWithAnimation()
                 saveVisits()
+                progressBar.dismiss()
             }
         progressBar.setCancelable(false);
 

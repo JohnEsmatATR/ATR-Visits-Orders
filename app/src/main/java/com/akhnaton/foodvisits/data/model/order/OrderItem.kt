@@ -14,18 +14,21 @@ data class ItemsList(
     var pay_term_id: String,
     var turn_over: Boolean,
     var order_items: MutableList<OrderItem>,
-    var return_items: MutableList<ReturnItem>
+    var return_items: MutableList<ReturnItem>,
+    var ordersource_id: Int
 )
 
 data class OrderItem(
     var bonus: String,
     var item_id: Int,
-    var item_quantity: String
+    var item_quantity: String,
+    var item_price_list: Int
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         parcel.readInt(),
-        parcel.readString()!!
+        parcel.readString()!!,
+        parcel.readInt()
     ) {
     }
 
@@ -33,6 +36,7 @@ data class OrderItem(
         parcel.writeString(bonus)
         parcel.writeInt(item_id)
         parcel.writeString(item_quantity)
+        parcel.writeInt(item_price_list)
     }
 
     override fun describeContents(): Int {
@@ -63,5 +67,6 @@ data class CardItem(
     var item_tax: Float,
     var quantity: String,
     var total: Float,
-    var bonus: String
+    var bonus: String,
+    var item_price_list: Int
 )

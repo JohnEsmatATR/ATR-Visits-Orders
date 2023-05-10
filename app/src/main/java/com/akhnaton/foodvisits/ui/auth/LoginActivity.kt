@@ -93,7 +93,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                             SharedPreferencesHelper().setUserData(
                                 it.login.data.user.api_token,
                                 it.login.data.user.user_name,
-                                it.login.data.user.employee_id
+                                it.login.data.user.employee_id,
+                                it.login.data.user.make_order
                             )
                             Log.d(TAG, "makeLogin: " + it.login.data.user.employee_id)
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))

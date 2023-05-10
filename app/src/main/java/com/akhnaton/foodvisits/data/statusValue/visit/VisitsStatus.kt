@@ -7,9 +7,17 @@ import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 
 sealed class VisitsStatus {
     object Idle : VisitsStatus()
+
     object Loading : VisitsStatus()
+
     data class Plan(val data: VisitsPlan) : VisitsStatus()
     data class SaveVisits(val data: SaveVisit) : VisitsStatus()
-    data class GetAppSetting(val data: AppSetting) : VisitsStatus()
+    data class SaveVisitsOnline(val data: SaveVisit) : VisitsStatus()
+    data class GetAppSetting(val data: AppSetting?) : VisitsStatus()
+
+    data class GetPlanFromDB(val data: VisitsPlan) : VisitsStatus()
+    data class SaveVisitToDB(val data: VisitsPlan) : VisitsStatus()
+    data class DeletePlanFromDB(val data: VisitsPlan) : VisitsStatus()
+
     data class Error(val error: String?) : VisitsStatus()
 }

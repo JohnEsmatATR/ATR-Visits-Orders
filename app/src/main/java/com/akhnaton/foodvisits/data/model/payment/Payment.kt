@@ -6,10 +6,16 @@ data class Payment(
 )
 
 data class PaymentData(
-    var customer_payments_term: List<PaymentTermCustomer>
+    var customer_payments_term: List<PaymentTermCustomer>,
+    var ordersource_id: List<ordersourceId>
 )
 
 data class PaymentTermCustomer(
     var payment_term_id: Int,
     var payment_term_description: String
+)
+
+data class ordersourceId(
+    var id: Int,
+    var name: String
 )

@@ -1,25 +1,24 @@
 package com.akhnaton.foodvisits.ui.home.visits
 
+import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.domin.VisitsRepository
-import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
-class VisitsViewModel : ViewModel() {
+class VisitsViewModel(val context: Context) : ViewModel() {
 
     val visitsIntent = Channel<VisitsIntent>(Channel.UNLIMITED)
 
-    private val _status = MutableStateFlow<VisitsStatus>(VisitsStatus.Idle)
-
-    val status: StateFlow<VisitsStatus> get() = _status
+    private val _statusVisit = MutableStateFlow<VisitsStatus>(VisitsStatus.Idle)
+    val statusVisit: StateFlow<VisitsStatus> get() = _statusVisit
 
     init {
         getPlan()
@@ -30,7 +29,7 @@ class VisitsViewModel : ViewModel() {
             visitsIntent.consumeAsFlow().collect {
                 when (it) {
                     is VisitsIntent.GetPlan -> fetchPlan(it.version, it.token)
-                    is VisitsIntent.SaveVisit -> saveVisit(
+                    is VisitsIntent.SaveVisit -> fetchSaveVisit(
                         it.version,
                         it.token,
                         it.customerPartySiteId,
@@ -43,8 +42,8 @@ class VisitsViewModel : ViewModel() {
                         it.zoneFlag,
                         it.checkInDate,
                         it.dateVisit,
-                        it.phoneVisit
                     )
+                    is VisitsIntent.SaveVisitOnline -> saveVisitOnline()
                     is VisitsIntent.GetAppSetting -> getAppSetting(it.app_version)
                 }
             }
@@ -53,16 +52,16 @@ class VisitsViewModel : ViewModel() {
 
     private fun fetchPlan(version: String, token: String) {
         viewModelScope.launch {
-            _status.value = VisitsStatus.Loading
-            _status.value = try {
-                VisitsStatus.Plan(VisitsRepository().getPlan(version, token))
+            _statusVisit.value = VisitsStatus.Loading
+            _statusVisit.value = try {
+                VisitsStatus.Plan(VisitsRepository(context).getPlan(version, token))
             } catch (e: Exception) {
                 VisitsStatus.Error(e.message)
             }
         }
     }
 
-    private fun saveVisit(
+    private fun fetchSaveVisit(
         version: String,
         token: String,
         customerPartySiteId: String,
@@ -75,14 +74,13 @@ class VisitsViewModel : ViewModel() {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
-        phoneVisit: Boolean
     ) {
 
         viewModelScope.launch {
-            _status.value = VisitsStatus.Loading
-            _status.value = try {
+            _statusVisit.value = VisitsStatus.Loading
+            _statusVisit.value = try {
                 VisitsStatus.SaveVisits(
-                    VisitsRepository().saveVisit(
+                    VisitsRepository(context).saveVisit(
                         version,
                         token,
                         customerPartySiteId,
@@ -94,9 +92,23 @@ class VisitsViewModel : ViewModel() {
                         deviceType,
                         zoneFlag,
                         checkInDate,
-                        dateVisit,
-                        phoneVisit
+                        dateVisit
                     )
+                )
+            } catch (e: Exception) {
+                VisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+
+    private fun saveVisitOnline() {
+
+        viewModelScope.launch {
+            _statusVisit.value = VisitsStatus.Loading
+            _statusVisit.value = try {
+                VisitsStatus.SaveVisitsOnline(
+                    VisitsRepository(context).saveVisitOnline()
                 )
             } catch (e: Exception) {
                 VisitsStatus.Error(e.message)
@@ -109,10 +121,10 @@ class VisitsViewModel : ViewModel() {
         appVersion: String
     ) {
         viewModelScope.launch {
-            _status.value = VisitsStatus.Loading
-            _status.value = try {
+            _statusVisit.value = VisitsStatus.Loading
+            _statusVisit.value = try {
                 VisitsStatus.GetAppSetting(
-                    VisitsRepository().getAppSetting(
+                    VisitsRepository(context).getAppSetting(
                         appVersion
                     )
                 )

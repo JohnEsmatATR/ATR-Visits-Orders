@@ -3,9 +3,6 @@ package com.akhnaton.foodvisits.data.interfaces
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.VisitsCustomerType
 import com.akhnaton.foodvisits.data.model.VisitsPlan
-import com.akhnaton.foodvisits.data.model.VisitsPlaneDataDumy
-import com.akhnaton.foodvisits.data.model.visits.CustomerLines
-import com.akhnaton.foodvisits.data.model.visits.CustomerSite
 import com.akhnaton.foodvisits.data.model.visits.Lines
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
 import com.akhnaton.foodvisits.shared.ConstantLinks
@@ -56,7 +53,6 @@ interface IVisits {
         @Field("zone_flag") zoneFlag: String,
         @Field("check_in_date") checkInDate: String,
         @Field("date_visit") dateVisit: String,
-        @Field("phone_visit") phoneVisit: Boolean,
     ): SaveVisit
 
     @FormUrlEncoded

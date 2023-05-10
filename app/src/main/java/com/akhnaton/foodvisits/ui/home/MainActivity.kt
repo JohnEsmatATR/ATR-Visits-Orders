@@ -9,8 +9,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
@@ -20,13 +19,18 @@ import com.akhnaton.foodvisits.shared.GooeyMenu
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingIntent
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingStatus
+import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
+import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
+import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.common.api.GoogleApiClient
@@ -44,8 +48,11 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
 
+    val TAG = "MainActivity"
+    private lateinit var checkConnection: CheckConnection
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainActivityViewModel by viewModels()
+    private lateinit var visitViewModel: VisitsViewModel
     private var navHostFragment = NavHostFragment()
     private var googleApiClient: GoogleApiClient? = null
     private val REQUESTLOCATION = 199
@@ -62,7 +69,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.executePendingBindings()
-
+        visitViewModel = ViewModelProvider(this, VisitsViewModelFactory(baseContext))[VisitsViewModel::class.java]
+        checkConnection = CheckConnection(baseContext)
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_fragment) as NavHostFragment
         val navController = navHostFragment.navController
@@ -84,6 +92,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         fetchData()
         getProfileImage(binding)
     }
+
+    private fun fetchDataVisit() {
+        lifecycleScope.launch {
+            visitViewModel.statusVisit.collect {
+                when (it) {
+                    is VisitsStatus.Idle -> Log.d(TAG, "fetchData: ")
+                    is VisitsStatus.Loading -> Log.d(TAG, "fetchData: ")
+
+                    is VisitsStatus.SaveVisitsOnline -> {
+                        Log.d("jnjndjnjndjnjnd", "fetchData: ${it.data.data.visit_id}")
+                        checkConnection.deleteSaveVisitFromDB()
+                    }
+                    is VisitsStatus.Error -> Log.d(TAG, "Error====== ${it.error}")
+                }
+            }
+        }
+    }
+
+    private fun sendSaveVisits() {
+        lifecycleScope.launch {
+            visitViewModel.visitsIntent.send(
+                VisitsIntent.SaveVisitOnline
+            )
+        }
+    }
+
+
 
     override fun onStart() {
         super.onStart()
@@ -189,6 +224,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         super.onResume()
         enableLocation()
         requestPermission.permissionCheck(this)
+        sendSaveVisits()
+        fetchDataVisit()
     }
 
     override fun onDestroy() {

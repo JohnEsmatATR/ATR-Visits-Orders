@@ -1,7 +1,5 @@
 package com.akhnaton.foodvisits.data.statusValue.visit
 
-import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
-
 sealed class VisitsIntent {
 
     data class GetPlan(val version: String, val token: String) : VisitsIntent()
@@ -22,7 +20,10 @@ sealed class VisitsIntent {
         val phoneVisit:Boolean
     ) : VisitsIntent()
 
+    object SaveVisitOnline : VisitsIntent()
+
     data class GetAppSetting(
         val app_version: String
     ) : VisitsIntent()
+
 }

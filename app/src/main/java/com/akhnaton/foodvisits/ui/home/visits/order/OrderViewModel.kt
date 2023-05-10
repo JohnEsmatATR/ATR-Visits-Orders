@@ -45,7 +45,7 @@ class OrderViewModel : ViewModel() {
                     )
                     is OrderIntent.GetProducts -> getProducts(
                         it.app_version, it.api_token, it.orderType,
-                        it.sub_category, it.customer_type, it.customer_party_site_id
+                        it.sub_category, it.customer_type, it.customer_code, it.customer_party_site_id
                     )
                     is OrderIntent.SendOrder -> sendOrder(it.request)
                     is OrderIntent.GetOrderLimit -> getOrderLimit(it.app_version)
@@ -103,6 +103,7 @@ class OrderViewModel : ViewModel() {
         orderType: String,
         subCategory: String,
         customerType: Int,
+        customerCode: Int,
         customerPartySiteId: Int,
     ) {
         viewModelScope.launch {
@@ -115,6 +116,7 @@ class OrderViewModel : ViewModel() {
                         orderType,
                         subCategory,
                         customerType,
+                        customerCode,
                         customerPartySiteId,
                     )
                 )

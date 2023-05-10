@@ -55,6 +55,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var latitude: Double = 0.0
     private var longitude: Double = 0.0
     private var customerPartySiteId = ""
+    private var customerCode = ""
     private var orderType = ""
     private var customerTypePosition = ""
     private var enteredTime = ""
@@ -71,6 +72,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         enteredTime = intent.getStringExtra("time").toString()
+        customerCode = intent.getStringExtra("customer_code").toString()
         customerData = intent.getSerializableExtra("customerSiteData") as SitesData
 
         binding.custName.text = customerData.customer_name
@@ -80,6 +82,25 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
 
+
+
+        checkPromoters()
+        checkLocationPromotion()
+
+        setSpinnerAdapter()
+        fetchData()
+        openMap()
+        initWrongLocationDialog()
+    }
+
+    private fun checkPromoters() {
+        binding.btnPromotersImages.visibility = View.GONE
+        binding.btnPromotersStockStatus.visibility = View.GONE
+        binding.btnPromotersDetails.visibility = View.GONE
+        binding.btnPromotersCompetitors.visibility = View.GONE
+    }
+
+    fun checkLocationPromotion() {
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 when (result.resultCode) {
@@ -90,11 +111,6 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         }
-
-        setSpinnerAdapter()
-        fetchData()
-        openMap()
-        initWrongLocationDialog()
     }
 
     private fun fetchData() {
@@ -117,6 +133,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                                     .putExtra("customerPartySiteId", customerPartySiteId)
                                     .putExtra("orderType", orderType)
                                     .putExtra("customerTypePosition", customerTypePosition)
+                                    .putExtra("customer_code", customerCode)
                                     .putExtra("visitId", it.data.data.visit_id.toString())
                             )
                         }
