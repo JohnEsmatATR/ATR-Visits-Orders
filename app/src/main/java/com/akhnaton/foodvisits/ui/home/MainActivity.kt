@@ -85,6 +85,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
         binding.gooeyMenu.setOnMenuListener(this)
+        binding.gooeyMenu.openCloseMenu(false)
+
 
         lifecycleScope.launch {
             viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
@@ -210,12 +212,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         }
 
         if (menuNumber == 2) {
-            startActivity(Intent(this, WebOrderActivity::class.java))
+            val nav = findNavController(navHostFragment)
+            nav.navigateUp() || super.onSupportNavigateUp()
+
         }
 
         if (menuNumber == 3) {
-            val nav = findNavController(navHostFragment)
-            nav.navigateUp() || super.onSupportNavigateUp()
+            startActivity(Intent(this, WebOrderActivity::class.java))
         }
 
     }

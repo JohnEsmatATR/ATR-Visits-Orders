@@ -31,6 +31,7 @@ import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
+import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
@@ -46,6 +47,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         private const val TAG = "VisitsDetailsActivity"
     }
 
+    private lateinit var checkConnection: CheckConnection
     private val versionName = BuildConfig.VERSION_NAME
     private val viewModel: PhoneVisitsViewModel by viewModels()
     private lateinit var binding: ActivityVisitsDetailsBinding
@@ -56,6 +58,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var longitude: Double = 0.0
     private var customerPartySiteId = ""
     private var customerCode = ""
+    private var customerName = ""
     private var orderType = ""
     private var customerTypePosition = ""
     private var enteredTime = ""
@@ -73,6 +76,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         enteredTime = intent.getStringExtra("time").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
+        customerName = intent.getStringExtra("customer_name").toString()
         customerData = intent.getSerializableExtra("customerSiteData") as SitesData
 
         binding.custName.text = customerData.customer_name
@@ -82,6 +86,8 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
 
+
+        checkConnection = CheckConnection(baseContext)
 
 
         checkPromoters()
@@ -118,31 +124,56 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             viewModel.status.collect {
                 when (it) {
                     is PhoneVisitsStatus.SavePhoneVisits -> {
-                        if (binding.visitType.selectedItemId.toInt() == 1) {
-                            startActivity(
-                                Intent(
-                                    this@PhoneVisitsDetailsActivity,
-                                    MainActivity::class.java
-                                )
-                            )
-                            finishAffinity()
+                        checkVisitSituation(it.data.data.visit_id.toString())
 
-                        } else {
-                            startActivity(
-                                Intent(this@PhoneVisitsDetailsActivity, PaymentActivity::class.java)
-                                    .putExtra("customerPartySiteId", customerPartySiteId)
-                                    .putExtra("orderType", orderType)
-                                    .putExtra("customerTypePosition", customerTypePosition)
-                                    .putExtra("customer_code", customerCode)
-                                    .putExtra("visitId", it.data.data.visit_id.toString())
-                            )
-                        }
+
                     }
                     is PhoneVisitsStatus.GetAppSetting -> limitArea = it.data.data.limit_area
                     is PhoneVisitsStatus.Error -> Log.d(TAG, "Error=== ${it.error}")
                 }
             }
         }
+    }
+
+    private fun checkVisitSituation(visitId: String) {
+        if (binding.visitType.selectedItemId.toInt() == 1) {
+            startActivity(
+                Intent(
+                    this@PhoneVisitsDetailsActivity,
+                    MainActivity::class.java
+                )
+            )
+            finishAffinity()
+
+        } else {
+            val check = SharedPreferencesHelper.getInstance().getMakeOrder()
+            if (checkConnection.checkConnection()) {
+                if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
+                    finish()
+                } else {
+                    startActivity(
+                        Intent(this@PhoneVisitsDetailsActivity, PaymentActivity::class.java)
+                            .putExtra("customerPartySiteId", customerPartySiteId)
+                            .putExtra("orderType", orderType)
+                            .putExtra("customerTypePosition", customerTypePosition)
+                            .putExtra("customer_code", customerCode)
+                            .putExtra("customer_name", customerName)
+                            .putExtra("visitId", visitId)
+                    )
+                }
+            } else {
+                if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
+                    finish()
+                } else {
+                    Toast.makeText(
+                        baseContext,
+                        "لا يمكن اكمال الطلبية لعدم توفر انترنت",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
     }
 
     private fun setSpinnerAdapter() {
@@ -158,7 +189,12 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(onClick: View?) {
-        compareLocation()
+        if (binding.visTarget.text.isNotEmpty()) {
+            compareLocation()
+        } else {
+            binding.visTarget.error = "ادخل هدف الزيارة"
+            binding.visTarget.requestFocus()
+        }
     }
 
     private fun customerLocationMissing(): String {

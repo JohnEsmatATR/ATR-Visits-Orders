@@ -15,6 +15,7 @@ import android.graphics.Path;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -46,7 +47,7 @@ public class GooeyMenu extends View {
     private ArrayList<ObjectAnimator> mShowAnimation = new ArrayList<>();
     private ArrayList<ObjectAnimator> mHideAnimation = new ArrayList<>();
     private ValueAnimator mBezierAnimation, mBezierEndAnimation, mRotationAnimation;
-    private boolean isMenuVisible = true;
+    private boolean isMenuVisible = false;
     private Float bezierConstant = BEZIER_CONSTANT;
     private Bitmap mPlusBitmap;
     private float mRotationAngle;
@@ -116,6 +117,7 @@ public class GooeyMenu extends View {
             }
 
         }
+
 
         mCirclePaint = new Paint();
         mCirclePaint.setColor(getResources().getColor(R.color.main_button));
@@ -364,6 +366,24 @@ public class GooeyMenu extends View {
 
     public void setOnMenuListener(GooeyMenuInterface onMenuListener) {
         mGooeyMenuInterface = onMenuListener;
+    }
+
+    public void openCloseMenu(boolean bool){
+        isMenuVisible = bool;
+        if (isMenuVisible) {
+            startHideAnimate();
+            if (mGooeyMenuInterface != null) {
+                mGooeyMenuInterface.menuClose();
+                Log.d("kerooolsmlvsvs", "openCloseMenu: " + "open");
+            }
+        } else {
+            startShowAnimate();
+            if (mGooeyMenuInterface != null) {
+                mGooeyMenuInterface.menuOpen();
+                Log.d("kerooolsmlvsvs", "openCloseMenu: " + "close");
+            }
+        }
+        isMenuVisible = !isMenuVisible;
     }
 
     public boolean isGooeyMenuTouch(MotionEvent event) {

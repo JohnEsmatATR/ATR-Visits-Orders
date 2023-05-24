@@ -74,6 +74,7 @@ class OrderHistoryDetailsActivity : AppCompatActivity() {
                     is OrderHistoryState.GetOrdersHistoryDetails -> {
                         mAdapter.setOrderList(it.orders.data.order_details)
                         if (!it.orders.data.return_details.isNullOrEmpty()){
+                            Log.d("jjdvndjnvjdnv", "fetchData: ${it.orders.data.return_details}")
                             binding.returnCard.visibility = View.VISIBLE
                             mReturnAdapter.setOrderList(it.orders.data.return_details)
 

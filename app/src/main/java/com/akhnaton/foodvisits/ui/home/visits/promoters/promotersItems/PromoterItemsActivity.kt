@@ -23,6 +23,7 @@ import com.akhnaton.foodvisits.databinding.ActivityPromoterItemsBinding
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmitListener {
 
@@ -30,6 +31,7 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
     private val TAG = "PromoterItemActivity"
     private var pDialog: SweetAlertDialog? = null
     private var code: String? = null
+    private var listItems: List<PromoterItem>? = emptyList()
     private var party_site: String? = null
     private var token:String? = null
     private var employee_id:String? = null
@@ -72,7 +74,22 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
-                if (promotersDataAdapter != null) promotersDataAdapter!!.getFilter().filter(newText)
+                if (newText.isEmpty()) {
+                    initAdapter(listItems!!)
+                } else {
+                    val newListItems: MutableList<PromoterItem> = ArrayList()
+                    var j = 0
+                    for (i in listItems!!) {
+                        j++
+                        if (i.description != null) {
+                            Log.d("dvdvdvdvdvdvdvdvdvdvd", "${listItems!!.size} $j onQueryTextChange: ${i.description}")
+                            if (i.description!!.contains(newText)) {
+                                newListItems.add(i)
+                            }
+                        }
+                    }
+                    initAdapter(newListItems)
+                }
                 return false
             }
         })
@@ -93,7 +110,8 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
                         pDialog!!.dismiss()
                         try {
                             if (it.response.data!!.isNotEmpty()) {
-                                initAdapter(it.response.data!!)
+                                listItems = it.response.data!!
+                                initAdapter(listItems!!)
                             }
                         } catch (e: Exception) {
                             e.printStackTrace()

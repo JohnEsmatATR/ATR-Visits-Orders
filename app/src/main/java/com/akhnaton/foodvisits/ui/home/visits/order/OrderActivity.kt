@@ -28,7 +28,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import kotlinx.coroutines.launch
-
+import kotlin.math.roundToInt
 
 class OrderActivity : AppCompatActivity(), View.OnClickListener,
     OrderViewHolder.OnItemClickListener {
@@ -70,6 +70,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private var paymentTypePosition = ""
     private var orderSourcePosition = ""
     private var customerCode = ""
+    private var customerName = ""
     private var totalOrder: Double = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,6 +87,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         paymentTypePosition = intent.getStringExtra("paymentTypePosition").toString()
         orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
+        customerName = intent.getStringExtra("customer_name").toString()
 
 
         lifecycleScope.launch {
@@ -105,6 +107,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             showLoadingDialog()
         }
 
+        binding.txtName.text = customerName
         binding.itemsSpinner.setItems(mItemsOrdersNameList.toTypedArray())
         binding.addItems.setOnClickListener(this)
         binding.sendOrder.setOnClickListener(this)
@@ -130,64 +133,84 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                     app_version = versionName,
                                     api_token = SharedPreferencesHelper.getInstance()
                                         .getUserToken(),
-                                    orderType = orderType
+                                    orderType = orderType,
+                                    customer_type = customerTypePosition
                                 )
                             )
                         } else {
                             showAlertDialog(it.data.message)
                         }
                     }
+
                     is OrderStatus.GetCategories -> {
-                        SpinnerHelper().setNormalSpinnerAdapter(
-                            binding.categorySpinner,
-                            it.data.data.sub_categories.toMutableList(),
-                            this@OrderActivity
-                        )
-                        categoryName = binding.categorySpinner.selectedItem.toString()
-
-                        viewModel.orderIntent.send(
-                            OrderIntent.GetProducts(
-                                app_version = versionName,
-                                api_token = SharedPreferencesHelper.getInstance().getUserToken(),
-                                orderType = orderType,
-                                sub_category = categoryName,
-                                customer_type = customerTypePosition.toInt(),
-                                customer_code = customerCode.toInt(),
-                                customer_party_site_id = customerPartySiteId.toInt()
+                        if (it.data.status == 200) {
+                            SpinnerHelper().setNormalSpinnerAdapter(
+                                binding.categorySpinner,
+                                it.data.data.sub_categories.toMutableList(),
+                                this@OrderActivity
                             )
-                        )
-                        dismissdialog()
+                            categoryName = binding.categorySpinner.selectedItem.toString()
+
+                            viewModel.orderIntent.send(
+                                OrderIntent.GetProducts(
+                                    app_version = versionName,
+                                    api_token = SharedPreferencesHelper.getInstance()
+                                        .getUserToken(),
+                                    orderType = orderType,
+                                    sub_category = categoryName,
+                                    customer_type = customerTypePosition.toInt(),
+                                    customer_code = customerCode.toInt(),
+                                    customer_party_site_id = customerPartySiteId.toInt()
+                                )
+                            )
+                            dismissdialog()
+                        } else {
+                            Toast.makeText(
+                                this@OrderActivity,
+                                "something went wrong",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
+
                     is OrderStatus.GetProducts -> {
-                        // Items Product
-                        mItemsOrdersNameList.clear()
-                        mBonusNameList.clear()
-                        mItemOrdersList = it.data.data.order_products
-                        mItemReturnList = it.data.data.return_products
-                        it.data.data.order_products.forEach { item ->
-                            mItemsOrdersNameList.add(item.item_description)
+                        if (it.data.status == 200) {
+                            // Items Product
+                            mItemsOrdersNameList.clear()
+                            mBonusNameList.clear()
+                            mItemOrdersList = it.data.data.order_products
+                            mItemReturnList = it.data.data.return_products
+                            it.data.data.order_products.forEach { item ->
+                                mItemsOrdersNameList.add(item.item_description)
+                            }
+
+                            it.data.data.return_products.forEach { returnItems ->
+                                mItemsReturnNameList.add(returnItems.item_description)
+                            }
+
+                            binding.itemsSpinner.setItems(mItemsOrdersNameList.toTypedArray())
+
+                            //Bonus Spinner
+                            mBonusList = it.data.data.products_bonus
+
+                            it.data.data.products_bonus.forEach { bonus ->
+                                mBonusNameList.add(bonus.item_description)
+                            }
+                            SpinnerHelper().setNormalSpinnerAdapter(
+                                binding.bonusSpinner,
+                                mBonusNameList,
+                                this@OrderActivity
+                            )
+                            dismissdialog()
+                        } else {
+                            Toast.makeText(
+                                this@OrderActivity,
+                                "something went wrong",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-
-                        it.data.data.return_products.forEach { returnItems ->
-                            mItemsReturnNameList.add(returnItems.item_description)
-                        }
-
-                        binding.itemsSpinner.setItems(mItemsOrdersNameList.toTypedArray())
-                        binding.itemsSpinner.setSelection(0)
-
-                        //Bonus Spinner
-                        mBonusList = it.data.data.products_bonus
-
-                        it.data.data.products_bonus.forEach { bonus ->
-                            mBonusNameList.add(bonus.item_description)
-                        }
-                        SpinnerHelper().setNormalSpinnerAdapter(
-                            binding.bonusSpinner,
-                            mBonusNameList,
-                            this@OrderActivity
-                        )
-                        dismissdialog()
                     }
+
                     is OrderStatus.SendOrder -> {
                         if (it.data.status == 400) {
                             ProgressDialogHelper().orderLimitAlert(
@@ -205,11 +228,13 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             "fetchData: SendOrder: ${it.data.message}"
                         )
                     }
+
                     is OrderStatus.GetOrderLimit -> {
                         returnLimit = it.data.data.order_returns_limit_percentage
                         orderLimit = it.data.data.lowest_price_order
                         dismissdialog()
                     }
+
                     is OrderStatus.Error -> {
                         Log.d(TAG, "fetchData: Error $it")
                         dismissdialog()
@@ -235,21 +260,21 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     }
 
 
-    private fun initLoadingDialog(){
+    private fun initLoadingDialog() {
         val builder = AlertDialog.Builder(this)
 
-            builder.setTitle("Loading...")
+        builder.setTitle("Loading...")
 
-            val progressBar = ProgressBar(this)
-            val lp = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            )
-            progressBar.layoutParams = lp
-            builder.setView(progressBar)
+        val progressBar = ProgressBar(this)
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        progressBar.layoutParams = lp
+        builder.setView(progressBar)
 
-            builder.setCancelable(false)
-            loadingDialog = builder.create()
+        builder.setCancelable(false)
+        loadingDialog = builder.create()
     }
 
 
@@ -266,8 +291,11 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
 
     private fun selectedItemProduct() {
         binding.itemsSpinner.setOnItemClickListener { position ->
-            Log.d(TAG, "selectedItemProduct: ${mItemOrdersList[position].item_description}")
             mItemPositionSelected = position
+            binding.txtQuantity.text = ""
+            binding.txtQuantity.text = mItemOrdersList[position].item_availability.toString()
+            binding.quantityED.setText("")
+
         }
 
         binding.bonusSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -304,6 +332,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             )
                         )
                     }
+                    binding.txtQuantity.text = ""
+                    binding.itemsSpinner.setText("")
+                    binding.quantityED.setText("")
 
                     showLoadingDialog()
                 }
@@ -329,6 +360,12 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             binding.sendOrder.id -> {
                 if (mAdapterCardsProduct.isEmpty()) {
                     Toast.makeText(this, "Select Item To Add", Toast.LENGTH_SHORT).show()
+                } else if (totalOrder < 200.0) {
+                    Toast.makeText(
+                        this,
+                        "Minimum total order should be more than 200 L.E",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     if (orderLimit >= totalOrder) {
                         ProgressDialogHelper().orderLimitAlert(
@@ -363,65 +400,89 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
 
             binding.addItems.id -> {
 
-                if (binding.quantityED.text.toString().isEmpty()) {
-                    binding.quantityED.error = "Choose Quantity"
-                    binding.quantityED.isFocusable = true
-                } else {
-                    if (checkItemAddedBefore() && mItemOrdersList.isNotEmpty()) {
+                if (binding.quantityED.text.toString() != null) {
+                    if (binding.quantityED.text.toString().isEmpty() || binding.quantityED.text.toString().toInt() <= 0) {
+                        binding.quantityED.error = "Choose Quantity"
+                    } else if (binding.quantityED.text.toString().toInt() == 100000
+                        || binding.quantityED.text.toString().length > 6
+                    ) {
+                        binding.quantityED.error = "Order quantity can't be more than 100,000"
+                        binding.quantityED.isFocusable = true
+                    } else if (binding.quantityED.text.toString().toInt()
+                        > binding.txtQuantity.text.toString().toInt()
+                    ) {
+                        binding.quantityED.error =
+                            "Maximum Quantity you can add is ${binding.txtQuantity.text}"
+                        binding.quantityED.isFocusable = true
+                    } else {
+                        if (checkItemAddedBefore() && mItemOrdersList.isNotEmpty()) {
 
-                        val mItem = mItemOrdersList[mItemPositionSelected]
+                            val mItem = mItemOrdersList[mItemPositionSelected]
 
-                        val orderItem = OrderItem(
-                            mBonusPositionSelected,
-                            mItem.item_id,
-                            binding.quantityED.text.toString(),
-                            mItem.item_price_list
-                        )
-                        mItemsCardAdded.add(orderItem)
+                            val orderItem = OrderItem(
+                                mBonusPositionSelected,
+                                mItem.item_id,
+                                binding.quantityED.text.toString(),
+                                mItem.item_price_list
+                            )
+                            mItemsCardAdded.add(orderItem)
 
-                        //Calculate Total Amount Text
-                        val total =
-                            binding.quantityED.text.toString().toDouble() * mItem.item_price
-                        totalOrder += total
-                        binding.totalAmount.text = "${totalOrder.toFloat()} EGP"
+                            //Calculate Total Amount Text
+                            val total =
+                                binding.quantityED.text.toString()
+                                    .toDouble() * (mItem.item_price + mItem.item_tax)
+                            totalOrder += total
+                            binding.totalAmount.text = "${totalOrder.toFloat()} EGP"
 
-                        val cardItem = CardItem(
-                            mItem.item_id,
-                            mItem.item_code,
-                            mItem.item_description,
-                            mItem.item_price,
-                            mItem.item_tax.toFloat(),
-                            binding.quantityED.text.toString(),
-                            total.toFloat(),
-                            mBonusPositionSelected,
-                            mItem.item_price_list
-                        )
+                            val cardItem = CardItem(
+                                mItem.item_id,
+                                mItem.item_code,
+                                mItem.item_description,
+                                mItem.item_price,
+                                mItem.item_tax.toFloat(),
+                                binding.quantityED.text.toString(),
+                                total.toFloat(),
+                                mBonusPositionSelected,
+                                mItem.item_price_list
+                            )
 
-                        mAdapterCardsProduct.add(cardItem)
-                        mAdapter.addProduct(mAdapterCardsProduct)
-                        binding.itemsCount.text =
-                            "${mAdapterCardsProduct.size} Items"
+                            mAdapterCardsProduct.add(cardItem)
+                            mAdapter.addProduct(mAdapterCardsProduct)
+                            binding.itemsCount.text =
+                                "${mAdapterCardsProduct.size} Items"
+                        }
                     }
                 }
             }
 
             binding.returnOrder.id -> {
-                startActivity(
-                    Intent(this@OrderActivity, ReturnActivity::class.java)
-                        .putExtra("orderType", orderType)
-                        .putExtra("categoryName", categoryName)
-                        .putExtra("orderNumber", orderNumber)
-                        .putExtra("customerTypePosition", customerTypePosition)
-                        .putExtra("customerPartySiteId", customerPartySiteId)
-                        .putExtra("paymentTypePosition", paymentTypePosition)
-                        .putExtra("turnOver", turnOver)
-                        .putExtra("total", totalOrder)
-                        .putExtra("returnLimit", returnLimit)
-                        .putExtra("totalOrder", binding.totalAmount.text.toString())
-                        .putExtra("customer_code", customerCode)
-                        .putExtra("orderSourcePosition", orderSourcePosition)
-                        .putParcelableArrayListExtra("orderList", mItemsCardAdded)
-                )
+                if (mAdapterCardsProduct.isEmpty()) {
+                    Toast.makeText(this, "Select Item To return", Toast.LENGTH_SHORT).show()
+                } else if (totalOrder < 200.0) {
+                    Toast.makeText(
+                        this,
+                        "Minimum total order should be more than 200 L.E",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    startActivity(
+                        Intent(this@OrderActivity, ReturnActivity::class.java)
+                            .putExtra("orderType", orderType)
+                            .putExtra("categoryName", categoryName)
+                            .putExtra("orderNumber", orderNumber)
+                            .putExtra("customerTypePosition", customerTypePosition)
+                            .putExtra("customerPartySiteId", customerPartySiteId)
+                            .putExtra("paymentTypePosition", paymentTypePosition)
+                            .putExtra("turnOver", turnOver)
+                            .putExtra("total", totalOrder)
+                            .putExtra("returnLimit", returnLimit)
+                            .putExtra("totalOrder", binding.totalAmount.text.toString())
+                            .putExtra("customer_code", customerCode)
+                            .putExtra("customer_name", customerName)
+                            .putExtra("orderSourcePosition", orderSourcePosition)
+                            .putParcelableArrayListExtra("orderList", mItemsCardAdded)
+                    )
+                }
             }
         }
     }
@@ -435,8 +496,10 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             item.quantity,
             item.item_price_list
         )
-        totalOrder -= item.item_price * item.quantity.toFloat()
-        binding.totalAmount.text = totalOrder.toFloat().toString() + "EGP"
+//        Log.d("kjbkjbjkjknkn", "onDeleteClick: ${totalOrder.roundToInt() - item.total.roundToInt()}")
+
+        totalOrder -= item.total
+        binding.totalAmount.text = totalOrder.toFloat().roundToInt().toString() + " EGP"
         mItemsCardAdded.remove(orderItemId)
         mAdapter.addProduct(mAdapterCardsProduct)
         binding.itemsCount.text =
@@ -444,16 +507,13 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun checkItemAddedBefore(): Boolean {
-        var check = true
         for (item in mAdapterCardsProduct) {
             if (item.item_code == mItemOrdersList[mItemPositionSelected].item_code) {
-                check = false
                 Toast.makeText(this, "This Item Added Before", Toast.LENGTH_SHORT).show()
-            } else {
-                check = true
+                return false
             }
         }
-        return check
+        return true
     }
 
 }

@@ -41,7 +41,8 @@ class OrderViewModel : ViewModel() {
                     is OrderIntent.GetCategories -> getCategories(
                         it.app_version,
                         it.api_token,
-                        it.orderType
+                        it.orderType,
+                        it.customer_type
                     )
                     is OrderIntent.GetProducts -> getProducts(
                         it.app_version, it.api_token, it.orderType,
@@ -79,7 +80,7 @@ class OrderViewModel : ViewModel() {
         }
     }
 
-    private fun getCategories(appVersion: String, apiToken: String, orderType: String) {
+    private fun getCategories(appVersion: String, apiToken: String, orderType: String, customer_type: String) {
         viewModelScope.launch {
             _status.value = OrderStatus.Idle
             _status.value = try {
@@ -87,7 +88,8 @@ class OrderViewModel : ViewModel() {
                     OrderRepository().getCategories(
                         appVersion,
                         apiToken,
-                        orderType
+                        orderType,
+                        customer_type
                     )
                 )
             } catch (e: Exception) {

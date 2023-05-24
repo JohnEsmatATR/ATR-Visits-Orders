@@ -55,7 +55,9 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                         binding.error.visibility = View.GONE
                         binding.ticketTextEd.text?.clear()
                         requireActivity().onBackPressed()
+
                     }
+
                     is TicketsStatus.Error -> {
                         dialog.hide()
 //                        binding.error.text = it.error.toString()
@@ -68,14 +70,20 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
-        lifecycleScope.launch {
-            viewModel.ticketsIntent.send(
-                TicketsIntent.Tickets(
-                    version,
-                    binding.ticketTextEd.text.toString(),
-                    SharedPreferencesHelper.getInstance().getUserToken()
+        if (binding.ticketTextEd.text!!.isNotEmpty()) {
+
+            lifecycleScope.launch {
+                viewModel.ticketsIntent.send(
+                    TicketsIntent.Tickets(
+                        version,
+                        binding.ticketTextEd.text.toString(),
+                        SharedPreferencesHelper.getInstance().getUserToken()
+                    )
                 )
-            )
+            }
+        } else {
+            binding.ticketTextEd.error = "يجب كتابة الرسالة اولا"
+            binding.ticketTextEd.isFocusable = true
         }
     }
 

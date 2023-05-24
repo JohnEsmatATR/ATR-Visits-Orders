@@ -21,7 +21,7 @@ abstract class VisitDatabase : RoomDatabase() {
         fun getDatabase(context: Context): VisitDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
+                    context,
                     VisitDatabase::class.java,
                     "visit_database"
                 )

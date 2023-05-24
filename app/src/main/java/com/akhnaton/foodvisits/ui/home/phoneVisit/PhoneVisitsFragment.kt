@@ -53,6 +53,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     private var customerTypePosition: String = ""
     private var customerLinePosition: String = ""
     private var mainCustomerLinePosition: String = ""
+    private var customerName: String = ""
     private var customerPartySiteId: String = ""
     private var limitArea: Int = 0
     private lateinit var dialog: ProgressDialog
@@ -87,9 +88,9 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     }
 
     fun checkPromoters() {
-        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
+        val check = SharedPreferencesHelper.getInstance().getProm()
         Log.d("dvvdvdvdsvsdvds", "checkPromoters: $check")
-        if (!check) {
+        if (check) {
             binding.orderTypeLayout.visibility = View.GONE
             showDialog()
         } else {
@@ -130,6 +131,8 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     //Get User Customer Type
                     is PhoneVisitsStatus.GetCustomerType -> {
                         dialog.hide()
+                        customerType.clear()
+                        (customerTypeList as ArrayList).clear()
                         val mCustomerList = it.data.data.user_customer_type
                         customerTypeList = mCustomerList
                         mCustomerList.forEach { customer ->
@@ -193,6 +196,26 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
             val selected = adapter?.getItemAtPosition(position)
             orderType = selected.toString()
             binding.customerLayout.visibility = View.VISIBLE
+            binding.linesLayout.visibility = View.GONE
+            binding.mainLineLayout.visibility = View.GONE
+            binding.sitesLineLayout.visibility = View.GONE
+            binding.addVisit.visibility = View.GONE
+
+            binding.customerType.setText("")
+            binding.lines.setText("")
+            binding.mainLine.setText("")
+            binding.sitesSpinner.setText("")
+
+            lifecycleScope.launch {
+                viewModel.phoneVisitsIntent.send(
+                    PhoneVisitsIntent.GetCustomerType(
+                        versionName,
+                        SharedPreferencesHelper.getInstance().getUserToken()
+                    )
+                )
+            }
+
+
             Log.d(TAG, "getOrderTypeItemClick: $orderType")
         }
     }
@@ -200,7 +223,16 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     //Get User Customer Type
     private fun getCustomerTypeItemClick() {
         binding.customerType.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
+            binding.customerLayout.visibility = View.VISIBLE
             binding.linesLayout.visibility = View.VISIBLE
+            binding.mainLineLayout.visibility = View.GONE
+            binding.sitesLineLayout.visibility = View.GONE
+            binding.addVisit.visibility = View.GONE
+
+            binding.lines.setText("")
+            binding.mainLine.setText("")
+            binding.sitesSpinner.setText("")
+
             customerTypePosition = customerTypeList[position].customer_type_id
             lifecycleScope.launch {
                 viewModel.phoneVisitsIntent.send(
@@ -217,7 +249,14 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     //Get User Lines
     private fun getLinesItemClick() {
         binding.lines.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
+            binding.customerLayout.visibility = View.VISIBLE
+            binding.linesLayout.visibility = View.VISIBLE
             binding.mainLineLayout.visibility = View.VISIBLE
+            binding.sitesLineLayout.visibility = View.GONE
+            binding.addVisit.visibility = View.GONE
+
+            binding.mainLine.setText("")
+            binding.sitesSpinner.setText("")
 
             customerLinePosition = linesList[position].line_id
 
@@ -236,9 +275,16 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     //Get Main Customer Lines
     private fun getMainLineItemClick() {
         binding.mainLine.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
+            binding.customerLayout.visibility = View.VISIBLE
+            binding.linesLayout.visibility = View.VISIBLE
+            binding.mainLineLayout.visibility = View.VISIBLE
             binding.sitesLineLayout.visibility = View.VISIBLE
+            binding.addVisit.visibility = View.GONE
+
+            binding.sitesSpinner.setText("")
 
             mainCustomerLinePosition = mainList[position].customer_code
+            customerName = mainList[position].customer_name
 
             lifecycleScope.launch {
                 viewModel.phoneVisitsIntent.send(
@@ -263,6 +309,10 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
         binding.sitesSpinner.setOnItemClickListener {
             customerPartySiteId = customerSiteList[it].customer_party_site_id
             mListPassedData = customerSiteList[it]
+            binding.customerLayout.visibility = View.VISIBLE
+            binding.linesLayout.visibility = View.VISIBLE
+            binding.mainLineLayout.visibility = View.VISIBLE
+            binding.sitesLineLayout.visibility = View.VISIBLE
             binding.addVisit.visibility = View.VISIBLE
         }
     };
@@ -283,13 +333,6 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
             viewModel.phoneVisitsIntent.send(
                 PhoneVisitsIntent.GetPlan(
                     versionName, SharedPreferencesHelper.getInstance().getUserToken()
-                )
-            )
-
-            viewModel.phoneVisitsIntent.send(
-                PhoneVisitsIntent.GetCustomerType(
-                    versionName,
-                    SharedPreferencesHelper.getInstance().getUserToken()
                 )
             )
 
@@ -326,6 +369,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     .putExtra("customer_code", mainCustomerLinePosition)
                     .putExtra("orderType", orderType)
                     .putExtra("customerTypePosition", customerTypePosition)
+                    .putExtra("customer_name", customerName)
             )
         } else {
             if (ContextCompat.checkSelfPermission(

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -31,6 +32,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     OrderViewHolder.OnItemClickListener {
@@ -60,6 +62,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     var orderSourcePosition = ""
     var customerPartySiteId = ""
     var customerCode = ""
+    var customerName = ""
     var turnOver = false
     private var totalOrder = 0.0
     private var returnLimit = 0
@@ -71,6 +74,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
         initLoadingDialog()
 
+        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
+
         orderList = intent.getParcelableArrayListExtra<OrderItem>("orderList")!!
         categoryName = intent.getStringExtra("categoryName").toString()
         orderType = intent.getStringExtra("orderType").toString()
@@ -80,6 +85,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
+        customerName = intent.getStringExtra("customer_name").toString()
         turnOver = intent.getBooleanExtra("turnOver", false)
         totalOrder = intent.getDoubleExtra("total", 0.0)
         returnLimit = intent.getIntExtra("returnLimit", 0)
@@ -103,7 +109,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                 OrderIntent.GetCategories(
                     versionName,
                     SharedPreferencesHelper.getInstance().getUserToken(),
-                    orderType.toString()
+                    orderType.toString(),
+                    customerTypePosition
                 )
             )
             showLoadingDialog()
@@ -115,6 +122,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         binding.sendOrder.setOnClickListener(this)
         mAdapter.deleteProduct(this)
         binding.backArrow.setOnClickListener { progressBar.show() }
+        binding.txtName.text = customerName
         fetchData()
         setupRecycler()
         initBackPressedDialog()
@@ -157,6 +165,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                         )
                         dismissdialog()
                     }
+
                     is OrderStatus.GetProducts -> {
 
                         mReturnNameList.clear()
@@ -171,6 +180,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
                         dismissdialog()
                     }
+
                     is OrderStatus.SendOrder -> {
                         if (it.data.status == 400) {
                             ProgressDialogHelper().orderLimitAlert(
@@ -183,6 +193,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                             dismissdialog()
                         }
                     }
+
                     is OrderStatus.Error -> {
                         dismissdialog()
                         Log.d(TAG, "fetchData: Error $it")
@@ -192,7 +203,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    private fun initLoadingDialog(){
+    private fun initLoadingDialog() {
         val builder = AlertDialog.Builder(this)
 
         builder.setTitle("Loading...")
@@ -224,6 +235,10 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
         binding.itemsSpinner.setOnItemClickListener { position ->
             mItemPositionSelected = position
+            binding.txtQuantity.text = ""
+            binding.txtQuantity.text = mReturnList[position].item_availability.toString()
+            binding.quantityED.setText("")
+
         }
 
 
@@ -244,6 +259,9 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                             )
                         )
                     }
+                    binding.txtQuantity.text = ""
+                    binding.itemsSpinner.setText("")
+                    binding.quantityED.setText("")
 
                     showLoadingDialog()
                 }
@@ -260,38 +278,53 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     override fun onClick(v: View) {
         when (v.id) {
             binding.sendOrder.id -> {
-                val orderPercent: Double = totalOrder / 100.0f * returnLimit
-                if (orderPercent >= totalReturn) {
-                    lifecycleScope.launch {
-                        viewModel.orderIntent.send(
-                            OrderIntent.SendOrder(
-                                CreateOrderHelper().addOrder(
-                                    orderType,
-                                    orderNumber,
-                                    customerTypePosition,
-                                    customerPartySiteId,
-                                    paymentTypePosition,
-                                    turnOver,
-                                    orderList,
-                                    mItemsCardAdded,
-                                    orderSourcePosition.toInt()
+                if (mAdapterCardsProduct.isEmpty()) {
+                    Toast.makeText(this, "Select Item To Add", Toast.LENGTH_SHORT).show()
+                } else {
+                    val orderPercent: Double = totalOrder / 100.0f * returnLimit
+                    if (orderPercent >= totalReturn) {
+                        lifecycleScope.launch {
+                            viewModel.orderIntent.send(
+                                OrderIntent.SendOrder(
+                                    CreateOrderHelper().addOrder(
+                                        orderType,
+                                        orderNumber,
+                                        customerTypePosition,
+                                        customerPartySiteId,
+                                        paymentTypePosition,
+                                        turnOver,
+                                        orderList,
+                                        mItemsCardAdded,
+                                        orderSourcePosition.toInt()
+                                    )
                                 )
                             )
+                        }
+                        showLoadingDialog()
+                    } else {
+                        ProgressDialogHelper().orderLimitAlert(
+                            this,
+                            "غير مسموح النسبة تتعدي $returnLimit%"
                         )
                     }
-                    showLoadingDialog()
-                } else {
-                    ProgressDialogHelper().orderLimitAlert(
-                        this,
-                        "غير مسموح النسبة تتعدي $returnLimit%"
-                    )
                 }
             }
 
             binding.addItems.id -> {
 
-                if (binding.quantityED.text.toString().isEmpty()) {
+
+                if (binding.quantityED.text.toString().isEmpty() || binding.quantityED.text.toString().toInt() <= 0) {
                     binding.quantityED.error = "Choose Quantity"
+                } else if (binding.quantityED.text.toString().toInt() == 100000
+                    || binding.quantityED.text.toString().length > 6
+                ) {
+                    binding.quantityED.error = "Order quantity can't be more than 100,000"
+                    binding.quantityED.isFocusable = true
+                } else if (binding.quantityED.text.toString().toInt()
+                    > binding.txtQuantity.text.toString().toInt()
+                ) {
+                    binding.quantityED.error =
+                        "Maximum Quantity you can add is ${binding.txtQuantity.text}"
                     binding.quantityED.isFocusable = true
                 } else {
                     if (checkItemAddedBefore()) {
@@ -306,7 +339,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
                         //Calculate Total Amount Text
                         val total =
-                            binding.quantityED.text.toString().toDouble() * mItem.item_price
+                            binding.quantityED.text.toString().toDouble() * (mItem.item_price + mItem.item_tax)
                         totalReturn += total
                         binding.totalReturn.text = "${totalReturn.toFloat()} EGP"
                         val cardItem = CardItem(
@@ -332,16 +365,13 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     }
 
     private fun checkItemAddedBefore(): Boolean {
-        var check = true
         for (item in mAdapterCardsProduct) {
             if (item.item_code == mReturnList[mItemPositionSelected].item_code) {
-                check = false
                 Toast.makeText(this, "This Item Added Before", Toast.LENGTH_SHORT).show()
-            } else {
-                check = true
+                return false
             }
         }
-        return check
+        return true
     }
 
     @SuppressLint("SetTextI18n")
@@ -351,8 +381,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
             item.item_id,
             item.quantity
         )
-        totalReturn -= item.item_price * item.quantity.toFloat()
-        binding.totalReturn.text = totalReturn.toFloat().toString() + "EGP"
+        totalReturn -= item.total
+        binding.totalReturn.text = totalReturn.toFloat().roundToInt().toString() + " EGP"
         mItemsCardAdded.remove(returnItemId)
         mAdapter.addProduct(mAdapterCardsProduct)
         binding.itemsCount.text =

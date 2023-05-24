@@ -45,6 +45,10 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
             .error(R.drawable.addprofile)
             .apply(RequestOptions.circleCropTransform())
             .into(binding.profileImg)
+
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
     }
 
 

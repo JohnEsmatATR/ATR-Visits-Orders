@@ -6,8 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.akhnaton.foodvisits.BuildConfig
@@ -41,17 +44,23 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
     private var orderType = ""
     private var customerTypePosition = ""
     private var customerCode = ""
+    private var customerName = ""
     private var visitId = ""
+    private lateinit var loadingDialog: AlertDialog
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_payment)
+
+        initLoadingDialog()
 
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
         visitId = intent.getStringExtra("visitId").toString()
+        customerName = intent.getStringExtra("customer_name").toString()
 
         lifecycleScope.launch {
             viewModel.paymentIntent.send(
@@ -60,6 +69,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                     customerPartySiteId, orderType, customerTypePosition
                 )
             )
+            showLoadingDialog()
         }
 
         binding.paymentType.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
@@ -103,8 +113,12 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                             this@PaymentActivity
                         )
                         Log.d(TAG, "fetchData: $it")
+                        dismissdialog()
                     }
-                    is PaymentStatus.Error -> Log.d(TAG, "fetchData: $it")
+                    is PaymentStatus.Error -> {
+                        Log.d(TAG, "fetchData: $it")
+                        dismissdialog()
+                    }
                 }
             }
         }
@@ -123,11 +137,40 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                     .putExtra("customer_code", customerCode)
                     .putExtra("paymentTypePosition", mPaymentTypePosition)
                     .putExtra("orderSourcePosition", mOrderSourcePosition)
+                    .putExtra("customer_name", customerName)
             )
         } else {
             Toast.makeText(this, "Some data required not selected", Toast.LENGTH_SHORT).show()
         }
     }
+
+    private fun initLoadingDialog() {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Loading...")
+
+        val progressBar = ProgressBar(this)
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        progressBar.layoutParams = lp
+        builder.setView(progressBar)
+
+        builder.setCancelable(false)
+        loadingDialog = builder.create()
+    }
+
+    private fun showLoadingDialog() {
+        if (!loadingDialog.isShowing) {
+            loadingDialog.show()
+        }
+    }
+
+    fun dismissdialog() {
+        loadingDialog.dismiss()
+    }
+
 
 
 }

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +22,8 @@ import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
+import java.util.Collections
+
 
 class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
     View.OnClickListener {
@@ -34,7 +35,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
     private lateinit var viewModel: VisitsViewModel
     private lateinit var binding: FragmentVisitsBinding
     private val mAdapter: PlanAdapter = PlanAdapter()
-    private var mList: List<CustomerVisitPlan> = ArrayList()
+    private var mList: MutableList<CustomerVisitPlan> = ArrayList()
     private val versionName = BuildConfig.VERSION_NAME
     private lateinit var dialog: ProgressDialog
 
@@ -44,7 +45,8 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
     ): View {
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_visits, container, false)
-        viewModel = ViewModelProvider(this, VisitsViewModelFactory(context!!))[VisitsViewModel::class.java]
+        viewModel =
+            ViewModelProvider(this, VisitsViewModelFactory(context!!))[VisitsViewModel::class.java]
 
         dialog = ProgressDialogHelper().showAlertProgress(
             requireActivity(),
@@ -54,6 +56,18 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
         binding.day.text = ConvertDate.getDay()
         binding.date.text = ConvertDate.getDate()
 
+
+        binding.tryAgainButtons.tryAgain.setOnClickListener(this)
+
+        setupRecycler()
+        fetchData()
+
+        return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mList.clear()
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 VisitsIntent.GetPlan(
@@ -61,11 +75,6 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                 )
             )
         }
-        binding.tryAgainButtons.tryAgain.setOnClickListener(this)
-
-        setupRecycler()
-        fetchData()
-        return binding.root
     }
 
 
@@ -79,9 +88,15 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                     //Get Order Type
                     is VisitsStatus.Plan -> {
                         dialog.hide()
+                        mList.clear()
                         Log.d(TAG, "fetchData: ${it.data.data.customer_visit_plan}")
-                        setAdapterData(it.data.data.customer_visit_plan)
-                        mList = it.data.data.customer_visit_plan
+                        mList.addAll(it.data.data.customer_visit_plan)
+
+                        val sortedList = mList.sortedBy { it.CUSTOMER_CODE }
+                        mList.clear()
+                        mList.addAll(sortedList)
+
+                        setAdapterData(mList)
                         binding.tryAgainButtons.root.visibility = View.GONE
                     }
 
@@ -119,6 +134,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                 .putExtra("customerSiteData", mList[position])
                 .putExtra("orderType", mList[position].customer_order_type)
                 .putExtra("customerTypePosition", mList[position].customer_type)
+                .putExtra("customer_name", mList[position].customer_name)
         )
     }
 

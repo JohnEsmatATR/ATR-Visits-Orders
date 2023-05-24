@@ -7,121 +7,128 @@
 
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/coordinatorLayout"
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.akhnaton.visits.ui.MainActivity">
 
-        <LinearLayout
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/coordinatorLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimaryDark"
-                android:orientation="vertical"
-                android:padding="@dimen/_16sdp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/welcome_to_visits"
-                    android:textColor="@color/color_white"
-                    android:textSize="30sp" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/welcome_visits"
-                    android:textColor="#fff"
-                    android:textSize="15sp" />
-
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:padding="@dimen/_10sdp"
-                    android:text="@string/learn_more"
-                    app:cornerRadius="@dimen/_4sdp" />
-            </LinearLayout>
+            tools:context="com.akhnaton.visits.ui.MainActivity">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:gravity="center"
                 android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/appVersion"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="App Version: 2.14"/>
-
-                <TextView
-                    android:id="@+id/error"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/_4sdp"
-                    android:textColor="@color/red" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_user"
-                    style="@style/OutlinedRoundedBox"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_20sdp"
-                    android:layout_marginEnd="@dimen/_20sdp">
+                    android:background="@color/colorPrimaryDark"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_16sdp">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/username"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_person_outline_black_24dp"
-                        android:drawablePadding="10dp"
-                        android:hint="@string/username"
-                        android:inputType="text"
-                        android:maxLines="1" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:text="@string/welcome_to_visits"
+                        android:textColor="@color/color_white"
+                        android:textSize="30sp" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/layout_pass"
-                    style="@style/OutlinedRoundedBox"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/welcome_visits"
+                        android:textColor="#fff"
+                        android:textSize="15sp" />
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:padding="@dimen/_10sdp"
+                        android:text="@string/learn_more"
+                        app:cornerRadius="@dimen/_4sdp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/_20sdp"
-                    android:layout_marginEnd="@dimen/_20sdp">
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/password"
+                    <TextView
+                        android:id="@+id/appVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="App Version: 2.14"/>
+
+                    <TextView
+                        android:id="@+id/error"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:textColor="@color/red" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_user"
+                        style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_lock_outline_black_24dp"
-                        android:drawablePadding="10dp"
-                        android:hint="@string/password"
-                        android:inputType="textPassword"
-                        android:maxLines="1" />
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginStart="@dimen/_20sdp"
+                        android:layout_marginEnd="@dimen/_20sdp">
 
-                <Button
-                    android:id="@+id/loginButton"
-                    android:layout_width="150dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_18sdp"
-                    android:drawableEnd="@drawable/ic_send_black_24dp"
-                    android:paddingStart="@dimen/_12sdp"
-                    android:paddingTop="@dimen/_8sdp"
-                    android:paddingEnd="@dimen/_12sdp"
-                    android:paddingBottom="@dimen/_8sdp"
-                    android:text="@string/login"
-                    android:textColor="@color/color_white"
-                    android:textSize="@dimen/_10ssp"
-                    app:cornerRadius="@dimen/_6sdp" />
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/username"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_person_outline_black_24dp"
+                            android:drawablePadding="10dp"
+                            android:hint="@string/username"
+                            android:inputType="text"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_pass"
+                        style="@style/OutlinedRoundedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/_20sdp"
+                        android:layout_marginEnd="@dimen/_20sdp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:drawableStart="@drawable/ic_lock_outline_black_24dp"
+                            android:drawablePadding="10dp"
+                            android:hint="@string/password"
+                            android:inputType="textPassword"
+                            android:maxLines="1" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <Button
+                        android:id="@+id/loginButton"
+                        android:layout_width="150dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_18sdp"
+                        android:drawableEnd="@drawable/ic_send_black_24dp"
+                        android:paddingStart="@dimen/_12sdp"
+                        android:paddingTop="@dimen/_8sdp"
+                        android:paddingEnd="@dimen/_12sdp"
+                        android:paddingBottom="@dimen/_8sdp"
+                        android:text="@string/login"
+                        android:textColor="@color/color_white"
+                        android:textSize="@dimen/_10ssp"
+                        app:cornerRadius="@dimen/_6sdp" />
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
 
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </ScrollView>
 </layout>

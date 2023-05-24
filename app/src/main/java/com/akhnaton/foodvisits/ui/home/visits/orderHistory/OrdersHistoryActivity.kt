@@ -6,7 +6,11 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.DatePicker
+import android.widget.LinearLayout
+import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -20,6 +24,7 @@ import com.akhnaton.foodvisits.databinding.ActivityOrdersHistoryBinding
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,19 +41,31 @@ class OrdersHistoryActivity : AppCompatActivity(),
     private val version = BuildConfig.VERSION_NAME
     private var timeStampFrom = ""
     private var timeStampTo = ""
+    private lateinit var loadingDialog: AlertDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_orders_history)
 
+        initLoadingDialog()
+
+        timeStampFrom = ConvertDate.getDateTimeStamp()
+        timeStampTo = ConvertDate.getDateTimeStamp()
+
         lifecycleScope.launch {
             viewModel.ordersIntent.send(
                 OrderHistoryIntent.OrderHistory(
                     SharedPreferencesHelper.getInstance().getUserToken(),
-                    version, ConvertDate.getDateTimeStamp(), ConvertDate.getDateTimeStamp()
+                    version, timeStampTo, timeStampFrom
                 )
             )
         }
+        showLoadingDialog()
+
+        val sdf = SimpleDateFormat("dd/M/yyyy")
+        val date = sdf.format(Date())
+        binding.fromDate.setText(date)
+        binding.toDate.setText(date)
 
         binding.fromDate.setOnClickListener {
             val cldr = Calendar.getInstance()
@@ -63,8 +80,8 @@ class OrdersHistoryActivity : AppCompatActivity(),
                     cldr.set(year1, monthOfYear, dayOfMonth)
                     timeStampFrom = (cldr.timeInMillis / 1000).toString()
 
-//                    Log.d("TAG", "Testing TimeStamp T:  ${ convertDateToLong(cldr.time)}")
                     binding.fromDate.setText(date)
+
                 }, year, month, day
             )
             picker.show()
@@ -82,33 +99,84 @@ class OrdersHistoryActivity : AppCompatActivity(),
                     val date = dayOfMonth.toString() + "/" + (monthOfYear + 1) + "/" + year1
                     cldr.set(year1, monthOfYear, dayOfMonth)
                     timeStampTo = (cldr.timeInMillis / 1000).toString()
-                    Log.d("TAG", "Testing TimeStamp T:  $timeStampTo")
 
                     binding.toDate.setText(date)
+
                 }, year, month, day
             )
             picker.show()
         }
 
         binding.toDateBtn.setOnClickListener {
-            Log.d(
-                TAG,
-                "ConvertDate: $timeStampFrom + TimeStampTo: $timeStampTo"
-            )
+            Log.d("kjbkjbjkjknkn", "onCreate: $timeStampFrom || $timeStampTo")
 
-            lifecycleScope.launch {
-                viewModel.ordersIntent.send(
-                    OrderHistoryIntent.OrderHistory(
-                        SharedPreferencesHelper.getInstance().getUserToken(),
-                        version, timeStampFrom, timeStampTo
-                    )
-                )
+            try {
+                val dateFrom = Date(timeStampFrom.toLong() * 1000L)
+                val dateTo = Date(timeStampTo.toLong() * 1000L)
+
+                dateFrom.hours = 0
+                dateFrom.minutes = 0
+                dateFrom.seconds = 0
+                dateTo.hours = 0
+                dateTo.minutes = 0
+                dateTo.seconds = 0
+
+                Log.d("kjbkjbjkjknkn", "onCreate: $dateFrom || $dateTo")
+                if (dateFrom.before(dateTo) || dateFrom == dateTo) {
+                    lifecycleScope.launch {
+                        viewModel.ordersIntent.send(
+                            OrderHistoryIntent.OrderHistory(
+                                SharedPreferencesHelper.getInstance().getUserToken(),
+                                version, timeStampTo, timeStampFrom
+                            )
+                        )
+                    }
+                    showLoadingDialog()
+                } else {
+                    Toast.makeText(this, "Time From is smallest than Time To", Toast.LENGTH_SHORT)
+                        .show()
+                }
+            } catch (e: ParseException) {
+                // Handle the ParseException here
+                e.printStackTrace()
             }
+
+
         }
         binding.backBtn.setOnClickListener { onBackPressed() }
         setupRecycler()
         fetchData()
     }
+
+
+    private fun initLoadingDialog() {
+        val builder = AlertDialog.Builder(this)
+
+        builder.setTitle("Loading...")
+
+        val progressBar = ProgressBar(this)
+        val lp = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        )
+        progressBar.layoutParams = lp
+        builder.setView(progressBar)
+
+        builder.setCancelable(false)
+        loadingDialog = builder.create()
+    }
+
+
+    private fun showLoadingDialog() {
+        if (!loadingDialog.isShowing) {
+            loadingDialog.show()
+        }
+    }
+
+    fun dismissdialog() {
+        loadingDialog.dismiss()
+    }
+
 
     private fun setupRecycler() {
         binding.recOrdersHistory.adapter = mAdapter
@@ -122,13 +190,21 @@ class OrdersHistoryActivity : AppCompatActivity(),
             viewModel.status.collect {
                 when (it) {
                     is OrderHistoryState.GetOrdersHistory -> {
-                        if (it.orders.data.isEmpty()){
+                        if (it.orders.data.isEmpty()) {
                             binding.blankOrders.visibility = View.VISIBLE
+                        } else {
+                            binding.blankOrders.visibility = View.GONE
                         }
                         Log.d("TAG", "fetchData: ${it.orders}")
                         mAdapter.setOrdersList(it.orders.data, this@OrdersHistoryActivity)
+                        dismissdialog()
                     }
-                    is OrderHistoryState.Error -> Log.d(TAG, "fetchData: ${it.error}")
+
+                    is OrderHistoryState.Error -> {
+                        Log.d(TAG, "fetchData: ${it.error}")
+                        dismissdialog()
+                    }
+
                     OrderHistoryState.Idle -> Log.d(TAG, "fetchData: $it")
                     OrderHistoryState.Loading -> Log.d(TAG, "fetchData: $it")
                 }

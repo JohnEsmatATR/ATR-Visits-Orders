@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -16,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.ActivitySetupProfileBinding
 import com.akhnaton.foodvisits.shared.FirebaseProfileClient
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.canhub.cropper.CropImage
@@ -67,6 +69,10 @@ class SetupProfileActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
 
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
+
     }
 
     private fun bringImagePicker() {
@@ -105,6 +111,9 @@ class SetupProfileActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
-        FirebaseProfileClient().setProfileImgSetup(mainImageURI,this@SetupProfileActivity)
+        if (isChanged) {
+            FirebaseProfileClient().setProfileImgSetup(mainImageURI, this@SetupProfileActivity)
+        } else
+            Toast.makeText(SharedPreferencesHelper.context, "you should to add image first", Toast.LENGTH_SHORT).show()
     }
 }

@@ -32,7 +32,8 @@ class ProgressDialogHelper {
 
     fun orderLimitAlert(context: Context, message :String) {
         val limitAlert = SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
-        limitAlert.setTitleText("Order Limit!..").contentText = message
+        limitAlert.setTitleText("Order Limit!..")
+        limitAlert.setContentText("Check for quantity, $message")
         limitAlert.setCancelable(false)
         limitAlert.show()
     }

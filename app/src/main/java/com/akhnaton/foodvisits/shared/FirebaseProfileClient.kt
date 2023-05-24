@@ -71,6 +71,7 @@ class FirebaseProfileClient {
     fun setProfileImgSetup(uri: Uri, context: Context) {
         val progressDialog = ProgressDialog(context)
         progressDialog.setTitle("Uploading...")
+        progressDialog.setCancelable(false)
         progressDialog.show()
         val newImageFile = File(uri.path!!)
 

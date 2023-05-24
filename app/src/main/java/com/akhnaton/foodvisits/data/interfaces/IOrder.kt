@@ -39,6 +39,7 @@ interface IOrder {
         @Field("app_version") appVersion: String,
         @Field("api_token") apiToken: String,
         @Field("order_type") orderType: String,
+        @Field("customer_type") customer_type: String,
     ): Categories
 
 

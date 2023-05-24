@@ -18,7 +18,8 @@ sealed class OrderIntent {
     data class GetCategories(
         val app_version: String,
         val api_token: String,
-        val orderType: String
+        val orderType: String,
+        val customer_type: String,
     ) : OrderIntent()
 
     data class GetProducts(

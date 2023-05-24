@@ -42,6 +42,9 @@ class PlanViewHolder(val binding: ListPlanBinding, val listener: OnSelectEmploye
         if (data.is_visited_today){
             binding.customerName.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
             binding.customerAddress.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+        } else {
+            binding.customerName.paintFlags = 0
+            binding.customerAddress.paintFlags = 0
         }
         binding.visitCard.setOnClickListener { listener.onSelectEmployeeClickListener(data,adapterPosition) }
         binding.executePendingBindings()

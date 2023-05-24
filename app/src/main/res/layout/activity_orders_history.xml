@@ -67,6 +67,8 @@
             android:layout_marginStart="@dimen/_14sdp"
             android:layout_marginTop="@dimen/_12sdp"
             android:layout_marginEnd="@dimen/_14sdp"
+            app:prefixText="From: "
+            app:startIconDrawable="@drawable/ic_baseline_calendar_month_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/constraintToolbar">
@@ -75,10 +77,7 @@
                 android:id="@+id/fromDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_baseline_calendar_month_24"
-                android:drawablePadding="@dimen/_12sdp"
                 android:focusable="false"
-                android:text="From Date"
                 android:textStyle="bold" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -90,6 +89,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_14sdp"
             android:layout_marginEnd="@dimen/_14sdp"
+            app:prefixText="to:       "
+            app:startIconDrawable="@drawable/ic_baseline_calendar_month_24"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fromDateLayout">
@@ -98,21 +99,19 @@
                 android:id="@+id/toDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableStart="@drawable/ic_baseline_calendar_month_24"
-                android:drawablePadding="@dimen/_12sdp"
                 android:focusable="false"
-                android:text="To Date"
                 android:textStyle="bold" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
+        <ImageView
             android:id="@+id/toDateBtn"
-            android:layout_width="@dimen/_24sdp"
-            android:layout_height="@dimen/_26sdp"
-            android:layout_marginEnd="@dimen/_32sdp"
-            android:background="@drawable/ic_send_black_24dp"
-            android:backgroundTint="@color/colorAccent"
+            android:layout_width="@dimen/_40sdp"
+            android:layout_height="@dimen/_40sdp"
+            android:padding="@dimen/_7sdp"
+            android:layout_marginEnd="@dimen/_20sdp"
+            android:src="@drawable/ic_send_black_24dp"
+            android:foreground="?attr/selectableItemBackground"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@+id/toDateLayout"
             app:layout_constraintTop_toBottomOf="@+id/fromDateLayout"/>

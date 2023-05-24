@@ -4,5 +4,6 @@ data class LoginUserData(
     var api_token: String,
     var user_name: String,
     var employee_id: String,
-    var make_order: Boolean
+    var make_order: Boolean,
+    var prom: Boolean
 )

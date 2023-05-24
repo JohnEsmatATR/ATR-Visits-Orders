@@ -32,7 +32,8 @@ class OrderRepository {
         appVersion: String,
         apiToken: String,
         orderType: String,
-    ) = retrofit.getCategories(appVersion = appVersion, apiToken = apiToken, orderType = orderType)
+        customer_type: String,
+    ) = retrofit.getCategories(appVersion = appVersion, apiToken = apiToken, orderType = orderType, customer_type = customer_type)
 
     suspend fun getProducts(
         appVersion: String,

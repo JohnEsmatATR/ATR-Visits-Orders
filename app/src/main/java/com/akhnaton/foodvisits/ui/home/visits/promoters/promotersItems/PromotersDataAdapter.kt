@@ -138,7 +138,17 @@ class PromotersDataAdapter(
             saveButton.setOnClickListener {
                 item.price = priceET.text.toString().trim { it <= ' ' }
                 item.returnQuantity = returnET.text.toString().trim { it <= ' ' }
-                onSubmitListener.onSubmitClickListener(adapterPosition, item, itemView)
+                if (item.price.toString().isEmpty()) {
+                    priceET.error = "يجب ادخال السعر"
+                    priceET.requestFocus()
+                }
+                if (item.returnQuantity.toString().isEmpty()) {
+                    returnET.error = "يجب ادخال المرتجع"
+                    returnET.requestFocus()
+                }
+                if (item.price.toString().isNotEmpty() && item.returnQuantity.toString().isNotEmpty()) {
+                    onSubmitListener.onSubmitClickListener(adapterPosition, item, itemView)
+                }
             }
             quantityView.onQuantityChangeListener = object : OnQuantityChangeListener {
                 override fun onQuantityChanged(

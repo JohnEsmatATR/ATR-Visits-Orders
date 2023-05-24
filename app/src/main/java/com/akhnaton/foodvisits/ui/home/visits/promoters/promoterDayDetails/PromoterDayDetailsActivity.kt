@@ -23,8 +23,8 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
     private val TAG = "PromDayDetailsActivity"
     private var code: String? = null
     private var party_site: String? = null
-    private var token:String? = null
-    private var employee_id:String? = null
+    private var token: String? = null
+    private var employee_id: String? = null
     private var customer_code: String? = null
     private var pDialog: SweetAlertDialog? = null
     private var sharedpreferences: SharedPreferences? = null
@@ -61,6 +61,14 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
                     "Please add all inputs!",
                     Toast.LENGTH_LONG
                 ).show()
+            } else if (binding.etCustomerCalls.text.toString().trim().toInt() <
+                binding.etCustomerPositiveCalls.text.toString().trim().toInt()
+            ) {
+                Toast.makeText(
+                    this@PromoterDayDetailsActivity,
+                    "لا يمكن ان يكون عدد المكالمات الاجابية اكبر من عدد المكالمات اليومية",
+                    Toast.LENGTH_LONG
+                ).show()
             } else sendDetails()
         }
     }
@@ -74,8 +82,12 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
                         showDialog()
                         Log.d(TAG, "fetchData:(Loading) Loading")
                     }
+
                     is PromoterStatus.SendDetails -> {
-                        Log.d(TAG, "onResponse: (success)" + it.response.data!![0].message.toString())
+                        Log.d(
+                            TAG,
+                            "onResponse: (success)" + it.response.data!![0].message.toString()
+                        )
                         val messageSuccess: String = it.response.data!![0].message.toString()
                         Log.d("Message", messageSuccess)
                         val Statusm: Int = it.response.data!![0].status!!.toInt()
@@ -87,6 +99,7 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
                         }
                         pDialog!!.dismiss()
                     }
+
                     is PromoterStatus.Error -> {
                         Log.d(TAG, "fetchData: (error) ${it.error}")
                         Toast.makeText(

@@ -40,6 +40,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
         private const val TAG = "VisitsDetailsActivity"
     }
+
     private lateinit var checkConnection: CheckConnection
     private lateinit var viewModel: VisitsViewModel
     private val versionName = BuildConfig.VERSION_NAME
@@ -53,30 +54,31 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var orderType = ""
     private var customerTypePosition = ""
     private var enteredTime = ""
+    private var customerName = ""
     private var zoneFlag = ""
     private lateinit var customerData: CustomerVisitPlan
     private lateinit var progressBar: SweetAlertDialog
-    var db = VisitDatabase.getDatabase(this)
-    lateinit var visitDao: SaveVisitDao
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
-        viewModel = ViewModelProvider(this, VisitsViewModelFactory(baseContext))[VisitsViewModel::class.java]
+        viewModel = ViewModelProvider(
+            this,
+            VisitsViewModelFactory(baseContext)
+        )[VisitsViewModel::class.java]
         checkConnection = CheckConnection(baseContext)
-
 
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         enteredTime = intent.getStringExtra("time").toString()
         customerData = intent.getSerializableExtra("customerSiteData") as CustomerVisitPlan
+        customerName = intent.getStringExtra("customer_name").toString()
 
         binding.custName.text = customerData.customer_name
         binding.custAddress.text = customerData.customer_address
         binding.custCode.text = customerPartySiteId
 
-        visitDao = db.saveVisitDao()
 
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
@@ -103,8 +105,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
     private fun checkPromoters() {
-        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
-        if (check) {
+        val check = SharedPreferencesHelper.getInstance().getProm()
+        Log.d("vhjbhjvbfvfvv", "checkPromoters: $check")
+        if (!check) {
             binding.btnPromotersImages.visibility = View.GONE
             binding.btnPromotersStockStatus.visibility = View.GONE
             binding.btnPromotersDetails.visibility = View.GONE
@@ -116,7 +119,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             binding.btnPromotersCompetitors.visibility = View.VISIBLE
         }
     }
-
 
 
     private fun fetchData() {
@@ -135,7 +137,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         try {
                             limitArea = it.data!!.data.limit_area
                             Log.d(TAG, "LimitArea======: $limitArea")
-                        } catch (e:Exception) {
+                        } catch (e: Exception) {
                             limitArea = 100
                             Log.d(TAG, "Exception======: $limitArea")
                         }
@@ -150,38 +152,31 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun checkVisitSituation(visitId: String){
+    private fun checkVisitSituation(visitId: String) {
         val check = SharedPreferencesHelper.getInstance().getMakeOrder()
         if (checkConnection.checkConnection()) {
-            if (binding.visitType.selectedItem.toString() == "سلبى"){
+            if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
                 finish()
             } else {
-                if (check) {
-                    startActivity(
-                        Intent(this@VisitsDetailsActivity, PaymentActivity::class.java)
-                            .putExtra("customerPartySiteId", customerPartySiteId)
-                            .putExtra("orderType", orderType)
-                            .putExtra("customerTypePosition", customerTypePosition)
-                            .putExtra("customer_code", customerData.CUSTOMER_CODE)
-                            .putExtra("visitId", visitId)
-                    )
-                } else {
-                    finish()
-                }
+                startActivity(
+                    Intent(this@VisitsDetailsActivity, PaymentActivity::class.java)
+                        .putExtra("customerPartySiteId", customerPartySiteId)
+                        .putExtra("orderType", orderType)
+                        .putExtra("customerTypePosition", customerTypePosition)
+                        .putExtra("customer_code", customerData.CUSTOMER_CODE)
+                        .putExtra("visitId", visitId)
+                        .putExtra("customer_name", customerName)
+                )
             }
         } else {
-            if (binding.visitType.selectedItem.toString() == "سلبى"){
+            if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
                 finish()
             } else {
-                if (check) {
-                    Toast.makeText(
-                        baseContext,
-                        "لا يمكن اكمال الطلبية لعدم توفر انترنت",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    finish()
-                }
+                Toast.makeText(
+                    baseContext,
+                    "لا يمكن اكمال الطلبية لعدم توفر انترنت",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -199,7 +194,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(onClick: View?) {
-        compareLocation()
+        if (binding.visTarget.text.isNotEmpty()) {
+            compareLocation()
+        } else {
+            binding.visTarget.error = "ادخل هدف الزيارة"
+            binding.visTarget.requestFocus()
+        }
     }
 
     private fun customerLocationMissing(): String {
@@ -218,7 +218,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val customerLocation = Location("")
             customerLocation.latitude = latitude
             customerLocation.longitude = longitude
-0
+            0
             val myLocation = Location("")
             myLocation.latitude = customerData.customer_latitude.toDouble()
             myLocation.longitude = customerData.customer_longitude.toDouble()
@@ -236,7 +236,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun openMap() {
-        if (customerData.customer_latitude.equals("")){
+        if (customerData.customer_latitude.equals("")) {
             binding.btnMap.visibility = View.GONE
         }
         binding.btnMap.setOnClickListener {
@@ -329,7 +329,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
             intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
             startActivity(intent)
-            Log.d("jkfvjkfjkf", "promotersUploadPhotos: " + customerPartySiteId + " | " + customerData.customer_party_site_id)
+            Log.d(
+                "jkfvjkfjkf",
+                "promotersUploadPhotos: " + customerPartySiteId + " | " + customerData.customer_party_site_id
+            )
         })
     }
 

@@ -7,362 +7,362 @@
 
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraintToolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/gray"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_height="match_parent">
 
-            <androidx.appcompat.widget.AppCompatButton
-                android:id="@+id/backBtn"
-                android:layout_width="@dimen/_24sdp"
-                android:layout_height="@dimen/_24sdp"
-                android:layout_gravity="center"
-                android:layout_marginStart="9dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:background="@drawable/back_arrow" />
 
-            <TextView
-                android:id="@+id/toolbarText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_10sdp"
-                android:gravity="center"
-                android:minHeight="?attr/actionBarSize"
-                android:text="@string/visits_details"
-                android:textColor="#ffff"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:theme="?attr/actionBarTheme"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/backBtn"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/constraintToolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="?attr/actionBarSize"
+                android:background="@color/gray"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:titleTextColor="#ffff" />
+                app:layout_constraintTop_toTopOf="parent">
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/backBtn"
+                    android:layout_width="@dimen/_24sdp"
+                    android:layout_height="@dimen/_24sdp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="9dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    android:background="@drawable/back_arrow" />
 
+                <TextView
+                    android:id="@+id/toolbarText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:gravity="center"
+                    android:minHeight="?attr/actionBarSize"
+                    android:text="@string/visits_details"
+                    android:textColor="#ffff"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:theme="?attr/actionBarTheme"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/backBtn"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginTop="@dimen/_22sdp"
-            app:layout_constraintTop_toBottomOf="@id/constraintToolbar">
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:minHeight="?attr/actionBarSize"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:titleTextColor="#ffff" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_marginTop="@dimen/_22sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/constraintToolbar">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": العميل " />
-
-                        <TextView
-                            android:id="@+id/cust_name"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:text=""
-                            tools:layout_editor_absoluteX="149dp"
-                            tools:layout_editor_absoluteY="64dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": العنوان  " />
-
-                        <TextView
-                            android:id="@+id/cust_address"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            tools:layout_editor_absoluteX="149dp"
-                            tools:layout_editor_absoluteY="149dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": كود العميل " />
-
-                        <TextView
-                            android:id="@+id/cust_code"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            tools:layout_editor_absoluteX="149dp"
-                            tools:layout_editor_absoluteY="149dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": بيانات الخريطه" />
-
-                        <TextView
-                            android:id="@+id/fieldLongitude"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=""
-                            tools:layout_editor_absoluteX="149dp"
-                            tools:layout_editor_absoluteY="149dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": بيانات الخريطه " />
-
-                        <TextView
-                            android:id="@+id/fieldLatitude"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-
-                            android:text=""
-                            tools:layout_editor_absoluteX="149dp"
-                            tools:layout_editor_absoluteY="149dp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": هدف الزياره " />
-
-                        <EditText
-                            android:id="@+id/vis_target"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="ادخل هدف الزياره بالارقام"
-                            android:inputType="number"
-                            android:text=""/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": موقف الزياره  " />
-
-                        <Spinner
-                            android:id="@+id/visitType"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:entries="@array/spinner_visit"
-                            android:prompt="@string/select_visibility" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/ll_visit_goal"
-                        android:layout_width="300dp"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text=": محقق اليوم " />
-
-                        <EditText
-                            android:id="@+id/act_target"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="ادخل المحقق اليوم بالارقام"
-                            android:inputType="number" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/lt_promote"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="vertical"
-                        >
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="10dp"
-                            android:orientation="horizontal"
-                            >
-
-                            <Button
-                                android:id="@+id/btn_promoters_images"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_marginHorizontal="10dp"
-                                android:background="@drawable/buttonstyle"
-                                android:text="Upload Photos"
-                                android:textColor="@android:color/white"
-                                />
-
-                            <Button
-                                android:id="@+id/btn_promoters_stock_status"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_marginHorizontal="10dp"
-                                android:background="@drawable/buttonstyle"
-                                android:text="Add Stock"
-                                android:textColor="@android:color/white" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginTop="8dp"
-                            android:orientation="horizontal"
-                            >
-
-                            <Button
-                                android:id="@+id/btn_promoters_details"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_marginHorizontal="5dp"
-                                android:background="@drawable/buttonstyle"
-                                android:gravity="center"
-                                android:text="Calls"
-                                android:textColor="@android:color/white"
-                                />
-
-                            <Button
-                                android:id="@+id/btn_promoters_competitors"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:layout_marginHorizontal="5dp"
-                                android:background="@drawable/buttonstyle"
-                                android:gravity="center"
-                                android:text="Competitors"
-                                android:textColor="@android:color/white"
-                                />
-
-                        </LinearLayout>
-
-
-                    </LinearLayout>
-
-                    <androidx.constraintlayout.widget.ConstraintLayout
+                    <ScrollView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
 
-                        <androidx.appcompat.widget.AppCompatButton
-                            android:id="@+id/btnMap"
-                            android:layout_width="@dimen/_42sdp"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="@dimen/_42sdp"
-                            android:layout_marginTop="@dimen/_4sdp"
-                            android:background="@drawable/ic_map"
-                            android:textAllCaps="false"
-                            app:layout_constraintBottom_toBottomOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toTopOf="parent" />
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
 
-                        <Button
-                            android:id="@+id/save_vis"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_marginHorizontal="50dp"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/buttonstyle"
-                            android:text="Save Visit"
-                            android:textColor="@android:color/white"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toEndOf="@id/btnMap"
-                            app:layout_constraintTop_toTopOf="parent" />
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
 
-                    </androidx.constraintlayout.widget.ConstraintLayout>
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": العميل " />
+
+                                <TextView
+                                    android:id="@+id/cust_name"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:text=""
+                                    tools:layout_editor_absoluteX="149dp"
+                                    tools:layout_editor_absoluteY="64dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": العنوان  " />
+
+                                <TextView
+                                    android:id="@+id/cust_address"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    tools:layout_editor_absoluteX="149dp"
+                                    tools:layout_editor_absoluteY="149dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": كود العميل " />
+
+                                <TextView
+                                    android:id="@+id/cust_code"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    tools:layout_editor_absoluteX="149dp"
+                                    tools:layout_editor_absoluteY="149dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": بيانات الخريطه" />
+
+                                <TextView
+                                    android:id="@+id/fieldLongitude"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=""
+                                    tools:layout_editor_absoluteX="149dp"
+                                    tools:layout_editor_absoluteY="149dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": بيانات الخريطه " />
+
+                                <TextView
+                                    android:id="@+id/fieldLatitude"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+
+                                    android:text=""
+                                    tools:layout_editor_absoluteX="149dp"
+                                    tools:layout_editor_absoluteY="149dp" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": هدف الزياره " />
+
+                                <EditText
+                                    android:id="@+id/vis_target"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="ادخل هدف الزياره بالارقام"
+                                    android:inputType="number"
+                                    android:text="" />
+
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": موقف الزياره  " />
+
+                                <Spinner
+                                    android:id="@+id/visitType"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:entries="@array/spinner_visit"
+                                    android:prompt="@string/select_visibility" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/ll_visit_goal"
+                                android:layout_width="300dp"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=": محقق اليوم " />
+
+                                <EditText
+                                    android:id="@+id/act_target"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="ادخل المحقق اليوم بالارقام"
+                                    android:inputType="number" />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:id="@+id/lt_promote"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center"
+                                android:orientation="vertical">
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginTop="10dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btn_promoters_images"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:layout_marginHorizontal="10dp"
+                                        android:background="@drawable/buttonstyle"
+                                        android:text="Upload Photos"
+                                        android:textColor="@android:color/white" />
+
+                                    <Button
+                                        android:id="@+id/btn_promoters_stock_status"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:layout_marginHorizontal="10dp"
+                                        android:background="@drawable/buttonstyle"
+                                        android:text="Add Stock"
+                                        android:textColor="@android:color/white" />
+
+                                </LinearLayout>
+
+                                <LinearLayout
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginTop="8dp"
+                                    android:orientation="horizontal">
+
+                                    <Button
+                                        android:id="@+id/btn_promoters_details"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:layout_marginHorizontal="5dp"
+                                        android:background="@drawable/buttonstyle"
+                                        android:gravity="center"
+                                        android:text="Calls"
+                                        android:textColor="@android:color/white" />
+
+                                    <Button
+                                        android:id="@+id/btn_promoters_competitors"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_gravity="center"
+                                        android:layout_marginHorizontal="5dp"
+                                        android:background="@drawable/buttonstyle"
+                                        android:gravity="center"
+                                        android:text="Competitors"
+                                        android:textColor="@android:color/white" />
+
+                                </LinearLayout>
 
 
+                            </LinearLayout>
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_marginBottom="50dp">
+
+                                <androidx.appcompat.widget.AppCompatButton
+                                    android:id="@+id/btnMap"
+                                    android:layout_width="@dimen/_42sdp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="@dimen/_42sdp"
+                                    android:layout_marginTop="@dimen/_4sdp"
+                                    android:background="@drawable/ic_map"
+                                    android:textAllCaps="false"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                                <Button
+                                    android:id="@+id/save_vis"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_gravity="center"
+                                    android:layout_marginHorizontal="50dp"
+                                    android:layout_marginTop="10dp"
+                                    android:background="@drawable/buttonstyle"
+                                    android:text="Save Visit"
+                                    android:textColor="@android:color/white"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toEndOf="@id/btnMap"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                        </LinearLayout>
+
+
+                    </ScrollView>
 
                 </LinearLayout>
-
-
-
             </ScrollView>
-
-        </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

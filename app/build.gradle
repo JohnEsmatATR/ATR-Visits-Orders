@@ -40,6 +40,7 @@ android {
     kapt {
         correctErrorTypes = true
     }
+    namespace 'com.akhnaton.foodvisits'
 }
 
 dependencies {
