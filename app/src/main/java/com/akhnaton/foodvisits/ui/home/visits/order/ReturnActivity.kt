@@ -74,7 +74,6 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
         initLoadingDialog()
 
-        window.setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
 
         orderList = intent.getParcelableArrayListExtra<OrderItem>("orderList")!!
         categoryName = intent.getStringExtra("categoryName").toString()
@@ -191,6 +190,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                         } else {
                             startActivity(Intent(this@ReturnActivity, MainActivity::class.java))
                             dismissdialog()
+                            finishAffinity()
                         }
                     }
 
@@ -242,6 +242,9 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         }
 
 
+
+
+
         binding.categorySpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
@@ -279,7 +282,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         when (v.id) {
             binding.sendOrder.id -> {
                 if (mAdapterCardsProduct.isEmpty()) {
-                    Toast.makeText(this, "Select Item To Add", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
                 } else {
                     val orderPercent: Double = totalOrder / 100.0f * returnLimit
                     if (orderPercent >= totalReturn) {
@@ -313,18 +316,20 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
             binding.addItems.id -> {
 
 
-                if (binding.quantityED.text.toString().isEmpty() || binding.quantityED.text.toString().toInt() <= 0) {
+                if (binding.quantityED.text.toString()
+                        .isEmpty() || binding.quantityED.text.toString().toInt() <= 0
+                ) {
                     binding.quantityED.error = "Choose Quantity"
+                } else if (binding.itemsSpinner.text.toString() == "") {
+                    Toast.makeText(
+                        this,
+                        "no item selected",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else if (binding.quantityED.text.toString().toInt() == 100000
                     || binding.quantityED.text.toString().length > 6
                 ) {
                     binding.quantityED.error = "Order quantity can't be more than 100,000"
-                    binding.quantityED.isFocusable = true
-                } else if (binding.quantityED.text.toString().toInt()
-                    > binding.txtQuantity.text.toString().toInt()
-                ) {
-                    binding.quantityED.error =
-                        "Maximum Quantity you can add is ${binding.txtQuantity.text}"
                     binding.quantityED.isFocusable = true
                 } else {
                     if (checkItemAddedBefore()) {
@@ -339,7 +344,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
                         //Calculate Total Amount Text
                         val total =
-                            binding.quantityED.text.toString().toDouble() * (mItem.item_price + mItem.item_tax)
+                            binding.quantityED.text.toString()
+                                .toDouble() * (mItem.item_price + mItem.item_tax)
                         totalReturn += total
                         binding.totalReturn.text = "${totalReturn.toFloat()} EGP"
                         val cardItem = CardItem(

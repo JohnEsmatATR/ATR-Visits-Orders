@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.data.interfaces
+package com.akhnaton.foodvisits.data.interfaces.apis
 
 import com.akhnaton.foodvisits.data.model.orderHistory.OrderHistory
 import com.akhnaton.foodvisits.data.model.orderHistory.OrderHistoryDetails

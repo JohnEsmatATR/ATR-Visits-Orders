@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.ILogin
+import com.akhnaton.foodvisits.data.interfaces.apis.ILogin
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class LoginRepository {

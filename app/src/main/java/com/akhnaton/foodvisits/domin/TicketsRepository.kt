@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.ITickets
+import com.akhnaton.foodvisits.data.interfaces.apis.ITickets
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class TicketsRepository {

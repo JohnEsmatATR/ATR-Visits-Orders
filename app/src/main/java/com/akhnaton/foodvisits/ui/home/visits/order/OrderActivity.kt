@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isEmpty
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -69,9 +70,11 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private var visitId = ""
     private var paymentTypePosition = ""
     private var orderSourcePosition = ""
+    private var orderSourceFlag = -1
     private var customerCode = ""
     private var customerName = ""
     private var totalOrder: Double = 0.0
+    private var flagProduct = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -86,6 +89,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         visitId = intent.getStringExtra("visitId").toString()
         paymentTypePosition = intent.getStringExtra("paymentTypePosition").toString()
         orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
+        orderSourceFlag = intent.getIntExtra("orderSourceFlag", -1)
         customerCode = intent.getStringExtra("customer_code").toString()
         customerName = intent.getStringExtra("customer_name").toString()
 
@@ -163,7 +167,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                     customer_party_site_id = customerPartySiteId.toInt()
                                 )
                             )
-                            dismissdialog()
+
                         } else {
                             Toast.makeText(
                                 this@OrderActivity,
@@ -202,6 +206,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                 this@OrderActivity
                             )
                             dismissdialog()
+                            flagProduct = true
                         } else {
                             Toast.makeText(
                                 this@OrderActivity,
@@ -221,6 +226,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                         } else {
                             dismissdialog()
                             startActivity(Intent(this@OrderActivity, MainActivity::class.java))
+                            finishAffinity()
                         }
 
                         Log.d(
@@ -232,7 +238,6 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                     is OrderStatus.GetOrderLimit -> {
                         returnLimit = it.data.data.order_returns_limit_percentage
                         orderLimit = it.data.data.lowest_price_order
-                        dismissdialog()
                     }
 
                     is OrderStatus.Error -> {
@@ -317,35 +322,44 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
 
         binding.categorySpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(p0: AdapterView<*>?, p1: View?, p2: Int, p3: Long) {
-                    categoryName = binding.categorySpinner.selectedItem.toString()
-                    lifecycleScope.launch {
-                        viewModel.orderIntent.send(
-                            OrderIntent.GetProducts(
-                                app_version = versionName,
-                                api_token = SharedPreferencesHelper.getInstance().getUserToken(),
-                                orderType = orderType,
-                                sub_category = categoryName,
-                                customer_type = customerTypePosition.toInt(),
-                                customer_code = customerCode.toInt(),
-                                customer_party_site_id = customerPartySiteId.toInt()
-                            )
-                        )
-                    }
-                    binding.txtQuantity.text = ""
-                    binding.itemsSpinner.setText("")
-                    binding.quantityED.setText("")
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (flagProduct) {
 
-                    showLoadingDialog()
+                        categoryName = binding.categorySpinner.selectedItem.toString()
+                        lifecycleScope.launch {
+                            viewModel.orderIntent.send(
+                                OrderIntent.GetProducts(
+                                    app_version = versionName,
+                                    api_token = SharedPreferencesHelper.getInstance()
+                                        .getUserToken(),
+                                    orderType = orderType,
+                                    sub_category = categoryName,
+                                    customer_type = customerTypePosition.toInt(),
+                                    customer_code = customerCode.toInt(),
+                                    customer_party_site_id = customerPartySiteId.toInt()
+                                )
+                            )
+                        }
+
+                        binding.txtQuantity.text = ""
+                        binding.itemsSpinner.setText("")
+                        binding.quantityED.setText("")
+
+                        showLoadingDialog()
+                    }
+
                 }
 
-
-                override fun onNothingSelected(parent: AdapterView<*>) {
+                override fun onNothingSelected(parent: AdapterView<*>?) {
                     Log.d(TAG, "onNothingSelected: ")
                 }
-
-
             }
+
     }
 
     private fun setupRecycler() {
@@ -358,101 +372,11 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     override fun onClick(v: View?) {
         when (v?.id) {
             binding.sendOrder.id -> {
-                if (mAdapterCardsProduct.isEmpty()) {
-                    Toast.makeText(this, "Select Item To Add", Toast.LENGTH_SHORT).show()
-                } else if (totalOrder < 200.0) {
-                    Toast.makeText(
-                        this,
-                        "Minimum total order should be more than 200 L.E",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    if (orderLimit >= totalOrder) {
-                        ProgressDialogHelper().orderLimitAlert(
-                            this,
-                            "Total order must be at least $orderLimit LE"
-                        )
-                    } else {
-                        //Create order api
-                        lifecycleScope.launch {
-                            viewModel.orderIntent.send(
-                                OrderIntent.SendOrder(
-                                    CreateOrderHelper().addOrder(
-                                        orderType,
-                                        orderNumber,
-                                        customerTypePosition,
-                                        customerPartySiteId,
-                                        paymentTypePosition,
-                                        turnOver,
-                                        mItemsCardAdded,
-                                        mReturnItemCardAdded,
-                                        orderSourcePosition.toInt()
-                                    )
-                                )
-                            )
-                            showLoadingDialog()
-                        }
-                    }
-
-
-                }
+                validationSendOrder()
             }
 
             binding.addItems.id -> {
-
-                if (binding.quantityED.text.toString() != null) {
-                    if (binding.quantityED.text.toString().isEmpty() || binding.quantityED.text.toString().toInt() <= 0) {
-                        binding.quantityED.error = "Choose Quantity"
-                    } else if (binding.quantityED.text.toString().toInt() == 100000
-                        || binding.quantityED.text.toString().length > 6
-                    ) {
-                        binding.quantityED.error = "Order quantity can't be more than 100,000"
-                        binding.quantityED.isFocusable = true
-                    } else if (binding.quantityED.text.toString().toInt()
-                        > binding.txtQuantity.text.toString().toInt()
-                    ) {
-                        binding.quantityED.error =
-                            "Maximum Quantity you can add is ${binding.txtQuantity.text}"
-                        binding.quantityED.isFocusable = true
-                    } else {
-                        if (checkItemAddedBefore() && mItemOrdersList.isNotEmpty()) {
-
-                            val mItem = mItemOrdersList[mItemPositionSelected]
-
-                            val orderItem = OrderItem(
-                                mBonusPositionSelected,
-                                mItem.item_id,
-                                binding.quantityED.text.toString(),
-                                mItem.item_price_list
-                            )
-                            mItemsCardAdded.add(orderItem)
-
-                            //Calculate Total Amount Text
-                            val total =
-                                binding.quantityED.text.toString()
-                                    .toDouble() * (mItem.item_price + mItem.item_tax)
-                            totalOrder += total
-                            binding.totalAmount.text = "${totalOrder.toFloat()} EGP"
-
-                            val cardItem = CardItem(
-                                mItem.item_id,
-                                mItem.item_code,
-                                mItem.item_description,
-                                mItem.item_price,
-                                mItem.item_tax.toFloat(),
-                                binding.quantityED.text.toString(),
-                                total.toFloat(),
-                                mBonusPositionSelected,
-                                mItem.item_price_list
-                            )
-
-                            mAdapterCardsProduct.add(cardItem)
-                            mAdapter.addProduct(mAdapterCardsProduct)
-                            binding.itemsCount.text =
-                                "${mAdapterCardsProduct.size} Items"
-                        }
-                    }
-                }
+                validationAddItem()
             }
 
             binding.returnOrder.id -> {
@@ -480,12 +404,138 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             .putExtra("customer_code", customerCode)
                             .putExtra("customer_name", customerName)
                             .putExtra("orderSourcePosition", orderSourcePosition)
+                            .putExtra("orderSourceFlag", orderSourceFlag)
                             .putParcelableArrayListExtra("orderList", mItemsCardAdded)
                     )
                 }
             }
         }
     }
+
+
+    private fun validationSendOrder() {
+        if (mAdapterCardsProduct.isEmpty()) {
+            Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
+        } else if (totalOrder < 200.0) {
+            Toast.makeText(
+                this,
+                "Minimum total order should be more than 200 L.E",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else {
+            if (orderLimit >= totalOrder) {
+                ProgressDialogHelper().orderLimitAlert(
+                    this,
+                    "Total order must be at least $orderLimit LE"
+                )
+            } else {
+                //Create order api
+                lifecycleScope.launch {
+                    viewModel.orderIntent.send(
+                        OrderIntent.SendOrder(
+                            CreateOrderHelper().addOrder(
+                                orderType,
+                                orderNumber,
+                                customerTypePosition,
+                                customerPartySiteId,
+                                paymentTypePosition,
+                                turnOver,
+                                mItemsCardAdded,
+                                mReturnItemCardAdded,
+                                orderSourcePosition.toInt()
+                            )
+                        )
+                    )
+                    showLoadingDialog()
+                }
+            }
+
+
+        }
+    }
+
+
+    private fun validationAddItem() {
+        if (binding.quantityED.text.toString().isEmpty() || binding.quantityED.text.toString()
+                .toInt() <= 0
+        ) {
+            binding.quantityED.error = "Choose Quantity"
+        } else if (binding.itemsSpinner.text.toString() == "") {
+            Toast.makeText(
+                this,
+                "no item selected",
+                Toast.LENGTH_SHORT
+            ).show()
+        } else if (binding.quantityED.text.toString().toInt() == 100000
+            || binding.quantityED.text.toString().length > 6
+        ) {
+            binding.quantityED.error = "Order quantity can't be more than 100,000"
+            binding.quantityED.isFocusable = true
+        } else if (orderSourceFlag == 2 &&
+            binding.quantityED.text.toString().toInt() > binding.txtQuantity.text.toString().toInt()
+        ) {
+            binding.quantityED.error =
+                "Maximum Quantity you can add is ${binding.txtQuantity.text}"
+            binding.quantityED.isFocusable = true
+
+        } else if (orderSourceFlag == 0 &&
+            binding.quantityED.text.toString().toInt() <= binding.txtQuantity.text.toString()
+                .toInt()
+        ) {
+            binding.quantityED.error =
+                "Minimum Quantity you can add is ${binding.txtQuantity.text.toString().toInt() + 1}"
+            binding.quantityED.isFocusable = true
+
+        } else {
+            if (checkItemAddedBefore() && mItemOrdersList.isNotEmpty()) {
+
+                val mItem = mItemOrdersList[mItemPositionSelected]
+
+                val orderItem = OrderItem(
+                    mBonusPositionSelected,
+                    mItem.item_id,
+                    binding.quantityED.text.toString(),
+                    mItem.item_price_list
+                )
+                mItemsCardAdded.add(orderItem)
+
+                //Calculate Total Amount Text
+                val total =
+                    binding.quantityED.text.toString()
+                        .toDouble() * (mItem.item_price + mItem.item_tax)
+                totalOrder += total
+                binding.totalAmount.text = "${totalOrder.toFloat()} EGP"
+
+                val cardItem = CardItem(
+                    mItem.item_id,
+                    mItem.item_code,
+                    mItem.item_description,
+                    mItem.item_price,
+                    mItem.item_tax.toFloat(),
+                    binding.quantityED.text.toString(),
+                    total.toFloat(),
+                    mBonusPositionSelected,
+                    mItem.item_price_list
+                )
+
+                mAdapterCardsProduct.add(cardItem)
+                mAdapter.addProduct(mAdapterCardsProduct)
+                binding.itemsCount.text =
+                    "${mAdapterCardsProduct.size} Items"
+            }
+        }
+    }
+
+    private fun checkItemAddedBefore(): Boolean {
+        for (item in mAdapterCardsProduct) {
+            if (item.item_code == mItemOrdersList[mItemPositionSelected].item_code) {
+                Toast.makeText(this, "This Item Added Before", Toast.LENGTH_SHORT).show()
+                return false
+            }
+        }
+        return true
+    }
+
 
     @SuppressLint("SetTextI18n")
     override fun onDeleteClick(item: CardItem) {
@@ -504,16 +554,6 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         mAdapter.addProduct(mAdapterCardsProduct)
         binding.itemsCount.text =
             "${mAdapterCardsProduct.size} Items"
-    }
-
-    private fun checkItemAddedBefore(): Boolean {
-        for (item in mAdapterCardsProduct) {
-            if (item.item_code == mItemOrdersList[mItemPositionSelected].item_code) {
-                Toast.makeText(this, "This Item Added Before", Toast.LENGTH_SHORT).show()
-                return false
-            }
-        }
-        return true
     }
 
 }

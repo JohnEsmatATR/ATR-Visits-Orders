@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.IPromoter
+import com.akhnaton.foodvisits.data.interfaces.apis.IPromoter
 import com.akhnaton.foodvisits.shared.RetrofitClient
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

@@ -29,23 +29,23 @@ class FirebaseProfileClient {
 
     fun getProfileImage(binding: ActivityProfileBinding, context: Context) {
 
-        db.collection("Users").document(SharedPreferencesHelper.getInstance().getUserToken()).get()
-            .addOnCompleteListener { task: Task<DocumentSnapshot> ->
-                if (task.isSuccessful) {
-                    if (task.result.exists()) {
-                        val image = task.result.getString("image")
-                        Log.d("TAG", "onFireStoreImage: $image")
-
-                        Glide.with(context.applicationContext).load(image)
-                            .placeholder(R.drawable.addprofile)
-                            .into(binding.profileImg)
-                    }
-                } else {
-                    val error = task.exception!!.message
-                    Log.d("TAG", "getProfileImage: $error")
-
-                }
-            }
+//        db.collection("Users").document(SharedPreferencesHelper.getInstance().getUserToken()).get()
+//            .addOnCompleteListener { task: Task<DocumentSnapshot> ->
+//                if (task.isSuccessful) {
+//                    if (task.result.exists()) {
+//                        val image = task.result.getString("image")
+//                        Log.d("TAG", "onFireStoreImage: $image")
+//
+//                        Glide.with(context.applicationContext).load(image)
+//                            .placeholder(R.drawable.addprofile)
+//                            .into(binding.profileImg)
+//                    }
+//                } else {
+//                    val error = task.exception!!.message
+//                    Log.d("TAG", "getProfileImage: $error")
+//
+//                }
+//            }
     }
 
     fun getProfileImgSetup(binding: ActivitySetupProfileBinding, context: Context) {

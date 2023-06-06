@@ -17,5 +17,6 @@ data class PaymentTermCustomer(
 
 data class ordersourceId(
     var id: Int,
-    var name: String
+    var name: String,
+    var flag: Int
 )

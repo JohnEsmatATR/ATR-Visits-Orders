@@ -26,6 +26,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
+import com.akhnaton.foodvisits.data.model.LocationData
 import com.akhnaton.foodvisits.data.model.visits.SitesData
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
@@ -33,13 +35,22 @@ import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.ConvertDate
+import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
+import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
+import com.akhnaton.foodvisits.shared.location.GetLocationService
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.home.MainActivity
+import com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
+import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
@@ -65,6 +76,8 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var zoneFlag = ""
     private lateinit var customerData: SitesData
     private lateinit var progressBar: SweetAlertDialog
+    private var mCurrentLocation: Location? = null
+    private lateinit var locationClient: ILocationClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,13 +96,21 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.custAddress.text = customerData.customer_addresses
         binding.custCode.text = customerPartySiteId
 
+        Log.d("jnjndcbvnj", "onCreate: ${customerData.customer_name} | ${customerData.customer_addresses}")
+
+
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
 
+        locationClient = DefaultLocationClient(
+            this,
+            LocationServices.getFusedLocationProviderClient(this)
+        )
 
         checkConnection = CheckConnection(baseContext)
 
 
+        askPermission()
         checkPromoters()
         checkLocationPromotion()
 
@@ -198,32 +219,50 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun customerLocationMissing(): String {
-        return if (longitude.toString() == "" || latitude.toString() == "") {
+        return if (mCurrentLocation?.longitude.toString() == "" || mCurrentLocation?.latitude.toString() == "") {
             "IN"
         } else {
             "ERROR"
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun updateLocation(locationData: LocationData) {
+        Log.i(TAG, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
+        val location = Location(LocationManager.GPS_PROVIDER)
+        location.latitude = locationData.latitude
+        location.longitude = locationData.longitude
+
+        binding.fieldLongitude.text = location.latitude.toString()
+        binding.fieldLatitude.text = location.longitude.toString()
+        mCurrentLocation = location
+//        progressBar.dismiss()
+    }
+
+
     private fun compareLocation() {
         val customerLocation = Location("")
-        customerLocation.latitude = latitude
-        customerLocation.longitude = longitude
+        if (customerData.customer_latitude != "" && customerData.customer_longitude != "") {
+            customerLocation.latitude = customerData.customer_latitude.toDouble()
+            customerLocation.longitude = customerData.customer_longitude.toDouble()
+        }
 
         val myLocation = Location("")
-        myLocation.latitude = latitude
-        myLocation.longitude = longitude
-        val distanceInMeters = customerLocation.distanceTo(myLocation)
+        myLocation.latitude = mCurrentLocation?.latitude!!
+        myLocation.longitude = mCurrentLocation?.longitude!!
+
+        val distanceInMeters = myLocation.distanceTo(customerLocation)
 
         if (distanceInMeters < limitArea) {
             zoneFlag = "IN"
-            saveVisits()
-
         } else {
-            zoneFlag = customerLocationMissing()
-            progressBar.show()
+            zoneFlag = "ERROR"
         }
+        saveVisits()
+
     }
+
+
 
     private fun openMap() {
         binding.btnMap.setOnClickListener {
@@ -248,9 +287,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             .setCancelButton(
                 "الابلاغ عن موقع خطأ"
             ) { sDialog ->
-                zoneFlag = "ERROR"
-                sDialog.dismissWithAnimation()
-                saveVisits()
+
             }
         progressBar.setCancelable(false);
 
@@ -260,12 +297,31 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         super.onResume()
         requestPermission.enableLocation(this)
         requestPermission.permissionCheck(this)
-        LocalBroadcastManager.getInstance(this)
-            .registerReceiver(mMessageReceiver, IntentFilter("GPSLocationUpdates"))
 
         lifecycleScope.launch {
             viewModel.phoneVisitsIntent.send(PhoneVisitsIntent.GetAppSetting(versionName))
         }
+
+        //Start Service And Check if GPS Opened or not
+        Intent(this, GetLocationService::class.java).apply {
+            action = GetLocationService.ACTION_START
+            startService(this)
+        }
+
+        DefaultLocationClient(
+            this@PhoneVisitsDetailsActivity,
+            null
+        ).checkGpsOpened(this@PhoneVisitsDetailsActivity)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        // Stop Service And Stop EventBus From Fetch Location in onUpdateLocation Function
+        Intent(this, GetLocationService::class.java).apply {
+            action = GetLocationService.ACTION_STOP
+            startService(this)
+        }
+        progressBar.dismiss()
     }
 
     private fun saveVisits() {
@@ -279,8 +335,8 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType), // A -> طلبية --- C -> سلبي
                     visitTarget = binding.visTarget.text.toString().trim(),
                     visitActualTarget = binding.actTarget.text.toString().trim(),
-                    latitude = latitude.toString(),
-                    longtitude = longitude.toString(),
+                    latitude = mCurrentLocation!!.latitude.toString(),
+                    longtitude = mCurrentLocation!!.longitude.toString(),
                     deviceType = "Mob",
                     zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
                     checkInDate = enteredTime.toString(), // Date Entered
@@ -291,17 +347,60 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private val mMessageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent) {
-            val latitudeExtra = intent.getStringExtra("latitude")
-            val longitudeExtra = intent.getStringExtra("longitude")
+//    private val mMessageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+//        override fun onReceive(context: Context?, intent: Intent) {
+//            val latitudeExtra = intent.getStringExtra("latitude")
+//            val longitudeExtra = intent.getStringExtra("longitude")
+//
+//            latitude = latitudeExtra?.toDouble() ?: 0.00
+//            longitude = longitudeExtra?.toDouble() ?: 0.00
+//
+//            binding.fieldLongitude.text = latitude.toString()
+//            binding.fieldLatitude.text = longitude.toString()
+//        }
+//    }
 
-            latitude = latitudeExtra?.toDouble() ?: 0.00
-            longitude = longitudeExtra?.toDouble() ?: 0.00
 
-            binding.fieldLongitude.text = latitude.toString()
-            binding.fieldLatitude.text = longitude.toString()
+    private fun askPermission() {
+
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (!isGranted) {
+                // PERMISSION NOT GRANTED
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                    ),
+                    ImagePicker.REQUEST_CODE
+                )
+                ProgressDialogHelper().errorMessage(
+                    this,
+                    "This app needs you to allow Location permission To Use Attendance " +
+                            "you Should allow it"
+                )
+            } else {
+                try {
+                    EventBus.getDefault().register(this)
+                } catch (e: Exception) {
+                    Log.d(TAG, "askPermissionError ${e.message.toString()}")
+                }
+            }
+
         }
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+            ImagePicker.REQUEST_CODE
+        )
     }
+
 
 }

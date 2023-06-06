@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.IOrderHistory
+import com.akhnaton.foodvisits.data.interfaces.apis.IOrderHistory
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class OrderHistoryRepository {

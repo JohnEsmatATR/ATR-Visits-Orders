@@ -54,7 +54,7 @@ class SetupHttpClient {
 
             // verify hostname
             builder.hostnameVerifier { hostname, session ->
-                hostname == "oso.akhnatontrade.com"
+                hostname == "sales.atr-eg.com"
             }
 
             val httpLoggingInterceptor = HttpLoggingInterceptor()

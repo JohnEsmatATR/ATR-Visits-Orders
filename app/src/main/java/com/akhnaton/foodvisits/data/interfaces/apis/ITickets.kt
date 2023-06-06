@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.data.interfaces
+package com.akhnaton.foodvisits.data.interfaces.apis
 
 import com.akhnaton.foodvisits.data.model.tickets.Tickets
 import com.akhnaton.foodvisits.shared.ConstantLinks.TICKET_SYSTEM

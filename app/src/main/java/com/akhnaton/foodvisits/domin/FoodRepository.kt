@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.IFood
+import com.akhnaton.foodvisits.data.interfaces.apis.IFood
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class FoodRepository {

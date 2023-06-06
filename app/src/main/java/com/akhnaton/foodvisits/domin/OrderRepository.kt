@@ -1,11 +1,8 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.IOrder
+import com.akhnaton.foodvisits.data.interfaces.apis.IOrder
 import com.akhnaton.foodvisits.shared.RetrofitClient
 import com.google.gson.JsonElement
-import com.squareup.okhttp.RequestBody
-import com.squareup.okhttp.ResponseBody
-import org.json.JSONObject
 
 class OrderRepository {
 

@@ -1,11 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
 import android.content.Context
-import android.util.Log
-import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
-import com.akhnaton.foodvisits.data.interfaces.IVisits
-import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
-import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class VisitsRepository(context: Context) {
     private val checkConnection = CheckConnection(context)

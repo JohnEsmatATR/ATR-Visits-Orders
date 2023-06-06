@@ -1,8 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.IChart
-import com.akhnaton.foodvisits.data.interfaces.IPayment
-import com.akhnaton.foodvisits.data.interfaces.ITickets
+import com.akhnaton.foodvisits.data.interfaces.apis.IPayment
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class PaymentRepository {

@@ -1,7 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.IAddCustomer
-import com.akhnaton.foodvisits.data.interfaces.IPhoneVisits
+import com.akhnaton.foodvisits.data.interfaces.apis.IAddCustomer
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class AddCustomerRepository {

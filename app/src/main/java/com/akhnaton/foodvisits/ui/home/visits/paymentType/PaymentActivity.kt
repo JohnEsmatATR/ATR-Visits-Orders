@@ -40,6 +40,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
     private var mOrderSourceList: List<ordersourceId> = ArrayList()
     private var mPaymentTypePosition: String = ""
     private var mOrderSourcePosition: String = ""
+    private var mOrderSourceFlag: Int = -1
     private var customerPartySiteId = ""
     private var orderType = ""
     private var customerTypePosition = ""
@@ -78,6 +79,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
 
         binding.spOrdersource.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
             mOrderSourcePosition = mOrderSourceList[position].id.toString()
+            mOrderSourceFlag = mOrderSourceList[position].flag
         }
 
         binding.backBtn.setOnClickListener { onBackPressed() }
@@ -137,6 +139,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                     .putExtra("customer_code", customerCode)
                     .putExtra("paymentTypePosition", mPaymentTypePosition)
                     .putExtra("orderSourcePosition", mOrderSourcePosition)
+                    .putExtra("orderSourceFlag", mOrderSourceFlag)
                     .putExtra("customer_name", customerName)
             )
         } else {

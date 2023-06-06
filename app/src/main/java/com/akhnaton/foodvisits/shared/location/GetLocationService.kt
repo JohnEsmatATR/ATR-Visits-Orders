@@ -1,121 +1,106 @@
 package com.akhnaton.foodvisits.shared.location
 
-import android.Manifest
-import android.app.*
+import android.app.NotificationManager
+import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.Color
-import android.os.Build
+import android.location.Location
 import android.os.IBinder
-import android.os.Looper
 import android.util.Log
-import android.widget.Toast
-import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.google.android.gms.location.*
-import com.google.android.gms.location.LocationRequest.*
+import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
+import com.akhnaton.foodvisits.data.model.LocationData
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import org.greenrobot.eventbus.EventBus
 
-open class GetLocationService : Service() {
+class GetLocationService : Service() {
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private lateinit var locationClient: ILocationClient
 
-    private val locationRequest: LocationRequest = create().apply {
-        interval = 3000
-        fastestInterval = 3000
-        priority = PRIORITY_BALANCED_POWER_ACCURACY
-        maxWaitTime = 5000
-    }
+    val ACTION_LOCATION_BROADCAST: String =
+        GetLocationService::class.java.name + "LocationBroadcast"
+    val EXTRA_LATITUDE = "extra_latitude"
+    val EXTRA_LONGITUDE = "extra_longitude"
 
-    private var locationCallback: LocationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            val locationList = locationResult.locations
 
-            if (locationList.isNotEmpty()) {
-                val location = locationList.last()
-                sendMessageToActivity(location.longitude.toString(), location.latitude.toString())
-//                Toast.makeText(
-//                    this@GetLocationService, "Latitude: " + location.latitude.toString() + '\n' +
-//                            "Longitude: " + location.longitude, Toast.LENGTH_LONG
-//                ).show()
-                Log.d("Location d", location.latitude.toString())
-                Log.i("Location i", location.latitude.toString())
-            }
-        }
+    override fun onBind(p0: Intent?): IBinder? {
+        return null
     }
 
     override fun onCreate() {
         super.onCreate()
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) createNotificationChanel() else startForeground(
-            1,
-            Notification()
+        locationClient = DefaultLocationClient(
+            applicationContext,
+            LocationServices.getFusedLocationProviderClient(applicationContext)
         )
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-            && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-
-            Toast.makeText(applicationContext, "Permission required", Toast.LENGTH_LONG).show()
-            return
-        } else {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback,
-                Looper.getMainLooper()
-            )
-        }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChanel() {
-        val notificationChannelId = "Location channel id"
-        val channelName = "Background Service"
-        val chan = NotificationChannel(
-            notificationChannelId,
-            channelName,
-            NotificationManager.IMPORTANCE_NONE
-        )
-        chan.lightColor = Color.BLUE
-        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-        manager.createNotificationChannel(chan)
-        val notificationBuilder =
-            NotificationCompat.Builder(this, notificationChannelId)
-        val notification: Notification = notificationBuilder.setOngoing(true)
-            .setContentTitle("Location updates:")
-            .setPriority(NotificationManager.IMPORTANCE_MIN)
-            .setCategory(Notification.CATEGORY_SERVICE)
-            .build()
-
-        startForeground(2, notification)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        super.onStartCommand(intent, flags, startId)
-        return START_STICKY
+        when (intent?.action) {
+            ACTION_START -> start()
+            ACTION_STOP -> stop()
+        }
+        return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun start() {
+        val notification = NotificationCompat.Builder(this, "location")
+            .setContentTitle("Tracking location...")
+            .setContentText("Location: null")
+            .setSmallIcon(R.mipmap.ic_launcher_blank)
+            .setOngoing(true)
+
+        val notificationManager =
+            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        locationClient
+            .getLocationUpdates(10000L)
+            .catch { e -> e.printStackTrace() }
+            .onEach { location ->
+                val lat = location.latitude.toString().takeLast(3)
+                val long = location.longitude.toString().takeLast(3)
+                val updatedNotification = notification.setContentText(
+                    "Location: ($lat, $long)"
+                )
+                updateLocation(location)
+                notificationManager.notify(1, updatedNotification.build())
+            }
+            .launchIn(serviceScope)
+
+        startForeground(1, notification.build())
+    }
+
+    private fun stop() {
+        stopForeground(true)
+        stopSelf()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        fusedLocationClient.removeLocationUpdates(locationCallback)
+        serviceScope.cancel()
     }
 
-    override fun onBind(intent: Intent?): IBinder? {
-        return null
+
+    private fun updateLocation(location: Location) {
+        Log.d("LocationService", "Sending info...")
+        val locationData =
+            LocationData(location.latitude, location.longitude)
+        Log.i("TAG", "onUpdateLocation: " + locationData.latitude + " " + locationData.longitude)
+        EventBus.getDefault().post(locationData)
     }
 
-    private fun sendMessageToActivity(longitude: String, latitude: String) {
-        val intent = Intent("GPSLocationUpdates")
-        intent.putExtra("longitude", longitude)
-        intent.putExtra("latitude", latitude)
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+    companion object {
+        const val ACTION_START = "ACTION_START"
+        const val ACTION_STOP = "ACTION_STOP"
     }
-
 }

@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.data.interfaces
+package com.akhnaton.foodvisits.data.interfaces.apis
 
 import com.akhnaton.foodvisits.data.model.payment.Payment
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_PAYMENT

@@ -8,7 +8,7 @@ import android.util.Log
 import com.akhnaton.foodvisits.data.db.VisitDatabase
 import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
 import com.akhnaton.foodvisits.data.db.model.VisitPlanDB
-import com.akhnaton.foodvisits.data.interfaces.IVisits
+import com.akhnaton.foodvisits.data.interfaces.apis.IVisits
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.AppSettingData
 import com.akhnaton.foodvisits.data.model.VisitsPlan

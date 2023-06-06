@@ -21,6 +21,12 @@ class ProgressDialogHelper {
         )
     }
 
+    fun errorMessage(context: Context, message: String) {
+        SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE).setTitleText("Error")
+            .setContentText(message).show()
+    }
+
+
 
     fun showAlertProgress(context: Context,message :String): ProgressDialog {
         val progressBar = ProgressDialog(context)
