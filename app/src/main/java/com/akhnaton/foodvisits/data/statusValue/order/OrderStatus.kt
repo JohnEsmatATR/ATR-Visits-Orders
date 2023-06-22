@@ -5,6 +5,7 @@ import com.akhnaton.foodvisits.data.model.order.Categories
 import com.akhnaton.foodvisits.data.model.order.GenerateOrderNumber
 import com.akhnaton.foodvisits.data.model.order.Product
 import com.akhnaton.foodvisits.data.model.order.SaveOrderResponse
+import com.akhnaton.foodvisits.data.model.order.SavedOrderResponse
 import org.json.JSONObject
 
 sealed class OrderStatus {
@@ -15,5 +16,7 @@ sealed class OrderStatus {
     data class GetProducts(val data: Product) : OrderStatus()
     data class GetOrderLimit(val data: AppSetting) : OrderStatus()
     data class SendOrder(val data: SaveOrderResponse) : OrderStatus()
+    data class SaveOrderPending(val data: SaveOrderResponse) : OrderStatus()
+    data class SavedOrder(val data: SavedOrderResponse) : OrderStatus()
     data class Error(val error: String?) : OrderStatus()
 }

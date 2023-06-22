@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.visits.order
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.order.OrderIntent
@@ -49,6 +50,8 @@ class OrderViewModel : ViewModel() {
                         it.sub_category, it.customer_type, it.customer_code, it.customer_party_site_id
                     )
                     is OrderIntent.SendOrder -> sendOrder(it.request)
+                    is OrderIntent.SaveOrderPending -> saveOrderPending(it.request)
+                    is OrderIntent.SavedOrder -> savedOrder(it.appVersion, it.apiToken, it.orderNumber)
                     is OrderIntent.GetOrderLimit -> getOrderLimit(it.app_version)
                 }
             }
@@ -163,6 +166,47 @@ class OrderViewModel : ViewModel() {
             }
         }
     }
+
+
+    private fun saveOrderPending(
+        request: JsonElement,
+    ) {
+        viewModelScope.launch {
+            _status.value = OrderStatus.Idle
+            _status.value = try {
+                OrderStatus.SaveOrderPending(
+                    OrderRepository().saveOrderPending(
+                        request
+                    )
+                )
+            } catch (e: Exception) {
+                OrderStatus.Error(e.message)
+            }
+        }
+    }
+
+
+    private fun savedOrder(
+        appVersion: String,
+        apiToken: String,
+        orderNumber: String,
+    ) {
+        viewModelScope.launch {
+            _status.value = OrderStatus.Idle
+            _status.value = try {
+                OrderStatus.SavedOrder(
+                    OrderRepository().savedOrder(
+                        appVersion,
+                        apiToken,
+                        orderNumber
+                    )
+                )
+            } catch (e: Exception) {
+                OrderStatus.Error(e.message)
+            }
+        }
+    }
+
 
 
 }

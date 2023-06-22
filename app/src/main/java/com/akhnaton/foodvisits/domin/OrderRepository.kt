@@ -53,4 +53,12 @@ class OrderRepository {
     suspend fun getOrderLimit(appVersion: String) = retrofit.getOrderLimit(appVersion)
 
     suspend fun sendOrder(request: JsonElement) = retrofit.sendOrder(request)
+
+    suspend fun saveOrderPending(request: JsonElement) = retrofit.saveOrderPending(request)
+
+    suspend fun savedOrder(
+        appVersion: String,
+        apiToken: String,
+        orderNumber: String,
+    ) = retrofit.getSavedOrder(appVersion, apiToken, orderNumber)
 }

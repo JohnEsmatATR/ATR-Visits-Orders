@@ -12,5 +12,13 @@ data class OrderHistoryData(
     val customer_name: String,
     val customer_site_address: String,
     val order_total_price: Float,
+    val flag: String,
     val order_return_price: Float,
+    val order_type: String,
+    val order_source_id: String,
+    val order_source_flag: Int,
+    val customer_code: String,
+    val party_site_id: String,
+    val customer_type: String,
+    val payment_term_id: String,
 )

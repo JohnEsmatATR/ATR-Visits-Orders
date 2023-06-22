@@ -141,6 +141,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
                     .putExtra("orderSourcePosition", mOrderSourcePosition)
                     .putExtra("orderSourceFlag", mOrderSourceFlag)
                     .putExtra("customer_name", customerName)
+                    .putExtra("isOrderSaved", false)
             )
         } else {
             Toast.makeText(this, "Some data required not selected", Toast.LENGTH_SHORT).show()

@@ -23,6 +23,7 @@ import com.akhnaton.foodvisits.data.model.order.CardItem
 import com.akhnaton.foodvisits.data.model.order.OrderItem
 import com.akhnaton.foodvisits.data.model.order.ProductData
 import com.akhnaton.foodvisits.data.model.order.ReturnItem
+import com.akhnaton.foodvisits.data.model.order.SavedOrder
 import com.akhnaton.foodvisits.data.statusValue.order.OrderIntent
 import com.akhnaton.foodvisits.data.statusValue.order.OrderStatus
 import com.akhnaton.foodvisits.databinding.ActivityReturnBinding
@@ -67,6 +68,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     private var totalOrder = 0.0
     private var returnLimit = 0
     private lateinit var progressBar: SweetAlertDialog
+    private var isOrderSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -89,6 +91,23 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         totalOrder = intent.getDoubleExtra("total", 0.0)
         returnLimit = intent.getIntExtra("returnLimit", 0)
         binding.totalOrder.text = intent.getStringExtra("totalOrder").toString()
+        orderNumber = intent.getStringExtra("orderNumber").toString()
+        isOrderSaved = intent.getBooleanExtra("isOrderSaved",false)
+
+
+        if (isOrderSaved) {
+            lifecycleScope.launch {
+                viewModel.orderIntent.send(
+                    OrderIntent.SavedOrder(
+                        appVersion = versionName,
+                        apiToken = SharedPreferencesHelper.getInstance()
+                            .getUserToken(),
+                        orderNumber = orderNumber,
+                    )
+                )
+                showLoadingDialog()
+            }
+        }
 
 
         lifecycleScope.launch {
@@ -119,6 +138,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
         binding.addItems.setOnClickListener(this)
         binding.sendOrder.setOnClickListener(this)
+        binding.btnSave.setOnClickListener(this)
         mAdapter.deleteProduct(this)
         binding.backArrow.setOnClickListener { progressBar.show() }
         binding.txtName.text = customerName
@@ -127,6 +147,41 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         initBackPressedDialog()
         selectedItemProduct()
 
+    }
+
+
+    private fun setSavedOrderItems(items: SavedOrder){
+
+        for (item in items.return_items) {
+            val cardItem = CardItem(
+                item.item_id,
+                item.item_code,
+                item.item_name,
+                item.item_price,
+                item.tax.toFloat(),
+                item.quantity.toString(),
+                item.items_price.toFloat(),
+                "normal",
+                item.price_list_id
+            )
+
+            val orderItem = ReturnItem(
+                item.item_id,
+                item.quantity.toString()
+            )
+
+            mAdapterCardsProduct.add(cardItem)
+            mItemsCardAdded.add(orderItem)
+        }
+        mAdapter.addProduct(mAdapterCardsProduct)
+
+
+        //Calculate Total Amount Text
+        totalReturn += items.order_return_items_general_data.total_items_price
+        binding.totalReturn.text = "${totalReturn.toFloat()} EGP"
+
+        binding.itemsCount.text =
+            "${mAdapterCardsProduct.size} Items"
     }
 
     private fun setupRecycler() {
@@ -192,6 +247,42 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                             dismissdialog()
                             finishAffinity()
                         }
+                    }
+
+                    is OrderStatus.SaveOrderPending -> {
+                        if (it.data.status == 400) {
+                            ProgressDialogHelper().orderLimitAlert(
+                                this@ReturnActivity,
+                                it.data.message
+                            )
+                            dismissdialog()
+                        } else {
+                            dismissdialog()
+                            startActivity(Intent(this@ReturnActivity, MainActivity::class.java))
+                            finishAffinity()
+                        }
+
+                        Log.d(
+                            TAG,
+                            "fetchData: SaveOrder: ${it.data.message}"
+                        )
+                    }
+                    is OrderStatus.SavedOrder -> {
+                        Log.d("dvjdnjvndvdvd", "onCreate: ${it.data.status}")
+
+                        if (it.data.status == 400) {
+                            Toast.makeText(this@ReturnActivity, "Error, ${it.data.message}", Toast.LENGTH_SHORT).show()
+                            dismissdialog()
+                        } else {
+                            setSavedOrderItems(it.data.data)
+                            dismissdialog()
+
+                        }
+
+                        Log.d(
+                            TAG,
+                            "fetchData: SavedOrders: ${it.data.message}"
+                        )
                     }
 
                     is OrderStatus.Error -> {
@@ -281,40 +372,14 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     override fun onClick(v: View) {
         when (v.id) {
             binding.sendOrder.id -> {
-                if (mAdapterCardsProduct.isEmpty()) {
-                    Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
-                } else {
-                    val orderPercent: Double = totalOrder / 100.0f * returnLimit
-                    if (orderPercent >= totalReturn) {
-                        lifecycleScope.launch {
-                            viewModel.orderIntent.send(
-                                OrderIntent.SendOrder(
-                                    CreateOrderHelper().addOrder(
-                                        orderType,
-                                        orderNumber,
-                                        customerTypePosition,
-                                        customerPartySiteId,
-                                        paymentTypePosition,
-                                        turnOver,
-                                        orderList,
-                                        mItemsCardAdded,
-                                        orderSourcePosition.toInt()
-                                    )
-                                )
-                            )
-                        }
-                        showLoadingDialog()
-                    } else {
-                        ProgressDialogHelper().orderLimitAlert(
-                            this,
-                            "غير مسموح النسبة تتعدي $returnLimit%"
-                        )
-                    }
-                }
+                validationSendOrder("send")
+            }
+
+            binding.btnSave.id -> {
+                validationSendOrder("save")
             }
 
             binding.addItems.id -> {
-
 
                 if (binding.quantityED.text.toString()
                         .isEmpty() || binding.quantityED.text.toString().toInt() <= 0
@@ -364,6 +429,62 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                         mAdapter.addProduct(mAdapterCardsProduct)
                         binding.itemsCount.text =
                             "${mAdapterCardsProduct.size} Items"
+                    }
+                }
+            }
+        }
+    }
+
+    private fun validationSendOrder(flag: String) {
+        if (mAdapterCardsProduct.isEmpty()) {
+            Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
+        } else {
+            val orderPercent: Double = totalOrder / 100.0f * returnLimit
+            Log.d("jbvdjnjnkdvdv", "validationSendOrder: ${orderPercent} | ${totalOrder} | ${returnLimit}")
+            if (orderPercent < totalReturn) {
+                ProgressDialogHelper().orderLimitAlert(
+                    this,
+                    "غير مسموح النسبة تتعدي $returnLimit%"
+                )
+            } else {
+                if (flag == "send") {
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            OrderIntent.SendOrder(
+                                CreateOrderHelper().addOrder(
+                                    orderType,
+                                    orderNumber,
+                                    customerTypePosition,
+                                    customerPartySiteId,
+                                    paymentTypePosition,
+                                    turnOver,
+                                    orderList,
+                                    mItemsCardAdded,
+                                    orderSourcePosition.toInt()
+                                )
+                            )
+                        )
+                    }
+                    showLoadingDialog()
+                } else if (flag == "save") {
+                    //Save order pending api
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            OrderIntent.SaveOrderPending(
+                                CreateOrderHelper().addOrder(
+                                    orderType,
+                                    orderNumber,
+                                    customerTypePosition,
+                                    customerPartySiteId,
+                                    paymentTypePosition,
+                                    turnOver,
+                                    orderList,
+                                    mItemsCardAdded,
+                                    orderSourcePosition.toInt()
+                                )
+                            )
+                        )
+                        showLoadingDialog()
                     }
                 }
             }

@@ -87,5 +87,6 @@
     <string name="promoter">Promoter</string>
     <string name="save">save</string>
     <string name="order_source">Order Source</string>
+    <string name="pending">Pending</string>
 
 </resources>

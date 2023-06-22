@@ -2,7 +2,6 @@ package com.akhnaton.foodvisits.data.statusValue.order
 
 import com.google.gson.JsonElement
 
-
 sealed class OrderIntent {
 
     data class GenerateOrderNumber(
@@ -38,5 +37,15 @@ sealed class OrderIntent {
 
     data class SendOrder(
         val request: JsonElement
+    ) : OrderIntent()
+
+    data class SaveOrderPending(
+        val request: JsonElement
+    ) : OrderIntent()
+
+    data class SavedOrder(
+        val appVersion: String,
+        val apiToken: String,
+        val orderNumber: String,
     ) : OrderIntent()
 }

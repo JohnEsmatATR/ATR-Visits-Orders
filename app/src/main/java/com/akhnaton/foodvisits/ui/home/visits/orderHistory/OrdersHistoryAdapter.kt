@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.visits.orderHistory
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.orderHistory.OrderHistoryData
 import com.akhnaton.foodvisits.databinding.ListOrderHistoryBinding
 import com.akhnaton.foodvisits.shared.ConvertDate
@@ -31,6 +32,14 @@ class OrdersHistoryAdapter : RecyclerView.Adapter<OrdersHistoryViewHolder>() {
         holder.bind(mOrdersHistory[position])
 
         holder.binding.date.text = ConvertDate.getDateTime(mOrdersHistory[position].order_created_at.toLong())
+
+        if (mOrdersHistory[position].flag == "1") {
+            holder.binding.layoutItem.setBackgroundResource(R.color.order_card)
+            holder.binding.orderMadeBy.text = R.string.confirmed.toString()
+        } else {
+            holder.binding.layoutItem.setBackgroundResource(R.color.blue)
+            holder.binding.orderMadeBy.text = R.string.pending.toString()
+        }
     }
 
     override fun getItemCount(): Int {

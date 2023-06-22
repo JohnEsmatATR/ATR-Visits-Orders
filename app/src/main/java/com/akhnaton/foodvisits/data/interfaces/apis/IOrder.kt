@@ -5,10 +5,13 @@ import com.akhnaton.foodvisits.data.model.order.Categories
 import com.akhnaton.foodvisits.data.model.order.GenerateOrderNumber
 import com.akhnaton.foodvisits.data.model.order.Product
 import com.akhnaton.foodvisits.data.model.order.SaveOrderResponse
+import com.akhnaton.foodvisits.data.model.order.SavedOrderResponse
 import com.akhnaton.foodvisits.shared.ConstantLinks.APP_SETTING
 import com.akhnaton.foodvisits.shared.ConstantLinks.GENERATE_ORDER_NUMBER
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CATEGORIES
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_PRODUCT
+import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER
+import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_ORDER_PENDING
 import com.akhnaton.foodvisits.shared.ConstantLinks.SEND_ORDER
 import com.google.gson.JsonElement
 import com.squareup.okhttp.RequestBody
@@ -65,4 +68,17 @@ interface IOrder {
     suspend fun sendOrder(
         @Body request: JsonElement,
     ): SaveOrderResponse
+
+    @POST(SAVE_ORDER_PENDING)
+    suspend fun saveOrderPending(
+        @Body request: JsonElement,
+    ): SaveOrderResponse
+
+    @POST(SAVED_ORDER)
+    @FormUrlEncoded
+    suspend fun getSavedOrder(
+        @Field("app_version") appVersion: String,
+        @Field("api_token") apiToken: String,
+        @Field("order_number") orderNumber: String,
+    ): SavedOrderResponse
 }

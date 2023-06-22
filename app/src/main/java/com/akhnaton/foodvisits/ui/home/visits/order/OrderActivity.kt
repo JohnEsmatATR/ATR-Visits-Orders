@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isEmpty
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -75,6 +74,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private var customerName = ""
     private var totalOrder: Double = 0.0
     private var flagProduct = false
+    private var isOrderSaved = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -92,23 +92,48 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         orderSourceFlag = intent.getIntExtra("orderSourceFlag", -1)
         customerCode = intent.getStringExtra("customer_code").toString()
         customerName = intent.getStringExtra("customer_name").toString()
-
+        orderNumber = intent.getStringExtra("orderNumber").toString()
+        isOrderSaved = intent.getBooleanExtra("isOrderSaved", false)
 
         lifecycleScope.launch {
-            viewModel.orderIntent.send(
-                OrderIntent.GenerateOrderNumber(
-                    versionName,
-                    SharedPreferencesHelper.getInstance().getUserToken(),
-                    customerPartySiteId,
-                    orderType,
-                    customerTypePosition,
-                    paymentTypePosition,
-                    visitId
-                )
-            )
 
+            if (isOrderSaved) {
+                viewModel.orderIntent.send(
+                    OrderIntent.SavedOrder(
+                        appVersion = versionName,
+                        apiToken = SharedPreferencesHelper.getInstance()
+                            .getUserToken(),
+                        orderNumber = orderNumber,
+                    )
+                )
+                viewModel.orderIntent.send(
+                    OrderIntent.GetCategories(
+                        app_version = versionName,
+                        api_token = SharedPreferencesHelper.getInstance()
+                            .getUserToken(),
+                        orderType = orderType,
+                        customer_type = customerTypePosition
+                    )
+                )
+
+                showLoadingDialog()
+
+            } else {
+                viewModel.orderIntent.send(
+                    OrderIntent.GenerateOrderNumber(
+                        versionName,
+                        SharedPreferencesHelper.getInstance().getUserToken(),
+                        customerPartySiteId,
+                        orderType,
+                        customerTypePosition,
+                        paymentTypePosition,
+                        visitId
+                    )
+                )
+
+                showLoadingDialog()
+            }
             viewModel.orderIntent.send(OrderIntent.GetOrderLimit(versionName))
-            showLoadingDialog()
         }
 
         binding.txtName.text = customerName
@@ -116,11 +141,57 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         binding.addItems.setOnClickListener(this)
         binding.sendOrder.setOnClickListener(this)
         binding.returnOrder.setOnClickListener(this)
+        binding.btnSave.setOnClickListener(this)
         binding.backArrow.setOnClickListener { onBackPressed() }
         mAdapter.deleteProduct(this)
         setupRecycler()
         selectedItemProduct()
         fetchData()
+    }
+
+    private fun setSavedOrderItems(items: SavedOrder) {
+
+        for (item in items.order_items) {
+            val cardItem = CardItem(
+                item.item_id,
+                item.item_code,
+                item.item_name,
+                item.item_price,
+                item.tax.toFloat(),
+                item.quantity.toString(),
+                item.items_price.toFloat(),
+                mBonusPositionSelected,
+                item.price_list_id
+            )
+
+            val orderItem = OrderItem(
+                "normal",
+                item.item_id,
+                item.quantity.toString(),
+                item.price_list_id
+            )
+
+
+
+            mAdapterCardsProduct.add(cardItem)
+            mItemsCardAdded.add(orderItem)
+        }
+        for (item in items.return_items) {
+            val orderReturn = ReturnItem(
+                item.item_id,
+                item.quantity.toString()
+            )
+            mReturnItemCardAdded.add(orderReturn)
+
+        }
+            mAdapter.addProduct(mAdapterCardsProduct)
+
+        //Calculate Total Amount Text
+        totalOrder += items.order_items_general_data.total_items_price
+        binding.totalAmount.text = "${totalOrder.toFloat()} EGP"
+
+        binding.itemsCount.text =
+            "${mAdapterCardsProduct.size} Items"
     }
 
     private fun fetchData() {
@@ -235,12 +306,58 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                         )
                     }
 
+                    is OrderStatus.SaveOrderPending -> {
+                        if (it.data.status == 400) {
+                            ProgressDialogHelper().orderLimitAlert(
+                                this@OrderActivity,
+                                it.data.message
+                            )
+                            dismissdialog()
+                        } else {
+                            dismissdialog()
+                            startActivity(Intent(this@OrderActivity, MainActivity::class.java))
+                            finishAffinity()
+                        }
+
+                        Log.d(
+                            TAG,
+                            "fetchData: SaveOrder: ${it.data.message}"
+                        )
+                    }
+
+                    is OrderStatus.SavedOrder -> {
+
+                        if (it.data.status == 400) {
+                            Log.d("dvjdnjvndvdvd", "onCreate: ${it.data.status}")
+
+                            Toast.makeText(
+                                this@OrderActivity,
+                                "Error, ${it.data.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            dismissdialog()
+                        } else {
+                            Log.d("dvjdnjvndvdvd", "onCreate: ${it.data.status}")
+
+                            setSavedOrderItems(it.data.data)
+                            dismissdialog()
+
+                        }
+
+                        Log.d(
+                            TAG,
+                            "fetchData: SavedOrders: ${it.data.message}"
+                        )
+                    }
+
                     is OrderStatus.GetOrderLimit -> {
                         returnLimit = it.data.data.order_returns_limit_percentage
                         orderLimit = it.data.data.lowest_price_order
                     }
 
                     is OrderStatus.Error -> {
+                        Log.d("dvjdnjvndvdvd", "onCreate: ${it.error.toString()}")
+
                         Log.d(TAG, "fetchData: Error $it")
                         dismissdialog()
 
@@ -372,7 +489,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     override fun onClick(v: View?) {
         when (v?.id) {
             binding.sendOrder.id -> {
-                validationSendOrder()
+                validationSendOrder("send")
             }
 
             binding.addItems.id -> {
@@ -405,15 +522,21 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             .putExtra("customer_name", customerName)
                             .putExtra("orderSourcePosition", orderSourcePosition)
                             .putExtra("orderSourceFlag", orderSourceFlag)
+                            .putExtra("orderNumber", orderNumber)
+                            .putExtra("isOrderSaved", isOrderSaved)
                             .putParcelableArrayListExtra("orderList", mItemsCardAdded)
                     )
                 }
+            }
+
+            binding.btnSave.id -> {
+                validationSendOrder("save")
             }
         }
     }
 
 
-    private fun validationSendOrder() {
+    private fun validationSendOrder(flag: String) {
         if (mAdapterCardsProduct.isEmpty()) {
             Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
         } else if (totalOrder < 200.0) {
@@ -429,31 +552,52 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                     "Total order must be at least $orderLimit LE"
                 )
             } else {
-                //Create order api
-                lifecycleScope.launch {
-                    viewModel.orderIntent.send(
-                        OrderIntent.SendOrder(
-                            CreateOrderHelper().addOrder(
-                                orderType,
-                                orderNumber,
-                                customerTypePosition,
-                                customerPartySiteId,
-                                paymentTypePosition,
-                                turnOver,
-                                mItemsCardAdded,
-                                mReturnItemCardAdded,
-                                orderSourcePosition.toInt()
+                if (flag == "send") {
+                    //Create order api
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            OrderIntent.SendOrder(
+                                CreateOrderHelper().addOrder(
+                                    orderType,
+                                    orderNumber,
+                                    customerTypePosition,
+                                    customerPartySiteId,
+                                    paymentTypePosition,
+                                    turnOver,
+                                    mItemsCardAdded,
+                                    mReturnItemCardAdded,
+                                    orderSourcePosition.toInt()
+                                )
                             )
                         )
-                    )
-                    showLoadingDialog()
+                        showLoadingDialog()
+                    }
+                } else if (flag == "save") {
+                    //Save order pending api
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            OrderIntent.SaveOrderPending(
+                                CreateOrderHelper().addOrder(
+                                    orderType,
+                                    orderNumber,
+                                    customerTypePosition,
+                                    customerPartySiteId,
+                                    paymentTypePosition,
+                                    turnOver,
+                                    mItemsCardAdded,
+                                    mReturnItemCardAdded,
+                                    orderSourcePosition.toInt()
+                                )
+                            )
+                        )
+                        showLoadingDialog()
+                    }
                 }
             }
 
 
         }
     }
-
 
     private fun validationAddItem() {
         if (binding.quantityED.text.toString().isEmpty() || binding.quantityED.text.toString()
@@ -546,7 +690,6 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             item.quantity,
             item.item_price_list
         )
-//        Log.d("kjbkjbjkjknkn", "onDeleteClick: ${totalOrder.roundToInt() - item.total.roundToInt()}")
 
         totalOrder -= item.total
         binding.totalAmount.text = totalOrder.toFloat().roundToInt().toString() + " EGP"

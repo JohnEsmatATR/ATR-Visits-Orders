@@ -23,6 +23,7 @@ import com.akhnaton.foodvisits.data.statusValue.orderHistory.OrderHistoryState
 import com.akhnaton.foodvisits.databinding.ActivityOrdersHistoryBinding
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.home.visits.order.OrderActivity
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -214,11 +215,29 @@ class OrdersHistoryActivity : AppCompatActivity(),
     }
 
     override fun onSelectOrderClickListener(data: OrderHistoryData, position: Int) {
-        val intent = Intent(this@OrdersHistoryActivity, OrderHistoryDetailsActivity::class.java)
-        intent.putExtra("orderNumber", data.orig_sys_document_ref)
-        startActivity(intent)
-        Log.d("TAG", "onSelectOrderClickListener: ${data.customer_name}")
+        if (data.flag == "1") {
+            val intent = Intent(this@OrdersHistoryActivity, OrderHistoryDetailsActivity::class.java)
+            intent.putExtra("orderNumber", data.orig_sys_document_ref)
+            startActivity(intent)
+            Log.d("TAG", "onSelectOrderClickListener: ${data.customer_name}")
+        } else {
+            val intent = Intent(this@OrdersHistoryActivity, OrderActivity::class.java)
+            intent.putExtra("customerPartySiteId", data.party_site_id)
+            intent.putExtra("orderType", data.order_type)
+            intent.putExtra("customerTypePosition", data.customer_type)
+            intent.putExtra("customer_code", data.customer_code)
+            intent.putExtra("paymentTypePosition", data.payment_term_id)
+            intent.putExtra("orderSourcePosition", data.order_source_id)
+            intent.putExtra("orderSourceFlag", data.order_source_flag)
+            intent.putExtra("customer_name", data.customer_name)
+            intent.putExtra("isOrderSaved", true)
+            intent.putExtra("orderNumber", data.orig_sys_document_ref)
+            startActivity(intent)
+            Log.d("TAG", "onSelectOrderClickListener: ${data.customer_name}")
+
+        }
     }
+
 
     fun convertDateToLong(date: String): Long {
         val df = SimpleDateFormat("yyyy.MM.dd HH:mm")

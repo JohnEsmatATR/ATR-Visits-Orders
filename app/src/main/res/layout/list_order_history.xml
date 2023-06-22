@@ -21,9 +21,10 @@
         app:cardCornerRadius="@dimen/_18sdp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_item"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/order_card"
+            android:background="@color/black"
             android:padding="@dimen/_12sdp">
 
             <TextView
