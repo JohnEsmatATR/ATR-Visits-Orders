@@ -35,10 +35,10 @@ class OrdersHistoryAdapter : RecyclerView.Adapter<OrdersHistoryViewHolder>() {
 
         if (mOrdersHistory[position].flag == "1") {
             holder.binding.layoutItem.setBackgroundResource(R.color.order_card)
-            holder.binding.orderMadeBy.text = R.string.confirmed.toString()
+            holder.binding.orderMadeBy.text = "Confirmed"
         } else {
             holder.binding.layoutItem.setBackgroundResource(R.color.blue)
-            holder.binding.orderMadeBy.text = R.string.pending.toString()
+            holder.binding.orderMadeBy.text = "Pending"
         }
     }
 
