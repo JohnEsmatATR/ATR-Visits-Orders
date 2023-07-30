@@ -2,7 +2,7 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-    const val BASE_URL = "http://sales.atr-eg.com/"
+    const val BASE_URL = "https://sales.atr-eg.com/"
     private const val ROUTS_API = "web_food_visit/routes.php"
     const val APP_SETTING = "$ROUTS_API?path=get_app_settings"
     const val LOGIN_PATH = "$ROUTS_API?path=login"
@@ -42,5 +42,15 @@ object ConstantLinks {
     const val PROMOTER_INSERT_DETAILS = "$ROUTS_API?path=insertDayDetailsPerClient"
     const val PROMOTER_SEND_COMPETITORS = "$ROUTS_API?path=send_competitors"
     const val PROMOTER_UPLOAD_IMAGE = "$ROUTS_API?path=upload_image"
+
+    // supervisor
+    const val SUPER_ORDER_LIST = "$ROUTS_API?path=super_order_list"
+    const val SUPER_ORDER_REJECT = "$ROUTS_API?path=super_order_reject"
+    const val SUPER_ORDER_DETAILS = "$ROUTS_API?path=super_order_details"
+    const val SUPER_CHECK_CREDIT_LIMIT = "$ROUTS_API?path=super_check_credit_limit"
+    const val SUPER_GET_CREDIT_LIMIT_DETAILS = "$ROUTS_API?path=super_get_credit_limit_details"
+    const val SUPER_SEND_CREDIT_LIMIT_DETAILS = "$ROUTS_API?path=super_send_credit_limit_details"
+    const val SUPER_CHECK_QOUTA = "$ROUTS_API?path=super_approve_qouta"
+    const val SUPER_APPROVE_ORDER = "$ROUTS_API?path=super_approve_order"
 
 }

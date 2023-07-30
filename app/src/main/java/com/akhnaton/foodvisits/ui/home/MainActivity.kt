@@ -29,6 +29,7 @@ import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
+import com.akhnaton.foodvisits.ui.home.supervisor.superShowOrders.SuperShowOrdersActivity
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.bumptech.glide.Glide
@@ -84,6 +85,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
+        binding.approvalBtn.setOnClickListener(this)
         binding.gooeyMenu.setOnMenuListener(this)
         binding.gooeyMenu.openCloseMenu(false)
 
@@ -159,6 +161,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
             binding.ordersHistoryBtn.id -> {
                 startActivity(Intent(this@MainActivity, OrdersHistoryActivity::class.java))
+            }
+            binding.approvalBtn.id -> {
+                startActivity(Intent(this@MainActivity, SuperShowOrdersActivity::class.java))
             }
         }
     }

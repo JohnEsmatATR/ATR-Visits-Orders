@@ -36,6 +36,16 @@
         tools:replace="android:icon"
         tools:targetApi="31">
         <activity
+            android:name=".ui.home.supervisor.creditLimit.CreditLimitFormActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.supervisor.superOrderDetails.SuperOrderDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.supervisor.superShowOrders.SuperShowOrdersActivity"
+            android:exported="true" />
+
+        <activity
             android:name=".ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsActivity"
             android:exported="false" />
         <activity

@@ -47,7 +47,8 @@ class OrderViewModel : ViewModel() {
                     )
                     is OrderIntent.GetProducts -> getProducts(
                         it.app_version, it.api_token, it.orderType,
-                        it.sub_category, it.customer_type, it.customer_code, it.customer_party_site_id
+                        it.sub_category, it.customer_type, it.customer_code,
+                        it.customer_party_site_id,  it.item_price_list,
                     )
                     is OrderIntent.SendOrder -> sendOrder(it.request)
                     is OrderIntent.SaveOrderPending -> saveOrderPending(it.request)
@@ -110,6 +111,7 @@ class OrderViewModel : ViewModel() {
         customerType: Int,
         customerCode: Int,
         customerPartySiteId: Int,
+        item_price_list: String,
     ) {
         viewModelScope.launch {
             _status.value = OrderStatus.Idle
@@ -123,6 +125,7 @@ class OrderViewModel : ViewModel() {
                         customerType,
                         customerCode,
                         customerPartySiteId,
+                        item_price_list
                     )
                 )
             } catch (e: Exception) {

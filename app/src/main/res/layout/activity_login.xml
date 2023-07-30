@@ -66,12 +66,12 @@
                         android:layout_height="wrap_content"
                         android:text="App Version: 2.14"/>
 
-                    <TextView
-                        android:id="@+id/error"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_4sdp"
-                        android:textColor="@color/red" />
+                        <TextView
+                            android:id="@+id/error"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            android:textColor="@color/red" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_user"

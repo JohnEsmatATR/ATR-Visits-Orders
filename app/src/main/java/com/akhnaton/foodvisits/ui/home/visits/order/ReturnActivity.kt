@@ -61,6 +61,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     var customerTypePosition = ""
     var paymentTypePosition = ""
     var orderSourcePosition = ""
+    var priceListIdPosition: Int = -1
+    var priceListDescriptionPosition: String = ""
     var customerPartySiteId = ""
     var customerCode = ""
     var customerName = ""
@@ -84,6 +86,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
         paymentTypePosition = intent.getStringExtra("paymentTypePosition").toString()
         orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
+        priceListIdPosition = intent.getIntExtra("priceListIdPosition", -1)
+        priceListDescriptionPosition = intent.getStringExtra("priceListDescriptionPosition").toString()
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
         customerName = intent.getStringExtra("customer_name").toString()
@@ -92,7 +96,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
         returnLimit = intent.getIntExtra("returnLimit", 0)
         binding.totalOrder.text = intent.getStringExtra("totalOrder").toString()
         orderNumber = intent.getStringExtra("orderNumber").toString()
-        isOrderSaved = intent.getBooleanExtra("isOrderSaved",false)
+        isOrderSaved = intent.getBooleanExtra("isOrderSaved", false)
 
 
         if (isOrderSaved) {
@@ -119,7 +123,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                     sub_category = categoryName,
                     customer_type = customerTypePosition.toInt(),
                     customer_code = customerCode.toInt(),
-                    customer_party_site_id = customerPartySiteId.toInt()
+                    customer_party_site_id = customerPartySiteId.toInt(),
+                    item_price_list = priceListIdPosition.toString()
                 )
             )
 
@@ -127,7 +132,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                 OrderIntent.GetCategories(
                     versionName,
                     SharedPreferencesHelper.getInstance().getUserToken(),
-                    orderType.toString(),
+                    orderType,
                     customerTypePosition
                 )
             )
@@ -150,7 +155,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     }
 
 
-    private fun setSavedOrderItems(items: SavedOrder){
+    private fun setSavedOrderItems(items: SavedOrder) {
 
         for (item in items.return_items) {
             val cardItem = CardItem(
@@ -214,7 +219,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                                 sub_category = categoryName,
                                 customer_type = customerTypePosition.toInt(),
                                 customer_code = customerCode.toInt(),
-                                customer_party_site_id = customerPartySiteId.toInt()
+                                customer_party_site_id = customerPartySiteId.toInt(),
+                                item_price_list = priceListIdPosition.toString(),
                             )
                         )
                         dismissdialog()
@@ -267,11 +273,16 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                             "fetchData: SaveOrder: ${it.data.message}"
                         )
                     }
+
                     is OrderStatus.SavedOrder -> {
                         Log.d("dvjdnjvndvdvd", "onCreate: ${it.data.status}")
 
                         if (it.data.status == 400) {
-                            Toast.makeText(this@ReturnActivity, "Error, ${it.data.message}", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                this@ReturnActivity,
+                                "Error, ${it.data.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             dismissdialog()
                         } else {
                             setSavedOrderItems(it.data.data)
@@ -349,7 +360,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                                 sub_category = categoryName,
                                 customer_type = customerTypePosition.toInt(),
                                 customer_code = customerCode.toInt(),
-                                customer_party_site_id = customerPartySiteId.toInt()
+                                customer_party_site_id = customerPartySiteId.toInt(),
+                                item_price_list = priceListIdPosition.toString(),
                             )
                         )
                     }
@@ -440,7 +452,10 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
             Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
         } else {
             val orderPercent: Double = totalOrder / 100.0f * returnLimit
-            Log.d("jbvdjnjnkdvdv", "validationSendOrder: ${orderPercent} | ${totalOrder} | ${returnLimit}")
+            Log.d(
+                "jbvdjnjnkdvdv",
+                "validationSendOrder: ${orderPercent} | ${totalOrder} | ${returnLimit}"
+            )
             if (orderPercent < totalReturn) {
                 ProgressDialogHelper().orderLimitAlert(
                     this,
@@ -460,7 +475,9 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                                     turnOver,
                                     orderList,
                                     mItemsCardAdded,
-                                    orderSourcePosition.toInt()
+                                    orderSourcePosition.toInt(),
+                                    priceListIdPosition,
+                                    priceListDescriptionPosition,
                                 )
                             )
                         )
@@ -480,7 +497,9 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                                     turnOver,
                                     orderList,
                                     mItemsCardAdded,
-                                    orderSourcePosition.toInt()
+                                    orderSourcePosition.toInt(),
+                                    priceListIdPosition,
+                                    priceListDescriptionPosition,
                                 )
                             )
                         )

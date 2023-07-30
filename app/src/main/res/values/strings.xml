@@ -88,5 +88,7 @@
     <string name="save">save</string>
     <string name="order_source">Order Source</string>
     <string name="pending">Pending</string>
+    <string name="send">Send</string>
+    <string name="price_list">Price List</string>
 
 </resources>

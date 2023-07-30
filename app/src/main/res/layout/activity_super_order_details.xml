@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".ui.SuperVisor.SuperOrderDetailsActivity">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/toolbarA"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/Theme.FoodVisits"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageButton
+                    android:id="@+id/backBtn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/back_arrow"
+                    android:backgroundTint="@color/white"/>
+
+                <TextView
+                    android:id="@+id/custom_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/_12sdp"
+                    android:paddingEnd="@dimen/_12sdp"
+                    android:text="Order Details"
+                    android:textColor="@color/white"
+                    android:textStyle="bold" />
+
+            </androidx.appcompat.widget.Toolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardCustomer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_8sdp"
+            app:cardBackgroundColor="#127CC3"
+            app:cardCornerRadius="@dimen/_6sdp"
+            app:cardElevation="6dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbarA">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_6sdp">
+
+
+                <TextView
+                    android:id="@+id/customerNameText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Customer Name:"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/customerName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toEndOf="@id/customerNameText"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/totalOrderText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Order:"
+                    android:textColor="@color/white"
+
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/customerNameText" />
+
+                <TextView
+                    android:id="@+id/totalOrder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toEndOf="@id/totalOrderText"
+                    app:layout_constraintTop_toBottomOf="@id/customerName" />
+
+
+                <TextView
+                    android:id="@+id/lastUpdateText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Last Update Date:"
+
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/totalOrderText" />
+
+                <TextView
+                    android:id="@+id/lastUpdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toEndOf="@id/lastUpdateText"
+                    app:layout_constraintTop_toBottomOf="@id/totalOrder" />
+
+
+                <TextView
+                    android:id="@+id/orderNumberText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Order Number: "
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+
+                    app:layout_constraintStart_toEndOf="@+id/totalOrderText"
+                    app:layout_constraintTop_toBottomOf="@+id/lastUpdateText" />
+
+                <TextView
+                    android:id="@+id/orderNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toEndOf="@id/orderNumberText"
+                    app:layout_constraintTop_toBottomOf="@id/lastUpdate" />
+
+                <TextView
+                    android:id="@+id/totalReturnText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Total Return: "
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toStartOf="@+id/orderNumberText"
+                    app:layout_constraintTop_toBottomOf="@+id/orderNumberText" />
+
+                <TextView
+                    android:id="@+id/totalReturn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:textColor="@color/white"
+                    app:layout_constraintStart_toEndOf="@id/orderNumberText"
+                    app:layout_constraintTop_toBottomOf="@id/orderNumber" />
+
+                <TextView
+                    android:id="@+id/returnNumberText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Return Number: "
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+
+                    app:layout_constraintStart_toStartOf="@+id/totalReturnText"
+                    app:layout_constraintTop_toBottomOf="@+id/totalReturnText" />
+
+                <TextView
+                    android:id="@+id/returnNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:textColor="@color/white"
+
+                    app:layout_constraintStart_toEndOf="@id/orderNumberText"
+                    app:layout_constraintTop_toBottomOf="@id/totalReturn" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/oDRec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:listitem="@layout/list_order_details_super"
+            app:layout_constraintBottom_toTopOf="@+id/returnText"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardCustomer" />
+
+        <TextView
+            android:id="@+id/returnText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/_8sdp"
+            android:background="@drawable/recycle_new_design"
+            android:elevation="@dimen/_8sdp"
+            android:padding="@dimen/_14sdp"
+            android:text="Return Orders: "
+            android:textSize="@dimen/_12sdp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toBottomOf="@id/oDRec" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/oDReturnRec"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/returnText" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

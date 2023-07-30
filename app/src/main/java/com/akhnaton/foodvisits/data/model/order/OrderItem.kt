@@ -15,7 +15,9 @@ data class ItemsList(
     var turn_over: Boolean,
     var order_items: MutableList<OrderItem>,
     var return_items: MutableList<ReturnItem>,
-    var ordersource_id: Int
+    var ordersource_id: Int,
+    var priceListIdPosition: Int,
+    var priceListDescriptionPosition: String,
 )
 
 data class OrderItem(

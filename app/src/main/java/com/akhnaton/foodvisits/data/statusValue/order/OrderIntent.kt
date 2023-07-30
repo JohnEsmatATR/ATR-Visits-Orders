@@ -29,6 +29,7 @@ sealed class OrderIntent {
         val customer_type: Int,
         val customer_code: Int,
         val customer_party_site_id: Int,
+        val item_price_list: String,
     ) : OrderIntent()
 
     data class GetOrderLimit(

@@ -56,6 +56,7 @@ interface IOrder {
         @Field("customer_type") customerType: Int,
         @Field("customer_code") customerCode: Int,
         @Field("customer_party_site_id") customerPartySiteId: Int,
+        @Field("price_list_id") item_price_list: String,
     ): Product
 
     @FormUrlEncoded

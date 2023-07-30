@@ -68,9 +68,21 @@
                 app:titleTextColor="#ffff" />
 
             <androidx.appcompat.widget.AppCompatButton
+                android:id="@+id/approvalBtn"
+                android:layout_width="@dimen/_28sdp"
+                android:layout_height="@dimen/_28sdp"
+                android:layout_marginTop="@dimen/_4sdp"
+                android:layout_marginEnd="@dimen/_6sdp"
+                android:background="@drawable/ic_approval"
+                android:padding="@dimen/_12sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ordersHistoryBtn"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/ordersHistoryBtn"
                 android:layout_width="@dimen/_28sdp"
-                android:layout_height="@dimen/_24sdp"
+                android:layout_height="@dimen/_28sdp"
                 android:layout_marginTop="@dimen/_4sdp"
                 android:layout_marginEnd="@dimen/_6sdp"
                 android:background="@drawable/clock"

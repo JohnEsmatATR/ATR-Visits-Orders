@@ -7,7 +7,8 @@ data class Payment(
 
 data class PaymentData(
     var customer_payments_term: List<PaymentTermCustomer>,
-    var ordersource_id: List<ordersourceId>
+    var ordersource_id: List<OrderSourceId>,
+    var price_list: List<PriceList>,
 )
 
 data class PaymentTermCustomer(
@@ -15,8 +16,13 @@ data class PaymentTermCustomer(
     var payment_term_description: String
 )
 
-data class ordersourceId(
+data class OrderSourceId(
     var id: Int,
     var name: String,
     var flag: Int
+)
+
+data class PriceList(
+    var price_list_id: Int,
+    var price_list_description: String,
 )

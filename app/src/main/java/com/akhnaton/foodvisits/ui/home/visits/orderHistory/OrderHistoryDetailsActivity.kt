@@ -30,7 +30,6 @@ class OrderHistoryDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_order_history_details)
 
-        val intent = intent
         val orderNumber = intent.getStringExtra("orderNumber")
         binding.orderNumber.text = orderNumber
 

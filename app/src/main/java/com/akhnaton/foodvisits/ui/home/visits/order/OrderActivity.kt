@@ -70,6 +70,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private var paymentTypePosition = ""
     private var orderSourcePosition = ""
     private var orderSourceFlag = -1
+    private var priceListIdPosition: Int = -1
+    private var priceListDescriptionPosition: String = ""
+
     private var customerCode = ""
     private var customerName = ""
     private var totalOrder: Double = 0.0
@@ -90,10 +93,14 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         paymentTypePosition = intent.getStringExtra("paymentTypePosition").toString()
         orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
         orderSourceFlag = intent.getIntExtra("orderSourceFlag", -1)
+        priceListIdPosition = intent.getIntExtra("priceListIdPosition", -1)
+        priceListDescriptionPosition = intent.getStringExtra("priceListDescriptionPosition").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
         customerName = intent.getStringExtra("customer_name").toString()
         orderNumber = intent.getStringExtra("orderNumber").toString()
         isOrderSaved = intent.getBooleanExtra("isOrderSaved", false)
+
+        Log.d("djndkkfmff", "onCreate: $priceListIdPosition | $priceListDescriptionPosition")
 
         lifecycleScope.launch {
 
@@ -184,7 +191,7 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             mReturnItemCardAdded.add(orderReturn)
 
         }
-            mAdapter.addProduct(mAdapterCardsProduct)
+        mAdapter.addProduct(mAdapterCardsProduct)
 
         //Calculate Total Amount Text
         totalOrder += items.order_items_general_data.total_items_price
@@ -235,7 +242,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                     sub_category = categoryName,
                                     customer_type = customerTypePosition.toInt(),
                                     customer_code = customerCode.toInt(),
-                                    customer_party_site_id = customerPartySiteId.toInt()
+                                    customer_party_site_id = customerPartySiteId.toInt(),
+                                    item_price_list = priceListIdPosition.toString()
                                 )
                             )
 
@@ -458,7 +466,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                     sub_category = categoryName,
                                     customer_type = customerTypePosition.toInt(),
                                     customer_code = customerCode.toInt(),
-                                    customer_party_site_id = customerPartySiteId.toInt()
+                                    customer_party_site_id = customerPartySiteId.toInt(),
+                                    item_price_list = priceListIdPosition.toString()
                                 )
                             )
                         }
@@ -522,6 +531,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                             .putExtra("customer_name", customerName)
                             .putExtra("orderSourcePosition", orderSourcePosition)
                             .putExtra("orderSourceFlag", orderSourceFlag)
+                            .putExtra("priceListIdPosition", priceListIdPosition)
+                            .putExtra("priceListDescriptionPosition", priceListDescriptionPosition)
                             .putExtra("orderNumber", orderNumber)
                             .putExtra("isOrderSaved", isOrderSaved)
                             .putParcelableArrayListExtra("orderList", mItemsCardAdded)
@@ -566,7 +577,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                     turnOver,
                                     mItemsCardAdded,
                                     mReturnItemCardAdded,
-                                    orderSourcePosition.toInt()
+                                    orderSourcePosition.toInt(),
+                                    priceListIdPosition,
+                                    priceListDescriptionPosition,
                                 )
                             )
                         )
@@ -586,7 +599,9 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
                                     turnOver,
                                     mItemsCardAdded,
                                     mReturnItemCardAdded,
-                                    orderSourcePosition.toInt()
+                                    orderSourcePosition.toInt(),
+                                    priceListIdPosition,
+                                    priceListDescriptionPosition,
                                 )
                             )
                         )

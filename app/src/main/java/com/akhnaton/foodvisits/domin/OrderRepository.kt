@@ -40,6 +40,7 @@ class OrderRepository {
         customerType: Int,
         customerCode: Int,
         customerPartySiteId: Int,
+        item_price_list: String
     ) = retrofit.getProduct(
         appVersion = appVersion,
         apiToken = apiToken,
@@ -47,7 +48,8 @@ class OrderRepository {
         subCategory,
         customerType,
         customerCode,
-        customerPartySiteId
+        customerPartySiteId,
+        item_price_list
     )
 
     suspend fun getOrderLimit(appVersion: String) = retrofit.getOrderLimit(appVersion)
