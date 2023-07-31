@@ -93,6 +93,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         lifecycleScope.launch {
             viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
         }
+
+        if (!SharedPreferencesHelper.getInstance().getMakeOrder() && !SharedPreferencesHelper.getInstance().getProm()) {
+            binding.approvalBtn.visibility = View.VISIBLE
+        } else {
+            binding.approvalBtn.visibility = View.GONE
+        }
+
         fetchData()
         getProfileImage(binding)
     }

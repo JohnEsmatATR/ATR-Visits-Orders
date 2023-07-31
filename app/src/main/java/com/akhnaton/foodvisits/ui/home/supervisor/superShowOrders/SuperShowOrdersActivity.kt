@@ -158,8 +158,13 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
                         showLoadingDialog()
                     }
                     is ShowOrdersState.ShowOrders -> {
-                        mAdapter!!.setList(it.superStatus.data)
-                        dismissdialog()
+                        if (it.superStatus.status == 400) {
+                            mBinding!!.imNoData.visibility = View.VISIBLE
+                        } else {
+                            mBinding!!.imNoData.visibility = View.GONE
+                            mAdapter!!.setList(it.superStatus.data)
+                            dismissdialog()
+                        }
                     }
                     is ShowOrdersState.RejectOrder -> {
                         if (it.superStatus.status == 200) {

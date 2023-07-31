@@ -84,6 +84,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
         getMainLineItemClick()
         getData()
         fetchData()
+
         return binding.root
     }
 
