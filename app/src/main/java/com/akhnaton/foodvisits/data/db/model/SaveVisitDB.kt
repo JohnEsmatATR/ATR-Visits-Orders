@@ -19,4 +19,6 @@ data class SaveVisitDB(
     val zoneFlag: String,
     val checkInDate: String,
     val dateVisit: String,
+    val customerType: String,
+    val orderType: String,
 )

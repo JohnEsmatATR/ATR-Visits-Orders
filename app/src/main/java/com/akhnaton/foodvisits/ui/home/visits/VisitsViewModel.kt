@@ -42,6 +42,8 @@ class VisitsViewModel(val context: Context) : ViewModel() {
                         it.zoneFlag,
                         it.checkInDate,
                         it.dateVisit,
+                        it.customerType,
+                        it.orderType,
                     )
                     is VisitsIntent.SaveVisitOnline -> saveVisitOnline()
                     is VisitsIntent.GetAppSetting -> getAppSetting(it.app_version)
@@ -74,6 +76,8 @@ class VisitsViewModel(val context: Context) : ViewModel() {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
+        customerType: String,
+        orderType: String,
     ) {
 
         viewModelScope.launch {
@@ -92,7 +96,9 @@ class VisitsViewModel(val context: Context) : ViewModel() {
                         deviceType,
                         zoneFlag,
                         checkInDate,
-                        dateVisit
+                        dateVisit,
+                        customerType,
+                        orderType,
                     )
                 )
             } catch (e: Exception) {

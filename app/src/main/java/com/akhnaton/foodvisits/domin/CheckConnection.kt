@@ -62,6 +62,8 @@ class CheckConnection(val context: Context) {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
+        customerType: String,
+        orderType: String,
     ) : SaveVisit {
         val saveVisitDB = SaveVisitDB(
             version = version,
@@ -76,6 +78,8 @@ class CheckConnection(val context: Context) {
             zoneFlag = zoneFlag,
             checkInDate = checkInDate,
             dateVisit = dateVisit,
+            customerType = customerType,
+            orderType = orderType,
         )
         insertSaveVisitToDB(saveVisitDB)
         return saveVisitOnline()
@@ -101,6 +105,9 @@ class CheckConnection(val context: Context) {
                     saveVisitDB.zoneFlag,
                     saveVisitDB.checkInDate,
                     saveVisitDB.dateVisit,
+                    saveVisitDB.customerType,
+                    saveVisitDB.orderType,
+
                 )
             }
         }

@@ -46,6 +46,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text"
         app:lottie_autoPlay="true"
-        app:lottie_fileName="noodles.json" />
+        app:lottie_fileName="celularmaps.json" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

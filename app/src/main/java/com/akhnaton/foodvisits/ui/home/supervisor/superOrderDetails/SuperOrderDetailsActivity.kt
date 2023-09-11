@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.data.model.supervisor.orderDetails.SuperOrder
 import com.akhnaton.foodvisits.data.statusValue.supervisor.orderDetails.OrderDetailsIntent
 import com.akhnaton.foodvisits.databinding.ActivitySuperOrderDetailsBinding
@@ -38,10 +39,17 @@ class SuperOrderDetailsActivity : AppCompatActivity() {
         val customerId = extra.getStringExtra("customer_id")
 
         initLoadingDialog()
-        getOrderDetails("1.0", SharedPreferencesHelper.getInstance().getUserToken(), orderNumber!!, SharedPreferencesHelper.getInstance().getEmployeeId(), orderTotalPrice!!, customerId!!)
+        getOrderDetails(BuildConfig.VERSION_NAME, SharedPreferencesHelper.getInstance().getUserToken(), orderNumber!!, SharedPreferencesHelper.getInstance().getEmployeeId(), orderTotalPrice!!, customerId!!)
         fetchOrderDetails()
 
+        onClick()
         setupRecycler()
+    }
+
+    private fun onClick() {
+        mBinding!!.backBtn.setOnClickListener {
+            finish()
+        }
     }
 
     private fun getOrderDetails(

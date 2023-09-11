@@ -10,6 +10,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.databinding.ActivityCreditLimitFormBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -72,7 +73,7 @@ class CreditLimitFormActivity : AppCompatActivity() {
         orderTotalPrice = intent.getStringExtra("order_total_price")!!
 
         getCreditLimit(
-            "1.0",
+            BuildConfig.VERSION_NAME,
             SharedPreferencesHelper.getInstance().getUserToken(),
             orderNumber,
             customerId,
@@ -124,7 +125,7 @@ class CreditLimitFormActivity : AppCompatActivity() {
 
             startActivity(Intent(this, MainActivity::class.java))
             sendCreditLimit(
-                "1.0",
+                BuildConfig.VERSION_NAME,
                 SharedPreferencesHelper.getInstance().getUserToken(),
                 customer_code,
                 customer_name,

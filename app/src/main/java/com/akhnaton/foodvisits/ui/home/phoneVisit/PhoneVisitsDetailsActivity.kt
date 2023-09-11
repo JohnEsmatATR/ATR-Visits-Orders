@@ -96,7 +96,10 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.custAddress.text = customerData.customer_addresses
         binding.custCode.text = customerPartySiteId
 
-        Log.d("jnjndcbvnj", "onCreate: ${customerData.customer_name} | ${customerData.customer_addresses}")
+        Log.d(
+            "jnjndcbvnj",
+            "onCreate: ${customerData.customer_name} | ${customerData.customer_addresses}"
+        )
 
 
         binding.backBtn.setOnClickListener { onBackPressed() }
@@ -149,6 +152,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
                     }
+
                     is PhoneVisitsStatus.GetAppSetting -> limitArea = it.data.data.limit_area
                     is PhoneVisitsStatus.Error -> Log.d(TAG, "Error=== ${it.error}")
                 }
@@ -263,7 +267,6 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
-
     private fun openMap() {
         binding.btnMap.setOnClickListener {
             val intent = Intent(
@@ -341,7 +344,9 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
                     checkInDate = enteredTime.toString(), // Date Entered
                     dateVisit = ConvertDate.getDateTimeStamp(), // Visit Send With end Date
-                    phoneVisit = true
+                    customerType = customerTypePosition,
+                    orderType = orderType,
+                    phoneVisit = true,
                 )
             )
         }

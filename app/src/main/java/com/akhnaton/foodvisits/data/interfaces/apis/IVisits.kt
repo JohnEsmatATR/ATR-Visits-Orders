@@ -53,7 +53,9 @@ interface IVisits {
         @Field("zone_flag") zoneFlag: String,
         @Field("check_in_date") checkInDate: String,
         @Field("date_visit") dateVisit: String,
-    ): SaveVisit
+        @Field("customer_type") customerType: String,
+        @Field("order_type") orderType: String,
+        ): SaveVisit
 
     @FormUrlEncoded
     @POST(ConstantLinks.APP_SETTING)

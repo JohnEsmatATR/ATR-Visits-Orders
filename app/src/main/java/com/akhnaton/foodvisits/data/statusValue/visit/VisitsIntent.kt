@@ -17,6 +17,8 @@ sealed class VisitsIntent {
         val zoneFlag: String,
         val checkInDate: String,
         val dateVisit: String,
+        val customerType: String,
+        val orderType: String,
         val phoneVisit:Boolean
     ) : VisitsIntent()
 

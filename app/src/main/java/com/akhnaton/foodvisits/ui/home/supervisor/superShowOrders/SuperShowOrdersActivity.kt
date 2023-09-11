@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.data.model.supervisor.showOrder.SuperOrderStatus
 import com.akhnaton.foodvisits.data.statusValue.supervisor.showOrders.ShowOrdersIntent
 import com.akhnaton.foodvisits.databinding.ActivitySuperShowOrdersBinding
@@ -43,7 +44,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
 //        supportActionBar!!.hide()
 
         getShowOrders(
-            "1.0",
+            BuildConfig.VERSION_NAME,
             SharedPreferencesHelper.getInstance().getUserToken(),
             SharedPreferencesHelper.getInstance().getEmployeeId()
         )
@@ -174,7 +175,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
                             )
 
                             getShowOrders(
-                                "1.0",
+                                BuildConfig.VERSION_NAME,
                                 SharedPreferencesHelper.getInstance().getUserToken(),
                                 SharedPreferencesHelper.getInstance().getEmployeeId()
                             )
@@ -205,7 +206,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
                         } else if (it.staticResponse.status == 400) {
                             Log.d("dvjnjdnvkdndvd", "Not Credit Limit: " + it.staticResponse.message)
                             approveOrder(
-                                "1.0",
+                                BuildConfig.VERSION_NAME,
                                 SharedPreferencesHelper.getInstance().getUserToken(),
                                 orderNumber!!,
                                 SharedPreferencesHelper.getInstance().getEmployeeId()
@@ -217,7 +218,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
                         if (it.staticResponse.status == 200) {
                             Log.d("dvjnjdnvkdndvd", "Have Qouta: " + it.staticResponse.message)
                             checkCreditLimit(
-                                "1.0",
+                                BuildConfig.VERSION_NAME,
                                 SharedPreferencesHelper.getInstance().getUserToken(),
                                 orderNumber!!
                             )
@@ -236,7 +237,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
                             Toast.makeText(this@SuperShowOrdersActivity, it.staticResponse.message+"", Toast.LENGTH_SHORT).show()
                         }
                         getShowOrders(
-                            "1.0",
+                            BuildConfig.VERSION_NAME,
                             SharedPreferencesHelper.getInstance().getUserToken(),
                             SharedPreferencesHelper.getInstance().getEmployeeId()
                         )
@@ -265,7 +266,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
     }
 
     override fun onRejectClickListener(orderNumber: String?) {
-        rejectOrder("1.0", SharedPreferencesHelper.getInstance().getUserToken(), orderNumber!!)
+        rejectOrder(BuildConfig.VERSION_NAME, SharedPreferencesHelper.getInstance().getUserToken(), orderNumber!!)
         Log.d(TAG, "onRejectClickListener: $orderNumber")
     }
 
@@ -277,14 +278,14 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
         this.orderTotalPrice = orderTotalPrice!!
         if (quotaFlag == "1") {
             checkQouta(
-                "1.0",
+                BuildConfig.VERSION_NAME,
                 SharedPreferencesHelper.getInstance().getUserToken(),
                 orderNumber!!,
                 SharedPreferencesHelper.getInstance().getEmployeeId()
             )
         } else if (quotaFlag == "0") {
             checkCreditLimit(
-                "1.0",
+                BuildConfig.VERSION_NAME,
                 SharedPreferencesHelper.getInstance().getUserToken(),
                 orderNumber!!
             )

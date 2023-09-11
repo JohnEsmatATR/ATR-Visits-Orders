@@ -82,6 +82,8 @@ interface IPhoneVisits {
         @Field("zone_flag") zoneFlag: String,
         @Field("check_in_date") checkInDate: String,
         @Field("date_visit") dateVisit: String,
+        @Field("customer_type") customerType: String,
+        @Field("order_type") orderType: String,
         @Field("phone_visit") phoneVisit: Boolean,
     ): SaveVisit
 

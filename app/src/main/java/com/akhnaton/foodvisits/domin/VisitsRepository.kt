@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.domin
 
 import android.content.Context
+import com.akhnaton.foodvisits.data.model.CustomerType
 
 class VisitsRepository(context: Context) {
     private val checkConnection = CheckConnection(context)
@@ -22,6 +23,8 @@ class VisitsRepository(context: Context) {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
+        customerType: String,
+        orderType: String,
     ) = checkConnection.saveVisit(
         version,
         token,
@@ -35,6 +38,8 @@ class VisitsRepository(context: Context) {
         zoneFlag,
         checkInDate,
         dateVisit,
+        customerType,
+        orderType,
     )
 
 

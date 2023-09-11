@@ -17,7 +17,7 @@ class SplashActivity : AppCompatActivity() {
 
 
         val animationView = findViewById<LottieAnimationView>(R.id.animation_view)
-        animationView.setAnimation("noodles.json")
+        animationView.setAnimation("celularmaps.json")
 
 //        animationView.addAnimatorListener(object : AnimatorListenerAdapter() {
 //            override fun onAnimationEnd(animation: Animator) {

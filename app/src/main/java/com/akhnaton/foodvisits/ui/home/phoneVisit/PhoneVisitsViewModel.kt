@@ -36,6 +36,7 @@ class PhoneVisitsViewModel : ViewModel() {
                         it.customerType,
                         it.orderType
                     )
+
                     is PhoneVisitsIntent.GetCustomerLines -> fetchCustomerLine(
                         it.version,
                         it.token,
@@ -52,6 +53,7 @@ class PhoneVisitsViewModel : ViewModel() {
                         it.lineId,
                         it.customerCode
                     )
+
                     is PhoneVisitsIntent.SaveVisit -> saveVisit(
                         it.version,
                         it.token,
@@ -65,8 +67,11 @@ class PhoneVisitsViewModel : ViewModel() {
                         it.zoneFlag,
                         it.checkInDate,
                         it.dateVisit,
+                        it.customerType,
+                        it.orderType,
                         it.phoneVisit
                     )
+
                     is PhoneVisitsIntent.GetAppSetting -> getAppSetting(it.app_version)
                 }
             }
@@ -190,7 +195,9 @@ class PhoneVisitsViewModel : ViewModel() {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
-        phoneVisit:Boolean
+        customerType: String,
+        orderType: String,
+        phoneVisit: Boolean
     ) {
 
         viewModelScope.launch {
@@ -210,6 +217,8 @@ class PhoneVisitsViewModel : ViewModel() {
                         zoneFlag,
                         checkInDate,
                         dateVisit,
+                        customerType,
+                        orderType,
                         phoneVisit
                     )
                 )

@@ -50,7 +50,9 @@ class PhoneVisitsRepository {
         zoneFlag: String,
         checkInDate: String,
         dateVisit: String,
-        phoneVisit:Boolean
+        customerType: String,
+        orderType: String,
+        phoneVisit: Boolean,
     ) = retrofit.saveVisits(
         version,
         token,
@@ -64,7 +66,9 @@ class PhoneVisitsRepository {
         zoneFlag,
         checkInDate,
         dateVisit,
-        phoneVisit
+        customerType,
+        orderType,
+        phoneVisit,
     )
 
 

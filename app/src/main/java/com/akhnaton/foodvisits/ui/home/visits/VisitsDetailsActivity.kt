@@ -217,9 +217,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
     override fun onClick(onClick: View?) {
-        if(mCurrentLocation == null){
-            ProgressDialogHelper().errorMessage(this@VisitsDetailsActivity,"خطا فى الموقع")
-        }else {
+        if (mCurrentLocation == null) {
+            ProgressDialogHelper().errorMessage(this@VisitsDetailsActivity, "خطا فى الموقع")
+        } else {
             if (binding.visTarget.text.isNotEmpty()) {
                 compareLocation()
             } else {
@@ -327,6 +327,8 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
                     checkInDate = enteredTime.toString(), // Date Entered
                     dateVisit = ConvertDate.getDateTimeStamp(), // Visit Send With end Date
+                    customerType = customerTypePosition,
+                    orderType = orderType,
                     phoneVisit = false
                 )
             )
