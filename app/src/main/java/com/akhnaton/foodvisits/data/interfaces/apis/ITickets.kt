@@ -13,6 +13,6 @@ interface ITickets {
     suspend fun sendTicket(
         @Field("app_version") ticketSystem: String,
         @Field("api_token") userId: String?,
-        @Field("messages") messages: String?
+        @Field("message") messages: String?
     ): Tickets
 }

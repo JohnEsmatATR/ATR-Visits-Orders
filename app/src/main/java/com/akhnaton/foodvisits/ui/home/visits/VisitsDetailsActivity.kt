@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -76,6 +77,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
+
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
         viewModel = ViewModelProvider(
             this,
             VisitsViewModelFactory(baseContext)
@@ -85,6 +89,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
+//        enteredTime = intent.getStringExtra("time").toString()
         enteredTime = intent.getStringExtra("time").toString()
         customerData = intent.getSerializableExtra("customerSiteData") as CustomerVisitPlan
         customerName = intent.getStringExtra("customer_name").toString()
@@ -326,7 +331,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     deviceType = "Mob",
                     zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
                     checkInDate = enteredTime.toString(), // Date Entered
-                    dateVisit = ConvertDate.getDateTimeStamp(), // Visit Send With end Date
+                    dateVisit = (System.currentTimeMillis() / 1000).toString(), // Visit Send With end Date
                     customerType = customerTypePosition,
                     orderType = orderType,
                     phoneVisit = false

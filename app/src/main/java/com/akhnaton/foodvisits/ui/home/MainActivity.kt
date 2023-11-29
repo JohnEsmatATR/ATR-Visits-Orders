@@ -147,11 +147,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                     is AppSettingStatus.Idle -> Log.d("TAG", "Idle: ")
                     is AppSettingStatus.Loading -> Log.d("TAG", "Loading: ")
                     is AppSettingStatus.GetAppSetting -> {
-                        Log.d(
-                            "TAG",
-                            "GetAppSetting: ${it.data.data.food_app_add_customer} "
-                        )
-                        addCustomerEnable = it.data.data.food_app_add_customer
+                        try {
+                            Log.d(
+                                "TAG",
+                                "GetAppSetting: ${it.data.data.food_app_add_customer} "
+                            )
+                        }catch (e:Exception) {}
+                        try {
+                            addCustomerEnable = it.data.data.food_app_add_customer
+                        }catch (e:Exception) {}
                     }
                     is AppSettingStatus.Error -> Log.d("TAG", "Error: ${it.error.toString()} ")
                 }
