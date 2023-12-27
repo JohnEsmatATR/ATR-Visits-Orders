@@ -46,7 +46,7 @@ class ProgressDialogHelper {
 
     fun gpsAlert(context: Context) {
         val limitAlert = SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
-        limitAlert.setTitleText("GPS Error").contentText = "You Should Open Your Gps To continue"
+        limitAlert.setTitleText("GPS Error").contentText = "يوجد خطآ في تسجيل الزياره"
         limitAlert.setCancelable(false)
         limitAlert.show()
     }

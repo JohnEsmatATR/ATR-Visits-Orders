@@ -7,6 +7,7 @@ import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -79,7 +80,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-
         viewModel = ViewModelProvider(
             this,
             VisitsViewModelFactory(baseContext)
@@ -257,27 +257,32 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun compareLocation() {
-        if (customerData.customer_latitude == "") {
-            zoneFlag = "IN"
-            saveVisits()
-        } else {
-            val customerLocation = Location("")
-            customerLocation.latitude = customerData.customer_latitude.toDouble()
-            customerLocation.longitude = customerData.customer_longitude.toDouble()
 
-            val myLocation = Location("")
-            myLocation.latitude = mCurrentLocation?.latitude!!
-            myLocation.longitude = mCurrentLocation?.longitude!!
-
-            val distanceInMeters = myLocation.distanceTo(customerLocation)
-
-            if (distanceInMeters < limitArea) {
+        if (!isDeveloperModeEnabled()) {
+            if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
                 saveVisits()
             } else {
-                zoneFlag = customerLocationMissing()
-                progressBar.show()
+                val customerLocation = Location("")
+                customerLocation.latitude = customerData.customer_latitude.toDouble()
+                customerLocation.longitude = customerData.customer_longitude.toDouble()
+
+                val myLocation = Location("")
+                myLocation.latitude = mCurrentLocation?.latitude!!
+                myLocation.longitude = mCurrentLocation?.longitude!!
+
+                val distanceInMeters = myLocation.distanceTo(customerLocation)
+
+                if (distanceInMeters < limitArea) {
+                    zoneFlag = "IN"
+                    saveVisits()
+                } else {
+                    zoneFlag = customerLocationMissing()
+                    progressBar.show()
+                }
             }
+        }else {
+            ProgressDialogHelper().gpsAlert(this)
         }
     }
 
@@ -295,7 +300,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun initWrongLocationDialog() {
-
         progressBar = SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
         progressBar.setTitleText("تنبيه!...")
             .setContentText("انت لست فى موقع العميل")
@@ -315,7 +319,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         progressBar.setCancelable(false);
 
     }
-
     private fun saveVisits() {
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
@@ -481,6 +484,15 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             ),
             REQUEST_CODE
         )
+    }
+
+
+    private fun isDeveloperModeEnabled(): Boolean {
+        return Settings.Secure.getInt(
+            this.contentResolver,
+            Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+            0
+        ) == 1
     }
 
 }

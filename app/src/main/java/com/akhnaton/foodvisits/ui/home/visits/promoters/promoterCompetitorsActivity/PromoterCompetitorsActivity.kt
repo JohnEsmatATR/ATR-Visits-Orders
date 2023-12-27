@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -49,7 +50,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     var mCheckList: ArrayList<Int>? = null
     var mListCheckeBox: ArrayList<CheckBoxId>? = null
     var viewModel = PromoterCompetitorsViewModel()
-
+    var mSizes: MutableList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +71,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         sendCompetitorsData()
         openCalendar()
         getCompetitorImage()
+        setSelectedSize()
     }
 
 
@@ -298,5 +300,19 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
             mCheckList!!.add(6)
             mListCheckeBox!!.add(CheckBoxId(6))
         }
+    }
+
+    private fun setSelectedSize(){
+        mSizes.add("G")
+        mSizes.add("M")
+        mSizes.add("Peace")
+
+        val adapter = ArrayAdapter(
+            this@PromoterCompetitorsActivity,
+            android.R.layout.simple_spinner_dropdown_item,
+            mSizes
+        )
+
+        binding.selectSizeSpinner.setAdapter(adapter)
     }
 }
