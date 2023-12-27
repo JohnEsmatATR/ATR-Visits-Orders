@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import cn.pedant.SweetAlert.SweetAlertDialog
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
@@ -26,6 +27,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.util.*
+import kotlin.collections.ArrayList
 
 class PromoterCompetitorsActivity : AppCompatActivity() {
 
@@ -39,6 +41,8 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     private var customer_code: String? = null
     private var pDialog: SweetAlertDialog? = null
     private var userType = "prom"
+
+    private val versionName = BuildConfig.VERSION_NAME
 
     var chk1:CheckBox? = null
     var chk2:CheckBox? = null
@@ -66,12 +70,13 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         chk5 = findViewById<View>(R.id.chk5) as CheckBox
         chk6 = findViewById<View>(R.id.chk6) as CheckBox
 
-
         getRequiredData()
         sendCompetitorsData()
         openCalendar()
         getCompetitorImage()
         setSelectedSize()
+        getCompetitorList()
+        observePromoter()
     }
 
 
@@ -153,7 +158,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         mcartList.add(json)
 
 
-        val apiVersion = 1.0.toString().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val apiVersion = versionName.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val token = token!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val image: Array<MultipartBody.Part?> = arrayOfNulls<MultipartBody.Part>(imagePathList.size)
         val employee = employee_id!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
@@ -203,6 +208,21 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
             )
         }
 
+    }
+
+    private fun getCompetitorList() {
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.GetCompetitorList(
+                    versionName.toDouble(),
+                )
+            )
+
+        }
+    }
+
+    private fun observePromoter() {
+        Log.d("KeroDebug", "observePromoter")
         lifecycleScope.launch {
             viewModel!!.status.collect {
                 when (it) {
@@ -221,6 +241,20 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                         )
                             .show()
                         finish()
+                    }
+                    is PromoterStatus.GetCompetitorList -> {
+                        pDialog!!.dismiss()
+                        val companiesArray = ArrayList<String>()
+
+                        for (company in it.response.data.get_competitor) {
+                            companiesArray.add(company.competitor_name)
+                        }
+
+                        val adapter = ArrayAdapter(this@PromoterCompetitorsActivity, android.R.layout.simple_dropdown_item_1line, companiesArray)
+                        binding.companiesSpinner.setAdapter(adapter)
+
+                        binding.companiesSpinner.threshold = 2
+
                     }
                     is PromoterStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")

@@ -42,6 +42,7 @@ object ConstantLinks {
     const val PROMOTER_INSERT_DETAILS = "$ROUTS_API?path=insertDayDetailsPerClient"
     const val PROMOTER_SEND_COMPETITORS = "$ROUTS_API?path=send_competitors"
     const val PROMOTER_UPLOAD_IMAGE = "$ROUTS_API?path=upload_image"
+    const val PROMOTER_COMPETITOR_LIST = "$ROUTS_API?path=get_competitor_list"
 
     // supervisor
     const val SUPER_ORDER_LIST = "$ROUTS_API?path=super_order_list"

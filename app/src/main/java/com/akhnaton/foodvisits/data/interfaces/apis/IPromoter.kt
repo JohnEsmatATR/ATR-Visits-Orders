@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.data.interfaces.apis
 
 import com.akhnaton.foodvisits.data.model.promoter.BaseResponse
+import com.akhnaton.foodvisits.data.model.promoter.CompetitorListModel
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.data.model.promoter.PromoterTargetNotes
 import com.akhnaton.foodvisits.data.model.promoter.SubmitStock
@@ -69,6 +70,12 @@ interface IPromoter {
         @Field("user_type") userType: String?,
         @Field("StockDayDetails") funNum: Int?
     ): BaseResponse<SubmitStock>
+
+    @FormUrlEncoded
+    @POST(ConstantLinks.PROMOTER_COMPETITOR_LIST)
+    suspend fun getCompetitorList(
+        @Field("app_version") appVersion: Double?,
+    ): CompetitorListModel
 
     @Multipart
     @POST(ConstantLinks.PROMOTER_UPLOAD_IMAGE)

@@ -70,14 +70,20 @@ class SharedPreferencesHelper : Application() {
             .getBoolean("prom", false)
     }
 
-    fun setUserData(apiToken: String, username: String, employeeId: String, makeOrder: Boolean, prom: Boolean) {
+    fun getTelephone(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("telephone", false)
+    }
+
+    fun setUserData(apiToken: String, username: String, employeeId: String, makeOrder: Boolean, prom: Boolean, telephone: Boolean) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString("api_token", apiToken)
             .putString("user_name", username)
             .putString("employee_id", employeeId)
             .putBoolean("make_order", makeOrder)
-            .putBoolean("prom", prom).apply()
+            .putBoolean("prom", prom)
+            .putBoolean("telephone", telephone).apply()
     }
 
     fun isLogged(): Boolean {

@@ -89,9 +89,9 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     }
 
     fun checkPromoters() {
-        val check = SharedPreferencesHelper.getInstance().getProm()
+        val check = SharedPreferencesHelper.getInstance().getTelephone()
         Log.d("dvvdvdvdsvsdvds", "checkPromoters: $check")
-        if (check) {
+        if (!check) {
             binding.orderTypeLayout.visibility = View.GONE
             showDialog()
         } else {

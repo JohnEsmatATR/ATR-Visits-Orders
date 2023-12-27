@@ -5,5 +5,6 @@ data class LoginUserData(
     var user_name: String,
     var employee_id: String,
     var make_order: Boolean,
-    var prom: Boolean
+    var prom: Boolean,
+    var telephone: Boolean
 )

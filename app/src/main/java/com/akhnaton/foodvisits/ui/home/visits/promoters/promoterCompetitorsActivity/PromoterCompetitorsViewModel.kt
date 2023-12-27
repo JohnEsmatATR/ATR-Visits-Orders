@@ -21,6 +21,7 @@ class PromoterCompetitorsViewModel : ViewModel() {
     val status: StateFlow<PromoterStatus> get() = _status
 
     init {
+        getCompetitorList()
         sendCompetitors()
     }
 
@@ -51,7 +52,6 @@ class PromoterCompetitorsViewModel : ViewModel() {
             }
         }
     }
-
     private fun fetchSendCompetitors(
         appVersion: RequestBody,
         apiToken: RequestBody,
@@ -100,5 +100,36 @@ class PromoterCompetitorsViewModel : ViewModel() {
             }
         }
     }
+
+
+    private fun getCompetitorList() {
+        viewModelScope.launch {
+            promoterIntent.consumeAsFlow().collect {
+                when (it) {
+                    is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(
+                        it.appVersion,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun fetchGetCompetitorList(
+        appVersion: Double,
+    ) {
+        viewModelScope.launch {
+            _status.value = PromoterStatus.Loading
+            _status.value = try {
+                PromoterStatus.GetCompetitorList(
+                    PromoterRepository().getCompetitorList(
+                        appVersion,
+                    )
+                )
+            } catch (e: Exception) {
+                PromoterStatus.Error(e.message)
+            }
+        }
+    }
+
 
 }

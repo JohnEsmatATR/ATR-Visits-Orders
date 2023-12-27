@@ -37,6 +37,10 @@ sealed class PromoterIntent {
         val funNum: String,
     ) : PromoterIntent()
 
+    data class GetCompetitorList(
+        val appVersion: Double,
+    ) : PromoterIntent()
+
     data class SendDetails(
         val appVersion: Double,
         val apiToken: String,

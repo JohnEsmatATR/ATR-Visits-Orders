@@ -96,6 +96,12 @@ class PromoterRepository {
             funNum
         )
 
+    suspend fun getCompetitorList(
+        appVersion: Double,
+    ) = retrofit.getCompetitorList(
+        appVersion,
+    )
+
     suspend fun uploadImages(
         appVersion: RequestBody?,
         apiToken: RequestBody?,
