@@ -47,6 +47,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         it.prom_date,
                         it.user_type,
                         it.PromoterCompetitorCompress,
+                        it.competitor_name,
+                        it.type_name,
                     )
                 }
             }
@@ -70,6 +72,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
         prom_date: RequestBody,
         user_type: RequestBody,
         PromoterCompetitorCompress: RequestBody,
+        competitor_name: RequestBody,
+        type_name: RequestBody,
     ) {
         viewModelScope.launch {
             _status.value = PromoterStatus.Loading
@@ -93,6 +97,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         prom_date,
                         user_type,
                         PromoterCompetitorCompress,
+                        competitor_name,
+                        type_name,
                     )
                 )
             } catch (e: Exception) {

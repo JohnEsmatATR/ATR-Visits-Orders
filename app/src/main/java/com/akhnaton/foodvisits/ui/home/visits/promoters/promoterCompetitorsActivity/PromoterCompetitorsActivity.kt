@@ -35,21 +35,26 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     private val returnValue = ArrayList<String>()
     lateinit var binding: ActivityPromoterCompetitorsBinding
     private var code: String? = null
-    private var party_site:String? = null
-    private var token:String? = null
-    private var employee_id:String? = null
+    private var party_site: String? = null
+    private var token: String? = null
+    private var employee_id: String? = null
     private var customer_code: String? = null
     private var pDialog: SweetAlertDialog? = null
     private var userType = "prom"
 
+    val competitorsNameIdArray = ArrayList<String>()
+    val competitorsTypeIdArray = ArrayList<String>()
+    var competitorsNameId = ""
+    var competitorsTypeId = ""
+
     private val versionName = BuildConfig.VERSION_NAME
 
-    var chk1:CheckBox? = null
-    var chk2:CheckBox? = null
-    var chk3:CheckBox? = null
-    var chk4:CheckBox? = null
-    var chk5:CheckBox? = null
-    var chk6:CheckBox? = null
+    var chk1: CheckBox? = null
+    var chk2: CheckBox? = null
+    var chk3: CheckBox? = null
+    var chk4: CheckBox? = null
+    var chk5: CheckBox? = null
+    var chk6: CheckBox? = null
 
     var mCheckList: ArrayList<Int>? = null
     var mListCheckeBox: ArrayList<CheckBoxId>? = null
@@ -70,6 +75,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         chk5 = findViewById<View>(R.id.chk5) as CheckBox
         chk6 = findViewById<View>(R.id.chk6) as CheckBox
 
+        setupSpinners()
         getRequiredData()
         sendCompetitorsData()
         openCalendar()
@@ -79,6 +85,15 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         observePromoter()
     }
 
+
+    private fun setupSpinners() {
+        binding.companiesSpinner.setOnItemClickListener { adapterView, view, position, id ->
+            competitorsNameId = competitorsNameIdArray[position]
+        }
+        binding.categorySpinner.setOnItemClickListener { adapterView, view, position, id ->
+            competitorsTypeId = competitorsTypeIdArray[position]
+        }
+    }
 
     private fun getRequiredData() {
         code = intent.getStringExtra("cust_code")
@@ -101,7 +116,9 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                 binding.etProductDiscountRate.text.toString().trim().isEmpty() ||
                 binding.etProductPrice.text.toString().trim().isEmpty() ||
                 binding.etProductWeight.text.toString().trim().isEmpty() ||
-                binding.etPromotionDate.text.toString().trim().isEmpty()
+                binding.etPromotionDate.text.toString().trim().isEmpty() ||
+                competitorsNameId != "" ||
+                competitorsTypeId != ""
             ) {
                 Toast.makeText(
                     this@PromoterCompetitorsActivity,
@@ -162,19 +179,29 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         val token = token!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val image: Array<MultipartBody.Part?> = arrayOfNulls<MultipartBody.Part>(imagePathList.size)
         val employee = employee_id!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val date = binding.etPromotionDate.text.toString().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val date = binding.etPromotionDate.text.toString().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val partySite = party_site!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val customerCode = customer_code!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val productId = binding.etProductId.text.toString().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val sPrice = binding.etProductPrice.text.toString().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val priceAfterDisc = binding.etProductPriceAfterDisc.text.toString().trim().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val productName = binding.etProductName.text.toString().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val sWeight = binding.etProductWeight.text.toString().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val discountRate = binding.etProductDiscountRate.text.toString().trim().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val productId = binding.etProductId.text.toString().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val sPrice = binding.etProductPrice.text.toString().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val priceAfterDisc = binding.etProductPriceAfterDisc.text.toString().trim().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val productName = binding.etProductName.text.toString().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val sWeight = binding.etProductWeight.text.toString().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val discountRate = binding.etProductDiscountRate.text.toString().trim().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val promType = json.toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val promDate = binding.etPromotionDate.getText().toString().trim().toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val promDate = binding.etPromotionDate.getText().toString().trim()
+            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val user_Type = userType.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val function = "1".toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val competitor_name = competitorsNameId.toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val type_name = competitorsTypeId.toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
 
         for (i in imagePathList.indices) {
@@ -204,6 +231,8 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                     promDate,
                     user_Type,
                     function,
+                    competitor_name,
+                    type_name
                 )
             )
         }
@@ -231,6 +260,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                         showDialog()
                         Log.d(TAG, "fetchData: Loading")
                     }
+
                     is PromoterStatus.SendCompetitors -> {
 //                        Log.d(TAG, "onResponse (Success): " + it.response.data!![0].message.toString())
                         pDialog!!.dismiss()
@@ -242,20 +272,39 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                             .show()
                         finish()
                     }
+
                     is PromoterStatus.GetCompetitorList -> {
                         pDialog!!.dismiss()
-                        val companiesArray = ArrayList<String>()
+                        val competitorsNameArray = ArrayList<String>()
+                        val competitorsTypeArray = ArrayList<String>()
 
                         for (company in it.response.data.get_competitor) {
-                            companiesArray.add(company.competitor_name)
+                            competitorsNameArray.add(company.competitor_name)
+                            competitorsNameIdArray.add(company.id)
                         }
 
-                        val adapter = ArrayAdapter(this@PromoterCompetitorsActivity, android.R.layout.simple_dropdown_item_1line, companiesArray)
-                        binding.companiesSpinner.setAdapter(adapter)
+                        val adapterName = ArrayAdapter(
+                            this@PromoterCompetitorsActivity,
+                            android.R.layout.simple_dropdown_item_1line,
+                            competitorsNameArray
+                        )
+                        binding.companiesSpinner.setAdapter(adapterName)
 
-                        binding.companiesSpinner.threshold = 2
+                        for (company in it.response.data.get_competitor_types) {
+                            competitorsTypeArray.add(company.type_name)
+                            competitorsTypeIdArray.add(company.id)
+                        }
+
+                        val adapterType = ArrayAdapter(
+                            this@PromoterCompetitorsActivity,
+                            android.R.layout.simple_dropdown_item_1line,
+                            competitorsTypeArray
+                        )
+                        binding.categorySpinner.setAdapter(adapterType)
+
 
                     }
+
                     is PromoterStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
                         Toast.makeText(
@@ -336,7 +385,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         }
     }
 
-    private fun setSelectedSize(){
+    private fun setSelectedSize() {
         mSizes.add("G")
         mSizes.add("M")
         mSizes.add("Peace")

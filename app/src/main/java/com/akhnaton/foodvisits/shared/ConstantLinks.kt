@@ -23,7 +23,7 @@ object ConstantLinks {
     const val GENERATE_ORDER_NUMBER =
         "$ROUTS_API?path=generate_and_validate_user_customer_before_crate_order"
     const val GET_CATEGORIES = "$ROUTS_API?path=get_categories_based_on_order_type"
-    const val GET_PRODUCT = "$ROUTS_API?path=get_products_based_on_sub_categories"
+        const val GET_PRODUCT = "$ROUTS_API?path=get_products_based_on_sub_categories"
     const val SEND_ORDER = "$ROUTS_API?path=create_new_order"
     const val SAVE_ORDER_PENDING = "$ROUTS_API?path=save_order"
     const val SAVED_ORDER = "$ROUTS_API?path=get_saved_order_products"

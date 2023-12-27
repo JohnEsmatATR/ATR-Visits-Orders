@@ -7,10 +7,15 @@ data class CompetitorListModel(
 
 data class CompetitorList(
     val get_competitor: List<GetCompetitor>,
+    val get_competitor_types: List<GetCompetitorTypes>,
 )
-
 
 data class GetCompetitor(
     val id: String,
     val competitor_name: String,
+)
+
+data class GetCompetitorTypes(
+    val id: String,
+    val type_name: String,
 )

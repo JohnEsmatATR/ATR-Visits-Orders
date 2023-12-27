@@ -144,6 +144,8 @@ class PromoterRepository {
         prom_date: RequestBody,
         user_type: RequestBody,
         PromoterCompetitorCompress: RequestBody,
+        competitor_name: RequestBody,
+        type_name: RequestBody,
     ) =
         retrofit.sendCompetitors(
             appVersion,
@@ -163,6 +165,8 @@ class PromoterRepository {
             prom_date,
             user_type,
             PromoterCompetitorCompress,
+            competitor_name,
+            type_name,
         )
 
 }

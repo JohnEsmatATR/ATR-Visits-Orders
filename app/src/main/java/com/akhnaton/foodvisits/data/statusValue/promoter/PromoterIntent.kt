@@ -114,6 +114,8 @@ sealed class PromoterIntent {
         val prom_date: RequestBody,
         val user_type: RequestBody,
         val PromoterCompetitorCompress: RequestBody,
+        val competitor_name: RequestBody,
+        val type_name: RequestBody,
     ) : PromoterIntent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -138,6 +140,8 @@ sealed class PromoterIntent {
             if (prom_date != other.prom_date) return false
             if (user_type != other.user_type) return false
             if (PromoterCompetitorCompress != other.PromoterCompetitorCompress) return false
+            if (competitor_name != other.competitor_name) return false
+            if (type_name != other.type_name) return false
 
             return true
         }
@@ -160,6 +164,8 @@ sealed class PromoterIntent {
             result = 31 * result + prom_date.hashCode()
             result = 31 * result + user_type.hashCode()
             result = 31 * result + PromoterCompetitorCompress.hashCode()
+            result = 31 * result + competitor_name.hashCode()
+            result = 31 * result + type_name.hashCode()
             return result
         }
     }

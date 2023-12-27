@@ -112,6 +112,8 @@ interface IPromoter {
         @Part("prom_date") prom_date: RequestBody?,
         @Part("user_type") user_type: RequestBody?,
         @Part("PromoterCompetitorCompress") PromoterCompetitorCompress: RequestBody?,
+        @Part("competitor_name") competitor_name: RequestBody?,
+        @Part("type_name") type_name: RequestBody?,
     ): BaseResponse<String>
 
 
