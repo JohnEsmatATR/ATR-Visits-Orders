@@ -12,7 +12,7 @@ class SetupHttpClient {
 
     fun setupOkHttpClient(): OkHttpClient {
 
-        val REQUEST_TIMEOUT = 10 // 1 minute
+        val REQUEST_TIMEOUT = 60 // 1 minute
 
         val builder = OkHttpClient.Builder()
             .readTimeout(REQUEST_TIMEOUT.toLong(), TimeUnit.SECONDS)
@@ -26,7 +26,7 @@ class SetupHttpClient {
                 object : X509TrustManager {
                     @Throws(CertificateException::class)
                     override fun checkClientTrusted(
-                        p0: Array<out java.security.cert.X509Certificate>?,
+                        p0: Array<out X509Certificate>?,
                         authType: String?
                     ) {
 

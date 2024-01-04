@@ -94,7 +94,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         orderSourcePosition = intent.getStringExtra("orderSourcePosition").toString()
         orderSourceFlag = intent.getIntExtra("orderSourceFlag", -1)
         priceListIdPosition = intent.getIntExtra("priceListIdPosition", -1)
-        priceListDescriptionPosition = intent.getStringExtra("priceListDescriptionPosition").toString()
+        priceListDescriptionPosition =
+            intent.getStringExtra("priceListDescriptionPosition").toString()
         customerCode = intent.getStringExtra("customer_code").toString()
         customerName = intent.getStringExtra("customer_name").toString()
         orderNumber = intent.getStringExtra("orderNumber").toString()
@@ -508,10 +509,10 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
             binding.returnOrder.id -> {
                 if (mAdapterCardsProduct.isEmpty()) {
                     Toast.makeText(this, "Select Item To return", Toast.LENGTH_SHORT).show()
-                } else if (totalOrder < 200.0) {
+                } else if (orderLimit >= totalOrder) {
                     Toast.makeText(
                         this,
-                        "Minimum total order should be more than 200 L.E",
+                        "Total order must be at least $orderLimit LE",
                         Toast.LENGTH_SHORT
                     ).show()
                 } else {
@@ -550,12 +551,6 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
     private fun validationSendOrder(flag: String) {
         if (mAdapterCardsProduct.isEmpty()) {
             Toast.makeText(this, "Select Item To Send", Toast.LENGTH_SHORT).show()
-        } else if (totalOrder < 200.0) {
-            Toast.makeText(
-                this,
-                "Minimum total order should be more than 200 L.E",
-                Toast.LENGTH_SHORT
-            ).show()
         } else {
             if (orderLimit >= totalOrder) {
                 ProgressDialogHelper().orderLimitAlert(

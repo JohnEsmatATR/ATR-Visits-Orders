@@ -244,13 +244,13 @@
                                     android:id="@+id/q1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=": محقق اليوم " />
+                                    android:text=": تحصيل اليوم " />
 
                                 <EditText
                                     android:id="@+id/act_target"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:hint="ادخل المحقق اليوم بالارقام"
+                                    android:hint="ادخل تحصيل اليوم بالارقام"
                                     android:inputType="number" />
                             </LinearLayout>
 

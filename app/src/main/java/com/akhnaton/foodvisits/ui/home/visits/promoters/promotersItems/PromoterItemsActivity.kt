@@ -15,6 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import cn.pedant.SweetAlert.SweetAlertDialog
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
@@ -45,6 +46,7 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
     private var adapterTextViewPosition: TextView? = null
     private var mItem: PromoterItem? = null
     var txt: View? = null
+    private val versionName = BuildConfig.VERSION_NAME
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -157,7 +159,7 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
         lifecycleScope.launch {
             getItemsViewModel.promoterIntent.send(
                 PromoterIntent.GetCurrentStockItems(
-                    1.0,
+                    versionName.toDouble(),
                     token!!,
                     employee_id!!.toInt(),
                     party_site!!.toInt(),
