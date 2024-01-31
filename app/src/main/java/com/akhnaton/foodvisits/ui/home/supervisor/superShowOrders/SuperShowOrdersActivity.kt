@@ -246,6 +246,8 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
                     is ShowOrdersState.Error -> {
                         dismissdialog()
                         Log.d("dvjnjdnvkdndvd", "onError: ${it.error}")
+                        mBinding!!.imNoData.visibility = View.VISIBLE
+
                         Toast.makeText(this@SuperShowOrdersActivity, it.error.toString()+"", Toast.LENGTH_SHORT).show()
                     }
                 }

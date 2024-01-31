@@ -45,6 +45,19 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/ordersRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarA"
+        app:layout_constraintBottom_toBottomOf="parent"
+        tools:itemCount="3"
+        tools:listitem="@layout/list_orders_super" />
+
     <TextView
         android:id="@+id/im_no_data"
         android:layout_width="match_parent"
@@ -59,17 +72,5 @@
         app:layout_constraintTop_toBottomOf="@+id/toolbarA"
         app:layout_constraintBottom_toBottomOf="parent"
         />
-
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/ordersRecycler"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarA"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:itemCount="3"
-        tools:listitem="@layout/list_orders_super" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

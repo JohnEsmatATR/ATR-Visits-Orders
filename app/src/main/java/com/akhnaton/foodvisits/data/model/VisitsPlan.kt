@@ -11,14 +11,16 @@ data class VisitsPlan(
     @TypeConverters(VisitPlanDataConverters::class)
     @Embedded var data: VisitPlanData,
 ) {
-    constructor(): this(0, 0, VisitPlanData(listOf()))
+    constructor(): this(0, 0, VisitPlanData(listOf(),"",""))
 }
 
 data class VisitPlanData(
     @TypeConverters(ListVisitPlanConverters::class)
     var customer_visit_plan: List<CustomerVisitPlan>,
+    var date: String,
+    var day: String,
 ) {
-    constructor(): this(listOf())
+    constructor(): this(listOf(),"","")
 }
 
 @kotlinx.serialization.Serializable

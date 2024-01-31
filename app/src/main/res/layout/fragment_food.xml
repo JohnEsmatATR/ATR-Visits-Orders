@@ -27,5 +27,20 @@
             layout="@layout/try_again"
             android:visibility="gone" />
 
+        <TextView
+            android:id="@+id/im_no_data"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:text="@string/no_approvals_founded"
+            android:gravity="center"
+            android:visibility="gone"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_16sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

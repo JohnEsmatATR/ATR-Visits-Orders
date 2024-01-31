@@ -70,7 +70,13 @@ class FoodFragment : Fragment(), View.OnClickListener {
                     is FoodStatus.Loading -> dialog.show()
                     is FoodStatus.FoodOrders -> {
                         dialog.hide()
-                        mAdapter.setFood(it.data,requireActivity())
+                        if (it.data.data.isEmpty()) {
+                            binding.imNoData.visibility = View.VISIBLE
+                        } else {
+                            binding.imNoData.visibility = View.GONE
+                            mAdapter.setFood(it.data,requireActivity())
+                        }
+
                         binding.tryAgainButtons.root.visibility = View.GONE
                     }
                     is FoodStatus.Error -> {

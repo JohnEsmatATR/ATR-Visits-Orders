@@ -55,10 +55,6 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
             "Loading..."
         )
 
-        binding.day.text = ConvertDate.getDay()
-        binding.date.text = ConvertDate.getDate()
-
-
         binding.tryAgainButtons.tryAgain.setOnClickListener(this)
 
         setupRecycler()
@@ -94,11 +90,19 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                         Log.d(TAG, "fetchData: ${it.data.data.customer_visit_plan}")
                         mList.addAll(it.data.data.customer_visit_plan)
 
+                        binding.day.text = it.data.data.day
+                        binding.date.text = it.data.data.date
+
                         val sortedList = mList.sortedBy { it.CUSTOMER_CODE }
                         mList.clear()
                         mList.addAll(sortedList)
 
-                        setAdapterData(mList)
+                        if (mList.isEmpty()) {
+                            binding.txtNoData.visibility = View.VISIBLE
+                        } else {
+                            binding.txtNoData.visibility = View.GONE
+                            setAdapterData(mList)
+                        }
                         binding.tryAgainButtons.root.visibility = View.GONE
                     }
 
