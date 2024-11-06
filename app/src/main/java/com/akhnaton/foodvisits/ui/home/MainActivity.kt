@@ -27,6 +27,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
 import com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superShowOrders.SuperShowOrdersActivity
@@ -70,7 +71,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.executePendingBindings()
-        visitViewModel = ViewModelProvider(this, VisitsViewModelFactory(baseContext))[VisitsViewModel::class.java]
+        visitViewModel = ViewModelProvider(
+            this,
+            VisitsViewModelFactory(baseContext)
+        )[VisitsViewModel::class.java]
         checkConnection = CheckConnection(baseContext)
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_fragment) as NavHostFragment
@@ -94,7 +98,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
         }
 
-        if (!SharedPreferencesHelper.getInstance().getMakeOrder() && !SharedPreferencesHelper.getInstance().getProm()) {
+        if (!SharedPreferencesHelper.getInstance()
+                .getMakeOrder() && !SharedPreferencesHelper.getInstance().getProm()
+        ) {
             binding.approvalBtn.visibility = View.VISIBLE
         } else {
             binding.approvalBtn.visibility = View.GONE
@@ -115,6 +121,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                         Log.d("jnjndjnjndjnjnd", "fetchData: ${it.data.data.visit_id}")
                         checkConnection.deleteSaveVisitFromDB()
                     }
+
                     is VisitsStatus.Error -> Log.d(TAG, "Error====== ${it.error}")
                 }
             }
@@ -128,7 +135,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             )
         }
     }
-
 
 
     override fun onStart() {
@@ -152,11 +158,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                                 "TAG",
                                 "GetAppSetting: ${it.data.data.food_app_add_customer} "
                             )
-                        }catch (e:Exception) {}
+                        } catch (e: Exception) {
+                        }
                         try {
                             addCustomerEnable = it.data.data.food_app_add_customer
-                        }catch (e:Exception) {}
+                        } catch (e: Exception) {
+                        }
                     }
+
                     is AppSettingStatus.Error -> Log.d("TAG", "Error: ${it.error.toString()} ")
                 }
             }
@@ -173,6 +182,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             binding.ordersHistoryBtn.id -> {
                 startActivity(Intent(this@MainActivity, OrdersHistoryActivity::class.java))
             }
+
             binding.approvalBtn.id -> {
                 startActivity(Intent(this@MainActivity, SuperShowOrdersActivity::class.java))
             }
@@ -216,15 +226,17 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     override fun menuItemClicked(menuNumber: Int) {
 
         if (menuNumber == 1) {
-            if (addCustomerEnable) {
-                startActivity(Intent(this, AddCustomerActivity::class.java))
-            } else {
-                Toast.makeText(
-                    this@MainActivity,
-                    "غير متاحة حالياً",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
+//            if (addCustomerEnable) {
+//                startActivity(Intent(this, AddCustomerActivity::class.java))
+//            } else {
+//                Toast.makeText(
+//                    this@MainActivity,
+//                    "غير متاحة حالياً",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+            startActivity(Intent(this, CustomerCodingActivity::class.java))
+
         }
 
         if (menuNumber == 2) {

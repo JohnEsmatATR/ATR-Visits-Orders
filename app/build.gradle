@@ -14,8 +14,8 @@ android {
         applicationId "com.akhnaton.foodvisits"
         minSdk 21
         targetSdk 34
-        versionCode 11
-        versionName "1.11"
+        versionCode 13
+        versionName "1.13"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -153,11 +153,15 @@ dependencies {
     implementation 'com.github.dhaval2404:imagepicker:2.1'
 
     //quantity view
-    implementation 'me.himanshusoni.quantityview:quantity-view:1.2.0'
+//    implementation 'me.himanshusoni.quantityview:quantity-view:1.2.0'
 
     //gson
     implementation 'com.google.code.gson:gson:2.10.1'
 
     //Event bus
     implementation("org.greenrobot:eventbus:3.3.1")
+
+    //Pick Image From Camera And Gallery
+    implementation 'com.github.dhaval2404:imagepicker:2.1'
+
 }

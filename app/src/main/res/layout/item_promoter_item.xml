@@ -40,14 +40,42 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <me.himanshusoni.quantityview.QuantityView
-                android:id="@+id/quantityView_default"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/quantity_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                app:qv_minQuantity="0"
-                app:qv_quantity="0"
-                app:qv_quantityDialog="true" />
+                android:paddingStart="@dimen/_12sdp"
+                android:paddingTop="@dimen/_4sdp"
+                android:paddingEnd="@dimen/_12sdp"
+                android:paddingBottom="@dimen/_4sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/itemsName_container">
+
+
+                <EditText
+                    android:id="@+id/quantityView_default"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:backgroundTint="@color/black"
+                    android:maxLength="6"
+                    android:inputType="number"
+                    app:layout_constraintStart_toEndOf="@id/quantityText"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+
+                <TextView
+                    android:id="@+id/quantityText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=": الكمية"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <EditText
                 android:id="@+id/et_price"

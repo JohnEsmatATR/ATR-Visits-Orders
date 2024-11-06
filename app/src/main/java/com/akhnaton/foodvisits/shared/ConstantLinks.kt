@@ -55,4 +55,6 @@ object ConstantLinks {
     const val SUPER_CHECK_QOUTA = "$ROUTS_API?path=super_approve_qouta"
     const val SUPER_APPROVE_ORDER = "$ROUTS_API?path=super_approve_order"
 
+    const val ADD_FOOD_CUST_API = "$ROUTS_API?path=add_food_cust_api"
+
 }

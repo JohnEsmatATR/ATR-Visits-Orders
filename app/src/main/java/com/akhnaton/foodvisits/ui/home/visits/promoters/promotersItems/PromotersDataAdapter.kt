@@ -17,8 +17,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
-import me.himanshusoni.quantityview.QuantityView
-import me.himanshusoni.quantityview.QuantityView.OnQuantityChangeListener
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -122,7 +120,7 @@ class PromotersDataAdapter(
 
         //private final TextView itemQuantityET = itemView.findViewById(R.id.et_item_quantity);
         private val quantityView =
-            itemView.findViewById<QuantityView>(R.id.quantityView_default)
+            itemView.findViewById<EditText>(R.id.quantityView_default)
         private val priceET = itemView.findViewById<EditText>(R.id.et_price)
         private val returnET = itemView.findViewById<EditText>(R.id.et_return_quantity)
         private val saveButton = itemView.findViewById<Button>(R.id.btn_save_item)
@@ -130,7 +128,7 @@ class PromotersDataAdapter(
         fun bindView(item: PromoterItem) {
             itemCodeTV.text = item.inventoryItemId + "\n" + item.itemCode
             itemDescriptionTV.setText(item.description)
-            quantityView.quantity = item.quantity!!.toInt()
+            quantityView.setText(item.quantity!!.toInt())
             priceET.setText(item.price)
             returnET.setText(item.returnQuantity)
             item.price = priceET.text.toString().trim { it <= ' ' }
@@ -150,67 +148,123 @@ class PromotersDataAdapter(
                     onSubmitListener.onSubmitClickListener(adapterPosition, item, itemView)
                 }
             }
-            quantityView.onQuantityChangeListener = object : OnQuantityChangeListener {
-                override fun onQuantityChanged(
-                    oldQuantity: Int,
-                    newQuantity: Int,
-                    programmatically: Boolean
-                ) {
-                    ordersList[ordersList.indexOf(item)].quantity = newQuantity.toString()
-                    Log.d("Quantity", newQuantity.toString())
-                    //submitCurrentStockItems(item, itemView);
+            quantityView.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    ordersList[ordersList.indexOf(item)].quantity = s.toString()
+                    Log.d("Quantity", s.toString())
                 }
 
-                override fun onLimitReached() {}
-            }
-            quantityView.setQuantityClickListener(View.OnClickListener {
-                val builder = AlertDialog.Builder(
-                    context
-                )
-                builder.setTitle("Change Quantity")
-                val inflate: View = LayoutInflater.from(context)
-                    .inflate(R.layout.custom_dialog_change_quantity, null, false)
-                val et = inflate.findViewById<View>(R.id.et_qty) as EditText
-                et.setText(quantityView.quantity.toString())
-                et.addTextChangedListener(object : TextWatcher {
-                    override fun beforeTextChanged(
-                        s: CharSequence,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
-                    }
+                override fun afterTextChanged(s: Editable?) {
+                    // Update item quantity when text changes
+                    s?.let { editable ->
+                        val builder = AlertDialog.Builder(
+                            context
+                        )
+                        builder.setTitle("Change Quantity")
+                        val inflate: View = LayoutInflater.from(context)
+                            .inflate(R.layout.custom_dialog_change_quantity, null, false)
+                        val et = inflate.findViewById<View>(R.id.et_qty) as EditText
+                        et.setText(quantityView.text.toString())
+                        et.addTextChangedListener(object : TextWatcher {
+                            override fun beforeTextChanged(
+                                s: CharSequence,
+                                start: Int,
+                                count: Int,
+                                after: Int
+                            ) {
+                            }
 
-                    override fun onTextChanged(
-                        s: CharSequence,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-                        if (TextUtils.isEmpty(s)) return
-                        if (QuantityView.isValidNumber(s.toString())) {
-                            val intNewQuantity = s.toString().toInt()
-                            // quantityView.setQuantity(intNewQuantity);
-                        } else {
-                            Toast.makeText(context, "Enter valid integer", Toast.LENGTH_LONG).show()
-                        }
-                    }
+                            override fun onTextChanged(
+                                s: CharSequence,
+                                start: Int,
+                                before: Int,
+                                count: Int
+                            ) {
+                                if (TextUtils.isEmpty(s)) return
+                            }
 
-                    override fun afterTextChanged(s: Editable) {}
-                })
-                builder.setView(inflate)
-                builder.setPositiveButton("Change",
-                    DialogInterface.OnClickListener { dialog, which ->
-                        val newQuantity = et.text.toString()
-                        if (TextUtils.isEmpty(newQuantity)) return@OnClickListener
-                        val intNewQuantity = newQuantity.toInt()
-                        quantityView.quantity = intNewQuantity
-                        ordersList[ordersList.indexOf(item)].quantity = newQuantity
-                        //submitCurrentStockItems(item, itemView);
-                    }).setNegativeButton("Cancel", null)
-                builder.show()
+                            override fun afterTextChanged(s: Editable) {}
+                        })
+                        builder.setView(inflate)
+                        builder.setPositiveButton("Change",
+                            DialogInterface.OnClickListener { dialog, which ->
+                                val newQuantity = et.text.toString()
+                                if (TextUtils.isEmpty(newQuantity)) return@OnClickListener
+                                val intNewQuantity = newQuantity.toInt()
+                                quantityView.setText(intNewQuantity)
+                                ordersList[ordersList.indexOf(item)].quantity = newQuantity
+                                //submitCurrentStockItems(item, itemView);
+                            }).setNegativeButton("Cancel", null)
+                        builder.show()
+
+
+                    }
+                }
             })
-            quantityView.isQuantityDialog
+
+//            quantityView.onQuantityChangeListener = object : OnQuantityChangeListener {
+//                override fun onQuantityChanged(
+//                    oldQuantity: Int,
+//                    newQuantity: Int,
+//                    programmatically: Boolean
+//                ) {
+//                    ordersList[ordersList.indexOf(item)].quantity = newQuantity.toString()
+//                    Log.d("Quantity", newQuantity.toString())
+//                    //submitCurrentStockItems(item, itemView);
+//                }
+//
+//                override fun onLimitReached() {}
+//            }
+//            quantityView.setQuantityClickListener(View.OnClickListener {
+//                val builder = AlertDialog.Builder(
+//                    context
+//                )
+//                builder.setTitle("Change Quantity")
+//                val inflate: View = LayoutInflater.from(context)
+//                    .inflate(R.layout.custom_dialog_change_quantity, null, false)
+//                val et = inflate.findViewById<View>(R.id.et_qty) as EditText
+//                et.setText(quantityView.quantity.toString())
+//                et.addTextChangedListener(object : TextWatcher {
+//                    override fun beforeTextChanged(
+//                        s: CharSequence,
+//                        start: Int,
+//                        count: Int,
+//                        after: Int
+//                    ) {
+//                    }
+//
+//                    override fun onTextChanged(
+//                        s: CharSequence,
+//                        start: Int,
+//                        before: Int,
+//                        count: Int
+//                    ) {
+//                        if (TextUtils.isEmpty(s)) return
+//                        if (QuantityView.isValidNumber(s.toString())) {
+//                            val intNewQuantity = s.toString().toInt()
+//                            // quantityView.setQuantity(intNewQuantity);
+//                        } else {
+//                            Toast.makeText(context, "Enter valid integer", Toast.LENGTH_LONG).show()
+//                        }
+//                    }
+//
+//                    override fun afterTextChanged(s: Editable) {}
+//                })
+//                builder.setView(inflate)
+//                builder.setPositiveButton("Change",
+//                    DialogInterface.OnClickListener { dialog, which ->
+//                        val newQuantity = et.text.toString()
+//                        if (TextUtils.isEmpty(newQuantity)) return@OnClickListener
+//                        val intNewQuantity = newQuantity.toInt()
+//                        quantityView.quantity = intNewQuantity
+//                        ordersList[ordersList.indexOf(item)].quantity = newQuantity
+//                        //submitCurrentStockItems(item, itemView);
+//                    }).setNegativeButton("Cancel", null)
+//                builder.show()
+//            })
+//            quantityView.isQuantityDialog
         }
     }
 
