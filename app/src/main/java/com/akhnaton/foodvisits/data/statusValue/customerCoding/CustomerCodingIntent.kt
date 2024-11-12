@@ -42,6 +42,8 @@ sealed class CustomerCodingIntent {
         val area: RequestBody,
         val customer_name: RequestBody,
         val customer_address: RequestBody,
+        val phoneNumber: RequestBody,
+        val mobileNumber: RequestBody,
         val customer_national_id: RequestBody,
         val name_in_national_id: RequestBody,
         val address_in_national_id: RequestBody,

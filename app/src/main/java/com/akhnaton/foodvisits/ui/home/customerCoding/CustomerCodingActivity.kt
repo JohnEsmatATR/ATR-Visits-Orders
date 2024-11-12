@@ -60,8 +60,8 @@ class CustomerCodingActivity : BaseActivity() {
     private var linePosition: String = ""
     private var categoryPosition: String = ""
     private var areaPosition: String = ""
-    private var imageFrontId: String = ""
-    private var imageBackId: String = ""
+    private var imageFrontId: String = "IMG_20241107_104659726.jpg"
+    private var imageBackId: String = "IMG_20241107_104659726.jpg"
     private var requestCode = 0
     private var mCurrentLocation: Location? = null
     private lateinit var locationClient: ILocationClient
@@ -414,16 +414,19 @@ class CustomerCodingActivity : BaseActivity() {
         val line_id = linePosition
         val category_id = categoryPosition
         val area_id = areaPosition
-        val name = binding.layoutWriteCustomerName.editText!!.text.toString()
-        val address = binding.layoutWriteCustomerAddress.editText!!.text.toString()
-        val nationalityId = binding.layoutWriteNationalityId.editText!!.text.toString()
-        val nationalityName = binding.layoutWriteNationalityName.editText!!.text.toString()
-        val nationalityAddress = binding.layoutWriteNationalityAddress.editText!!.text.toString()
+        val name = binding.layoutWriteCustomerName.editText!!.text.toString().convertArabicToEnglishNumbers()
+        val address = binding.layoutWriteCustomerAddress.editText!!.text.toString().convertArabicToEnglishNumbers()
+        val phoneNumber = binding.layoutWriteCustomerPhone.editText!!.text.toString().convertArabicToEnglishNumbers()
+        val mobileNumber = binding.layoutWriteCustomerMobile.editText!!.text.toString().convertArabicToEnglishNumbers()
+        val nationalityId = binding.layoutWriteNationalityId.editText!!.text.toString().convertArabicToEnglishNumbers()
+        val nationalityName = binding.layoutWriteNationalityName.editText!!.text.toString().convertArabicToEnglishNumbers()
+        val nationalityAddress = binding.layoutWriteNationalityAddress.editText!!.text.toString().convertArabicToEnglishNumbers()
         val front_id_image = uploadImagesId(imageFrontId, "id_1")
         val back_id_image = uploadImagesId(imageBackId, "id_2")
         val latitude = mCurrentLocation?.latitude!!.toString()
         val longitude = mCurrentLocation?.longitude!!.toString()
 
+        Log.d(Common.KeroDebug, "postRegisterAsMember: ${imageFrontId} || ${imageBackId}")
 
         val app_version = versionName.toRequestBody("text/plain".toMediaTypeOrNull())
         val api_token = apiToken.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -434,6 +437,8 @@ class CustomerCodingActivity : BaseActivity() {
         val _area_id = area_id.toRequestBody("text/plain".toMediaTypeOrNull())
         val _name = name.toRequestBody("text/plain".toMediaTypeOrNull())
         val _address = address.toRequestBody("text/plain".toMediaTypeOrNull())
+        val _phoneNumber = phoneNumber.toRequestBody("text/plain".toMediaTypeOrNull())
+        val _mobileNumber = mobileNumber.toRequestBody("text/plain".toMediaTypeOrNull())
         val _nationalityId = nationalityId.toRequestBody("text/plain".toMediaTypeOrNull())
         val _nationalityName = nationalityName.toRequestBody("text/plain".toMediaTypeOrNull())
         val _nationalityAddress = nationalityAddress.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -464,23 +469,27 @@ class CustomerCodingActivity : BaseActivity() {
             showToastSnack("برجاء ادخال عنوان العميل", true)
             isError = false
         }
-        if (nationalityId.isEmpty() || !validateEgyptianNationalID(nationalityId)) {
+        if (phoneNumber.isEmpty()) {
+            showToastSnack("برجاء ادخال رقم التليفون المحمول", true)
+            isError = false
+        }
+        if (nationalityId.isEmpty() && category_id != "477362") {
             showToastSnack("برجاء ادخال رقم البطاقة", true)
             isError = false
         }
-        if (nationalityName.isEmpty()) {
+        if (nationalityName.isEmpty() && category_id != "477362") {
             showToastSnack("برجاء ادخال الاسم فى البطاقة", true)
             isError = false
         }
-        if (nationalityAddress.isEmpty()) {
+        if (nationalityAddress.isEmpty() && category_id != "477362") {
             showToastSnack("برجاء ادخال العنوان فى البطاقة", true)
             isError = false
         }
-        if (imageFrontId.isEmpty() || imageFrontId == "") {
+        if ((imageFrontId.isEmpty() || imageFrontId == "") && category_id != "477362") {
             showToastSnack("برجاء ادخال وش صورة البطاقة", true)
             isError = false
         }
-        if (imageBackId.isEmpty() || imageBackId == "") {
+        if ((imageBackId.isEmpty() || imageBackId == "") && category_id != "477362") {
             showToastSnack("برجاء ادخال ظهر صورة البطاقة", true)
             isError = false
         }
@@ -501,6 +510,8 @@ class CustomerCodingActivity : BaseActivity() {
                         area = _area_id,
                         customer_name = _name,
                         customer_address = _address,
+                        phoneNumber = _phoneNumber,
+                        mobileNumber = _mobileNumber,
                         customer_national_id = _nationalityId,
                         name_in_national_id = _nationalityName,
                         address_in_national_id = _nationalityAddress,
@@ -680,5 +691,22 @@ class CustomerCodingActivity : BaseActivity() {
         )
     }
 
+    fun String.convertArabicToEnglishNumbers(): String {
+        val mapping = mapOf(
+            '٠' to '0',
+            '١' to '1',
+            '٢' to '2',
+            '٣' to '3',
+            '٤' to '4',
+            '٥' to '5',
+            '٦' to '6',
+            '٧' to '7',
+            '٨' to '8',
+            '٩' to '9'
+        )
 
+        return this.replace(Regex("[٠-٩]")) { result ->
+            (mapping[result.value[0]] ?: result.value[0]).toString()
+        }
+    }
 }
