@@ -8,7 +8,7 @@ import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
 import com.akhnaton.foodvisits.data.model.*
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
 
-@Database(entities = [VisitsPlan::class, SaveVisitDB::class], version = 8)
+@Database(entities = [VisitsPlan::class, SaveVisitDB::class], version = 10)
 @TypeConverters(ListVisitPlanConverters::class, SaveVisitConverters::class, VisitPlanDataConverters::class)
 abstract class VisitDatabase : RoomDatabase() {
     abstract fun saveVisitDao(): SaveVisitDao

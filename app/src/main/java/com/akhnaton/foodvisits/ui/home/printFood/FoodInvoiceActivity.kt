@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import com.ahmedelsayed.sunmiprinterutill.PrintMe
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.food.details.FoodInvoiceDetails
@@ -23,6 +22,7 @@ import com.akhnaton.foodvisits.databinding.ActivityFoodInvoiceBinding
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -73,7 +73,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         for (order in orderList) {
             price += order.totalItemPrice?.toFloat()!!
         }
-        return "%.2f".format(price).toFloat()
+        return String.format(Locale.US, "%.2f", price).toFloat()
     }
 
     private fun calculateTotalOrderQuantity(orderList: List<FoodInvoiceDetails>): Int {
@@ -89,7 +89,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         for (order in orderList) {
             vat += order.taxValue?.toFloat()!!
         }
-        return "%.2f".format(vat).toFloat()
+        return String.format(Locale.US, "%.2f", vat).toFloat()
     }
 
     @SuppressLint("SetTextI18n")
@@ -104,6 +104,12 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                         Log.d(TAG, "fetchData: Orders: ${it.data}")
                         binding.tvCustomerName.text = it.data.data.invoice_info.customer_name
                         binding.tvCustomerAddress.text = it.data.data.invoice_info.customer_address
+
+                        if (data.orderType == "Food") {
+                            binding.txtOrderType.visibility = View.VISIBLE
+                        } else {
+                            binding.txtOrderType.visibility = View.GONE
+                        }
 
                         for (order in it.data.data.invoice_details) {
                             addLayout(

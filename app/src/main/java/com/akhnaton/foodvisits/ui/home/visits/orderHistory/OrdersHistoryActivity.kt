@@ -208,6 +208,7 @@ class OrdersHistoryActivity : AppCompatActivity(),
 
                     OrderHistoryState.Idle -> Log.d(TAG, "fetchData: $it")
                     OrderHistoryState.Loading -> Log.d(TAG, "fetchData: $it")
+                    else -> {}
                 }
 
             }

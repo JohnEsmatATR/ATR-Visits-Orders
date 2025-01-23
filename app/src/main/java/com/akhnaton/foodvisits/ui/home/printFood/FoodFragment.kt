@@ -83,6 +83,8 @@ class FoodFragment : Fragment(), View.OnClickListener {
                         dialog.hide()
                         binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
+
+                    else -> {}
                 }
             }
         }

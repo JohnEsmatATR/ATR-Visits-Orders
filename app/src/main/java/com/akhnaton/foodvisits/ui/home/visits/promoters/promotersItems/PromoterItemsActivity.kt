@@ -145,6 +145,8 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
                         ).show()
                         pDialog!!.dismiss()
                     }
+
+                    else -> {}
                 }
             }
         }

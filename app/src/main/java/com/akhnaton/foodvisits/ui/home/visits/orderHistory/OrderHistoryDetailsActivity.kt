@@ -84,6 +84,8 @@ class OrderHistoryDetailsActivity : AppCompatActivity() {
                         binding.constrainLayout.visibility = View.INVISIBLE
                         binding.tryAgain.visibility = View.VISIBLE
                     }
+
+                    else -> {}
                 }
             }
         }

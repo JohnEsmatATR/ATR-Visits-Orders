@@ -38,6 +38,8 @@ class PromoterGetItemsViewModel : ViewModel() {
                         it.creationDate,
                         it.items,
                     )
+
+                    else -> {}
                 }
             }
         }
@@ -128,6 +130,8 @@ class PromoterGetItemsViewModel : ViewModel() {
                         it.customerCode,
                         it.userType,
                     )
+
+                    else -> {}
                 }
             }
         }

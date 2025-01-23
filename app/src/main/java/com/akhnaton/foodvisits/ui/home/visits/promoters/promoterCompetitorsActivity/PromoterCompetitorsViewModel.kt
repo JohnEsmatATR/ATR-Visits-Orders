@@ -50,6 +50,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         it.competitor_name,
                         it.type_name,
                     )
+
+                    else -> {}
                 }
             }
         }
@@ -115,6 +117,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
                     is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(
                         it.appVersion,
                     )
+
+                    else -> {}
                 }
             }
         }

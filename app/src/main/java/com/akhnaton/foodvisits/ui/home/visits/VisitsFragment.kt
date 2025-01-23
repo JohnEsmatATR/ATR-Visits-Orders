@@ -110,6 +110,8 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                         dialog.hide()
                         binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
+
+                    else -> {}
                 }
             }
         }

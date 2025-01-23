@@ -101,9 +101,23 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:scrollHorizontally="true"
+                    android:text=" رقم خدمه العملاء  - 17125 "
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/txt_order_type"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="5dp"
                     android:text="عالجاهز"
                     android:textColor="#000000"
                     android:textSize="20sp"
+                    android:visibility="gone"
                     android:textStyle="bold" />
 
                 <TextView
@@ -279,7 +293,7 @@
                             android:gravity="center"
                             android:text="ضريبة القيمة المضافة VAT"
                             android:textColor="#000000"
-                            android:textSize="18sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -290,7 +304,7 @@
                             android:layout_marginBottom="5dp"
                             android:gravity="center"
                             android:textColor="#000000"
-                            android:textSize="18sp" />
+                            android:textSize="16sp" />
 
                     </LinearLayout>
 
@@ -308,7 +322,7 @@
                             android:gravity="center"
                             android:text="اجمالي الفاتورة"
                             android:textColor="#000000"
-                            android:textSize="18sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -319,7 +333,7 @@
                             android:layout_marginBottom="10dp"
                             android:gravity="center"
                             android:textColor="#000000"
-                            android:textSize="18sp" />
+                            android:textSize="16sp" />
 
                     </LinearLayout>
 
@@ -337,7 +351,7 @@
                             android:gravity="center"
                             android:text="طريقة الدفع"
                             android:textColor="#000000"
-                            android:textSize="18sp"
+                            android:textSize="14sp"
                             android:textStyle="bold" />
 
                         <TextView
@@ -348,7 +362,7 @@
                             android:gravity="center"
                             android:text="كاش"
                             android:textColor="#000000"
-                            android:textSize="18sp" />
+                            android:textSize="16sp" />
 
                     </LinearLayout>
 

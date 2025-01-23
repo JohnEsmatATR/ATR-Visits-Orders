@@ -145,6 +145,8 @@ class PromotersActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+
+                    else -> {}
                 }
             }
         }

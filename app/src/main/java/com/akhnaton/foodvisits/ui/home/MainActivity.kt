@@ -123,6 +123,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                     }
 
                     is VisitsStatus.Error -> Log.d(TAG, "Error====== ${it.error}")
+                    else -> {}
                 }
             }
         }

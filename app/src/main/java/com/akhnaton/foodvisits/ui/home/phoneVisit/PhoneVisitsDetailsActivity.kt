@@ -155,6 +155,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
                     is PhoneVisitsStatus.GetAppSetting -> limitArea = it.data.data.limit_area
                     is PhoneVisitsStatus.Error -> Log.d(TAG, "Error=== ${it.error}")
+                    else -> {}
                 }
             }
         }

@@ -300,6 +300,8 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
                         dismissdialog()
                         Log.d(TAG, "fetchData: Error $it")
                     }
+
+                    else -> {}
                 }
             }
         }

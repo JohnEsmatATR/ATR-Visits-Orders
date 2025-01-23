@@ -186,6 +186,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     }
 
 
+                    else -> {}
                 }
             }
         }

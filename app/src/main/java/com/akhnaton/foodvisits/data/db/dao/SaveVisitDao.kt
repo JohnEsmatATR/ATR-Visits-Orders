@@ -10,8 +10,8 @@ interface SaveVisitDao {
     suspend fun getVisits(): List<SaveVisitDB>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(visit: SaveVisitDB)
+    suspend fun insert(visit: SaveVisitDB): Long
 
     @Query("DELETE FROM save_visit")
-    suspend fun deleteVisit()
+    suspend fun deleteVisit(): Int
 }

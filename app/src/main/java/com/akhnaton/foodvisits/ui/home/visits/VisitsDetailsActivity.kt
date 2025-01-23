@@ -174,6 +174,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         Log.d(TAG, "fetchDataSaveVisits1111Error${it.error}")
                     }
 
+                    else -> {}
                 }
             }
         }

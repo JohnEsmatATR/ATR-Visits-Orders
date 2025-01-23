@@ -109,6 +109,8 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
                         ).show()
                         pDialog!!.dismiss()
                     }
+
+                    else -> {}
                 }
             }
         }

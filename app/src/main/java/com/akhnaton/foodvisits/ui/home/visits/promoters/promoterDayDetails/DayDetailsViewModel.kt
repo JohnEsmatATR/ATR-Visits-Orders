@@ -40,6 +40,8 @@ class DayDetailsViewModel : ViewModel() {
                         it.userType,
                         it.StockDayDetails,
                     )
+
+                    else -> {}
                 }
             }
         }

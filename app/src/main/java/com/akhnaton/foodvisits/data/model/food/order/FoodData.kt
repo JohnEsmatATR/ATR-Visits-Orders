@@ -10,4 +10,7 @@ class FoodData : Serializable {
 
     @SerializedName("order_sales_number")
     var orderSalesNumber: String = ""
+
+    @SerializedName("order_type")
+    var orderType: String = ""
 }

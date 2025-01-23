@@ -313,6 +313,8 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                             Toast.LENGTH_LONG
                         ).show()
                     }
+
+                    else -> {}
                 }
             }
         }

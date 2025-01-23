@@ -42,6 +42,8 @@ class PromotersActivityViewModel : ViewModel() {
                         it.user_type,
                         it.funNum
                     )
+
+                    else -> {}
                 }
             }
         }
