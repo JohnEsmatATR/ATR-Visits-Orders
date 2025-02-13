@@ -29,6 +29,9 @@ class FoodInvoiceDetails {
     @SerializedName("order_quantity")
     var orderQuantity: String? = ""
 
+    @SerializedName("lot_number")
+    var batchNumber: String? = "0"
+
     @SerializedName("customer_name")
     var customerName: String? = ""
 

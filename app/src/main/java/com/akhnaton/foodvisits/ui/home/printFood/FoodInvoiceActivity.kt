@@ -115,6 +115,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                             addLayout(
                                 order.itemDesc ?: "",
                                 order.orderQuantity.toString() ?: "1",
+                                order.batchNumber.toString() ?: "1",
                                 order.totalItemPrice.toString()
                             )
                         }
@@ -122,6 +123,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                         addLayout(
                             "الإجمالي",
                             calculateTotalOrderQuantity(orderList = it.data.data.invoice_details).toString(),
+                            "",
                             calculateTotalOrderPrice(orderList = it.data.data.invoice_details).toString()
                         )
 
@@ -157,15 +159,17 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun addLayout(productName: String, productQuantity: String, productPrice: String) {
+    private fun addLayout(productName: String, productQuantity: String, batchNumber: String, productPrice: String) {
         val layout2: View =
             LayoutInflater.from(this).inflate(R.layout.food_order_details, mLinearLayout, false)
         val textView1 = layout2.findViewById<View>(R.id.tv_product_name) as TextView
         val textView2 = layout2.findViewById<View>(R.id.tv_product_qty) as TextView
-        val textView3 = layout2.findViewById<View>(R.id.tv_product_price) as TextView
+        val textView3 = layout2.findViewById<View>(R.id.tv_batch_number) as TextView
+        val textView4 = layout2.findViewById<View>(R.id.tv_product_price) as TextView
         textView1.text = productName
         textView2.text = productQuantity
-        textView3.text = productPrice
+        textView3.text = batchNumber
+        textView4.text = productPrice
         mLinearLayout?.addView(layout2)
     }
 

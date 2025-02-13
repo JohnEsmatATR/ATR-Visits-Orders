@@ -231,42 +231,82 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal">
 
-                        <TextView
+                        <FrameLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
+                            android:layout_height="match_parent"
+                            android:layout_margin="1dp"
                             android:layout_weight="1"
                             android:background="@drawable/rect_line"
-                            android:gravity="center"
-                            android:text="السعر"
-                            android:textColor="#000000"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            >
+                            <TextView
+                                android:id="@+id/tv_product_price"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_margin="1dp"
+                                android:gravity="center"
+                                android:text="السعر"
+                                android:textColor="#000000"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+                        </FrameLayout>
 
-                        <TextView
+                        <FrameLayout
                             android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="center"
-                            android:layout_margin="4dp"
+                            android:layout_height="match_parent"
+                            android:layout_margin="1dp"
+                            android:layout_weight="1.2"
+                            android:background="@drawable/rect_line"
+                            >
+                            <TextView
+                                android:id="@+id/tv_batch_number"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:padding="5dp"
+                                android:layout_margin="1dp"
+                                android:gravity="center"
+                                android:text="رقم التشغيلة"
+                                android:textColor="#000000"
+                                android:textStyle="bold"
+                                android:textSize="12sp" />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_margin="1dp"
                             android:layout_weight="1"
                             android:background="@drawable/rect_line"
-                            android:gravity="center"
-                            android:text="الكمية"
-                            android:textColor="#000000"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            >
+                            <TextView
+                                android:id="@+id/tv_product_qty"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:padding="5dp"
+                                android:layout_margin="1dp"
+                                android:gravity="center"
+                                android:text="الكمية"
+                                android:textColor="#000000"
+                                android:textStyle="bold"
+                                android:textSize="14sp" />
+                        </FrameLayout>
 
                         <TextView
+                            android:id="@+id/tv_product_name"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
+                            android:padding="5dp"
+                            android:layout_margin="1dp"
                             android:layout_weight="3"
                             android:background="@drawable/rect_line"
                             android:gravity="center"
                             android:text="اسم الصنف"
+                            android:textStyle="bold"
                             android:textColor="#000000"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            android:textSize="14sp" />
 
                     </LinearLayout>
 
@@ -367,6 +407,18 @@
                     </LinearLayout>
 
                 </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="5dp"
+                    android:gravity="center"
+                    android:text="سيتم اصدار فاتوره خلال الزيارة القادمه وختمها"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="16sp" />
+
 
             </LinearLayout>
 
