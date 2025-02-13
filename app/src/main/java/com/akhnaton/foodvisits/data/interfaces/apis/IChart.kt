@@ -8,6 +8,7 @@ import retrofit2.http.POST
 
 interface IChart {
 
+
     @FormUrlEncoded
     @POST(ConstantLinks.CHART_PATH)
     suspend fun getChartData(
