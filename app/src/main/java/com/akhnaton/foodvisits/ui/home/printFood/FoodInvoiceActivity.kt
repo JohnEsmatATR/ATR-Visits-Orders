@@ -19,6 +19,7 @@ import com.akhnaton.foodvisits.data.model.food.order.FoodData
 import com.akhnaton.foodvisits.data.statusValue.food.FoodIntent
 import com.akhnaton.foodvisits.data.statusValue.food.FoodStatus
 import com.akhnaton.foodvisits.databinding.ActivityFoodInvoiceBinding
+import com.akhnaton.foodvisits.databinding.FoodOrderDetailsBinding
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
@@ -105,10 +106,19 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                         binding.tvCustomerName.text = it.data.data.invoice_info.customer_name
                         binding.tvCustomerAddress.text = it.data.data.invoice_info.customer_address
 
-                        if (data.orderType == "Food") {
-                            binding.txtOrderType.visibility = View.VISIBLE
-                        } else {
-                            binding.txtOrderType.visibility = View.GONE
+                        when (data.orderType) {
+                            "Food" -> {
+                                binding.txtOrderType.visibility = View.VISIBLE
+                                binding.txtBatchNumber.visibility = View.GONE
+                            }
+                            "Pharma" -> {
+                                binding.txtOrderType.visibility = View.GONE
+                                binding.txtBatchNumber.visibility = View.VISIBLE
+                            }
+                            else -> {
+                                binding.txtOrderType.visibility = View.GONE
+                                binding.txtBatchNumber.visibility = View.GONE
+                            }
                         }
 
                         for (order in it.data.data.invoice_details) {
@@ -129,7 +139,8 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 
                         binding.tvVat.text =
                             calculateTotalVAT(it.data.data.invoice_details).toString() + " جنيه"
-                        binding.tvTotalInvoice.text = " ${it.data.data.invoice_info.invoice_total_value} جنيه "
+                        binding.tvTotalInvoice.text =
+                            " ${it.data.data.invoice_info.invoice_total_value} جنيه "
 
                         Toast.makeText(
                             baseContext,
@@ -151,6 +162,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 
                         Log.d(TAG, "fetchData: ${it.error.toString()}")
                     }
+
                     else -> {
                         Log.d(TAG, "fetchData: ")
                     }
@@ -159,18 +171,26 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun addLayout(productName: String, productQuantity: String, batchNumber: String, productPrice: String) {
-        val layout2: View =
-            LayoutInflater.from(this).inflate(R.layout.food_order_details, mLinearLayout, false)
-        val textView1 = layout2.findViewById<View>(R.id.tv_product_name) as TextView
-        val textView2 = layout2.findViewById<View>(R.id.tv_product_qty) as TextView
-        val textView3 = layout2.findViewById<View>(R.id.tv_batch_number) as TextView
-        val textView4 = layout2.findViewById<View>(R.id.tv_product_price) as TextView
-        textView1.text = productName
-        textView2.text = productQuantity
-        textView3.text = batchNumber
-        textView4.text = productPrice
-        mLinearLayout?.addView(layout2)
+    private fun addLayout(
+        productName: String,
+        productQuantity: String,
+        batchNumber: String,
+        productPrice: String
+    ) {
+        val binding = FoodOrderDetailsBinding.inflate(LayoutInflater.from(this), mLinearLayout, false)
+
+        binding.tvProductName.text = productName
+        binding.tvProductQty.text = productQuantity
+        binding.tvBatchNumber.text = batchNumber
+        binding.tvProductPrice.text = productPrice
+
+        if (data.orderType == "Pharma") {
+            binding.layoutBatchNumber.visibility = View.VISIBLE
+        } else {
+            binding.layoutBatchNumber.visibility = View.GONE
+        }
+
+        mLinearLayout?.addView(binding.root)
     }
 
     override fun onClick(p0: View?) {

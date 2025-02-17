@@ -30,6 +30,7 @@
         </FrameLayout>
 
         <FrameLayout
+            android:id="@+id/layout_batch_number"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_margin="1dp"
