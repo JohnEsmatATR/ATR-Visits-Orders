@@ -143,7 +143,7 @@ class PrinterManager(context: Context) {
 
     private fun scaleImage(bitmap1: Bitmap): Bitmap {
         val width = bitmap1.width
-        val height = bitmap1.height
+        val height = bitmap1.height - 100
         val newWidth = 384
         val scaleWidth = newWidth.toFloat() / width.toFloat()
         val matrix = Matrix()
