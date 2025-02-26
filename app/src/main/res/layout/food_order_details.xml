@@ -26,7 +26,7 @@
                 android:gravity="center"
                 android:text="4.63"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </FrameLayout>
 
         <FrameLayout
@@ -47,7 +47,7 @@
                 android:gravity="center"
                 android:text="000"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </FrameLayout>
 
         <FrameLayout
@@ -67,7 +67,7 @@
                 android:gravity="center"
                 android:text="5"
                 android:textColor="#000000"
-                android:textSize="14sp" />
+                android:textSize="16sp" />
         </FrameLayout>
 
         <TextView
@@ -81,9 +81,8 @@
             android:background="@drawable/rect_line"
             android:gravity="center"
             android:text="اسم الصنف"
-            android:textStyle="bold"
             android:textColor="#000000"
-            android:textSize="14sp" />
+            android:textSize="14dp" />
 
     </LinearLayout>
 </layout>

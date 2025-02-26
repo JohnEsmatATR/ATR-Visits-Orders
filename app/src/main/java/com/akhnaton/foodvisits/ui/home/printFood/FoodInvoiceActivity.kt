@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.printFood
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -22,6 +23,9 @@ import com.akhnaton.foodvisits.databinding.ActivityFoodInvoiceBinding
 import com.akhnaton.foodvisits.databinding.FoodOrderDetailsBinding
 import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.sunmi.peripheral.printer.InnerPrinterCallback
+import com.sunmi.peripheral.printer.InnerPrinterManager
+import com.sunmi.peripheral.printer.SunmiPrinterService
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -37,6 +41,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
     private val viewModel: FoodViewModel by viewModels()
     private var mLinearLayout: ViewGroup? = null
     var data = FoodData()
+    lateinit var printMe:PrinterManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,7 +50,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         data = intent.getSerializableExtra("foodOrder") as FoodData
 
         mLinearLayout = binding.itemListLayout
-
+        printMe = PrinterManager(baseContext)
 
         binding.tvInvoiceNumber.text = data.orderSalesNumber
         binding.tvDateTime.text = ConvertDate.getDateAndTime()
@@ -98,7 +103,9 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is FoodStatus.Idle -> Log.d(TAG, "fetchData: Idle")
+                    is FoodStatus.Idle -> {
+                        Log.d(TAG, "fetchData: Idle")
+                    }
                     is FoodStatus.Loading -> Log.d(TAG, "fetchData: Loading")
 
                     is FoodStatus.OrderDetails -> {
@@ -111,10 +118,12 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                                 binding.txtOrderType.visibility = View.VISIBLE
                                 binding.txtBatchNumber.visibility = View.GONE
                             }
+
                             "Pharma" -> {
                                 binding.txtOrderType.visibility = View.GONE
                                 binding.txtBatchNumber.visibility = View.VISIBLE
                             }
+
                             else -> {
                                 binding.txtOrderType.visibility = View.GONE
                                 binding.txtBatchNumber.visibility = View.GONE
@@ -139,8 +148,15 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 
                         binding.tvVat.text =
                             calculateTotalVAT(it.data.data.invoice_details).toString() + " جنيه"
-                        binding.tvTotalInvoice.text =
+                        binding.tvTotalInvoiceWithoutTax.text =
                             " ${it.data.data.invoice_info.invoice_total_value} جنيه "
+
+                        binding.tvTotalInvoice.text =
+                            " ${
+                                (it.data.data.invoice_info.invoice_total_value) + calculateTotalVAT(
+                                    it.data.data.invoice_details
+                                )
+                            } جنيه "
 
                         Toast.makeText(
                             baseContext,
@@ -151,6 +167,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 
                     is FoodStatus.DeliveryPrint -> {
                         Log.d(TAG, "DeliveryPrint: ${it.data.status}")
+                        printMe.unbindService(baseContext)
                     }
 
                     is FoodStatus.Error -> {
@@ -161,10 +178,12 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                         ).show()
 
                         Log.d(TAG, "fetchData: ${it.error.toString()}")
+                        printMe.unbindService(baseContext)
                     }
 
                     else -> {
                         Log.d(TAG, "fetchData: ")
+                        printMe.unbindService(baseContext)
                     }
                 }
             }
@@ -177,7 +196,8 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         batchNumber: String,
         productPrice: String
     ) {
-        val binding = FoodOrderDetailsBinding.inflate(LayoutInflater.from(this), mLinearLayout, false)
+        val binding =
+            FoodOrderDetailsBinding.inflate(LayoutInflater.from(this), mLinearLayout, false)
 
         binding.tvProductName.text = productName
         binding.tvProductQty.text = productQuantity
@@ -194,7 +214,11 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
-        PrintMe(this).sendViewToPrinter(binding.printMeLayout)
+//        PrintMe(this).sendViewToPrinter(binding.printMeLayout)
+
+        lifecycleScope.launch {
+            printMe.performTransactionPrintingSuspend(binding.printMeLayout)
+        }
 
         lifecycleScope.launch {
             viewModel.foodIntent.send(

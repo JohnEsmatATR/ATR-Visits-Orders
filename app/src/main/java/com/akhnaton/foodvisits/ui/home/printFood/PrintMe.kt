@@ -17,7 +17,6 @@ import com.sunmi.peripheral.printer.SunmiPrinterService
 
 class PrintMe(val context: Context) {
 
-
     fun sendTextToPrinter(
         text: String?,
         size: Float,
@@ -41,7 +40,8 @@ class PrintMe(val context: Context) {
                         }
 
                         override fun onRaiseException(code: Int, msg: String) {
-                            Toast.makeText(context, "Raise Exception", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Raise Exception", Toast.LENGTH_SHORT)
+                                .show()
                         }
 
                         override fun onPrintResult(code: Int, msg: String) {
@@ -58,32 +58,61 @@ class PrintMe(val context: Context) {
                 Toast.makeText(context, "Disconnected", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    fun sendBarcode(data: String) {
+        InnerPrinterManager.getInstance().bindService(context, object : InnerPrinterCallback() {
+            override fun onConnected(service: SunmiPrinterService) {
+                Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
+
+
+                try {
+                    service.printBarCode(data,100,100, 50, 10, null)
+
+                } catch (e: RemoteException) {
+                    e.printStackTrace()
+                    Toast.makeText(context, "${e.printStackTrace()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onDisconnected() {
+                Toast.makeText(context, "Disconnected", Toast.LENGTH_SHORT).show()
+            }
+        })
+
     }
 
     fun sendViewToPrinter(view: View) {
         InnerPrinterManager.getInstance().bindService(context, object : InnerPrinterCallback() {
             override fun onConnected(service: SunmiPrinterService) {
                 Toast.makeText(context, "Connected", Toast.LENGTH_SHORT).show()
+                service.clearBuffer()
 
                 try {
-                    service.printBitmap(scaleImage(convertViewToBitmap(view)), object : InnerResultCallback() {
-                        override fun onRunResult(isSuccess: Boolean) {
-                            Toast.makeText(context, "Run Result", Toast.LENGTH_SHORT).show()
+                        service.printBitmapCustom(
+                        scaleImage(convertViewToBitmap(view)), 1,
+                        object : InnerResultCallback() {
+                            override fun onRunResult(isSuccess: Boolean) {
+                                Toast.makeText(context, "Run Result", Toast.LENGTH_SHORT).show()
 
-                        }
+                            }
 
-                        override fun onReturnString(result: String) {
-                            Toast.makeText(context, "Return String", Toast.LENGTH_SHORT).show()
-                        }
+                            override fun onReturnString(result: String) {
+                                Toast.makeText(context, "Return String", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
 
-                        override fun onRaiseException(code: Int, msg: String) {
-                            Toast.makeText(context, "Raise Exception", Toast.LENGTH_SHORT).show()
-                        }
+                            override fun onRaiseException(code: Int, msg: String) {
+                                Toast.makeText(context, "Raise Exception", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
 
-                        override fun onPrintResult(code: Int, msg: String) {
-                            Toast.makeText(context, "Print Result", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+                            override fun onPrintResult(code: Int, msg: String) {
+                                Toast.makeText(context, "Print Result", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        })
+
                 } catch (e: RemoteException) {
                     e.printStackTrace()
                     Toast.makeText(context, "${e.printStackTrace()}", Toast.LENGTH_SHORT).show()
@@ -95,11 +124,15 @@ class PrintMe(val context: Context) {
             }
         })
 
-
     }
 
-    fun convertDrawableToBitmap(drawable: Drawable, widthPixels: Int, heightPixels: Int): Bitmap {
-        val mutableBitmap = Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888)
+    fun convertDrawableToBitmap(
+        drawable: Drawable,
+        widthPixels: Int,
+        heightPixels: Int
+    ): Bitmap {
+        val mutableBitmap =
+            Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(mutableBitmap)
         drawable.setBounds(0, 0, widthPixels, heightPixels)
         drawable.draw(canvas)
@@ -118,7 +151,11 @@ class PrintMe(val context: Context) {
         )
         mView.measure(widthMeasureSpec, heightMeasureSpec)
         val b =
-            Bitmap.createBitmap(mView.measuredWidth, mView.measuredHeight, Bitmap.Config.ARGB_8888)
+            Bitmap.createBitmap(
+                mView.measuredWidth,
+                mView.measuredHeight,
+                Bitmap.Config.ARGB_8888
+            )
         val c = Canvas(b)
         mView.layout(0, 0, mView.measuredWidth, mView.measuredHeight)
         mView.draw(c)
