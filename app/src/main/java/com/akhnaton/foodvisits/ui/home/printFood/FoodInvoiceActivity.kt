@@ -117,11 +117,13 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                             "Food" -> {
                                 binding.txtOrderType.visibility = View.VISIBLE
                                 binding.txtBatchNumber.visibility = View.GONE
+                                binding.txtInvoice.text = "فاتورة"
                             }
 
                             "Pharma" -> {
                                 binding.txtOrderType.visibility = View.GONE
                                 binding.txtBatchNumber.visibility = View.VISIBLE
+                                binding.txtInvoice.text = "رقم امر البيع"
                             }
 
                             else -> {
