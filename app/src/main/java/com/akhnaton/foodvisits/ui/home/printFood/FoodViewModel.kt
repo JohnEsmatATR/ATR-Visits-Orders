@@ -6,10 +6,14 @@ import com.akhnaton.foodvisits.data.statusValue.food.FoodIntent
 import com.akhnaton.foodvisits.data.statusValue.food.FoodStatus
 import com.akhnaton.foodvisits.domin.FoodRepository
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class FoodViewModel : ViewModel() {
 
@@ -19,9 +23,15 @@ class FoodViewModel : ViewModel() {
 
     val status: StateFlow<FoodStatus> get() = _status
 
+    private val _currentDateTime = MutableStateFlow("")
+    val currentDateTime: StateFlow<String> = _currentDateTime
+
+    private val dateFormat = SimpleDateFormat("yyyy-MMM-dd hh:mm:ss a", Locale.ENGLISH)
+
 
     init {
         getFoodOrders()
+        updateDateTime()
     }
 
     private fun getFoodOrders() {
@@ -87,6 +97,16 @@ class FoodViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 FoodStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun updateDateTime() {
+        viewModelScope.launch {
+            while (true) {
+                val current = dateFormat.format(Date())
+                _currentDateTime.emit(current)
+                delay(1000) // كل ثانية يحدث التاريخ والوقت
             }
         }
     }
