@@ -5,6 +5,8 @@ import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +33,7 @@ import com.akhnaton.foodvisits.databinding.FragmentPhoneVisitsBinding
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class PhoneVisitsFragment : Fragment(), View.OnClickListener {
 
@@ -120,16 +123,14 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     is PhoneVisitsStatus.Idle -> dialog.show()
                     is PhoneVisitsStatus.Loading -> dialog.show()
 
-                    //Get Order Type
+
                     is PhoneVisitsStatus.Plan -> {
                         dialog.hide()
                         setAdapter(binding.orderType, it.data.data.user_order_type.toMutableList())
                         binding.tryAgainButtons.root.visibility = View.GONE
-                        checkPromoters()
 
                     }
 
-                    //Get User Customer Type
                     is PhoneVisitsStatus.GetCustomerType -> {
                         dialog.hide()
                         customerType.clear()
@@ -142,7 +143,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                         setAdapter(binding.customerType, customerType)
                     }
 
-                    //Get User Lines
+
                     is PhoneVisitsStatus.GetLines -> {
                         dialog.hide()
                         linesName.clear()
@@ -152,36 +153,69 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                         setAdapter(binding.lines, linesName)
                     }
 
-                    //Get Main Customer Lines
+
                     is PhoneVisitsStatus.GetCustomerLines -> {
                         dialog.hide()
                         mainLine.clear()
                         binding.mainLine.text.clear()
+
+
                         mainList = it.data.data.main_customer_line
-                        it.data.data.main_customer_line.forEach { line -> mainLine.add(line.customer_name) }
+                        mainList.forEach { line ->
+                            mainLine.add(line.customer_name)
+                        }
+
+
+                        val originalMainLineList = ArrayList(mainLine)
+                        val filteredMainLineList = ArrayList(mainLine)
+
+
+                        binding.mainLine.addTextChangedListener(object : TextWatcher {
+                            override fun afterTextChanged(s: Editable?) {
+                                val query = s.toString().lowercase(Locale.getDefault())
+
+                                if (query.isNotEmpty()) {
+                                    filteredMainLineList.clear()
+
+                                    mainLine.filterTo(filteredMainLineList) { it.lowercase(Locale.getDefault()).contains(query) }
+                                } else {
+
+                                    filteredMainLineList.clear()
+                                    filteredMainLineList.addAll(originalMainLineList)
+                                }
+
+                                setAdapter(binding.mainLine, filteredMainLineList)
+                            }
+
+                            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                        })
+
+
                         setAdapter(binding.mainLine, mainLine)
                     }
+
 
                     is PhoneVisitsStatus.GetCustomersSite -> {
                         dialog.hide()
                         val mSitesList: MutableList<String> = ArrayList()
                         customerSiteList = it.data.data.customer_site
 
-                        it.data.data.customer_site.forEach { sites -> mSitesList.add(sites.customer_name) }
+                        it.data.data.customer_site.forEach { sites -> mSitesList.add(sites.customer_addresses) }
                         getCustomersSiteSpinner(mSitesList)
                     }
 
-                    is PhoneVisitsStatus.GetAppSetting -> {
-                        dialog.hide()
-                        limitArea = it.data.data.limit_area
-                        Log.d(TAG, "LimitArea: ${it.data.data.limit_area}")
-                    }
+//                    is PhoneVisitsStatus.GetAppSetting -> {
+//                        dialog.hide()
+//                        limitArea = it.data.data.limit_area
+//                        Log.d(TAG, "LimitArea: ${it.data.data.limit_area}")
+//                    }
 
-                    //Catch Error
+
                     is PhoneVisitsStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
                         dialog.hide()
-                        checkPromoters()
+
                         binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
 
