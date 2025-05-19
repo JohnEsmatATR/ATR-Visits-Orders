@@ -8,68 +8,77 @@
             type="com.akhnaton.foodvisits.data.model.CustomerVisitPlan" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/visitCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="end"
-        android:layout_marginEnd="@dimen/_8sdp">
-        <LinearLayout
+        android:layout_marginHorizontal="@dimen/_15sdp"
+        android:paddingVertical="@dimen/_10sdp">
+
+        <!-- Background Card -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/linearCard"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/_10sdp"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:layout_marginBottom="@dimen/_10sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
             android:background="@drawable/recycle_new_design"
-            android:orientation="vertical">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/image"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
 
             <TextView
                 android:id="@+id/customer_name"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="@dimen/_5sdp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:maxLines="3"
+                android:ellipsize="end"
                 android:text="@{plan.customer_name}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/_15ssp"
-                app:layout_constraintBottom_toBottomOf="@+id/image_view_media"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/image_view_media"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/customer_address"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_marginTop="@dimen/_10sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
                 android:layout_marginBottom="8dp"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+
+                android:maxLines="3"
+                android:ellipsize="end"
                 android:text="@{plan.customer_address}"
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:textColor="@android:color/white"
                 android:textSize="@dimen/_10ssp"
-                app:layout_constraintBottom_toBottomOf="@+id/image_view_media"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/image_view_media"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/customer_name"
+                app:layout_constraintBottom_toBottomOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-        </LinearLayout>
+        <!-- Side Line Image -->
         <ImageView
             android:id="@+id/image"
             android:layout_width="@dimen/_20sdp"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="4dp"
-            android:background="@drawable/line" />
+            android:background="@drawable/line"
+            app:layout_constraintStart_toEndOf="@id/linearCard"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -59,7 +59,7 @@
                 android:layout_height="@dimen/_35sdp"
                 android:layout_marginHorizontal="@dimen/_10sdp"
                 app:cardElevation="4dp"
-                app:strokeColor="@color/gray"
+                app:strokeColor="@color/orange"
                 app:cardCornerRadius="@dimen/_50sdp"
                 app:strokeWidth="@dimen/_1ssp"
                 app:layout_constraintTop_toBottomOf="@+id/header">
