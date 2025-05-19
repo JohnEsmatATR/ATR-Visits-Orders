@@ -22,7 +22,6 @@ import com.akhnaton.foodvisits.databinding.FoodOrderDetailsBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
@@ -49,7 +48,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         printMe = PrinterManager(baseContext)
 
         binding.tvInvoiceNumber.text = data.orderSalesNumber
-        binding.tvDateTime.text = dateFormat.format(Date())
+       // binding.tvDateTime.text = dateFormat.format(Date())
 
         data.orderSalesNumber.let {
             lifecycleScope.launch {
