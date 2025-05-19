@@ -1,19 +1,17 @@
 package com.akhnaton.foodvisits.ui.home.printFood
 
 import android.annotation.SuppressLint
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import com.akhnaton.foodvisits.BuildConfig
+import cn.pedant.SweetAlert.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.food.details.FoodInvoiceDetails
 import com.akhnaton.foodvisits.data.model.food.order.FoodData
@@ -21,12 +19,10 @@ import com.akhnaton.foodvisits.data.statusValue.food.FoodIntent
 import com.akhnaton.foodvisits.data.statusValue.food.FoodStatus
 import com.akhnaton.foodvisits.databinding.ActivityFoodInvoiceBinding
 import com.akhnaton.foodvisits.databinding.FoodOrderDetailsBinding
-import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
-import com.sunmi.peripheral.printer.InnerPrinterCallback
-import com.sunmi.peripheral.printer.InnerPrinterManager
-import com.sunmi.peripheral.printer.SunmiPrinterService
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
@@ -42,7 +38,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
     private var mLinearLayout: ViewGroup? = null
     var data = FoodData()
     lateinit var printMe:PrinterManager
-
+    val dateFormat = SimpleDateFormat("yyyy-MMM-dd hh:mm:ss a", Locale.ENGLISH)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_food_invoice)
@@ -53,7 +49,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         printMe = PrinterManager(baseContext)
 
         binding.tvInvoiceNumber.text = data.orderSalesNumber
-        binding.tvDateTime.text = ConvertDate.getDateAndTime()
+        binding.tvDateTime.text = dateFormat.format(Date())
 
         data.orderSalesNumber.let {
             lifecycleScope.launch {
