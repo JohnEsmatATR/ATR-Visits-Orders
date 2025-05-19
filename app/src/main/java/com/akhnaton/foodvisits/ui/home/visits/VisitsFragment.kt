@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -58,6 +59,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
         binding.tryAgainButtons.tryAgain.setOnClickListener(this)
 
         setupRecycler()
+        setupSearchView()
         fetchData()
 
         return binding.root
@@ -73,6 +75,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                 )
             )
         }
+        binding.searchView.setQuery("", false)
     }
 
 
@@ -137,12 +140,12 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                 requireActivity(),
                 VisitsDetailsActivity::class.java
             )
-                .putExtra("customerPartySiteId", mList[position].customer_party_site_id)
+                .putExtra("customerPartySiteId", data.customer_party_site_id)
                 .putExtra("time", tsLong.toString())
-                .putExtra("customerSiteData", mList[position])
-                .putExtra("orderType", mList[position].customer_order_type)
-                .putExtra("customerTypePosition", mList[position].customer_type)
-                .putExtra("customer_name", mList[position].customer_name)
+                .putExtra("customerSiteData", data)
+                .putExtra("orderType", data.customer_order_type)
+                .putExtra("customerTypePosition", data.customer_type)
+                .putExtra("customer_name", data.customer_name)
         )
     }
 
@@ -155,7 +158,23 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
             )
         }
     }
+    private fun setupSearchView() {
+        binding.searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
 
+            override fun onQueryTextChange(newText: String?): Boolean {
+                val filteredList = mList.filter {
+                    it.customer_name.contains(newText.orEmpty(), ignoreCase = true) ||
+                            it.customer_party_site_id.contains(newText.orEmpty(), ignoreCase = true) ||
+                            it.customer_order_type?.contains(newText.orEmpty(), ignoreCase = true) == true
+                }
+                setAdapterData(filteredList)
+                return true
+            }
+        })
+    }
 
 }
 

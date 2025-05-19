@@ -53,7 +53,31 @@
                     app:layout_constraintStart_toEndOf="@+id/day"
                     app:layout_constraintTop_toTopOf="parent" />
             </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/mat_card"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_marginHorizontal="@dimen/_10sdp"
+                app:cardElevation="4dp"
+                app:strokeColor="@color/gray"
+                app:cardCornerRadius="@dimen/_50sdp"
+                app:strokeWidth="@dimen/_1ssp"
+                app:layout_constraintTop_toBottomOf="@+id/header">
 
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/searchView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:iconifiedByDefault="false"
+                    android:queryHint="Search..."
+                    app:queryBackground="@android:color/transparent"
+                    app:iconifiedByDefault="false"
+                    android:layout_margin="4dp"
+                    android:inputType="text"
+                    android:textColor="@android:color/black"
+                    android:textColorHint="@android:color/darker_gray"
+                    />
+            </com.google.android.material.card.MaterialCardView>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recPlan"
                 android:layout_width="match_parent"
@@ -61,7 +85,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/header"
+                app:layout_constraintTop_toBottomOf="@+id/mat_card"
                 tools:listitem="@layout/list_plan" />
 
             <TextView
