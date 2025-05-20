@@ -9,6 +9,7 @@ import android.os.RemoteException
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.graphics.createBitmap
 import com.sunmi.peripheral.printer.InnerPrinterCallback
 import com.sunmi.peripheral.printer.InnerPrinterManager
 import com.sunmi.peripheral.printer.InnerResultCallback
@@ -113,33 +114,27 @@ class PrinterManager(context: Context) {
         }
     }
 
-     fun isPrinterStateValid(): Boolean {
+    fun isPrinterStateValid(): Boolean {
         val printerPaperStatus = service.updatePrinterState()
         Log.e("PrinterManager", "Printer is out of paper")
         return printerPaperStatus!=4
     }
 
+
     private fun convertViewToBitmap(mView: View): Bitmap {
-        @SuppressLint("Range") val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            View.MeasureSpec.UNSPECIFIED
+        mView.measure(
+            View.MeasureSpec.makeMeasureSpec(mView.width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
-        @SuppressLint("Range") val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
-            View.MeasureSpec.UNSPECIFIED
-        )
-        mView.measure(widthMeasureSpec, heightMeasureSpec)
-        val b =
-            Bitmap.createBitmap(
-                mView.measuredWidth,
-                mView.measuredHeight,
-                Bitmap.Config.ARGB_8888
-            )
-        val c = Canvas(b)
         mView.layout(0, 0, mView.measuredWidth, mView.measuredHeight)
-        mView.draw(c)
-        return b
+
+        val bitmap = createBitmap(mView.measuredWidth, mView.measuredHeight)
+
+        val canvas = Canvas(bitmap)
+        mView.draw(canvas)
+        return bitmap
     }
+
 
     private fun scaleImage(bitmap1: Bitmap): Bitmap {
         val width = bitmap1.width
