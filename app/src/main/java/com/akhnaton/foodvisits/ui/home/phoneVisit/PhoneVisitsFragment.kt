@@ -61,6 +61,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     private var limitArea: Int = 0
     private lateinit var dialog: ProgressDialog
     private lateinit var progressBar: SweetAlertDialog
+    private lateinit var mainLineAdapter: MainLineAdapter
 
 
     override fun onCreateView(
@@ -156,43 +157,51 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
 
                     is PhoneVisitsStatus.GetCustomerLines -> {
                         dialog.hide()
-                        mainLine.clear()
-                        binding.mainLine.text.clear()
-
-
                         mainList = it.data.data.main_customer_line
-                        mainList.forEach { line ->
-                            mainLine.add(line.customer_name)
+
+                        mainLineAdapter = MainLineAdapter(requireContext(), mainList)
+                        binding.mainLine.setAdapter(mainLineAdapter)
+
+
+                        binding.mainLine.setOnItemClickListener { _, _, position, _ ->
+                            val selectedItem = mainLineAdapter.getItem(position)
+                            binding.mainLine.postDelayed({
+                                binding.mainLine.showDropDown() }, 100)
+                            selectedItem?.let {
+                                handleMainLineSelection(it)
+
+
+                            }
                         }
 
 
-                        val originalMainLineList = ArrayList(mainLine)
-                        val filteredMainLineList = ArrayList(mainLine)
-
-
                         binding.mainLine.addTextChangedListener(object : TextWatcher {
-                            override fun afterTextChanged(s: Editable?) {
-                                val query = s.toString().lowercase(Locale.getDefault())
-
-                                if (query.isNotEmpty()) {
-                                    filteredMainLineList.clear()
-
-                                    mainLine.filterTo(filteredMainLineList) { it.lowercase(Locale.getDefault()).contains(query) }
-                                } else {
-
-                                    filteredMainLineList.clear()
-                                    filteredMainLineList.addAll(originalMainLineList)
-                                }
-
-                                setAdapter(binding.mainLine, filteredMainLineList)
-                            }
-
                             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                            override fun afterTextChanged(s: Editable?) {
+                                mainLineAdapter.filter.filter(s)
+
+                                if (!binding.mainLine.isPopupShowing) {
+                                    binding.mainLine.showDropDown()
+                                }
+                            }
                         })
 
 
-                        setAdapter(binding.mainLine, mainLine)
+                        binding.mainLine.setOnClickListener {
+                            if (binding.mainLine.text.isNullOrEmpty()) {
+                                mainLineAdapter.filter.filter("")
+                            }
+                            binding.mainLine.post {
+                                binding.mainLine.showDropDown()
+                            }
+                        }
+
+
+                        binding.mainLine.post {
+                            binding.mainLine.showDropDown()
+                        }
                     }
 
 
@@ -225,7 +234,34 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
             }
         }
     }
+    private fun handleMainLineSelection(selectedItem: MainCustomerLine) {
+        binding.customerLayout.visibility = View.VISIBLE
+        binding.linesLayout.visibility = View.VISIBLE
+        binding.mainLineLayout.visibility = View.VISIBLE
+        binding.sitesLineLayout.visibility = View.VISIBLE
+        binding.addVisit.visibility = View.GONE
+        binding.sitesSpinner.setText("")
 
+
+        binding.mainLine.setText(selectedItem.customer_name)
+
+
+        mainCustomerLinePosition = selectedItem.customer_code
+        customerName = selectedItem.customer_name
+
+        lifecycleScope.launch {
+            viewModel.phoneVisitsIntent.send(
+                PhoneVisitsIntent.GetCustomersSite(
+                    version = versionName,
+                    token = SharedPreferencesHelper.getInstance().getUserToken(),
+                    customerType = customerTypePosition,
+                    orderType = orderType,
+                    lineId = customerLinePosition,
+                    customerCode = mainCustomerLinePosition
+                )
+            )
+        }
+    }
     //Get Order Type
     private fun getOrderTypeItemClick() {
         binding.orderType.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
@@ -394,11 +430,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
             ) ==
             PackageManager.PERMISSION_GRANTED
         ) {
-            startActivity(
-                Intent(
-                    requireActivity(),
-                    PhoneVisitsDetailsActivity::class.java
-                )
+            startActivity(Intent(requireActivity(), PhoneVisitsDetailsActivity::class.java)
                     .putExtra("customerPartySiteId", customerPartySiteId)
                     .putExtra("time", tsLong.toString())
                     .putExtra("customerSiteData", mListPassedData)
@@ -406,7 +438,12 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                     .putExtra("orderType", orderType)
                     .putExtra("customerTypePosition", customerTypePosition)
                     .putExtra("customer_name", customerName)
+
+
             )
+            Log.d("DEBUG_DATA", "Name: ${customerName}")
+            Log.d("DEBUG_DATA", "Address: ${mainCustomerLinePosition}")
+
         } else {
             if (ContextCompat.checkSelfPermission(
                     requireActivity(),

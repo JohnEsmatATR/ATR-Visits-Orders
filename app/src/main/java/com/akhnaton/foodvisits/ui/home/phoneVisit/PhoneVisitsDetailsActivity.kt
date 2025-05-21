@@ -84,6 +84,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
 
+
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
@@ -91,15 +92,14 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         customerCode = intent.getStringExtra("customer_code").toString()
         customerName = intent.getStringExtra("customer_name").toString()
         customerData = intent.getSerializableExtra("customerSiteData") as SitesData
+        Log.d("DEBUG_DATA", "Received Name: $customerName")
+        Log.d("DEBUG_DATA", "Received Address: $customerCode")
 
-        binding.custName.text = customerData.customer_name
+        binding.custName.text = customerName
         binding.custAddress.text = customerData.customer_addresses
         binding.custCode.text = customerPartySiteId
 
-        Log.d(
-            "jnjndcbvnj",
-            "onCreate: ${customerData.customer_name} | ${customerData.customer_addresses}"
-        )
+        Log.d("jnjndcbvnj", "onCreate: ${customerData.customer_name} | ${customerData.customer_addresses}")
 
 
         binding.backBtn.setOnClickListener { onBackPressed() }
@@ -149,8 +149,6 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 when (it) {
                     is PhoneVisitsStatus.SavePhoneVisits -> {
                         checkVisitSituation(it.data.data.visit_id.toString())
-
-
                     }
 
                     is PhoneVisitsStatus.GetAppSetting -> limitArea = it.data.data.limit_area
@@ -201,6 +199,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
 
     }
+
 
     private fun setSpinnerAdapter() {
         val mVisitTypeList: ArrayList<String> = ArrayList()
