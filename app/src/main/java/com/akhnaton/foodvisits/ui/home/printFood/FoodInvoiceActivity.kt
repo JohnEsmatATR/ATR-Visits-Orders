@@ -130,7 +130,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                             addLayout(
                                 order.itemDesc ?: "",
                                 order.orderQuantity.toString() ?: "1",
-                                order.batchNumber.toString() ?: "1",
+                                order.listPrice.toString() ?: "1",
                                 order.totalItemPrice.toString()
                             )
                         }
