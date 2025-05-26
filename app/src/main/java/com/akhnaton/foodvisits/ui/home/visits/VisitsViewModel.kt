@@ -1,16 +1,27 @@
 package com.akhnaton.foodvisits.ui.home.visits
 
+import android.Manifest
 import android.content.Context
+import android.location.Location
+import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.domin.VisitsRepository
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class VisitsViewModel(val context: Context) : ViewModel() {
@@ -20,6 +31,43 @@ class VisitsViewModel(val context: Context) : ViewModel() {
     private val _statusVisit = MutableStateFlow<VisitsStatus>(VisitsStatus.Idle)
     val statusVisit: StateFlow<VisitsStatus> get() = _statusVisit
 
+    private val _locationState = MutableStateFlow<Location?>(null)
+    val locationState: StateFlow<Location?> = _locationState
+
+    private val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
+    private var locationCallback: LocationCallback? = null
+
+    private var timerJob: Job? = null
+    private var elapsedSeconds = 0
+    private val _timerState = MutableStateFlow("00:00:00")
+    val timerState: StateFlow<String> = _timerState
+    fun startTimer() {
+
+        if (timerJob != null) return
+
+        timerJob = viewModelScope.launch {
+            while (isActive) {
+                val hours = elapsedSeconds / 3600
+                val minutes = (elapsedSeconds % 3600) / 60
+                val seconds = elapsedSeconds % 60
+
+                _timerState.value = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+
+                delay(1000L)
+                elapsedSeconds++
+            }
+        }
+    }
+    fun stopTimer() {
+        timerJob?.cancel()
+        timerJob = null
+    }
+
+    fun resetTimer() {
+        stopTimer()
+        elapsedSeconds = 0
+        _timerState.value = "00:00:00"
+    }
     init {
         getPlan()
     }
@@ -138,5 +186,44 @@ class VisitsViewModel(val context: Context) : ViewModel() {
                 VisitsStatus.Error(e.message)
             }
         }
+    }
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    fun getCurrentLocation() {
+        val locationRequest = LocationRequest.create().apply {
+            interval = 4000
+            fastestInterval = 2000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let {
+                    Log.d("Locationnnn", "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters")
+                    _locationState.value = it
+                } ?: run {
+                    Log.e("Location", "Location is null")
+                }
+            }
+        }
+
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback!!,
+            Looper.getMainLooper()
+        )
+    }
+
+    fun stopLocationUpdates() {
+        locationCallback?.let {
+            fusedLocationProviderClient.removeLocationUpdates(it)
+            locationCallback = null
+
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopTimer()
+        stopLocationUpdates()
     }
 }

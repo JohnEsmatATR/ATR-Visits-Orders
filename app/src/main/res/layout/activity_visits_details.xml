@@ -83,17 +83,19 @@
                             android:layout_height="match_parent"
                             android:orientation="vertical">
 
+                            <TextView
+                                android:id="@+id/timmer"
+                                android:textSize="@dimen/_15sdp"
+                                android:layout_gravity="center"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"/>
                             <LinearLayout
                                 android:layout_width="300dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="@dimen/_40sdp"
                                 android:layout_gravity="center"
+                                android:gravity="right"
                                 android:orientation="horizontal"
                                 android:padding="10dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=": العميل " />
 
                                 <TextView
                                     android:id="@+id/cust_name"
@@ -101,114 +103,149 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
                                     android:text=""
+                                    android:maxLines="1"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="64dp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="العميل :  " />
                             </LinearLayout>
 
                             <LinearLayout
                                 android:layout_width="300dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="@dimen/_40sdp"
                                 android:layout_gravity="center"
                                 android:orientation="horizontal"
+                                android:gravity="right"
                                 android:padding="10dp">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=": العنوان  " />
 
                                 <TextView
                                     android:id="@+id/cust_address"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    android:maxLines="1"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="300dp"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:orientation="horizontal"
-                                android:padding="10dp">
 
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=": كود العميل " />
+                                    android:text=" العنوان :   " />
+                            </LinearLayout>
+
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="@dimen/_40sdp"
+                                android:layout_gravity="center"
+                                android:orientation="horizontal"
+                                android:gravity="right"
+                                android:padding="10dp">
 
                                 <TextView
                                     android:id="@+id/cust_code"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    android:maxLines="1"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" كود العميل  : " />
+
                             </LinearLayout>
 
                             <LinearLayout
                                 android:layout_width="300dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="@dimen/_40sdp"
                                 android:layout_gravity="center"
                                 android:orientation="horizontal"
+                                android:gravity="right"
                                 android:padding="10dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=": بيانات الخريطه" />
 
                                 <TextView
                                     android:id="@+id/fieldLongitude"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    android:maxLines="1"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="  بيانات  الخريطه : " />
                             </LinearLayout>
 
                             <LinearLayout
                                 android:layout_width="300dp"
-                                android:layout_height="wrap_content"
+                                android:layout_height="@dimen/_40sdp"
                                 android:layout_gravity="center"
+                                android:gravity="right"
                                 android:orientation="horizontal"
                                 android:padding="10dp">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=": بيانات الخريطه " />
+
 
                                 <TextView
                                     android:id="@+id/fieldLatitude"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-
+                                    android:maxLines="1"
                                     android:text=""
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" بيانات الخريطه :  " />
                             </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="300dp"
+                                android:layout_height="@dimen/_40sdp"
+                                android:layout_gravity="center"
+                                android:gravity="right"
+                                android:orientation="horizontal"
+                                android:padding="10dp">
+                                <TextView
+                                    android:id="@+id/accurate"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:maxLines="1"
+                                    android:text=""
+                                    tools:layout_editor_absoluteX="149dp"
+                                    tools:layout_editor_absoluteY="149dp" />
 
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" الدقه :  " />
+                            </LinearLayout>
                             <LinearLayout
                                 android:layout_width="300dp"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:orientation="horizontal"
+                                android:gravity="right"
                                 android:padding="10dp">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=": هدف الزياره " />
-
                                 <EditText
                                     android:id="@+id/vis_target"
-                                    android:layout_width="match_parent"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:hint="ادخل هدف الزياره بالارقام"
                                     android:inputType="number"
                                     android:text="" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" هدف الزياره : " />
+
+
 
                             </LinearLayout>
 
@@ -217,19 +254,21 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:orientation="horizontal"
+                                android:gravity="right"
                                 android:padding="10dp">
 
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text=": موقف الزياره  " />
+
 
                                 <Spinner
                                     android:id="@+id/visitType"
-                                    android:layout_width="match_parent"
+                                    android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:entries="@array/spinner_visit"
                                     android:prompt="@string/select_visibility" />
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" موقف الزياره : " />
                             </LinearLayout>
 
                             <LinearLayout
@@ -239,19 +278,20 @@
                                 android:layout_gravity="center"
                                 android:orientation="horizontal"
                                 android:padding="10dp">
-
+                                <EditText
+                                    android:id="@+id/act_target"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:hint="ادخل تحصيل اليوم بالارقام"
+                                    android:inputType="number" />
                                 <TextView
                                     android:id="@+id/q1"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=": تحصيل اليوم " />
+                                    android:text=" تحصيل اليوم : " />
 
-                                <EditText
-                                    android:id="@+id/act_target"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:hint="ادخل تحصيل اليوم بالارقام"
-                                    android:inputType="number" />
+
+
                             </LinearLayout>
 
                             <LinearLayout
