@@ -40,7 +40,8 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
     val dateFormat = SimpleDateFormat("yyyy-MMM-dd hh:mm:ss a", Locale.ENGLISH)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_food_invoice)
+            binding= ActivityFoodInvoiceBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         data = intent.getSerializableExtra("foodOrder") as FoodData
 
@@ -53,7 +54,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         data.orderSalesNumber.let {
             lifecycleScope.launch {
                 viewModel.foodIntent.send(
-                    FoodIntent.OrderDetails(versionName, SharedPreferencesHelper.getInstance().getUserToken(), orderNumber = data.orderSalesNumber)
+                    FoodIntent.OrderDetails("1.19", SharedPreferencesHelper.getInstance().getUserToken(), orderNumber = data.orderSalesNumber)
                 )
                 viewModel.currentDateTime.collect {dataTime ->
                     binding.tvDateTime.text= dataTime
@@ -219,7 +220,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.foodIntent.send(
                 FoodIntent.DeliveryPrint(
-                    versionName,
+                    "1.19",
                     SharedPreferencesHelper.getInstance().getUserToken(),
                     orderNumber = data.orderSalesNumber
                 )

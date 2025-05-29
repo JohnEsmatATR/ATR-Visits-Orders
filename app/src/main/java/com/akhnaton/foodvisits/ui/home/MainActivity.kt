@@ -1,7 +1,8 @@
 package com.akhnaton.foodvisits.ui.home
 
 import android.app.Activity
-import android.content.*
+import android.content.Intent
+import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -15,7 +16,6 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
 import com.akhnaton.foodvisits.BuildConfig
-import com.akhnaton.foodvisits.shared.GooeyMenu
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingIntent
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingStatus
@@ -23,26 +23,27 @@ import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
+import com.akhnaton.foodvisits.shared.GooeyMenu
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
-import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
-import com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superShowOrders.SuperShowOrdersActivity
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
+import com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.PendingResult
 import com.google.android.gms.common.api.Status
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsResult
+import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.tasks.Task
-import com.google.firebase.FirebaseApp
-import com.google.firebase.appcheck.FirebaseAppCheck
-import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -81,11 +82,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         val navController = navHostFragment.navController
         setupWithNavController(binding.navView, navController)
 
-        FirebaseApp.initializeApp(this)
-        val firebaseAppCheck = FirebaseAppCheck.getInstance()
-        firebaseAppCheck.installAppCheckProviderFactory(
-            PlayIntegrityAppCheckProviderFactory.getInstance()
-        )
+//        FirebaseApp.initializeApp(this)
+//        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+//        firebaseAppCheck.installAppCheckProviderFactory(
+//            PlayIntegrityAppCheckProviderFactory.getInstance()
+//        )
 
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)

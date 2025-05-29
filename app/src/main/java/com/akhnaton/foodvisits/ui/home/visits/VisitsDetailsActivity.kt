@@ -138,20 +138,24 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    private fun observeLocation(){
-
+    private fun observeLocation() {
         viewModel.stopLocationUpdates()
         viewModel.getCurrentLocation()
         lifecycleScope.launch {
-            viewModel.locationState.collect{location ->
+            viewModel.locationState.collect { location ->
                 location?.let {
-                    delay(1000)
                     binding.fieldLongitude.text = it.longitude.toString()
-                    binding.fieldLatitude.text =  it.latitude.toString()
-                    binding.accurate.text = " متر ${it.accuracy} "
-                    myLocation.latitude =  it.latitude
+                    binding.fieldLatitude.text = it.latitude.toString()
+                    binding.accurate.text = "${String.format("%.1f", it.accuracy)} متر"
+                    myLocation.latitude = it.latitude
                     myLocation.longitude = it.longitude
-
+                    val customerLocation = Location("")
+                    customerLocation.latitude = customerData.customer_latitude.toDouble()
+                    customerLocation.longitude = customerData.customer_longitude.toDouble()
+                    val distanceInMeters = myLocation.distanceTo(customerLocation)
+                    val formattedDistance = String.format("%.1f", distanceInMeters)
+                    binding.distanceBetweenCustomer.text = "$formattedDistance متر"
+                    Log.d("Locationnnnnnnnnnnnnnnn", "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters")
                 }
             }
         }
@@ -366,11 +370,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     phoneVisit = false
                 )
             )
-            viewModel.stopLocationUpdates()
-            binding.fieldLongitude.text = ""
-            binding.fieldLatitude.text =  ""
-            binding.accurate.text = ""
-            finish()
+
         }
     }
 
