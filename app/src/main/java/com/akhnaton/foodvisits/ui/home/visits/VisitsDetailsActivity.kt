@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.visits
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.location.Location
@@ -68,7 +69,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var zoneFlag = ""
     private lateinit var customerData: CustomerVisitPlan
     private lateinit var progressBar: SweetAlertDialog
-    private var mCurrentLocation: Location? = null
+    val customerLocation = Location("")
     private lateinit var locationClient: ILocationClient
     val myLocation = Location("")
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
@@ -137,6 +138,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+    @SuppressLint("SetTextI18n")
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun observeLocation() {
         viewModel.stopLocationUpdates()
@@ -144,22 +146,52 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.locationState.collect { location ->
                 location?.let {
-                    binding.fieldLongitude.text = it.longitude.toString()
+
+                    binding.fieldLatitude.text = it.longitude.toString()
                     binding.fieldLatitude.text = it.latitude.toString()
                     binding.accurate.text = "${String.format("%.1f", it.accuracy)} متر"
+
+
                     myLocation.latitude = it.latitude
                     myLocation.longitude = it.longitude
+
+
                     val customerLocation = Location("")
-                    customerLocation.latitude = customerData.customer_latitude.toDouble()
-                    customerLocation.longitude = customerData.customer_longitude.toDouble()
-                    val distanceInMeters = myLocation.distanceTo(customerLocation)
-                    val formattedDistance = String.format("%.1f", distanceInMeters)
-                    binding.distanceBetweenCustomer.text = "$formattedDistance متر"
-                    Log.d("Locationnnnnnnnnnnnnnnn", "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters")
+                    val customerLat = customerData.customer_latitude
+                    val customerLng = customerData.customer_longitude
+
+                    val isLatValid = !customerLat.isNullOrBlank()
+                    val isLngValid = !customerLng.isNullOrBlank()
+
+                    if (isLatValid && isLngValid) {
+                        val lat = customerLat!!.toDoubleOrNull()
+                        val lng = customerLng!!.toDoubleOrNull()
+
+                        if (lat != null && lng != null) {
+                            customerLocation.latitude = lat
+                            customerLocation.longitude = lng
+
+                            val distanceInMeters = myLocation.distanceTo(customerLocation)
+                            val formattedDistance = String.format("%.1f", distanceInMeters)
+                            binding.distanceBetweenCustomer.text = "$formattedDistance متر"
+                        } else {
+                            binding.distanceBetweenCustomer.text = "الموقع غير متاح"
+                            Log.w("observeLocation", "Failed to parse latitude or longitude")
+                        }
+                    } else {
+                        binding.distanceBetweenCustomer.text = "الموقع غير متاح"
+                        Log.w("observeLocation", "Latitude or longitude is blank")
+                    }
+
+                    Log.d(
+                        "Locationnnnnnnnnnnnnnnn",
+                        "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"
+                    )
                 }
             }
         }
     }
+
     private fun checkPromoters() {
         val check = SharedPreferencesHelper.getInstance().getProm()
         Log.d("vhjbhjvbfvfvv", "checkPromoters: $check")
@@ -254,39 +286,39 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
     override fun onClick(onClick: View?) {
-        if (mCurrentLocation == null) {
+        if (customerLocation == null) {
             ProgressDialogHelper().errorMessage(this@VisitsDetailsActivity, "خطا فى الموقع")
+        } else if (binding.visTarget.text.isEmpty()) {
+            binding.visTarget.error = "ادخل هدف الزيارة"
+            binding.visTarget.requestFocus()
+
         } else {
-            if (binding.visTarget.text.isNotEmpty()) {
-                compareLocation()
-            } else {
-                binding.visTarget.error = "ادخل هدف الزيارة"
-                binding.visTarget.requestFocus()
-            }
+            compareLocation()
         }
+
 
     }
 
     private fun customerLocationMissing(): String {
-        return if (mCurrentLocation?.longitude.toString() == "" || mCurrentLocation?.latitude.toString() == "") {
+        return if (customerLocation?.longitude.toString() == "" || customerLocation?.latitude.toString() == "") {
             "IN"
         } else {
             "ERROR"
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun updateLocation(locationData: LocationData) {
-        Log.i(TAG, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
-        val location = Location(LocationManager.GPS_PROVIDER)
-        location.latitude = locationData.latitude
-        location.longitude = locationData.longitude
-
-//        binding.fieldLongitude.text = location.latitude.toString()
-//        binding.fieldLatitude.text = location.longitude.toString()
-       mCurrentLocation = location
-//        progressBar.dismiss()
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun updateLocation(locationData: LocationData) {
+//        Log.i(TAG, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
+//        val location = Location(LocationManager.GPS_PROVIDER)
+//        location.latitude = locationData.latitude
+//        location.longitude = locationData.longitude
+//
+////        binding.fieldLongitude.text = location.latitude.toString()
+////        binding.fieldLatitude.text = location.longitude.toString()
+//       mCurrentLocation = location
+////        progressBar.dismiss()
+//    }
 
     private fun compareLocation() {
         if (!isDeveloperModeEnabled()) {
@@ -350,6 +382,8 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     }
     private fun saveVisits() {
+        val long= binding.fieldLongitude.text.toString()
+        val lat = binding.fieldLatitude.text.toString()
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 VisitsIntent.SaveVisit(
@@ -359,8 +393,8 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType), // A -> طلبية --- C -> سلبي
                     visitTarget = binding.visTarget.text.toString().trim(),
                     visitActualTarget = binding.actTarget.text.toString().trim(),
-                    latitude = mCurrentLocation!!.latitude.toString(),
-                    longtitude = mCurrentLocation!!.longitude.toString(),
+                    latitude = long,
+                    longtitude = lat,
                     deviceType = "Mob",
                     zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
                     checkInDate = enteredTime.toString(), // Date Entered

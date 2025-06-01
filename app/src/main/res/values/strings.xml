@@ -145,6 +145,7 @@
     <string name="write_customer_name">ادخل اسم العميل</string>
     <string name="write_customer_address">ادخل عنوان العميل</string>
     <string name="write_customer_phone">ادخل رقم الهاتف المحمول</string>
+
     <string name="write_customer_mobile">ادخل رقم الهاتف الارضى</string>
     <string name="write_nationality_id">ادخل الرقم القومى</string>
     <string name="write_nationality_name">ادخل اسم العميل فى البطاقة</string>

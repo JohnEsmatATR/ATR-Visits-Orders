@@ -210,7 +210,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
                         val mSitesList: MutableList<String> = ArrayList()
                         customerSiteList = it.data.data.customer_site
 
-                        it.data.data.customer_site.forEach { sites -> mSitesList.add(sites.customer_addresses) }
+                        it.data.data.customer_site.forEach { sites -> mSitesList.add(sites.customer_name) }
                         getCustomersSiteSpinner(mSitesList)
                     }
 
@@ -379,7 +379,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
         binding.sitesSpinner.setExpandTint(R.color.colorAccent)
 
         binding.sitesSpinner.setOnItemClickListener {
-            customerPartySiteId = customerSiteList[it].customer_party_site_id
+            customerPartySiteId = customerSiteList[it].customer_name
             mListPassedData = customerSiteList[it]
             binding.customerLayout.visibility = View.VISIBLE
             binding.linesLayout.visibility = View.VISIBLE

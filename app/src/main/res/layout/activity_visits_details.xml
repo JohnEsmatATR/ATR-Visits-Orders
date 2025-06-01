@@ -86,6 +86,8 @@
                             <TextView
                                 android:id="@+id/timmer"
                                 android:textSize="@dimen/_15sdp"
+                                android:fontFamily="@font/cairo_medium"
+                                android:textColor="@color/black"
                                 android:layout_gravity="center"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
@@ -103,38 +105,52 @@
                                     android:layout_height="wrap_content"
                                     android:layout_gravity="center"
                                     android:text=""
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:maxLines="1"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="64dp" />
+
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:text="العميل :  " />
                             </LinearLayout>
 
-                            <LinearLayout
+                            <androidx.constraintlayout.widget.ConstraintLayout
                                 android:layout_width="300dp"
-                                android:layout_height="@dimen/_40sdp"
+                                android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:orientation="horizontal"
-                                android:gravity="right"
                                 android:padding="10dp">
 
 
                                 <TextView
                                     android:id="@+id/cust_address"
-                                    android:layout_width="wrap_content"
+                                    android:layout_width="0dp"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:maxLines="2"
                                     android:text=""
-                                    android:maxLines="1"
-                                    tools:layout_editor_absoluteX="149dp"
-                                    tools:layout_editor_absoluteY="149dp" />
+                                    android:textColor="@color/black"
+
+                                    app:layout_constraintBottom_toBottomOf="@+id/address_txt"
+                                    app:layout_constraintEnd_toStartOf="@+id/address_txt"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="@id/address_txt" />
 
                                 <TextView
+                                    android:id="@+id/address_txt"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" العنوان :   " />
-                            </LinearLayout>
+                                    android:text=" العنوان :   "
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
+                            </androidx.constraintlayout.widget.ConstraintLayout>
 
                             <LinearLayout
                                 android:layout_width="300dp"
@@ -149,11 +165,15 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text=""
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:maxLines="1"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
                                 <TextView
                                     android:layout_width="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:layout_height="wrap_content"
                                     android:text=" كود العميل  : " />
 
@@ -173,10 +193,14 @@
                                     android:layout_height="wrap_content"
                                     android:text=""
                                     android:maxLines="1"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
                                 <TextView
                                     android:layout_width="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:layout_height="wrap_content"
                                     android:text="  بيانات  الخريطه : " />
                             </LinearLayout>
@@ -197,10 +221,14 @@
                                     android:layout_height="wrap_content"
                                     android:maxLines="1"
                                     android:text=""
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
                                 <TextView
                                     android:layout_width="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:layout_height="wrap_content"
                                     android:text=" بيانات الخريطه :  " />
                             </LinearLayout>
@@ -210,13 +238,16 @@
                                 android:layout_gravity="center"
                                 android:gravity="right"
                                 android:orientation="horizontal"
-                                android:padding="10dp">
+                             >
                                 <TextView
                                     android:id="@+id/accurate"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:maxLines="1"
                                     android:text=""
+                                    android:layout_gravity="center_vertical"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
 
@@ -224,6 +255,9 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:layout_gravity="center_vertical"
+                                    android:textColor="@color/black"
                                     android:text=" الدقه :  " />
                             </LinearLayout>
                             <LinearLayout
@@ -237,7 +271,8 @@
                                     android:id="@+id/distanceBetweenCustomer"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     tools:layout_editor_absoluteX="149dp"
                                     tools:layout_editor_absoluteY="149dp" />
 
@@ -245,31 +280,46 @@
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:text=" انت تبعد عن العميل :  " />
                             </LinearLayout>
-                            <LinearLayout
-                                android:layout_width="300dp"
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:layout_width="match_parent"
+                                android:layout_marginEnd="@dimen/_30sdp"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
                                 android:orientation="horizontal"
                                 android:gravity="right"
-                                android:padding="10dp">
+                                >
+
                                 <EditText
                                     android:id="@+id/vis_target"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
                                     android:hint="ادخل هدف الزياره بالارقام"
                                     android:inputType="number"
-                                    android:text="" />
+                                    android:text=""
+                                    android:textColor="@color/black"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toStartOf="@+id/textView"
+                                    app:layout_constraintTop_toTopOf="parent" />
+
                                 <TextView
+                                    android:id="@+id/textView"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
-                                    android:text=" هدف الزياره : " />
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:text=" هدف الزياره : "
+                                    android:textColor="@color/black"
+                                    app:layout_constraintBottom_toBottomOf="parent"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent" />
 
 
 
-                            </LinearLayout>
+                            </androidx.constraintlayout.widget.ConstraintLayout>
 
                             <LinearLayout
                                 android:layout_width="300dp"
@@ -285,11 +335,15 @@
                                     android:id="@+id/visitType"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:entries="@array/spinner_visit"
                                     android:prompt="@string/select_visibility" />
                                 <TextView
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:text=" موقف الزياره : " />
                             </LinearLayout>
 
@@ -305,10 +359,14 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:hint="ادخل تحصيل اليوم بالارقام"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:inputType="number" />
                                 <TextView
                                     android:id="@+id/q1"
                                     android:layout_width="wrap_content"
+                                    android:fontFamily="@font/cairo_medium"
+                                    android:textColor="@color/black"
                                     android:layout_height="wrap_content"
                                     android:text=" تحصيل اليوم : " />
 

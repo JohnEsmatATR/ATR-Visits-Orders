@@ -2,7 +2,10 @@ package com.akhnaton.foodvisits.ui.home.customerCoding
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
@@ -423,8 +426,8 @@ class CustomerCodingActivity : BaseActivity() {
         val nationalityAddress = binding.layoutWriteNationalityAddress.editText!!.text.toString().convertArabicToEnglishNumbers()
         val front_id_image = uploadImagesId(imageFrontId, "id_1")
         val back_id_image = uploadImagesId(imageBackId, "id_2")
-        val latitude = mCurrentLocation?.latitude!!.toString()
-        val longitude = mCurrentLocation?.longitude!!.toString()
+        val latitude = binding.fieldLatitude.text.toString()
+        val longitude = binding.fieldLongitude.text.toString()
 
         Log.d(Common.KeroDebug, "postRegisterAsMember: ${imageFrontId} || ${imageBackId}")
 
@@ -648,6 +651,13 @@ class CustomerCodingActivity : BaseActivity() {
         binding.fieldLongitude.text = location.latitude.toString()
         binding.fieldLatitude.text = location.longitude.toString()
         mCurrentLocation = location
+
+        val address = getAddressFromLatLng(
+            this@CustomerCodingActivity,
+            locationData.latitude,
+            locationData.longitude
+        )
+        binding.locationAddress.setText(address ?: "No address found")
     }
 
     private fun askPermission() {
@@ -707,6 +717,25 @@ class CustomerCodingActivity : BaseActivity() {
 
         return this.replace(Regex("[٠-٩]")) { result ->
             (mapping[result.value[0]] ?: result.value[0]).toString()
+        }
+    }
+
+    fun getAddressFromLatLng(context: Context, latitude: Double, longitude: Double): String? {
+        return try {
+            val geocoder = Geocoder(context, Locale("ar"))
+            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val address: Address = addresses[0]
+                val fullAddress = (0..address.maxAddressLineIndex).joinToString(", ") { index ->
+                    address.getAddressLine(index)
+                }
+                fullAddress
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 }

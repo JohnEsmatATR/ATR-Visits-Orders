@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -17,10 +18,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import cn.pedant.SweetAlert.SweetAlertDialog
@@ -43,6 +46,8 @@ import com.akhnaton.foodvisits.shared.location.GetLocationService
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
 import com.github.dhaval2404.imagepicker.ImagePicker
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -51,6 +56,7 @@ import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import kotlin.math.log
 
 
 class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
@@ -61,6 +67,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var checkConnection: CheckConnection
     private val versionName = BuildConfig.VERSION_NAME
     private val viewModel: PhoneVisitsViewModel by viewModels()
+    private lateinit var visitViewModel: VisitsViewModel
     private lateinit var binding: ActivityVisitsDetailsBinding
     private val locationPermissionCode = 199
     private var requestPermission = RequestPermission()
@@ -76,10 +83,12 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var zoneFlag = ""
     private lateinit var customerData: SitesData
     private lateinit var progressBar: SweetAlertDialog
-    private var mCurrentLocation: Location? = null
+    val customerLocation = Location("")
     private lateinit var locationClient: ILocationClient
+    val myLocation = Location("")
 
 
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
@@ -94,12 +103,18 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         customerData = intent.getSerializableExtra("customerSiteData") as SitesData
         Log.d("DEBUG_DATA", "Received Name: $customerName")
         Log.d("DEBUG_DATA", "Received Address: $customerCode")
+        visitViewModel = ViewModelProvider(
+            this,
+            VisitsViewModelFactory(baseContext)
+        )[VisitsViewModel::class.java]
 
         binding.custName.text = customerName
-        binding.custAddress.text = customerData.customer_addresses
-        binding.custCode.text = customerPartySiteId
+        binding.custAddress.text = customerData.customer_name
+        binding.custCode.text = customerData.customer_party_site_id
+
 
         Log.d("jnjndcbvnj", "onCreate: ${customerData.customer_name} | ${customerData.customer_addresses}")
+        Log.d("jnjndcbvnj", "onCreate: ${customerData.customer_addresses}")
 
 
         binding.backBtn.setOnClickListener { onBackPressed() }
@@ -113,16 +128,88 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         checkConnection = CheckConnection(baseContext)
 
 
+        binding.fieldLongitude.text = ""
+        binding.fieldLatitude.text =  ""
+        binding.accurate.text = ""
+        locationClient = DefaultLocationClient(
+            this,
+            LocationServices.getFusedLocationProviderClient(this)
+        )
+
         askPermission()
         checkPromoters()
         checkLocationPromotion()
-
+        observeTimer()
+        observeLocation()
         setSpinnerAdapter()
         fetchData()
         openMap()
         initWrongLocationDialog()
     }
+    private fun observeTimer(){
+        visitViewModel.stopTimer()
+        visitViewModel.resetTimer()
+        visitViewModel.startTimer()
+        lifecycleScope.launch {
+            visitViewModel.timerState.collect{timeStaring ->
+                binding.timmer.text=timeStaring
+            }
+        }
+    }
+    @SuppressLint("SetTextI18n")
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+    private fun observeLocation() {
+        visitViewModel.stopLocationUpdates()
+        visitViewModel.getCurrentLocation()
+        lifecycleScope.launch {
+            visitViewModel.locationState.collect { location ->
+                location?.let {
 
+                    binding.fieldLongitude.text = it.longitude.toString()
+                    binding.fieldLatitude.text = it.latitude.toString()
+                    binding.accurate.text = "${String.format("%.1f", it.accuracy)} متر"
+
+
+                    myLocation.latitude = it.latitude
+                    myLocation.longitude = it.longitude
+
+
+                    val customerLocation = Location("")
+                    val customerLat = customerData.customer_latitude
+                    val customerLng = customerData.customer_longitude
+                    Log.d(TAG, "observeLocation: $customerLat")
+
+                    val isLatValid = !customerLat.isNullOrBlank()
+                    val isLngValid = !customerLng.isNullOrBlank()
+
+                    if (isLatValid && isLngValid) {
+                        val lat = customerLat!!.toDoubleOrNull()
+                        val lng = customerLng!!.toDoubleOrNull()
+
+                        if (lat != null && lng != null) {
+                            customerLocation.latitude = lat
+                            customerLocation.longitude = lng
+
+                            val distanceInMeters = myLocation.distanceTo(customerLocation)
+                            val formattedDistance = String.format("%.1f", distanceInMeters)
+                            binding.distanceBetweenCustomer.text = "$formattedDistance متر"
+                        } else {
+                            binding.distanceBetweenCustomer.text = "الموقع غير متاح"
+                            Log.w("observeLocation", "Failed to parse latitude or longitude")
+                        }
+                    } else {
+                        binding.distanceBetweenCustomer.text = "الموقع غير متاح"
+                        Log.w("observeLocation", "Latitude or longitude is blank")
+                    }
+
+                    Log.d(
+                        "Locationnnnnnnnnnnnnnnn",
+                        "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"
+                    )
+                }
+            }
+        }
+    }
     private fun checkPromoters() {
         binding.btnPromotersImages.visibility = View.GONE
         binding.btnPromotersStockStatus.visibility = View.GONE
@@ -222,26 +309,26 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun customerLocationMissing(): String {
-        return if (mCurrentLocation?.longitude.toString() == "" || mCurrentLocation?.latitude.toString() == "") {
-            "IN"
-        } else {
-            "ERROR"
-        }
-    }
+//    private fun customerLocationMissing(): String {
+////        return if (mCurrentLocation?.longitude.toString() == "" || mCurrentLocation?.latitude.toString() == "") {
+////            "IN"
+////        } else {
+////            "ERROR"
+////        }
+//    }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun updateLocation(locationData: LocationData) {
-        Log.i(TAG, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
-        val location = Location(LocationManager.GPS_PROVIDER)
-        location.latitude = locationData.latitude
-        location.longitude = locationData.longitude
-
-        binding.fieldLongitude.text = location.latitude.toString()
-        binding.fieldLatitude.text = location.longitude.toString()
-        mCurrentLocation = location
-//        progressBar.dismiss()
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    fun updateLocation(locationData: LocationData) {
+//        Log.i(TAG, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
+//        val location = Location(LocationManager.GPS_PROVIDER)
+//        location.latitude = locationData.latitude
+//        location.longitude = locationData.longitude
+//
+//        binding.fieldLongitude.text = location.latitude.toString()
+//        binding.fieldLatitude.text = location.longitude.toString()
+//        mCurrentLocation = location
+////        progressBar.dismiss()
+//    }
 
 
     private fun compareLocation() {
@@ -251,9 +338,9 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             customerLocation.longitude = customerData.customer_longitude.toDouble()
         }
 
-        val myLocation = Location("")
-        myLocation.latitude = mCurrentLocation?.latitude!!
-        myLocation.longitude = mCurrentLocation?.longitude!!
+
+        myLocation.latitude = binding.fieldLatitude.text.toString().toDouble()
+        myLocation.longitude = binding.fieldLongitude.text.toString().toDouble()
 
         val distanceInMeters = myLocation.distanceTo(customerLocation)
 
@@ -338,8 +425,8 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType), // A -> طلبية --- C -> سلبي
                     visitTarget = binding.visTarget.text.toString().trim(),
                     visitActualTarget = binding.actTarget.text.toString().trim(),
-                    latitude = mCurrentLocation!!.latitude.toString(),
-                    longtitude = mCurrentLocation!!.longitude.toString(),
+                    latitude = binding.fieldLatitude.text.toString(),
+                    longtitude = binding.fieldLongitude.text.toString(),
                     deviceType = "Mob",
                     zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
                     checkInDate = enteredTime.toString(), // Date Entered

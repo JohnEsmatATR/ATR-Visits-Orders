@@ -51,6 +51,7 @@ sealed class CustomerCodingIntent {
         val id_2: MultipartBody.Part,
         val long: RequestBody,
         val lat: RequestBody,
+
     ) : CustomerCodingIntent()
 
 }
