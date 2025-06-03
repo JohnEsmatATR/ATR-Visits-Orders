@@ -128,7 +128,7 @@ class PromotersDataAdapter(
         fun bindView(item: PromoterItem) {
             itemCodeTV.text = item.inventoryItemId + "\n" + item.itemCode
             itemDescriptionTV.setText(item.description)
-            quantityView.setText(item.quantity!!.toInt())
+            quantityView.setText(item.quantity!!.toString())
             priceET.setText(item.price)
             returnET.setText(item.returnQuantity)
             item.price = priceET.text.toString().trim { it <= ' ' }
