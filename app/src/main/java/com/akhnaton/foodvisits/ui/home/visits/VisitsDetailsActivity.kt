@@ -147,7 +147,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             viewModel.locationState.collect { location ->
                 location?.let {
 
-                    binding.fieldLatitude.text = it.longitude.toString()
+                    binding.fieldLongitude.text = it.longitude.toString()
                     binding.fieldLatitude.text = it.latitude.toString()
                     binding.accurate.text = "${String.format("%.1f", it.accuracy)} متر"
 

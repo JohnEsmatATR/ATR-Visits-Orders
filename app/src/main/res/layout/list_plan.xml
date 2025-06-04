@@ -12,6 +12,7 @@
         android:id="@+id/visitCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layoutDirection="ltr"
         android:layout_marginHorizontal="@dimen/_15sdp"
         android:paddingVertical="@dimen/_10sdp">
 
