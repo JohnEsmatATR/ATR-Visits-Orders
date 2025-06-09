@@ -2,10 +2,8 @@ package com.akhnaton.foodvisits.ui.home.visits
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Intent
 import android.location.Location
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -20,13 +18,11 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
-import com.akhnaton.foodvisits.data.model.LocationData
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
@@ -44,11 +40,8 @@ import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems.PromoterI
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages.PromotersActivity
 import com.github.dhaval2404.imagepicker.ImagePicker.Companion.REQUEST_CODE
 import com.google.android.gms.location.LocationServices
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
@@ -322,7 +315,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 //    }
 
     private fun compareLocation() {
-        if (isDeveloperModeEnabled()) {
+        if (!isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
                 saveVisits()
