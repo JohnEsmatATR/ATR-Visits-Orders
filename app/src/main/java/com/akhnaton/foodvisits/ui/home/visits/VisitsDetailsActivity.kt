@@ -20,8 +20,9 @@ import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import cn.pedant.SweetAlert.BuildConfig
+
 import cn.pedant.SweetAlert.SweetAlertDialog
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
@@ -217,7 +218,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     is VisitsStatus.Loading -> Log.d(TAG, "fetchDataSaveVisits: Loading")
 
                     is VisitsStatus.SaveVisits -> {
-                        Log.d(TAG, "fetchDataSaveVisits1111: ${it.data.data.visit_id}")
+                        Log.d(TAG, "fetchDataSaveVisits1111: ${it.data.data}")
                         checkVisitSituation(it.data.data.visit_id.toString())
                         checkConnection.deleteSaveVisitFromDB()
                     }
@@ -321,7 +322,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 //    }
 
     private fun compareLocation() {
-        if (!isDeveloperModeEnabled()) {
+        if (isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
                 saveVisits()
@@ -406,6 +407,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             )
 
         }
+
     }
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])

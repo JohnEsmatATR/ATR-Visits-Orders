@@ -89,9 +89,29 @@ class CheckConnection(val context: Context) {
     suspend fun saveVisitOnline() : SaveVisit {
         var saveVisit: SaveVisit? = null
         if (checkConnection()) {
+
             val saveVisitDBList: List<SaveVisitDB> = database.getDatabase(context).saveVisitDao().getVisits()
+
             Log.d("jnjndjnjndjnjnd", "saveVisitOnline: $saveVisitDBList")
             for (saveVisitDB in saveVisitDBList) {
+                Log.d("SaveVisitDebug", """
+    Sending visit with:
+    app_version: ${saveVisitDB.version}
+    api_token: ${saveVisitDB.token}
+    customer_party_site_id: ${saveVisitDB.customerPartySiteId}
+    visit_type: ${saveVisitDB.visitType}
+    visit_target: ${saveVisitDB.visitarget}
+    visit_actual_target: ${saveVisitDB.visitActualTarget}
+    latitude: ${saveVisitDB.latitude}
+    longitude: ${saveVisitDB.longitude}
+    device_type: ${saveVisitDB.deviceType}
+    zone_flag: ${saveVisitDB.zoneFlag}
+    check_in_date: ${saveVisitDB.checkInDate}
+    date_visit: ${saveVisitDB.dateVisit}
+    customer_type: ${saveVisitDB.customerType}
+    order_type: ${saveVisitDB.orderType}
+""".trimIndent())
+
                 saveVisit = retrofit.saveVisits(
                     saveVisitDB.version,
                     saveVisitDB.token,
