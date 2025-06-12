@@ -11,7 +11,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import cn.pedant.SweetAlert.BuildConfig
+import com.akhnaton.foodvisits.BuildConfig
+
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.food.details.FoodInvoiceDetails
 import com.akhnaton.foodvisits.data.model.food.order.FoodData
@@ -55,7 +56,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         data.orderSalesNumber.let {
             lifecycleScope.launch {
                 viewModel.foodIntent.send(
-                    FoodIntent.OrderDetails("1.19", SharedPreferencesHelper.getInstance().getUserToken(), orderNumber = data.orderSalesNumber)
+                    FoodIntent.OrderDetails(versionName, SharedPreferencesHelper.getInstance().getUserToken(), orderNumber = data.orderSalesNumber)
                 )
                 viewModel.currentDateTime.collect {dataTime ->
                     binding.tvDateTime.text= dataTime
@@ -222,7 +223,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.foodIntent.send(
                 FoodIntent.DeliveryPrint(
-                    "1.19",
+                    versionName,
                     SharedPreferencesHelper.getInstance().getUserToken(),
                     orderNumber = data.orderSalesNumber
                 )
