@@ -23,6 +23,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlin.math.log
 
 class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -89,6 +90,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         var vat = 0f
         for (order in orderList) {
             vat += order.taxValue?.toFloat()!!
+            Log.d(TAG, "calculateTotalVAT: ${ vat}")
         }
         return String.format(Locale.US, "%.2f", vat).toFloat()
     }
@@ -142,7 +144,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                             "",
                             calculateTotalOrderPrice(orderList = it.data.data.invoice_details).toString()
                         )
-
+                        Log.d(TAG, "fetchData: ${it.data.data.invoice_details}")
                         binding.tvVat.text =
                             calculateTotalVAT(it.data.data.invoice_details).toString() + " جنيه"
                         binding.tvTotalInvoiceWithoutTax.text =

@@ -72,6 +72,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     val customerLocation = Location("")
     private lateinit var locationClient: ILocationClient
     val myLocation = Location("")
+
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +98,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.custCode.text = customerPartySiteId
 
         binding.fieldLongitude.text = ""
-        binding.fieldLatitude.text =  ""
+        binding.fieldLatitude.text = ""
         binding.accurate.text = ""
         locationClient = DefaultLocationClient(
             this,
@@ -128,16 +129,18 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
-    private fun observeTimer(){
+
+    private fun observeTimer() {
         viewModel.stopTimer()
         viewModel.resetTimer()
         viewModel.startTimer()
         lifecycleScope.launch {
-            viewModel.timerState.collect{timeStaring ->
-                binding.timmer.text=timeStaring
+            viewModel.timerState.collect { timeStaring ->
+                binding.timmer.text = timeStaring
             }
         }
     }
+
     @SuppressLint("SetTextI18n")
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private fun observeLocation() {
@@ -325,8 +328,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
                 saveVisits()
-            }
-            else {
+            } else {
                 val customerLocation = Location("")
                 customerLocation.latitude = customerData.customer_latitude.toDouble()
                 customerLocation.longitude = customerData.customer_longitude.toDouble()
@@ -340,6 +342,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 } else {
                     zoneFlag = customerLocationMissing()
                     progressBar.show()
+
                 }
             }
         } else {
@@ -378,11 +381,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 saveVisits()
                 progressBar.dismiss()
             }
-        progressBar.setCancelable(false);
+        progressBar.setCancelable(false)
 
     }
+
     private fun saveVisits() {
-        val long= binding.fieldLongitude.text.toString()
+        val long = binding.fieldLongitude.text.toString()
         val lat = binding.fieldLatitude.text.toString()
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
@@ -434,7 +438,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         super.onPause()
         viewModel.stopLocationUpdates()
         binding.fieldLongitude.text = ""
-        binding.fieldLatitude.text =  ""
+        binding.fieldLatitude.text = ""
         binding.accurate.text = ""
         // Stop Service And Stop EventBus From Fetch Location in onUpdateLocation Function
         Intent(this, GetLocationService::class.java).apply {
@@ -564,11 +568,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             0
         ) == 1
     }
+
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onRestart() {
         super.onRestart()
         binding.fieldLongitude.text = ""
-        binding.fieldLatitude.text =  ""
+        binding.fieldLatitude.text = ""
         binding.accurate.text = ""
         observeLocation()
     }
