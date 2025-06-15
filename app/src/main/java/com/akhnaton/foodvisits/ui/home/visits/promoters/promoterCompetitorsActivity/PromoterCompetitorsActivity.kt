@@ -110,43 +110,50 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     }
 
     private fun sendCompetitorsData() {
-        binding.btnSendImages.setOnClickListener { v ->
+        binding.btnSendImages.setOnClickListener {
             checkboxStatus()
-            if (binding.etProductName.text.toString().trim().isEmpty() ||
-                binding.etProductDiscountRate.text.toString().trim().isEmpty() ||
-                binding.etProductPrice.text.toString().trim().isEmpty() ||
-                binding.etProductWeight.text.toString().trim().isEmpty() ||
-                binding.etPromotionDate.text.toString().trim().isEmpty() ||
-                competitorsNameId != "" ||
-                competitorsTypeId != ""
-            ) {
-                Toast.makeText(
-                    this@PromoterCompetitorsActivity,
-                    "Please add all inputs!",
-                    Toast.LENGTH_LONG
-                ).show()
-            } else {
-                if (returnValue.size == 0) {
-                    Toast.makeText(
-                        this@PromoterCompetitorsActivity,
-                        "Please add image!",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    if (mCheckList!!.size == 0) {
-                        Toast.makeText(
-                            this@PromoterCompetitorsActivity,
-                            "Please Add Type!",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        //                        uploadImages(returnValue);
-                        imageUpload(returnValue)
-                    }
+
+            when {
+                binding.etProductName.text.toString().trim().isEmpty() -> {
+                    binding.etProductName.error = "Enter product name"
+                    binding.etProductName.requestFocus()
+                }
+                binding.etProductDiscountRate.text.toString().trim().isEmpty() -> {
+                    binding.etProductDiscountRate.error = "Enter discount rate"
+                    binding.etProductDiscountRate.requestFocus()
+                }
+                binding.etProductPrice.text.toString().trim().isEmpty() -> {
+                    binding.etProductPrice.error = "Enter product price"
+                    binding.etProductPrice.requestFocus()
+                }
+                binding.etProductWeight.text.toString().trim().isEmpty() -> {
+                    binding.etProductWeight.error = "Enter product weight"
+                    binding.etProductWeight.requestFocus()
+                }
+                binding.etPromotionDate.text.toString().trim().isEmpty() -> {
+                    binding.etPromotionDate.error = "Enter promotion date"
+                    binding.etPromotionDate.requestFocus()
+                }
+                competitorsNameId.isEmpty() -> {
+                    Toast.makeText(this, "Please select a competitor name", Toast.LENGTH_LONG).show()
+                }
+                competitorsTypeId.isEmpty() -> {
+                    Toast.makeText(this, "Please select a competitor type", Toast.LENGTH_LONG).show()
+                }
+                returnValue.isEmpty() -> {
+                    Toast.makeText(this, "Please add at least one image", Toast.LENGTH_LONG).show()
+                }
+                mCheckList.isNullOrEmpty() -> {
+                    Toast.makeText(this, "Please select at least one type", Toast.LENGTH_LONG).show()
+                }
+                else -> {
+
+                    imageUpload(returnValue)
                 }
             }
         }
     }
+
 
 
     private fun openCalendar() {
@@ -253,32 +260,31 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     private fun observePromoter() {
         Log.d("KeroDebug", "observePromoter")
         lifecycleScope.launch {
-            viewModel!!.status.collect {
-                when (it) {
-                    is PromoterStatus.Idle -> Log.d(TAG, "fetchData: Idle")
+            viewModel!!.status.collect { status ->
+                when (status) {
+                    is PromoterStatus.Idle -> {
+                        Log.d(TAG, "fetchData: Idle")
+                        hideDialog()
+                    }
+
                     is PromoterStatus.Loading -> {
-                        showDialog()
                         Log.d(TAG, "fetchData: Loading")
+                        showDialog()
                     }
 
                     is PromoterStatus.SendCompetitors -> {
-//                        Log.d(TAG, "onResponse (Success): " + it.response.data!![0].message.toString())
-                        pDialog!!.dismiss()
-                        Toast.makeText(
-                            this@PromoterCompetitorsActivity,
-                            "Successfully uploaded images",
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
+                        hideDialog()
+
                         finish()
                     }
 
                     is PromoterStatus.GetCompetitorList -> {
-                        pDialog!!.dismiss()
+                        hideDialog()
+
                         val competitorsNameArray = ArrayList<String>()
                         val competitorsTypeArray = ArrayList<String>()
 
-                        for (company in it.response.data.get_competitor) {
+                        for (company in status.response.data.get_competitor) {
                             competitorsNameArray.add(company.competitor_name)
                             competitorsNameIdArray.add(company.id)
                         }
@@ -290,7 +296,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                         )
                         binding.companiesSpinner.setAdapter(adapterName)
 
-                        for (company in it.response.data.get_competitor_types) {
+                        for (company in status.response.data.get_competitor_types) {
                             competitorsTypeArray.add(company.type_name)
                             competitorsTypeIdArray.add(company.id)
                         }
@@ -301,20 +307,21 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                             competitorsTypeArray
                         )
                         binding.categorySpinner.setAdapter(adapterType)
-
-
                     }
 
                     is PromoterStatus.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
+                        hideDialog()
+                        Log.d(TAG, "fetchData: ${status.error}")
                         Toast.makeText(
                             this@PromoterCompetitorsActivity,
-                            "Error: ${it.error}",
+                            "Error: ${status.error}",
                             Toast.LENGTH_LONG
                         ).show()
                     }
 
-                    else -> {}
+                    else -> {
+                        hideDialog()
+                    }
                 }
             }
         }
@@ -330,6 +337,11 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                 1080
             ) //Final image resolution will be less than 1080 x 1080(Optional)
             .start()
+    }
+    private fun hideDialog() {
+        if (pDialog != null && pDialog!!.isShowing) {
+            pDialog!!.dismiss()
+        }
     }
 
 

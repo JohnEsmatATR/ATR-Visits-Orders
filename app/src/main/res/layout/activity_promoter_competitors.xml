@@ -280,6 +280,7 @@
                     android:layout_gravity="center"
                     android:maxWidth="300dp"
                     android:maxHeight="300dp"
+                    android:layout_marginBottom="@dimen/_25sdp"
                     android:scaleType="centerCrop"
                     android:src="@android:drawable/ic_menu_camera" />
 
