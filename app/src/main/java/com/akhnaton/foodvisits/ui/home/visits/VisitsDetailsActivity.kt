@@ -78,6 +78,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             VisitsViewModelFactory(baseContext)
         )[VisitsViewModel::class.java]
         checkConnection = CheckConnection(baseContext)
+        binding.versionName.text=versionName
 
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()

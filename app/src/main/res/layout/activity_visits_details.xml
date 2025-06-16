@@ -374,7 +374,13 @@
 
 
                             </LinearLayout>
-
+                            <TextView
+                                android:id="@+id/version_name"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/cairo_medium"
+                                android:layout_gravity="center"
+                                android:textSize="14dp" />
                             <LinearLayout
                                 android:id="@+id/lt_promote"
                                 android:layout_width="match_parent"
