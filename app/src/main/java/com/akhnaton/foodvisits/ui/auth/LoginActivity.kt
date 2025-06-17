@@ -27,6 +27,7 @@ import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
@@ -57,6 +58,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         dialog = ProgressDialogHelper().showProgress(this@LoginActivity)
         binding.loginButton.setOnClickListener(this)
         makeLogin()
+
+
 
     }
 
@@ -97,6 +100,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 it.login.data.user.make_order,
                                 it.login.data.user.prom,
                                 it.login.data.user.telephone,
+
                             )
                             Log.d(TAG, "makeLogin: " + it.login.data.user.employee_id)
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
@@ -119,19 +123,37 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
-
         if (setWarningUserName() && setWarningPassword()) {
+            FirebaseMessaging.getInstance().token
+                .addOnCompleteListener { task ->
+                    if (!task.isSuccessful) {
+                        Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                        return@addOnCompleteListener
+                    }
 
-            lifecycleScope.launch {
-                viewModel.loginIntent.send(
-                    LoginIntent.Login(
-                        versionName,
-                        binding.username.text.toString().lowercase().trim(),
-                        binding.password.text.toString().trim(),
-                    )
-                )
+                    val firebaseToken = task.result
+                    val username = binding.username.text.toString().lowercase().trim()
+                    val password = binding.password.text.toString().trim()
 
-            }
+                    Log.d("FCM", ">>> Sending login data:")
+                    Log.d("FCM", "Version: $versionName")
+                    Log.d("FCM", "Username: $username")
+                    Log.d("FCM", "Password: $password")
+                    Log.d("FCM", "Firebase Token: $firebaseToken")
+
+                    lifecycleScope.launch {
+                        viewModel.loginIntent.send(
+                            LoginIntent.Login(
+                                versionName,
+                                username,
+                                password,
+                                firebaseToken
+                            )
+                        )
+                    }
+                }
+
+
         }
     }
 

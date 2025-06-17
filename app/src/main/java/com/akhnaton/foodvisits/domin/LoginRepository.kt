@@ -10,5 +10,6 @@ class LoginRepository {
         version: String,
         username: String,
         password: String,
-    ) = retrofit.login(version, username, password)
+        firebaseToken :String
+    ) = retrofit.login(version, username, password,firebaseToken)
 }

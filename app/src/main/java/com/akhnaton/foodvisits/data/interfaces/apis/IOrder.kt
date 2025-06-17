@@ -14,9 +14,6 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_ORDER_PENDING
 import com.akhnaton.foodvisits.shared.ConstantLinks.SEND_ORDER
 import com.google.gson.JsonElement
-import com.squareup.okhttp.RequestBody
-import com.squareup.okhttp.ResponseBody
-import org.json.JSONObject
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded

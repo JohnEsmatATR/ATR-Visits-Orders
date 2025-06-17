@@ -13,7 +13,8 @@ interface ILogin {
     suspend fun login(
         @Field("app_version") version: String?,
         @Field("user_name") username: String?,
-        @Field("password") password: String?
+        @Field("password") password: String?,
+        @Field("firebase_token") firebaseToken :String?
     ): Login
 
 }

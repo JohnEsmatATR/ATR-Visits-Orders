@@ -6,5 +6,6 @@ data class LoginUserData(
     var employee_id: String,
     var make_order: Boolean,
     var prom: Boolean,
-    var telephone: Boolean
+    var telephone: Boolean,
+    var firebaseToken:String
 )

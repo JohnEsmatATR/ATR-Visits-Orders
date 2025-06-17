@@ -6,6 +6,7 @@ sealed class LoginIntent {
         val version: String,
         val username: String,
         val password: String,
+        val firebaseToken:String
     ) : LoginIntent()
 
 }

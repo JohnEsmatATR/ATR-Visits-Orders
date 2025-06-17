@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "222807415739",
+    "firebase_url": "https://atrvisits.firebaseio.com",
+    "project_id": "atrvisits",
+    "storage_bucket": "atrvisits.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222807415739:android:a94fb27de698bac651029e",
+        "android_client_info": {
+          "package_name": "com.akhnaton.foodvisits"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP1hJ32K6KBxmPJhg7u9EGNtuUxclPGy0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222807415739:android:b804ad06d997ca5951029e",
+        "android_client_info": {
+          "package_name": "com.akhnaton.visits"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP1hJ32K6KBxmPJhg7u9EGNtuUxclPGy0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:222807415739:android:923325187bd7194f51029e",
+        "android_client_info": {
+          "package_name": "com.example.testingchartst"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAP1hJ32K6KBxmPJhg7u9EGNtuUxclPGy0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

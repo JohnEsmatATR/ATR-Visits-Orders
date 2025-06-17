@@ -31,6 +31,7 @@ class LoginViewModel : ViewModel() {
                         it.version,
                         it.username,
                         it.password,
+                        it.firebaseToken
                     )
                 }
             }
@@ -41,11 +42,12 @@ class LoginViewModel : ViewModel() {
         version: String,
         username: String,
         password: String,
+        firebaseToken :String
     ) {
         viewModelScope.launch {
             _state.value = LoginState.Loading
             _state.value = try {
-                LoginState.LogIn(LoginRepository().login(version, username, password))
+                LoginState.LogIn(LoginRepository().login(version, username, password,firebaseToken))
             } catch (e: Exception) {
                 LoginState.Error(e.message)
             }

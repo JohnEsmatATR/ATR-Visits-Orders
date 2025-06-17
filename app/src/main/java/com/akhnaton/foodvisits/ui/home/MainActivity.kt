@@ -6,7 +6,7 @@ import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
+
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -47,6 +47,7 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
@@ -65,6 +66,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBinding()
+
     }
 
     private fun setupBinding() {
@@ -209,11 +211,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                         }
                     } else {
                         val error = task.exception!!.message
-                        Toast.makeText(
-                            this@MainActivity,
-                            "(FIRESTORE Retrieve Error) : $error",
-                            Toast.LENGTH_LONG
-                        ).show()
+//                        Toast.makeText(
+//                            this@MainActivity,
+//                            "(FIRESTORE Retrieve Error) : $error",
+//                            Toast.LENGTH_LONG
+//                        ).show()
                     }
                 }
         }

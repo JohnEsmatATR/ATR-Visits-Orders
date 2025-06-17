@@ -29,13 +29,14 @@ class SharedPreferencesHelper : Application() {
         super.onCreate()
         context = applicationContext
 
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "location",
                 "Location",
                 NotificationManager.IMPORTANCE_LOW
             )
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
 
@@ -75,7 +76,15 @@ class SharedPreferencesHelper : Application() {
             .getBoolean("telephone", false)
     }
 
-    fun setUserData(apiToken: String, username: String, employeeId: String, makeOrder: Boolean, prom: Boolean, telephone: Boolean) {
+    fun setUserData(
+        apiToken: String,
+        username: String,
+        employeeId: String,
+        makeOrder: Boolean,
+        prom: Boolean,
+        telephone: Boolean,
+
+    ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString("api_token", apiToken)
@@ -84,6 +93,7 @@ class SharedPreferencesHelper : Application() {
             .putBoolean("make_order", makeOrder)
             .putBoolean("prom", prom)
             .putBoolean("telephone", telephone).apply()
+
     }
 
     fun isLogged(): Boolean {
