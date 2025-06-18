@@ -383,6 +383,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun saveVisits() {
         val long = binding.fieldLongitude.text.toString()
         val lat = binding.fieldLatitude.text.toString()
+
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 VisitsIntent.SaveVisit(
