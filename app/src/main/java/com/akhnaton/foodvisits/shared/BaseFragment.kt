@@ -1,11 +1,6 @@
 package com.akhnaton.foodvisits.shared
 
-import android.content.DialogInterface
-import android.content.Intent
 import android.graphics.Color
-import com.google.android.material.snackbar.BaseTransientBottomBar
-import com.google.android.material.snackbar.Snackbar
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
@@ -21,6 +16,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
 import com.akhnaton.foodvisits.R
+import com.google.android.material.snackbar.BaseTransientBottomBar
+import com.google.android.material.snackbar.Snackbar
 
 open class BaseFragment : Fragment() {
     var dp = 0f

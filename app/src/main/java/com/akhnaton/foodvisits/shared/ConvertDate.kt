@@ -1,12 +1,9 @@
 package com.akhnaton.foodvisits.shared
 
-import android.app.DatePickerDialog
-import android.content.Context
-import android.util.Log
-import android.widget.DatePicker
-import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 object ConvertDate {
     private var calendar: Date = Calendar.getInstance().time

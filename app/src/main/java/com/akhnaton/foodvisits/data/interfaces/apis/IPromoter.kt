@@ -3,13 +3,15 @@ package com.akhnaton.foodvisits.data.interfaces.apis
 import com.akhnaton.foodvisits.data.model.promoter.BaseResponse
 import com.akhnaton.foodvisits.data.model.promoter.CompetitorListModel
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
-import com.akhnaton.foodvisits.data.model.promoter.PromoterTargetNotes
 import com.akhnaton.foodvisits.data.model.promoter.SubmitStock
 import com.akhnaton.foodvisits.shared.ConstantLinks
-import io.reactivex.rxjava3.core.Single
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.*
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.Part
 
 interface IPromoter {
 

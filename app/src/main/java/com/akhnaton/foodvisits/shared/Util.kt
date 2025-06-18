@@ -2,11 +2,7 @@ package com.akhnaton.foodvisits.shared
 
 import android.app.Activity
 import android.app.ActivityManager
-import android.app.AlertDialog
 import android.content.Context
-import android.content.Intent
-import android.location.LocationManager
-import android.provider.Settings
 import android.util.Log
 
 object Util {

@@ -8,7 +8,6 @@ import android.location.Location
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.LocationData

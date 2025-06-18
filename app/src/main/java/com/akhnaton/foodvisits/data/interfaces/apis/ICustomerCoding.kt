@@ -6,12 +6,7 @@ import com.akhnaton.foodvisits.data.model.coding.CodingCategoryModel
 import com.akhnaton.foodvisits.data.model.coding.CodingLineModel
 import com.akhnaton.foodvisits.data.model.coding.CodingTypeModel
 import com.akhnaton.foodvisits.shared.ConstantLinks
-import com.akhnaton.foodvisits.data.model.supervisor.orderDetails.SuperOrder
-import com.akhnaton.foodvisits.data.model.supervisor.showOrder.SuperStatus
-import com.akhnaton.foodvisits.data.model.supervisor.StaticResponse
-import com.akhnaton.foodvisits.data.model.supervisor.creditDetails.CreditLimitDetails
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.http.Field

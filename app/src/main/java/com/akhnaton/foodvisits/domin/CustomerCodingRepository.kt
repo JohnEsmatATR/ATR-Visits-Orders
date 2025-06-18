@@ -1,10 +1,7 @@
 package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.ICustomerCoding
-import com.akhnaton.foodvisits.data.interfaces.apis.IOrder
 import com.akhnaton.foodvisits.shared.RetrofitClient
-import com.google.gson.JsonElement
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 class CustomerCodingRepository {

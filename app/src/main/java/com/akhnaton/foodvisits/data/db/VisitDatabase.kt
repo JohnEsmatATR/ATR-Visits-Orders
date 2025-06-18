@@ -1,12 +1,17 @@
 package com.akhnaton.foodvisits.data.db
 
 import android.content.Context
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.akhnaton.foodvisits.data.db.dao.SaveVisitDao
 import com.akhnaton.foodvisits.data.db.dao.VisitPlanDao
 import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
-import com.akhnaton.foodvisits.data.model.*
-import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
+import com.akhnaton.foodvisits.data.model.ListVisitPlanConverters
+import com.akhnaton.foodvisits.data.model.SaveVisitConverters
+import com.akhnaton.foodvisits.data.model.VisitPlanDataConverters
+import com.akhnaton.foodvisits.data.model.VisitsPlan
 
 @Database(entities = [VisitsPlan::class, SaveVisitDB::class], version = 10)
 @TypeConverters(ListVisitPlanConverters::class, SaveVisitConverters::class, VisitPlanDataConverters::class)

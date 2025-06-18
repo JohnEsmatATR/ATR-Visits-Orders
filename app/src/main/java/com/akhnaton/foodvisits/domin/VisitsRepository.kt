@@ -1,7 +1,6 @@
 package com.akhnaton.foodvisits.domin
 
 import android.content.Context
-import com.akhnaton.foodvisits.data.model.CustomerType
 
 class VisitsRepository(context: Context) {
     private val checkConnection = CheckConnection(context)

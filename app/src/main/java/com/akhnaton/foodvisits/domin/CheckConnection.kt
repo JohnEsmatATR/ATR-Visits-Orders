@@ -7,14 +7,10 @@ import android.os.Build
 import android.util.Log
 import com.akhnaton.foodvisits.data.db.VisitDatabase
 import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
-import com.akhnaton.foodvisits.data.db.model.VisitPlanDB
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits
-import com.akhnaton.foodvisits.data.model.AppSetting
-import com.akhnaton.foodvisits.data.model.AppSettingData
 import com.akhnaton.foodvisits.data.model.VisitsPlan
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
 import com.akhnaton.foodvisits.shared.RetrofitClient
-import kotlin.math.log
 
 class CheckConnection(val context: Context) {
     private val retrofit = RetrofitClient.getInstance(IVisits::class.java)

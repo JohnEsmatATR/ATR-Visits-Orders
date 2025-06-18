@@ -6,7 +6,6 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
-import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.ActivityProfileBinding
 import com.akhnaton.foodvisits.databinding.ActivitySetupProfileBinding
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -19,7 +18,7 @@ import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.UploadTask
 import java.io.File
-import java.util.*
+import java.util.Objects
 
 class FirebaseProfileClient {
 

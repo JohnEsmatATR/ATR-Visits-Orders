@@ -2,7 +2,6 @@ package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.ISupervisor
 import com.akhnaton.foodvisits.shared.RetrofitClient
-import retrofit2.http.Field
 
 class CreditLimitRepository {
     private val retrofit = RetrofitClient.getInstance(ISupervisor::class.java)
