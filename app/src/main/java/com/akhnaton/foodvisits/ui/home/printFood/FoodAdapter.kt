@@ -1,8 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.printFood
 
-import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.view.LayoutInflater
@@ -13,7 +11,6 @@ import com.akhnaton.foodvisits.data.model.food.order.Food
 import com.akhnaton.foodvisits.data.model.food.order.FoodData
 import com.akhnaton.foodvisits.databinding.FoodListBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper.Companion.context
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
 class FoodAdapter : RecyclerView.Adapter<FoodViewHolder>() {

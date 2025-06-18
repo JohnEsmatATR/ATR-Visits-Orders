@@ -33,7 +33,6 @@ import com.akhnaton.foodvisits.databinding.FragmentPhoneVisitsBinding
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
-import java.util.Locale
 
 class PhoneVisitsFragment : Fragment(), View.OnClickListener {
 

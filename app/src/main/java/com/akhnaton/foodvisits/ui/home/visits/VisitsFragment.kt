@@ -7,7 +7,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
 import androidx.appcompat.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -20,11 +19,9 @@ import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentVisitsBinding
-import com.akhnaton.foodvisits.shared.ConvertDate
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
-import java.util.Collections
 
 
 class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,

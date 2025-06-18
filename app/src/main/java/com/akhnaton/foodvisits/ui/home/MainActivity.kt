@@ -6,7 +6,6 @@ import android.content.IntentSender
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -47,7 +46,6 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {

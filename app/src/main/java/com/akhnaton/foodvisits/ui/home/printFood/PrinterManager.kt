@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.ui.home.printFood
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -8,7 +7,6 @@ import android.graphics.Matrix
 import android.os.RemoteException
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
 import androidx.core.graphics.createBitmap
 import com.sunmi.peripheral.printer.InnerPrinterCallback
 import com.sunmi.peripheral.printer.InnerPrinterManager

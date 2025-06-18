@@ -3,14 +3,8 @@ package com.akhnaton.foodvisits.ui.home.phoneVisit
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -21,20 +15,16 @@ import androidx.activity.viewModels
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
-import com.akhnaton.foodvisits.data.model.LocationData
 import com.akhnaton.foodvisits.data.model.visits.SitesData
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
-import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.ConvertDate
@@ -45,18 +35,13 @@ import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
 import com.akhnaton.foodvisits.shared.location.GetLocationService
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.home.MainActivity
-import com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
 import com.github.dhaval2404.imagepicker.ImagePicker
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
-import kotlin.math.log
 
 
 class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {

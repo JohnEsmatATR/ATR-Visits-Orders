@@ -14,11 +14,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.BuildConfig
-import com.akhnaton.foodvisits.data.model.supervisor.showOrder.SuperOrderStatus
 import com.akhnaton.foodvisits.data.statusValue.supervisor.showOrders.ShowOrdersIntent
+import com.akhnaton.foodvisits.data.statusValue.supervisor.showOrders.ShowOrdersState
 import com.akhnaton.foodvisits.databinding.ActivitySuperShowOrdersBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
-import com.akhnaton.foodvisits.data.statusValue.supervisor.showOrders.ShowOrdersState
 import com.akhnaton.foodvisits.ui.home.supervisor.creditLimit.CreditLimitFormActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superOrderDetails.SuperOrderDetailsActivity
 import kotlinx.coroutines.launch

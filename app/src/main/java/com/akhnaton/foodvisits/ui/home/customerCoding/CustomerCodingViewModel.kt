@@ -2,18 +2,14 @@ package com.akhnaton.foodvisits.ui.home.customerCoding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.statusValue.chart.ChartIntent
-import com.akhnaton.foodvisits.data.statusValue.chart.ChartStatus
 import com.akhnaton.foodvisits.data.statusValue.customerCoding.CustomerCodingIntent
 import com.akhnaton.foodvisits.data.statusValue.customerCoding.CustomerCodingState
 import com.akhnaton.foodvisits.domin.CustomerCodingRepository
-import com.akhnaton.foodvisits.domin.MainFragmentRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 class CustomerCodingViewModel : ViewModel() {

@@ -9,11 +9,8 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
 import com.akhnaton.foodvisits.BuildConfig
-
-import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.food.details.FoodInvoiceDetails
 import com.akhnaton.foodvisits.data.model.food.order.FoodData
 import com.akhnaton.foodvisits.data.statusValue.food.FoodIntent
@@ -24,7 +21,6 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Locale
-import kotlin.math.log
 
 class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 

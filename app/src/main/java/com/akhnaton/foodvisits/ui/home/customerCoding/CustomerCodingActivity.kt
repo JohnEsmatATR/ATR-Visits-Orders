@@ -24,7 +24,6 @@ import com.akhnaton.foodvisits.data.model.coding.CodingLineModel
 import com.akhnaton.foodvisits.data.model.coding.CodingTypeModel
 import com.akhnaton.foodvisits.data.statusValue.customerCoding.CustomerCodingIntent
 import com.akhnaton.foodvisits.data.statusValue.customerCoding.CustomerCodingState
-import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.databinding.ActivityCustomerCodingBinding
 import com.akhnaton.foodvisits.shared.BaseActivity
 import com.akhnaton.foodvisits.shared.Common
@@ -34,20 +33,20 @@ import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
 import com.akhnaton.foodvisits.shared.location.GetLocationService
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.github.dhaval2404.imagepicker.ImagePicker.Companion.REQUEST_CODE
+import com.github.dhaval2404.imagepicker.ImagePicker.Companion.with
+import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.github.dhaval2404.imagepicker.ImagePicker.Companion.with
-import com.google.android.gms.location.LocationServices
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 
 class CustomerCodingActivity : BaseActivity() {
     private lateinit var binding: ActivityCustomerCodingBinding
