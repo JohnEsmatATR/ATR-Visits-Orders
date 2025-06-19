@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.ui.home.visits
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.ProgressDialog
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
@@ -15,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -40,6 +42,7 @@ import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersItems.PromoterI
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages.PromotersActivity
 import com.github.dhaval2404.imagepicker.ImagePicker.Companion.REQUEST_CODE
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 
@@ -67,6 +70,8 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var locationClient: ILocationClient
     val myLocation = Location("")
 
+    private lateinit var dialog: ProgressDialog
+    private var isVisitHandled = false
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,6 +107,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
         binding.backBtn.setOnClickListener { onBackPressed() }
         binding.saveVis.setOnClickListener(this)
+        dialog = ProgressDialogHelper().showAlertProgress(
+           this@VisitsDetailsActivity,
+            "Loading..."
+        )
 
         askPermission()
         setSpinnerAdapter()
@@ -211,16 +220,34 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.statusVisit.collect {
                 when (it) {
-                    is VisitsStatus.Idle -> Log.d(TAG, "fetchDataSaveVisits: Idle")
-                    is VisitsStatus.Loading -> Log.d(TAG, "fetchDataSaveVisits: Loading")
+                    is VisitsStatus.Idle -> {
+                        dialog.show()
+                        Log.d(TAG, "fetchDataSaveVisits: Idle")
+                    }
+                    is VisitsStatus.Loading ->{
+                        dialog.show()
+                        Log.d(TAG, "fetchDataSaveVisits: Loading")
+                        binding.constrain.isEnabled=false
+                    }
 
                     is VisitsStatus.SaveVisits -> {
-                        Log.d(TAG, "fetchDataSaveVisits1111: ${it.data.data}")
-                        checkVisitSituation(it.data.data.visit_id.toString())
-                        checkConnection.deleteSaveVisitFromDB()
+                        dialog.hide()
+                        if (!isVisitHandled) {
+                            isVisitHandled = true
+
+                            checkConnection.deleteSaveVisitFromDB()
+                            val visits = checkConnection.getVisits()
+                            Log.d(TAG, "fetchDataSaveVisits: $visits")
+
+                            binding.constrain.isEnabled=false
+                        } else {
+                            Log.d(TAG, "fetchDataSaveVisits: تم المعالجة مسبقًا")
+                            binding.constrain.isEnabled=true
+                        }
                     }
 
                     is VisitsStatus.GetAppSetting -> {
+                        dialog.hide()
                         try {
                             limitArea = it.data!!.data.limit_area
                             Log.d(TAG, "LimitArea======: $limitArea")
@@ -231,8 +258,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                     }
 
                     is VisitsStatus.Error -> {
+                        dialog.hide()
                         checkVisitSituation("")
                         Log.d(TAG, "fetchDataSaveVisits1111Error${it.error}")
+                        binding.constrain.isEnabled=true
                     }
 
                     else -> {}
@@ -244,29 +273,18 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun checkVisitSituation(visitId: String) {
         val check = SharedPreferencesHelper.getInstance().getMakeOrder()
         if (checkConnection.checkConnection()) {
-            if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
+            if (binding.visitType.selectedItem.toString() != null || !check) {
+                val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
+                snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
+                snackbar.show()
                 finish()
-            } else {
-                startActivity(
-                    Intent(this@VisitsDetailsActivity, PaymentActivity::class.java)
-                        .putExtra("customerPartySiteId", customerPartySiteId)
-                        .putExtra("orderType", orderType)
-                        .putExtra("customerTypePosition", customerTypePosition)
-                        .putExtra("customer_code", customerData.CUSTOMER_CODE)
-                        .putExtra("visitId", visitId)
-                        .putExtra("customer_name", customerName)
-                )
             }
-        } else {
-            if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
+        }
+        else {
+            val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
+            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
+            snackbar.show()
                 finish()
-            } else {
-                Toast.makeText(
-                    baseContext,
-                    "لا يمكن اكمال الطلبية لعدم توفر انترنت",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
         }
     }
 
@@ -291,6 +309,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             binding.visTarget.requestFocus()
 
         } else {
+
             compareLocation()
         }
 
@@ -383,7 +402,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun saveVisits() {
         val long = binding.fieldLongitude.text.toString()
         val lat = binding.fieldLatitude.text.toString()
-
+        val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
+        snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
+        snackbar.show()
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 VisitsIntent.SaveVisit(

@@ -121,6 +121,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                     is VisitsStatus.SaveVisitsOnline -> {
                         Log.d("jnjndjnjndjnjnd", "fetchData: ${it.data.data.visit_id}")
                         checkConnection.deleteSaveVisitFromDB()
+                        val visits = checkConnection.getVisits()
+                        Log.d("testMain", "fetchDataSaveVisits: ${visits}")
                     }
 
                     is VisitsStatus.Error -> Log.d(TAG, "Error====== ${it.error}")

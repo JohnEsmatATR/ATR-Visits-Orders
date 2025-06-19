@@ -12,7 +12,7 @@ class SetupHttpClient {
 
     fun setupOkHttpClient(): OkHttpClient {
 
-        val REQUEST_TIMEOUT = 60 // 1 minute
+        val REQUEST_TIMEOUT = 5 // 1 minute
 
         val builder = OkHttpClient.Builder()
             .readTimeout(REQUEST_TIMEOUT.toLong(), TimeUnit.SECONDS)

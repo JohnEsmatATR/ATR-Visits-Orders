@@ -10,6 +10,7 @@ import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits
 import com.akhnaton.foodvisits.data.model.VisitsPlan
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
+import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisitData
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class CheckConnection(val context: Context) {
@@ -44,7 +45,6 @@ class CheckConnection(val context: Context) {
         return database.getDatabase(context).visitPlanDao().getPlan()
     }
 
-
     suspend fun saveVisit(
         version: String,
         token: String,
@@ -60,7 +60,7 @@ class CheckConnection(val context: Context) {
         dateVisit: String,
         customerType: String,
         orderType: String,
-    ) : SaveVisit {
+    ): SaveVisit {
         val saveVisitDB = SaveVisitDB(
             version = version,
             token = token,
@@ -77,8 +77,37 @@ class CheckConnection(val context: Context) {
             customerType = customerType,
             orderType = orderType,
         )
-        insertSaveVisitToDB(saveVisitDB)
-        return saveVisitOnline()
+
+
+        return if (checkConnection()) {
+            try {
+                val response = retrofit.saveVisits(
+                    version,
+                    token,
+                    customerPartySiteId,
+                    visitType,
+                    visitTarget,
+                    visitActualTarget,
+                    latitude,
+                    longitude,
+                    deviceType,
+                    zoneFlag,
+                    checkInDate,
+                    dateVisit,
+                    customerType,
+                    orderType,
+                )
+                deleteSaveVisitFromDB()
+                response
+            } catch (e: Exception) {
+                insertSaveVisitToDB(saveVisitDB)
+
+                SaveVisit(0, SaveVisitData(customerPartySiteId.toInt()))
+            }
+        } else {
+            insertSaveVisitToDB(saveVisitDB)
+            SaveVisit(0, SaveVisitData(customerPartySiteId.toInt()))
+        }
     }
 
 
@@ -148,7 +177,9 @@ class CheckConnection(val context: Context) {
     suspend fun deleteSaveVisitFromDB() {
         database.getDatabase(context).saveVisitDao().deleteVisit()
     }
-
+    suspend fun getVisits(): List<SaveVisitDB> {
+        return database.getDatabase(context).saveVisitDao().getVisits()
+    }
     suspend fun insertSaveVisitToDB(visitsPlanDB: SaveVisitDB) {
         database.getDatabase(context).saveVisitDao().insert(visitsPlanDB)
     }

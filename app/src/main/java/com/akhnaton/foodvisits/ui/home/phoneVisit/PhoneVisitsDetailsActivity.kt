@@ -241,7 +241,8 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             )
             finishAffinity()
 
-        } else {
+        }
+        else {
             val check = SharedPreferencesHelper.getInstance().getMakeOrder()
             if (checkConnection.checkConnection()) {
                 if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
@@ -257,10 +258,13 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                             .putExtra("visitId", visitId)
                     )
                 }
-            } else {
-                if (binding.visitType.selectedItem.toString() == "سلبى" || !check) {
+            }
+            else {
+                if (binding.visitType.selectedItem.toString() == "سلبى" || !check)
+                {
                     finish()
-                } else {
+                }
+                else {
                     Toast.makeText(
                         baseContext,
                         "لا يمكن اكمال الطلبية لعدم توفر انترنت",

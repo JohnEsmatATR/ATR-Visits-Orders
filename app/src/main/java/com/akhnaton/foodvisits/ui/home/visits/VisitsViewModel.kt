@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
+import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.domin.VisitsRepository
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -36,7 +37,7 @@ class VisitsViewModel(val context: Context) : ViewModel() {
 
     private val fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private var locationCallback: LocationCallback? = null
-
+    private lateinit var checkConnection: CheckConnection
     private var timerJob: Job? = null
     private var elapsedSeconds = 0
     private val _timerState = MutableStateFlow("00:00:00")
@@ -131,24 +132,26 @@ class VisitsViewModel(val context: Context) : ViewModel() {
         viewModelScope.launch {
             _statusVisit.value = VisitsStatus.Loading
             _statusVisit.value = try {
-                VisitsStatus.SaveVisits(
-                    VisitsRepository(context).saveVisit(
-                        version,
-                        token,
-                        customerPartySiteId,
-                        visitType,
-                        visitTarget,
-                        visitActualTarget,
-                        latitude,
-                        longitude,
-                        deviceType,
-                        zoneFlag,
-                        checkInDate,
-                        dateVisit,
-                        customerType,
-                        orderType,
-                    )
+                val result = VisitsRepository(context).saveVisit(
+                    version,
+                    token,
+                    customerPartySiteId,
+                    visitType,
+                    visitTarget,
+                    visitActualTarget,
+                    latitude,
+                    longitude,
+                    deviceType,
+                    zoneFlag,
+                    checkInDate,
+                    dateVisit,
+                    customerType,
+                    orderType,
                 )
+
+                checkConnection.deleteSaveVisitFromDB()
+
+                VisitsStatus.SaveVisits(result)
             } catch (e: Exception) {
                 VisitsStatus.Error(e.message)
             }
