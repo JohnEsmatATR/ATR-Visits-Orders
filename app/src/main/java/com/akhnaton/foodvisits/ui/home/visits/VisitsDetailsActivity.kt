@@ -35,6 +35,7 @@ import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
 import com.akhnaton.foodvisits.shared.location.GetLocationService
 import com.akhnaton.foodvisits.shared.location.RequestPermission
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.visits.paymentType.PaymentActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsActivity
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterDayDetails.PromoterDayDetailsActivity
@@ -274,17 +275,17 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         val check = SharedPreferencesHelper.getInstance().getMakeOrder()
         if (checkConnection.checkConnection()) {
             if (binding.visitType.selectedItem.toString() != null || !check) {
+
                 val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
                 snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
                 snackbar.show()
-                finish()
+                startActivity(Intent(this@VisitsDetailsActivity,MainActivity::class.java))
             }
         }
         else {
-            val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
-            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
-            snackbar.show()
-                finish()
+
+            Toast.makeText(this,"تم حفظ الزياره محليا بنجاح",Toast.LENGTH_LONG).show()
+            startActivity(Intent(this@VisitsDetailsActivity,MainActivity::class.java))
         }
     }
 
@@ -338,7 +339,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 //    }
 
     private fun compareLocation() {
-        if (!isDeveloperModeEnabled()) {
+        if (isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
                 saveVisits()

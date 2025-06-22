@@ -263,6 +263,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         fetchDataVisit()
     }
 
+
+
     override fun onDestroy() {
         super.onDestroy()
         requestPermission.stopServiceFunc(this)
