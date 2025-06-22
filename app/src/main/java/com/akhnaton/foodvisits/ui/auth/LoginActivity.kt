@@ -58,7 +58,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         dialog = ProgressDialogHelper().showProgress(this@LoginActivity)
         binding.loginButton.setOnClickListener(this)
         makeLogin()
-
+       // requestNotificationPermission()
 
 
     }
@@ -156,26 +156,41 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun checkPermission(): Boolean {
-        val result =
-            ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_FINE_LOCATION)
-        val result1 =
-            ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_COARSE_LOCATION)
-        val result2 =
-            ContextCompat.checkSelfPermission(applicationContext, permission.READ_PHONE_STATE)
-        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED && result2 == PackageManager.PERMISSION_GRANTED
+        val fineLocation = ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_FINE_LOCATION)
+        val coarseLocation = ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_COARSE_LOCATION)
+        val readPhoneState = ContextCompat.checkSelfPermission(applicationContext, permission.READ_PHONE_STATE)
+
+        val notificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(applicationContext, permission.POST_NOTIFICATIONS)
+        } else {
+            PackageManager.PERMISSION_GRANTED
+        }
+
+        return fineLocation == PackageManager.PERMISSION_GRANTED &&
+                coarseLocation == PackageManager.PERMISSION_GRANTED &&
+                readPhoneState == PackageManager.PERMISSION_GRANTED &&
+                notificationPermission == PackageManager.PERMISSION_GRANTED
     }
 
+
     private fun requestPermission() {
+        val permissionsList = mutableListOf(
+            permission.ACCESS_FINE_LOCATION,
+            permission.ACCESS_COARSE_LOCATION,
+            permission.READ_PHONE_STATE
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsList.add(permission.POST_NOTIFICATIONS)
+        }
+
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(
-                permission.ACCESS_FINE_LOCATION,
-                permission.ACCESS_COARSE_LOCATION,
-                permission.READ_PHONE_STATE
-            ),
+            permissionsList.toTypedArray(),
             PERMISSION_REQUEST_CODE
         )
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -186,42 +201,28 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> if (grantResults.isNotEmpty()) {
-                val locationAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED
-                val cameraAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED
-                val read_phone_IMEI = grantResults[2] == PackageManager.PERMISSION_GRANTED
-                if (locationAccepted && cameraAccepted && read_phone_IMEI) Toast.makeText(
-                    this,
-                    "Thanks For accepting Permissions ",
-                    Toast.LENGTH_SHORT
-                ).show() else {
-                    Toast.makeText(
-                        this,
-                        "Permission Denied, You cannot access location data ",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)) {
-                            showMessageOKCancel(
-                                "You need to allow access to both the permissions"
-                            ) { dialog, which ->
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                    requestPermissions(
-                                        arrayOf(
-                                            permission.ACCESS_FINE_LOCATION,
-                                            permission.ACCESS_COARSE_LOCATION,
-                                            permission.READ_PHONE_STATE
-                                        ),
-                                        PERMISSION_REQUEST_CODE
-                                    )
-                                }
-                            }
-                            return
+                val locationAccepted = grantResults.getOrNull(0) == PackageManager.PERMISSION_GRANTED
+                val coarseAccepted = grantResults.getOrNull(1) == PackageManager.PERMISSION_GRANTED
+                val readPhoneAccepted = grantResults.getOrNull(2) == PackageManager.PERMISSION_GRANTED
+                val notificationAccepted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    grantResults.getOrNull(3) == PackageManager.PERMISSION_GRANTED
+                } else true
+
+                if (locationAccepted && coarseAccepted && readPhoneAccepted && notificationAccepted) {
+                    Toast.makeText(this, "Thanks For accepting Permissions", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Permission Denied, You cannot access location data", Toast.LENGTH_SHORT).show()
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                        shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)) {
+                        showMessageOKCancel("You need to allow access to all the permissions") { dialog, which ->
+                            requestPermission()
                         }
                     }
                 }
             }
         }
     }
+
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
         AlertDialog.Builder(this@LoginActivity)
@@ -236,5 +237,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
         private const val TAG = "LoginActivity"
     }
+
 
 }
