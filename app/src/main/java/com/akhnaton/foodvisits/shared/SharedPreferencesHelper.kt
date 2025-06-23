@@ -6,6 +6,8 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
+import androidx.lifecycle.ProcessLifecycleOwner
 
 class SharedPreferencesHelper : Application() {
 
@@ -75,6 +77,25 @@ class SharedPreferencesHelper : Application() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean("telephone", false)
     }
+    fun setLoginCredentials(username: String, password: String) {
+        Log.d("SharedPrefs", "Saving username: $username, password: $password")
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString("login_username", username)
+            .putString("login_password", password)
+            .apply()
+    }
+
+
+
+    fun getLoginCredentials(): Pair<String?, String?> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val username = prefs.getString("login_username", null)
+        val password = prefs.getString("login_password", null)
+        Log.d("SharedPrefs", "Retrieved username: $username, password: $password")
+        return Pair(username, password)
+    }
+
 
     fun setUserData(
         apiToken: String,
@@ -110,4 +131,6 @@ class SharedPreferencesHelper : Application() {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean("LOGGED", false).apply()
     }
+
+
 }

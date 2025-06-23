@@ -7,6 +7,7 @@ import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import com.airbnb.lottie.LottieAnimationView
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.shared.BiometricActivity
 import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class SplashActivity : AppCompatActivity() {
@@ -28,7 +29,7 @@ class SplashActivity : AppCompatActivity() {
 //        })
 
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            startActivity(Intent(this@SplashActivity, BiometricActivity::class.java))
             finishAffinity()
         }, 3400)
 

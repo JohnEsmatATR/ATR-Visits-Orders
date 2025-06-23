@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricPrompt
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -29,6 +30,7 @@ import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -58,6 +60,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         dialog = ProgressDialogHelper().showProgress(this@LoginActivity)
         binding.loginButton.setOnClickListener(this)
         makeLogin()
+        binding.loginWithFingerPrint.setOnClickListener {
+            showBiometricPrompt()
+        }
        // requestNotificationPermission()
 
 
@@ -91,6 +96,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                     is LoginState.LogIn -> {
                         if (it.login.status != 400) {
+                            val username = binding.username.text.toString()
+                            val password = binding.password.text.toString()
                             dialog.hide()
                             SharedPreferencesHelper().setLogged()
                             SharedPreferencesHelper().setUserData(
@@ -102,6 +109,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 it.login.data.user.telephone,
 
                             )
+
+                                SharedPreferencesHelper().setLoginCredentials(username, password)
+
+
                             Log.d(TAG, "makeLogin: " + it.login.data.user.employee_id)
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finishAffinity()
@@ -124,34 +135,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onClick(p0: View?) {
         if (setWarningUserName() && setWarningPassword()) {
-            FirebaseMessaging.getInstance().token
-                .addOnCompleteListener { task ->
-                    if (!task.isSuccessful) {
-                        Log.w("FCM", "Fetching FCM registration token failed", task.exception)
-                        return@addOnCompleteListener
-                    }
-
-                    val firebaseToken = task.result
-                    val username = binding.username.text.toString().lowercase().trim()
-                    val password = binding.password.text.toString().trim()
-
-                    Log.d("FCM", ">>> Sending login data:")
-                    Log.d("FCM", "Version: $versionName")
-                    Log.d("FCM", "Username: $username")
-                    Log.d("FCM", "Password: $password")
-                    Log.d("FCM", "Firebase Token: $firebaseToken")
-
-                    lifecycleScope.launch {
-                        viewModel.loginIntent.send(
-                            LoginIntent.Login(
-                                versionName,
-                                username,
-                                password,
-                                firebaseToken
-                            )
-                        )
-                    }
-                }
+            loginIntent()
         }
     }
 
@@ -222,6 +206,36 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+    private fun loginIntent(){
+        FirebaseMessaging.getInstance().token
+            .addOnCompleteListener { task ->
+                if (!task.isSuccessful) {
+                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                    return@addOnCompleteListener
+                }
+
+                val firebaseToken = task.result
+                val username = binding.username.text.toString().lowercase().trim()
+                val password = binding.password.text.toString().trim()
+
+                Log.d("FCM", ">>> Sending login data:")
+                Log.d("FCM", "Version: $versionName")
+                Log.d("FCM", "Username: $username")
+                Log.d("FCM", "Password: $password")
+                Log.d("FCM", "Firebase Token: $firebaseToken")
+
+                lifecycleScope.launch {
+                    viewModel.loginIntent.send(
+                        LoginIntent.Login(
+                            versionName,
+                            username,
+                            password,
+                            firebaseToken
+                        )
+                    )
+                }
+            }
+    }
 
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
@@ -236,6 +250,47 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
     companion object {
         private const val TAG = "LoginActivity"
+    }
+
+    private fun showBiometricPrompt() {
+        val executor = ContextCompat.getMainExecutor(this)
+
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+
+                    val (username, password) = SharedPreferencesHelper.getInstance().getLoginCredentials()
+                    binding.username.setText(username)
+                    binding.password.setText(password)
+                    if (username != null && password != null) {
+                        loginIntent()
+
+                    } else {
+                        binding.error.text = "لا يوجد بيانات محفوظة لتسجيل الدخول"
+                    }
+                }
+
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                    binding.error.text = "خطأ في البصمة: $errString"
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    binding.error.text = "البصمة غير صحيحة، حاول مرة أخرى"
+                }
+            })
+
+        val promptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("تسجيل الدخول بالبصمة")
+            .setSubtitle("قم بتأكيد هويتك باستخدام بصمة الإصبع")
+            .setNegativeButtonText("إلغاء")
+            .build()
+
+        biometricPrompt.authenticate(promptInfo)
     }
 
 

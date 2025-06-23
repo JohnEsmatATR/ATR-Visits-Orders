@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -17,6 +18,7 @@ import com.akhnaton.foodvisits.data.statusValue.tickets.TicketsStatus
 import com.akhnaton.foodvisits.databinding.FragmentTicketsBinding
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 
 class TicketsFragment : Fragment(), View.OnClickListener {
@@ -55,6 +57,9 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                         binding.error.visibility = View.GONE
                         binding.ticketTextEd.text?.clear()
                         requireActivity().onBackPressed()
+                        val snackbar = Snackbar.make(binding.root, "تم ارسال طلبك بنجاح", Snackbar.LENGTH_LONG)
+                        snackbar.setBackgroundTint(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
+                        snackbar.show()
 
                     }
 
