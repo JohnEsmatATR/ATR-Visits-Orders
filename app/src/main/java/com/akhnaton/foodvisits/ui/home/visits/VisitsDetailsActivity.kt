@@ -339,7 +339,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 //    }
 
     private fun compareLocation() {
-        if (!isDeveloperModeEnabled()) {
+        if (isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
                 saveVisits()
@@ -401,33 +401,41 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun saveVisits() {
+
         val long = binding.fieldLongitude.text.toString()
         val lat = binding.fieldLatitude.text.toString()
-        val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
-        snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
-        snackbar.show()
-        lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                VisitsIntent.SaveVisit(
-                    version = versionName,
-                    token = SharedPreferencesHelper.getInstance().getUserToken(),
-                    customerPartySiteId = customerPartySiteId,
-                    visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType), // A -> طلبية --- C -> سلبي
-                    visitTarget = binding.visTarget.text.toString().trim(),
-                    visitActualTarget = binding.actTarget.text.toString().trim(),
-                    latitude = long,
-                    longtitude = lat,
-                    deviceType = "Mob",
-                    zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
-                    checkInDate = enteredTime.toString(), // Date Entered
-                    dateVisit = (System.currentTimeMillis() / 1000).toString(), // Visit Send With end Date
-                    customerType = customerTypePosition,
-                    orderType = orderType,
-                    phoneVisit = false
+        if (long == "" && lat ==""){
+            val snackbar = Snackbar.make(binding.root, "لم يتم الوصول لبينات الخريطه", Snackbar.LENGTH_LONG)
+            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+            snackbar.show()
+        }else{
+            val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
+            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
+            snackbar.show()
+            lifecycleScope.launch {
+                viewModel.visitsIntent.send(
+                    VisitsIntent.SaveVisit(
+                        version = versionName,
+                        token = SharedPreferencesHelper.getInstance().getUserToken(),
+                        customerPartySiteId = customerPartySiteId,
+                        visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType), // A -> طلبية --- C -> سلبي
+                        visitTarget = binding.visTarget.text.toString().trim(),
+                        visitActualTarget = binding.actTarget.text.toString().trim(),
+                        latitude = long,
+                        longtitude = lat,
+                        deviceType = "Mob",
+                        zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
+                        checkInDate = enteredTime.toString(), // Date Entered
+                        dateVisit = (System.currentTimeMillis() / 1000).toString(), // Visit Send With end Date
+                        customerType = customerTypePosition,
+                        orderType = orderType,
+                        phoneVisit = false
+                    )
                 )
-            )
 
+            }
         }
+
 
     }
 

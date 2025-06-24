@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -287,7 +288,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         val promptInfo = BiometricPrompt.PromptInfo.Builder()
             .setTitle("تسجيل الدخول بالبصمة")
             .setSubtitle("قم بتأكيد هويتك باستخدام بصمة الإصبع")
-            .setNegativeButtonText("إلغاء")
+            .setAllowedAuthenticators(
+                BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )
             .build()
 
         biometricPrompt.authenticate(promptInfo)
