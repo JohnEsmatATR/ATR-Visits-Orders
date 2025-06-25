@@ -25,6 +25,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.login.LoginIntent
 import com.akhnaton.foodvisits.data.statusValue.login.LoginState
 import com.akhnaton.foodvisits.databinding.ActivityLoginBinding
+import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -111,8 +112,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
                             )
 
-                                SharedPreferencesHelper().setLoginCredentials(username, password)
-
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                saveUserCredentials(this@LoginActivity, username, password)
+                            }
 
                             Log.d(TAG, "makeLogin: " + it.login.data.user.employee_id)
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))

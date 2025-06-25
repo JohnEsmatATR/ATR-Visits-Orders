@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.profile
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -8,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.ActivityProfileBinding
+import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.clearUserCredentials
 import com.akhnaton.foodvisits.shared.FirebaseProfileClient
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
@@ -59,9 +61,13 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         if (p0.id == R.id.logout) {
-            SharedPreferencesHelper.getInstance().logOut()
-            startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
-            finishAffinity()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                SharedPreferencesHelper.getInstance().logOut()
+                clearUserCredentials(this@ProfileActivity)
+                startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
+                finishAffinity()
+            }
+
         }
     }
 }

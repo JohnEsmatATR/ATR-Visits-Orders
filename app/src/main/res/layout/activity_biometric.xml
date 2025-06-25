@@ -4,16 +4,145 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
     android:layout_height="match_parent"
     tools:context=".shared.BiometricActivity">
+
     <TextView
-        android:text="Locked"
-        android:gravity="center"
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_50sdp"
+        android:layout_marginEnd="@dimen/_8sdp"
         android:fontFamily="@font/cairo_medium"
-        android:textColor="@color/orange"
-        android:textSize="@dimen/_25sdp"
-        android:textStyle="italic"
+        android:text="ادخل كلمه المرور"
+        android:textColor="@color/black"
+        android:textSize="@dimen/_18sdp"
+        android:textStyle="bold"
+
+
+        app:layout_constraintEnd_toStartOf="@+id/cardView"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/_5sdp"
+        android:fontFamily="@font/cairo_medium"
+
+        android:textSize="@dimen/_10sdp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/textView2"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="@dimen/_35sdp"
+        android:layout_height="@dimen/_35sdp"
+
+        app:cardCornerRadius="@dimen/_25sdp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView2"
+        app:layout_constraintEnd_toEndOf="parent"
+     android:layout_marginEnd="@dimen/_15sdp"
+        app:layout_constraintTop_toTopOf="@+id/textView2">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_logo" />
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layout_pass"
+        style="@style/OutlinedRoundedBox"
+        android:layout_marginTop="@dimen/_15sdp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@+id/cardView"
+        app:layout_constraintStart_toStartOf="@+id/textView2"
+        app:layout_constraintTop_toBottomOf="@+id/textView3"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/_15sdp"
+            android:layout_marginTop="@dimen/_15sdp"
+            android:drawableStart="@drawable/ic_lock_outline_black_24dp"
+            android:drawablePadding="10dp"
+            android:fontFamily="@font/cairo_medium"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:maxLines="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/loginButton"
+        android:layout_width="match_parent"
+        android:layout_marginHorizontal="@dimen/_35sdp"
+        android:layout_height="@dimen/_50sdp"
+        android:drawableEnd="@drawable/ic_send_black_24dp"
+        android:paddingStart="@dimen/_12sdp"
+        android:paddingTop="@dimen/_8sdp"
+        android:paddingEnd="@dimen/_12sdp"
+        android:paddingBottom="@dimen/_8sdp"
+        android:text="@string/login"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:textColor="@color/color_white"
+        android:textSize="@dimen/_10ssp"
+        app:cornerRadius="@dimen/_6sdp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/layout_pass" />
+
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_50sdp"
+        android:layout_marginHorizontal="@dimen/_35sdp"
+        android:paddingStart="@dimen/_12sdp"
+        android:paddingTop="@dimen/_8sdp"
+        android:layout_marginTop="@dimen/_25sdp"
+        android:paddingEnd="@dimen/_12sdp"
+        android:paddingBottom="@dimen/_8sdp"
+        android:textColor="@color/color_white"
+        android:textSize="@dimen/_10ssp"
+        app:cornerRadius="@dimen/_6sdp"
+        android:backgroundTint="@color/receipt_color"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/loginButton" />
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/loginWithFingerPrint"
+        android:layout_width="@dimen/_60sdp"
+        android:layout_height="@dimen/_60sdp"
+        android:visibility="visible"
+        app:cardCornerRadius="@dimen/_35sdp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/loginButton"
+        app:layout_constraintStart_toStartOf="@+id/loginButton"
+        app:layout_constraintTop_toBottomOf="@+id/loginButton">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/colorPrimary">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/_10sdp"
+                android:src="@drawable/fingerprint_scan"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

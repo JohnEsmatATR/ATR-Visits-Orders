@@ -31,6 +31,7 @@ class BiometricAuthHelper(private val activity: FragmentActivity) {
                 BiometricManager.Authenticators.BIOMETRIC_STRONG or
                         BiometricManager.Authenticators.DEVICE_CREDENTIAL
             )
+
             .build()
 
         biometricPrompt.authenticate(promptInfo)

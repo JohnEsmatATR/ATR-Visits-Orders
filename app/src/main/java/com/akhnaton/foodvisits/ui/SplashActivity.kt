@@ -1,15 +1,20 @@
 package com.akhnaton.foodvisits.ui
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil.setContentView
 import com.airbnb.lottie.LottieAnimationView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.shared.BiometricActivity
+import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
+import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class SplashActivity : AppCompatActivity() {
@@ -31,13 +36,17 @@ class SplashActivity : AppCompatActivity() {
 //        })
 
         Handler(Looper.getMainLooper()).postDelayed({
-            val (username, password) = SharedPreferencesHelper.getInstance().getLoginCredentials()
-            if (username != ""&& password !=""){
-                startActivity(Intent(this@SplashActivity, BiometricActivity::class.java))
-                finishAffinity()
-            }else{
-                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                finishAffinity()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                val (username, password) =  getUserCredentials(this@SplashActivity)
+                val name = username
+                val userPassword = password
+                if (name !=null && userPassword != null){
+                    startActivity(Intent(this@SplashActivity, BiometricActivity::class.java))
+                    finishAffinity()
+                }else{
+                    startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                    finishAffinity()
+                }
             }
 
         }, 3400)

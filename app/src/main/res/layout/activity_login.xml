@@ -131,6 +131,7 @@
                     android:layout_width="@dimen/_60sdp"
                     app:cardCornerRadius="@dimen/_35sdp"
                     android:layout_marginTop="@dimen/_15sdp"
+                    android:visibility="gone"
                     android:layout_height="@dimen/_60sdp">
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
