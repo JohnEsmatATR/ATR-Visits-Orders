@@ -8,12 +8,17 @@ import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.work.Constraints
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingIntent
@@ -23,7 +28,9 @@ import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.GooeyMenu
+import com.akhnaton.foodvisits.shared.SendVisitsWorker
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper.Companion.context
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
@@ -47,6 +54,11 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
+import androidx.work.WorkRequest
+
+
+
+
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
 
@@ -64,6 +76,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBinding()
+        sentVisitWorker()
 
     }
 
@@ -81,12 +94,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             supportFragmentManager.findFragmentById(R.id.main_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         setupWithNavController(binding.navView, navController)
-
-//        FirebaseApp.initializeApp(this)
-//        val firebaseAppCheck = FirebaseAppCheck.getInstance()
-//        firebaseAppCheck.installAppCheckProviderFactory(
-//            PlayIntegrityAppCheckProviderFactory.getInstance()
-//        )
 
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
@@ -109,35 +116,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
         fetchData()
         getProfileImage(binding)
-    }
-
-    private fun fetchDataVisit() {
-        lifecycleScope.launch {
-            visitViewModel.statusVisit.collect {
-                when (it) {
-                    is VisitsStatus.Idle -> Log.d(TAG, "fetchData: ")
-                    is VisitsStatus.Loading -> Log.d(TAG, "fetchData: ")
-
-                    is VisitsStatus.SaveVisitsOnline -> {
-                        Log.d("jnjndjnjndjnjnd", "fetchData: ${it.data.data.visit_id}")
-                        checkConnection.deleteSaveVisitFromDB()
-                        val visits = checkConnection.getVisits()
-                        Log.d("testMain", "fetchDataSaveVisits: ${visits}")
-                    }
-
-                    is VisitsStatus.Error -> Log.d(TAG, "Error====== ${it.error}")
-                    else -> {}
-                }
-            }
-        }
-    }
-
-    private fun sendSaveVisits() {
-        lifecycleScope.launch {
-            visitViewModel.visitsIntent.send(
-                VisitsIntent.SaveVisitOnline
-            )
-        }
     }
 
 
@@ -259,10 +237,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         super.onResume()
         enableLocation()
         requestPermission.permissionCheck(this)
-        sendSaveVisits()
-        fetchDataVisit()
-    }
 
+    }
 
 
     override fun onDestroy() {
@@ -319,5 +295,22 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                 Activity.RESULT_CANCELED -> enableLocation()
             }
         }
+    }
+
+    private fun sentVisitWorker() {
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val oneTimeRequest = OneTimeWorkRequestBuilder<SendVisitsWorker>()
+            .setConstraints(constraints)
+            .build()
+
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "SendVisitsWork",
+            ExistingWorkPolicy.KEEP,
+            oneTimeRequest
+        )
+
     }
 }

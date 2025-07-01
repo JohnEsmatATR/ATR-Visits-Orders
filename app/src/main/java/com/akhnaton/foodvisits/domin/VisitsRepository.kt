@@ -2,7 +2,7 @@ package com.akhnaton.foodvisits.domin
 
 import android.content.Context
 
-class VisitsRepository(context: Context) {
+open class VisitsRepository(context: Context) {
     private val checkConnection = CheckConnection(context)
 
     suspend fun getPlan(version: String, token: String) =

@@ -5,6 +5,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.akhnaton.foodvisits.data.db.VisitDatabase
 import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits
@@ -12,6 +13,8 @@ import com.akhnaton.foodvisits.data.model.VisitsPlan
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisitData
 import com.akhnaton.foodvisits.shared.RetrofitClient
+import com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity
+import com.google.android.material.snackbar.Snackbar
 
 class CheckConnection(val context: Context) {
     private val retrofit = RetrofitClient.getInstance(IVisits::class.java)
@@ -99,6 +102,9 @@ class CheckConnection(val context: Context) {
                 )
                 deleteSaveVisitFromDB()
                 response
+
+
+
             } catch (e: Exception) {
                 insertSaveVisitToDB(saveVisitDB)
 

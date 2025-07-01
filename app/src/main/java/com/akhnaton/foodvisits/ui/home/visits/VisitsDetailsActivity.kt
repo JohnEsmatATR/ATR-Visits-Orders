@@ -29,6 +29,7 @@ import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
+import com.akhnaton.foodvisits.domin.VisitsRepository
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
@@ -44,6 +45,7 @@ import com.akhnaton.foodvisits.ui.home.visits.promoters.promotersUploadImages.Pr
 import com.github.dhaval2404.imagepicker.ImagePicker.Companion.REQUEST_CODE
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
 
@@ -235,7 +237,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         dialog.hide()
                         if (!isVisitHandled) {
                             isVisitHandled = true
-
                             checkConnection.deleteSaveVisitFromDB()
                             val visits = checkConnection.getVisits()
                             Log.d(TAG, "fetchDataSaveVisits: $visits")
@@ -260,7 +261,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
                     is VisitsStatus.Error -> {
                         dialog.hide()
-                        checkVisitSituation("")
+                      //      checkVisitSituation("")
                         Log.d(TAG, "fetchDataSaveVisits1111Error${it.error}")
                         binding.constrain.isEnabled=true
                     }
@@ -271,23 +272,17 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun checkVisitSituation(visitId: String) {
-        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
-        if (checkConnection.checkConnection()) {
-            if (binding.visitType.selectedItem.toString() != null || !check) {
-
-                val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
-                snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
-                snackbar.show()
-                startActivity(Intent(this@VisitsDetailsActivity,MainActivity::class.java))
-            }
-        }
-        else {
-
-            Toast.makeText(this,"تم حفظ الزياره محليا بنجاح",Toast.LENGTH_LONG).show()
-            startActivity(Intent(this@VisitsDetailsActivity,MainActivity::class.java))
-        }
-    }
+//    private fun checkVisitSituation(visitId: String) {
+//        val check = SharedPreferencesHelper.getInstance().getMakeOrder()
+//        if (checkConnection.checkConnection()) {
+//            if (binding.visitType.selectedItem.toString() != null || !check) {
+//                startActivity(Intent(this@VisitsDetailsActivity,MainActivity::class.java))
+//            }
+//        }
+//        else {
+//            startActivity(Intent(this@VisitsDetailsActivity,MainActivity::class.java))
+//        }
+//    }
 
     private fun setSpinnerAdapter() {
         val mVisitTypeList: ArrayList<String> = ArrayList()
@@ -325,18 +320,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    fun updateLocation(locationData: LocationData) {
-//        Log.i(TAG, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
-//        val location = Location(LocationManager.GPS_PROVIDER)
-//        location.latitude = locationData.latitude
-//        location.longitude = locationData.longitude
-//
-////        binding.fieldLongitude.text = location.latitude.toString()
-////        binding.fieldLatitude.text = location.longitude.toString()
-//       mCurrentLocation = location
-////        progressBar.dismiss()
-//    }
 
     private fun compareLocation() {
         if (isDeveloperModeEnabled()) {
@@ -401,43 +384,61 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun saveVisits() {
-
+        dialog.show()
         val long = binding.fieldLongitude.text.toString()
         val lat = binding.fieldLatitude.text.toString()
-        if (long == "" && lat ==""){
-            val snackbar = Snackbar.make(binding.root, "لم يتم الوصول لبينات الخريطه", Snackbar.LENGTH_LONG)
+
+        if (long.isBlank() || lat.isBlank()) {
+            val snackbar = Snackbar.make(binding.root, "لم يتم الوصول لبيانات الخريطة", Snackbar.LENGTH_LONG)
             snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             snackbar.show()
-        }else{
-            val snackbar = Snackbar.make(binding.root, "تم حفظ الزياره بنجاح", Snackbar.LENGTH_LONG)
-            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_green_dark))
-            snackbar.show()
-            lifecycleScope.launch {
-                viewModel.visitsIntent.send(
-                    VisitsIntent.SaveVisit(
-                        version = versionName,
-                        token = SharedPreferencesHelper.getInstance().getUserToken(),
-                        customerPartySiteId = customerPartySiteId,
-                        visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType), // A -> طلبية --- C -> سلبي
-                        visitTarget = binding.visTarget.text.toString().trim(),
-                        visitActualTarget = binding.actTarget.text.toString().trim(),
-                        latitude = long,
-                        longtitude = lat,
-                        deviceType = "Mob",
-                        zoneFlag = zoneFlag, // IN == Correct Location -- ERROR == Wrong Location
-                        checkInDate = enteredTime.toString(), // Date Entered
-                        dateVisit = (System.currentTimeMillis() / 1000).toString(), // Visit Send With end Date
-                        customerType = customerTypePosition,
-                        orderType = orderType,
-                        phoneVisit = false
-                    )
-                )
+            dialog.hide()
+            return
+        }
+        lifecycleScope.launch {
+            val repository = VisitsRepository(this@VisitsDetailsActivity)
 
+            val result = repository.saveVisit(
+                version = versionName,
+                token = SharedPreferencesHelper.getInstance().getUserToken(),
+                customerPartySiteId = customerPartySiteId,
+                visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType),
+                visitTarget = binding.visTarget.text.toString().trim(),
+                visitActualTarget = binding.actTarget.text.toString().trim(),
+                latitude = lat,
+                longitude = long,
+                deviceType = "Mob",
+                zoneFlag = zoneFlag,
+                checkInDate = enteredTime.toString(),
+                dateVisit = (System.currentTimeMillis() / 1000).toString(),
+                customerType = customerTypePosition,
+                orderType = orderType
+            )
+
+            val message = if (result.status == 200) {
+                "تم حفظ الزيارة أونلاين بنجاح"
+
+            } else {
+                "تم حفظ الزيارة أوفلاين، وسيتم إرسالها لاحقًا"
             }
+
+            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+                .setBackgroundTint(
+                    if (result.status == 200)
+                        ContextCompat.getColor(this@VisitsDetailsActivity, R.color.green)
+                    else
+                        ContextCompat.getColor(this@VisitsDetailsActivity, R.color.gray)
+                )
+                .show()
+
+
+            delay(1500)
+            startActivity(Intent(this@VisitsDetailsActivity, MainActivity::class.java))
         }
 
 
     }
+
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onResume() {
