@@ -12,7 +12,7 @@ android {
     defaultConfig {
         applicationId "com.akhnaton.foodvisits"
         minSdk 21
-        targetSdk 34
+        targetSdk 35
         versionCode 19
         versionName "1.19"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -164,7 +164,6 @@ dependencies {
     implementation "androidx.biometric:biometric:1.2.0-alpha04"
     //crypto shared pre
     implementation "androidx.security:security-crypto:1.1.0-alpha06"
-    implementation "androidx.work:work-runtime-ktx:2.9.0"
     implementation "androidx.work:work-runtime-ktx:2.9.0"
 
 

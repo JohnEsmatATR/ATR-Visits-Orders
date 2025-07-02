@@ -189,4 +189,6 @@ class CheckConnection(val context: Context) {
     suspend fun insertSaveVisitToDB(visitsPlanDB: SaveVisitDB) {
         database.getDatabase(context).saveVisitDao().insert(visitsPlanDB)
     }
+
+
 }

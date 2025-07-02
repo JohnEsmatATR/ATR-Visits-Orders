@@ -62,9 +62,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         dialog = ProgressDialogHelper().showProgress(this@LoginActivity)
         binding.loginButton.setOnClickListener(this)
         makeLogin()
-        binding.loginWithFingerPrint.setOnClickListener {
-            showBiometricPrompt()
-        }
+
        // requestNotificationPermission()
 
 
@@ -159,7 +157,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                 notificationPermission == PackageManager.PERMISSION_GRANTED
     }
 
-
     private fun requestPermission() {
         val permissionsList = mutableListOf(
             permission.ACCESS_FINE_LOCATION,
@@ -178,7 +175,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         )
     }
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -187,21 +183,27 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         when (requestCode) {
-            PERMISSION_REQUEST_CODE -> if (grantResults.isNotEmpty()) {
-                val locationAccepted = grantResults.getOrNull(0) == PackageManager.PERMISSION_GRANTED
-                val coarseAccepted = grantResults.getOrNull(1) == PackageManager.PERMISSION_GRANTED
-                val readPhoneAccepted = grantResults.getOrNull(2) == PackageManager.PERMISSION_GRANTED
+            PERMISSION_REQUEST_CODE -> {
+                val locationAccepted = grantResults.getOrNull(permissions.indexOf(permission.ACCESS_FINE_LOCATION)) == PackageManager.PERMISSION_GRANTED
+                val coarseAccepted = grantResults.getOrNull(permissions.indexOf(permission.ACCESS_COARSE_LOCATION)) == PackageManager.PERMISSION_GRANTED
+                val readPhoneAccepted = grantResults.getOrNull(permissions.indexOf(permission.READ_PHONE_STATE)) == PackageManager.PERMISSION_GRANTED
                 val notificationAccepted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    grantResults.getOrNull(3) == PackageManager.PERMISSION_GRANTED
+                    grantResults.getOrNull(permissions.indexOf(permission.POST_NOTIFICATIONS)) == PackageManager.PERMISSION_GRANTED
                 } else true
 
                 if (locationAccepted && coarseAccepted && readPhoneAccepted && notificationAccepted) {
-                    Toast.makeText(this, "Thanks For accepting Permissions", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Thanks for accepting permissions", Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this, "Permission Denied, You cannot access location data", Toast.LENGTH_SHORT).show()
+                    if (!notificationAccepted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        Toast.makeText(this, "You denied notification permission. App may not show notifications.", Toast.LENGTH_LONG).show()
+                    }
+
+                    Toast.makeText(this, "Permission Denied. You cannot access location data", Toast.LENGTH_SHORT).show()
+
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                        shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)) {
-                        showMessageOKCancel("You need to allow access to all the permissions") { dialog, which ->
+                        shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)
+                    ) {
+                        showMessageOKCancel("You need to allow access to all the permissions") { dialog, _ ->
                             requestPermission()
                         }
                     }
@@ -209,6 +211,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
     }
+
     private fun loginIntent(){
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
@@ -255,49 +258,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         private const val TAG = "LoginActivity"
     }
 
-    private fun showBiometricPrompt() {
-        val executor = ContextCompat.getMainExecutor(this)
 
-        val biometricPrompt = BiometricPrompt(this, executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    super.onAuthenticationSucceeded(result)
-
-                    val (username, password) = SharedPreferencesHelper.getInstance().getLoginCredentials()
-                    binding.username.setText(username)
-                    binding.password.setText(password)
-                    if (username != null && password != null) {
-                        loginIntent()
-
-                    } else {
-                        binding.error.text = "لا يوجد بيانات محفوظة لتسجيل الدخول"
-                    }
-                }
-
-
-                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-                    super.onAuthenticationError(errorCode, errString)
-                    binding.error.text = "خطأ في البصمة: $errString"
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
-                    binding.error.text = "البصمة غير صحيحة، حاول مرة أخرى"
-                }
-            })
-
-        val promptInfo = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("تسجيل الدخول بالبصمة")
-            .setSubtitle("قم بتأكيد هويتك باستخدام بصمة الإصبع")
-            .setAllowedAuthenticators(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            )
-            .build()
-
-        biometricPrompt.authenticate(promptInfo)
-    }
 
 
 }

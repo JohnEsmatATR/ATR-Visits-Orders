@@ -1,13 +1,19 @@
 package com.akhnaton.foodvisits.ui.home
 
+import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -76,7 +82,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBinding()
-        sentVisitWorker()
+        startSendVisitsWorker(this@MainActivity)
+
 
     }
 
@@ -297,20 +304,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         }
     }
 
-    private fun sentVisitWorker() {
+    private fun startSendVisitsWorker(context: Context) {
+
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
 
-        val oneTimeRequest = OneTimeWorkRequestBuilder<SendVisitsWorker>()
+
+        val workRequest = OneTimeWorkRequestBuilder<SendVisitsWorker>()
             .setConstraints(constraints)
             .build()
 
-        WorkManager.getInstance(context).enqueueUniqueWork(
-            "SendVisitsWork",
-            ExistingWorkPolicy.KEEP,
-            oneTimeRequest
-        )
 
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            "SendVisitsWorker",
+            ExistingWorkPolicy.KEEP,
+            workRequest
+        )
     }
+
 }
