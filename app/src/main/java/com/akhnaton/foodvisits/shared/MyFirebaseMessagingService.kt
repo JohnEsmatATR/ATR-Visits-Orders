@@ -27,7 +27,6 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
 
     }
 
-
     private fun showNotification(title: String, message: String) {
         val channelId = "default_channel"
         val notificationId = System.currentTimeMillis().toInt()

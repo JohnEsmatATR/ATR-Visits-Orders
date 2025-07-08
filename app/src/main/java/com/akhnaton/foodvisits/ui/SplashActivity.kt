@@ -36,19 +36,31 @@ class SplashActivity : AppCompatActivity() {
 //        })
 
         Handler(Looper.getMainLooper()).postDelayed({
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val (username, password) =  getUserCredentials(this@SplashActivity)
-                val name = username
-                val userPassword = password
-                if (name !=null && userPassword != null){
-                    startActivity(Intent(this@SplashActivity, BiometricActivity::class.java))
-                    finishAffinity()
-                }else{
-                    startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                    finishAffinity()
+            val manufacturer = Build.MANUFACTURER.lowercase()
+            val model = Build.MODEL.lowercase()
+
+            Log.d("SplashCheck", "Manufacturer: $manufacturer, Model: $model")
+
+
+            val isPOSDevice = manufacturer.contains("sunmi") || manufacturer.contains("pax") || manufacturer.contains("verifone")
+
+            if (isPOSDevice) {
+
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                finishAffinity()
+            } else {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    val (username, password) = getUserCredentials(this@SplashActivity)
+                    if (username != null && password != null) {
+                        startActivity(Intent(this@SplashActivity, BiometricActivity::class.java))
+                        finishAffinity()
+                    } else {
+                        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                        finishAffinity()
+                    }
                 }
             }
-
         }, 3400)
 
     }

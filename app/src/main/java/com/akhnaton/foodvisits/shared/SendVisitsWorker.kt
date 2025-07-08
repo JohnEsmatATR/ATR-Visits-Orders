@@ -39,7 +39,10 @@ class SendVisitsWorker(
             Log.e("SendVisitsWorker", "فشل في جلب الزيارات: ${e.message}")
             return Result.retry()
         }
-
+        if (visits.isEmpty()) {
+            Log.d("SendVisitsWorker", "لا توجد زيارات لإرسالها، إنهاء العمل بدون إشعار")
+            return Result.success()
+        }
         val notificationManager =
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 

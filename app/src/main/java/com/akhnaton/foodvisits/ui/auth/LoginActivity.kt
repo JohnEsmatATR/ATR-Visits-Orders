@@ -14,8 +14,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -32,7 +30,6 @@ import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -241,6 +238,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                     )
                 }
             }
+            .addOnFailureListener {
+                Log.d("FCM", "Failed to get token", it)
+            }
+
     }
 
 

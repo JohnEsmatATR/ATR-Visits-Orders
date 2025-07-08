@@ -94,6 +94,7 @@ public class WebOrderActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        super.onBackPressed();
         Log.i(TAG, "onBackPressed");
 
         if (doubleBackToExitPressedOnce) {

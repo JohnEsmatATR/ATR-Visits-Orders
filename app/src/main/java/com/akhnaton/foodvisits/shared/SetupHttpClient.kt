@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.shared
 
+import android.annotation.SuppressLint
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.security.SecureRandom
@@ -12,7 +13,7 @@ class SetupHttpClient {
 
     fun setupOkHttpClient(): OkHttpClient {
 
-        val REQUEST_TIMEOUT = 5 // 1 minute
+        val REQUEST_TIMEOUT = 60 // 1 minute
 
         val builder = OkHttpClient.Builder()
             .readTimeout(REQUEST_TIMEOUT.toLong(), TimeUnit.SECONDS)
