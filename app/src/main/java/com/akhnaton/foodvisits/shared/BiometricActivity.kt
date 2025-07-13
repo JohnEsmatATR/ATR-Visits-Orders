@@ -4,9 +4,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.biometric.BiometricManager
 import com.akhnaton.foodvisits.databinding.ActivityBiometricBinding
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.clearUserCredentials
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
@@ -23,7 +25,11 @@ class BiometricActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityBiometricBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        val biometricManager = BiometricManager.from(this)
+        val canUseBiometric = biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS
+        if (!canUseBiometric) {
+            binding.loginWithFingerPrint.visibility = View.GONE
+        }
         authWithFingerPrint()
 
         binding.loginButton.setOnClickListener {

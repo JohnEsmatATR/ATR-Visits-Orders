@@ -133,10 +133,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
         val tsLong = System.currentTimeMillis() / 1000
 
         startActivity(
-            Intent(
-                requireActivity(),
-                VisitsDetailsActivity::class.java
-            )
+            Intent(requireActivity(), VisitsDetailsActivity::class.java)
                 .putExtra("customerPartySiteId", data.customer_party_site_id)
                 .putExtra("time", tsLong.toString())
                 .putExtra("customerSiteData", data)
