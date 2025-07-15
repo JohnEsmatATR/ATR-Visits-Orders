@@ -8,6 +8,8 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.db.model.AppDatabase
+import com.akhnaton.foodvisits.data.db.model.VisitTimerEntity
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.domin.CheckConnection
@@ -174,6 +176,7 @@ class VisitsViewModel(val context: Context) : ViewModel() {
     }
 
 
+
     private fun getAppSetting(
         appVersion: String
     ) {
@@ -209,11 +212,14 @@ class VisitsViewModel(val context: Context) : ViewModel() {
             }
         }
 
-        fusedLocationProviderClient.requestLocationUpdates(
-            locationRequest,
-            locationCallback!!,
-            Looper.getMainLooper()
-        )
+        locationCallback?.let { callback ->
+            fusedLocationProviderClient.requestLocationUpdates(
+                locationRequest,
+                callback,
+                Looper.getMainLooper()
+            )
+        }
+
     }
 
     fun stopLocationUpdates() {
@@ -229,4 +235,11 @@ class VisitsViewModel(val context: Context) : ViewModel() {
         stopTimer()
         stopLocationUpdates()
     }
+
+
+
+    fun setElapsedSeconds(seconds: Int) {
+        elapsedSeconds = seconds
+    }
+
 }

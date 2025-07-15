@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.ui.home.visits
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.location.Location
@@ -23,6 +24,9 @@ import androidx.lifecycle.lifecycleScope
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.db.dao.VisitTimerDao
+import com.akhnaton.foodvisits.data.db.model.AppDatabase
+import com.akhnaton.foodvisits.data.db.model.VisitTimerEntity
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
@@ -64,7 +68,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private var customerPartySiteId = ""
     private var orderType = ""
     private var customerTypePosition = ""
-    private var enteredTime = ""
+
     private var customerName = ""
     private var zoneFlag = ""
     private lateinit var customerData: CustomerVisitPlan
@@ -91,8 +95,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
         customerTypePosition = intent.getStringExtra("customerTypePosition").toString()
-//        enteredTime = intent.getStringExtra("time").toString()
-        enteredTime = intent.getStringExtra("time").toString()
         customerData = intent.getSerializableExtra("customerSiteData") as CustomerVisitPlan
         customerName = intent.getStringExtra("customer_name").toString()
 
@@ -119,12 +121,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         setSpinnerAdapter()
         fetchData()
         openMap()
-        initWrongLocationDialog()
+
         promotersUploadPhotos()
         promotersAddStockStatus()
         checkPromoters()
         observeTimer()
-        observeLocation()
+        updateTimerWithRoom()
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 when (result.resultCode) {
@@ -137,14 +139,39 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
+    private fun updateTimerWithRoom(){
+        lifecycleScope.launch {
+            val timerDao = AppDatabase.getDatabase(this@VisitsDetailsActivity).visitTimerDao()
+            val savedTimer = timerDao.getVisitTimerById(customerPartySiteId)
+            if (savedTimer == null) {
+                showStartVisitDialog(customerPartySiteId, timerDao)
+            } else {
+                val elapsedMillis = System.currentTimeMillis() - savedTimer.startTimeMillis
+                viewModel.setElapsedSeconds((elapsedMillis / 1000).toInt())
+                viewModel.startTimer()
+            }
+
+            observeTimer()
+        }
+    }
+    private fun showStartVisitDialog(customerPartySiteId: String, dao: VisitTimerDao) {
+        AlertDialog.Builder(this)
+            .setTitle("بدء الزيارة")
+            .setMessage("هل تريد بدء الزيارة الآن؟")
+            .setPositiveButton("نعم") { _, _ ->
+                compareLocation(dao, customerPartySiteId)
+            }
+            .setNegativeButton("إلغاء", null)
+            .show()
+    }
+
+
     private fun observeTimer() {
-        viewModel.stopTimer()
-        viewModel.resetTimer()
-        viewModel.startTimer()
         lifecycleScope.launch {
             viewModel.timerState.collect { timeStaring ->
                 binding.timmer.text = timeStaring
             }
+
         }
     }
 
@@ -298,15 +325,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
     override fun onClick(onClick: View?) {
-        if (customerLocation == null) {
-            ProgressDialogHelper().errorMessage(this@VisitsDetailsActivity, "خطا فى الموقع")
-        } else if (binding.visTarget.text.isEmpty()) {
+     if (binding.visTarget.text.isEmpty()) {
             binding.visTarget.error = "ادخل هدف الزيارة"
             binding.visTarget.requestFocus()
 
         } else {
-
-            compareLocation()
+           saveVisits()
         }
 
 
@@ -321,11 +345,13 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
-    private fun compareLocation() {
+    private fun compareLocation(dao: VisitTimerDao, customerPartySiteId: String) {
         if (!isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
-                saveVisits()
+                showCustomSnackbar("تم بدا الزياراه",R.color.green)
+                startVisitTimer(dao, customerPartySiteId)
+
             } else {
                 val customerLocation = Location("")
                 customerLocation.latitude = customerData.customer_latitude.toDouble()
@@ -335,16 +361,26 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
                 if (distanceInMeters < limitArea) {
                     zoneFlag = "IN"
-                    saveVisits()
+                    showCustomSnackbar("تم بدا الزياراه",R.color.green)
+                    startVisitTimer(dao, customerPartySiteId)
                     Log.d(TAG, "compareLocation: $limitArea")
                 } else {
                     zoneFlag = customerLocationMissing()
+                    initWrongLocationDialog(dao, customerPartySiteId)
                     progressBar.show()
-
                 }
             }
         } else {
             ProgressDialogHelper().gpsAlert(this)
+        }
+    }
+
+    private fun startVisitTimer(dao: VisitTimerDao, customerPartySiteId: String) {
+        lifecycleScope.launch {
+            val currentTime = System.currentTimeMillis()
+            dao.insertVisitTimer(VisitTimerEntity(customerPartySiteId, currentTime))
+            viewModel.setElapsedSeconds(0)
+            viewModel.startTimer()
         }
     }
 
@@ -362,7 +398,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun initWrongLocationDialog() {
+    private fun initWrongLocationDialog(dao: VisitTimerDao, customerPartySiteId: String) {
         progressBar = SweetAlertDialog(this, SweetAlertDialog.WARNING_TYPE)
         progressBar.setTitleText("تنبيه!...")
             .setContentText("انت لست فى موقع العميل")
@@ -371,17 +407,17 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 sDialog.dismissWithAnimation()
                 progressBar.dismiss()
             }
-            .setCancelButton(
-                "الابلاغ عن موقع خطأ"
-            ) { sDialog ->
+            .setCancelButton("الابلاغ عن موقع خطأ") { sDialog ->
                 zoneFlag = "ERROR"
                 sDialog.dismissWithAnimation()
-                saveVisits()
+                startVisitTimer(dao, customerPartySiteId)
+                showCustomSnackbar("تم بدا الزياراه",R.color.green)
                 progressBar.dismiss()
             }
-        progressBar.setCancelable(false)
 
+        progressBar.setCancelable(false)
     }
+
 
     private fun saveVisits() {
         dialog.show()
@@ -389,14 +425,17 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         val lat = binding.fieldLatitude.text.toString()
 
         if (long.isBlank() || lat.isBlank()) {
-            val snackbar = Snackbar.make(binding.root, "لم يتم الوصول لبيانات الخريطة", Snackbar.LENGTH_LONG)
-            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
-            snackbar.show()
+          showCustomSnackbar("لم يتم الوصول لبينات الخريطه",R.color.red)
             dialog.hide()
             return
         }
         lifecycleScope.launch {
             val repository = VisitsRepository(this@VisitsDetailsActivity)
+            val timerDao = AppDatabase.getDatabase(this@VisitsDetailsActivity).visitTimerDao()
+
+            val visitTimer = timerDao.getVisitTimerById(customerPartySiteId)
+
+            val checkInDateMillis = visitTimer?.startTimeMillis ?: System.currentTimeMillis()
 
             val result = repository.saveVisit(
                 version = versionName,
@@ -409,12 +448,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 longitude = long,
                 deviceType = "Mob",
                 zoneFlag = zoneFlag,
-                checkInDate = enteredTime.toString(),
+                checkInDate = (checkInDateMillis / 1000).toString(),
                 dateVisit = (System.currentTimeMillis() / 1000).toString(),
                 customerType = customerTypePosition,
                 orderType = orderType
             )
-
+            timerDao.deleteVisitTimerById(customerPartySiteId)
             val message = if (result.status == 200) {
                 "تم حفظ الزيارة أونلاين بنجاح"
 
@@ -473,7 +512,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             action = GetLocationService.ACTION_STOP
             startService(this)
         }
-        progressBar.dismiss()
+//        progressBar.dismiss()
     }
 
 //    private val mMessageReceiver: BroadcastReceiver = object : BroadcastReceiver() {
@@ -596,13 +635,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             0
         ) == 1
     }
-
-    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-    override fun onRestart() {
-        super.onRestart()
-        binding.fieldLongitude.text = ""
-        binding.fieldLatitude.text = ""
-        binding.accurate.text = ""
-        observeLocation()
+    private fun showCustomSnackbar(message: String, colorRes: Int) {
+        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        snackbar.setBackgroundTint(ContextCompat.getColor(this@VisitsDetailsActivity, colorRes))
+        snackbar.show()
     }
+
+
+
 }
