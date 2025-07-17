@@ -6,7 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.akhnaton.foodvisits.data.db.dao.VisitTimerDao
 
-@Database(entities = [VisitTimerEntity::class], version = 1)
+@Database(entities = [VisitTimerEntity::class], version = 2)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun visitTimerDao(): VisitTimerDao
 

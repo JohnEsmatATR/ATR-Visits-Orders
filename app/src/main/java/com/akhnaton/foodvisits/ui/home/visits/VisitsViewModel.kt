@@ -89,12 +89,15 @@ class VisitsViewModel(val context: Context) : ViewModel() {
                         it.visitActualTarget,
                         it.latitude,
                         it.longtitude,
+                        it.startLat,
+                        it.statLong,
                         it.deviceType,
                         it.zoneFlag,
                         it.checkInDate,
                         it.dateVisit,
                         it.customerType,
                         it.orderType,
+
                     )
                     is VisitsIntent.SaveVisitOnline -> saveVisitOnline()
                     is VisitsIntent.GetAppSetting -> getAppSetting(it.app_version)
@@ -123,6 +126,8 @@ class VisitsViewModel(val context: Context) : ViewModel() {
         visitActualTarget: String,
         latitude: String,
         longitude: String,
+        startLat: String,
+        startLong: String,
         deviceType: String,
         zoneFlag: String,
         checkInDate: String,
@@ -143,6 +148,8 @@ class VisitsViewModel(val context: Context) : ViewModel() {
                     visitActualTarget,
                     latitude,
                     longitude,
+                    startLong,
+                    startLat,
                     deviceType,
                     zoneFlag,
                     checkInDate,

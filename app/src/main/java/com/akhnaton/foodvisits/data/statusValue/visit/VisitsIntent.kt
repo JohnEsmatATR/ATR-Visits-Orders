@@ -13,6 +13,8 @@ sealed class VisitsIntent {
         val visitActualTarget: String,
         val latitude: String,
         val longtitude: String,
+        val startLat: String,
+        val statLong : String,
         val deviceType: String,
         val zoneFlag: String,
         val checkInDate: String,

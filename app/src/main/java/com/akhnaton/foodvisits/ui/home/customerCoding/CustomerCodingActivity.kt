@@ -396,6 +396,7 @@ class CustomerCodingActivity : BaseActivity() {
                             "observeCustomerCoding Error: ${it.error.toString()}"
                         )
 
+
                         hideProgressDialog(binding.progressLoading)
                         showToastSnack(it.error.toString(), true)
                     }

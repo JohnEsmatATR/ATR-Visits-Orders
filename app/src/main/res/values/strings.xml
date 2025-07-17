@@ -1,6 +1,7 @@
 <resources>
     <string name="web_order_activity">https://oso.akhnatontrade.com/menu.php?emp_id=</string>
 
+
     <string name="app_name">ATR Order</string>
     <string name="welcome_to_visits">Welcome to Visits</string>
     <string name="login">Login</string>

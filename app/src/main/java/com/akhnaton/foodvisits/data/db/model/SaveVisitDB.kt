@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "save_visit")
 data class SaveVisitDB(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val version: String,
     val token: String,
     val customerPartySiteId: String,
@@ -14,6 +15,8 @@ data class SaveVisitDB(
     val visitActualTarget: String,
     val latitude: String,
     val longitude: String,
+   val startLatitude: String,
+    val startLongitude: String,
     val deviceType: String,
     val zoneFlag: String,
     val checkInDate: String,
