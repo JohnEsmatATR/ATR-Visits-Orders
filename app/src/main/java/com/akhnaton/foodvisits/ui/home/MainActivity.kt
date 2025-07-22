@@ -61,9 +61,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import androidx.work.WorkRequest
-
-
-
+import com.akhnaton.foodvisits.ui.MapActivity
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
@@ -107,6 +105,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding.approvalBtn.setOnClickListener(this)
         binding.gooeyMenu.setOnMenuListener(this)
         binding.gooeyMenu.openCloseMenu(false)
+        binding.mapBtn.setOnClickListener {
+            startActivity(Intent(this@MainActivity, MapActivity::class.java))
+        }
 
 
         lifecycleScope.launch {

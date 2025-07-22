@@ -59,4 +59,9 @@ object ConstantLinks {
 
     const val ADD_FOOD_CUST_API = "$ROUTS_API?path=add_food_cust_api"
 
+
+
+    const val ROUTE_KEY= "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQ2NzU1NjY3NjYxZjQ5MjliMzlhNmU3N2RhNTQwYmYyIiwiaCI6Im11cm11cjY0In0="
+    const val ROUTE_KEY2= "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjRlMmQ4YmFlM2QwYTRlY2RhZjRhNmQ2NDY0MzI3OWU0IiwiaCI6Im11cm11cjY0In0="
+
 }

@@ -64,6 +64,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-storage-ktx'
     implementation 'com.google.firebase:firebase-messaging-ktx'
     implementation 'androidx.activity:activity:1.10.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-android:2.9.2'
 
 
     testImplementation 'junit:junit:4.13.2'
@@ -166,6 +167,10 @@ dependencies {
     implementation "androidx.security:security-crypto:1.1.0-alpha06"
     implementation "androidx.work:work-runtime-ktx:2.9.0"
 
+
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+
+    implementation 'org.osmdroid:osmdroid-android:6.1.12'
 
 
 }

@@ -50,6 +50,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import kotlin.math.log
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
@@ -220,7 +221,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         binding.distanceBetweenCustomer.text = "الموقع غير متاح"
                         Log.w("observeLocation", "Latitude or longitude is blank")
                     }
-
+                    Log.d(TAG, "observeLocation : ${customerLocation.latitude}, customerLocation.longitude ${ customerLocation.longitude}")
                     Log.d(
                         "Locationnnnnnnnnnnnnnnn",
                         "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"

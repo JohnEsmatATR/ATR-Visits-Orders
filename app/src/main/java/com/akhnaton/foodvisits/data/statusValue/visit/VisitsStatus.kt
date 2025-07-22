@@ -20,4 +20,5 @@ sealed class VisitsStatus {
     data class DeletePlanFromDB(val data: VisitsPlan) : VisitsStatus()
 
     data class Error(val error: String?) : VisitsStatus()
+
 }

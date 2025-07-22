@@ -8,8 +8,6 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.db.model.AppDatabase
-import com.akhnaton.foodvisits.data.db.model.VisitTimerEntity
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.domin.CheckConnection
@@ -28,6 +26,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 class VisitsViewModel(val context: Context) : ViewModel() {
+
 
     val visitsIntent = Channel<VisitsIntent>(Channel.UNLIMITED)
 
