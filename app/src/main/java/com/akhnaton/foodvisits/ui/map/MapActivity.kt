@@ -1,10 +1,8 @@
-package com.akhnaton.foodvisits.ui
+package com.akhnaton.foodvisits.ui.map
 
 import android.Manifest
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -17,6 +15,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -34,32 +33,22 @@ import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.model.VisitsPlan
+import com.akhnaton.foodvisits.data.statusValue.route.RouteIntent
+import com.akhnaton.foodvisits.data.statusValue.route.RouteState
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
-import com.akhnaton.foodvisits.shared.ConstantLinks
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
-import okhttp3.Call
-import okhttp3.Callback
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import okhttp3.Response
-import org.json.JSONArray
-import org.json.JSONObject
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import org.osmdroid.views.overlay.Polyline
-import java.io.IOException
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.pow
@@ -76,6 +65,9 @@ class MapActivity : AppCompatActivity() {
     private var customerList: List<CustomerVisitPlan> = emptyList()
     private var visitsPlan: VisitsPlan? = null
     private val versionName = BuildConfig.VERSION_NAME
+    private val routeViewModel : RouteViewModel  by  lazy {
+        RouteViewModelFactory(applicationContext).create(RouteViewModel::class.java)
+    }
     private val viewModel: VisitsViewModel by lazy {
         VisitsViewModelFactory(applicationContext).create(VisitsViewModel::class.java)
     }
@@ -95,7 +87,7 @@ class MapActivity : AppCompatActivity() {
         btnMyLocation = findViewById(R.id.btn_my_location)
         map.setTileSource(TileSourceFactory.MAPNIK)
         map.setMultiTouchControls(true)
-
+        observeRoute()
         btnMyLocation.setOnClickListener {
             userLatitude?.let { lat ->
                 userLongitude?.let { lng ->
@@ -109,7 +101,45 @@ class MapActivity : AppCompatActivity() {
             focusNextCustomer()
         }
         checkLocationPermissionAndStart()
+
+
+
     }
+    private fun observeRoute(){
+        lifecycleScope.launch {
+            routeViewModel.state.collect { state ->
+                when (state) {
+                    is RouteState.Idle -> {
+
+                    }
+                    is RouteState.Loading -> {
+                        Toast.makeText(this@MapActivity, "جاري تحميل المسار...", Toast.LENGTH_SHORT).show()
+                    }
+                    is RouteState.Success -> {
+                        drawRoutePolyline(state.geoPoints)
+                    }
+                    is RouteState.Error -> {
+                        Toast.makeText(this@MapActivity, "فشل في تحميل المسار: ${state.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+    }
+    private fun drawRoutePolyline(geoPoints: List<GeoPoint>) {
+        val roadOverlay = Polyline().apply {
+            setPoints(geoPoints)
+            color = ContextCompat.getColor(this@MapActivity, R.color.blue)
+            width = 15f
+            isGeodesic = true
+            outlinePaint.strokeJoin = Paint.Join.ROUND
+            outlinePaint.strokeCap = Paint.Cap.ROUND
+            outlinePaint.isAntiAlias = true
+        }
+
+        map.overlays.add(roadOverlay)
+        map.invalidate()
+    }
+
     private fun focusNextCustomer() {
         if (sortedCustomerList.isEmpty()) {
             Toast.makeText(this, "لم يتم تحميل العملاء بعد", Toast.LENGTH_SHORT).show()
@@ -165,93 +195,7 @@ class MapActivity : AppCompatActivity() {
             Log.e("MapActivity", "Location permissions not granted")
         }
     }
-    private fun fetchRouteFromOpenRouteService(
-        context: Context,
-        waypoints: List<GeoPoint>,
-        map: MapView,
-        triedSecondKey: Boolean = false
-    ) {
-        val url = "https://api.openrouteservice.org/v2/directions/driving-car/geojson"
-        val client = OkHttpClient()
 
-        val jsonBody = JSONObject()
-        val coordinates = JSONArray()
-
-        for (point in waypoints) {
-            val coord = JSONArray()
-            coord.put(point.longitude)
-            coord.put(point.latitude)
-            coordinates.put(coord)
-        }
-
-        jsonBody.put("coordinates", coordinates)
-
-        val body: RequestBody = jsonBody.toString().toRequestBody("application/json".toMediaType())
-        val currentKey = if (triedSecondKey) ConstantLinks.ROUTE_KEY else ConstantLinks.ROUTE_KEY2
-
-        val request = Request.Builder()
-            .url(url)
-            .addHeader("Authorization", currentKey)
-            .addHeader("Content-Type", "application/json")
-            .post(body)
-            .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {
-                e.printStackTrace()
-                if (!triedSecondKey) {
-                    fetchRouteFromOpenRouteService(context, waypoints, map, triedSecondKey = true)
-                }
-            }
-
-            override fun onResponse(call: Call, response: Response) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body?.string()
-                    val geoPoints = ArrayList<GeoPoint>()
-
-                    try {
-                        val jsonResponse = JSONObject(responseBody)
-                        val features = jsonResponse.getJSONArray("features")
-                        if (features.length() > 0) {
-                            val feature = features.getJSONObject(0)
-                            val geometry = feature.getJSONObject("geometry")
-                            val coordsArray = geometry.getJSONArray("coordinates")
-
-                            for (i in 0 until coordsArray.length()) {
-                                val coord = coordsArray.getJSONArray(i)
-                                val lon = coord.getDouble(0)
-                                val lat = coord.getDouble(1)
-                                geoPoints.add(GeoPoint(lat, lon))
-                            }
-
-                            (context as Activity).runOnUiThread {
-                                val roadOverlay = Polyline().apply {
-                                    setPoints(geoPoints)
-                                    color = ContextCompat.getColor(context, R.color.blue)
-                                    width = 15f
-                                    isGeodesic = true
-                                    outlinePaint.strokeJoin = Paint.Join.ROUND
-                                    outlinePaint.strokeCap = Paint.Cap.ROUND
-                                    outlinePaint.isAntiAlias = true
-                                }
-
-                                map.overlays.add(roadOverlay)
-                                map.invalidate()
-                            }
-                        }
-
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                    }
-
-                } else {
-                    if (!triedSecondKey) {
-                        fetchRouteFromOpenRouteService(context, waypoints, map, triedSecondKey = true)
-                    }
-                }
-            }
-        })
-    }
     @SuppressLint("MissingPermission")
     private fun startLocationTracking() {
         viewModel.getCurrentLocation()
@@ -302,6 +246,7 @@ class MapActivity : AppCompatActivity() {
         }
         animator.start()
     }
+
 
     private fun fetchPlanAndDrawCustomers() {
         lifecycleScope.launch {
@@ -375,12 +320,12 @@ class MapActivity : AppCompatActivity() {
 
                     setOnMarkerClickListener { m, _ ->
                         if (currentMarker == m && currentBottomSheet?.isShowing == true) {
-                            // إغلاق الـ BottomSheet لو ضغطت نفس الماركر مرتين
+
                             currentBottomSheet?.dismiss()
                             currentMarker = null
                             currentBottomSheet = null
                         } else {
-                            // عرض BottomSheet جديدة
+
                             showCustomerBottomSheet(customer, m)
                         }
                         true
@@ -393,8 +338,10 @@ class MapActivity : AppCompatActivity() {
 
 
             if (routePoints.size in 2..40) {
-                fetchRouteFromOpenRouteService(this@MapActivity, routePoints, map)
+                routeViewModel.onIntent(RouteIntent.FetchRoute(routePoints))
+
             } else {
+                Log.d("TAG", "drawRouteFromUserToCustomers: ${routePoints.size} ")
                 Toast.makeText(
                     this@MapActivity,
                     "عدد النقاط غير صالح للرسم، يجب أن يكون من 2 إلى 40",
@@ -403,8 +350,6 @@ class MapActivity : AppCompatActivity() {
             }
         }
     }
-
-
 
     private fun createCustomMarker(name: String, routeNumber: Int, isVisited: Boolean): Drawable {
         val inflater = LayoutInflater.from(this)
@@ -440,8 +385,6 @@ class MapActivity : AppCompatActivity() {
         return BitmapDrawable(resources, bitmap)
     }
 
-
-
     private fun calculateDistanceInKm(
         lat1: Double, lon1: Double,
         lat2: Double, lon2: Double
@@ -461,10 +404,6 @@ class MapActivity : AppCompatActivity() {
     }
 
 
-
-
-
-
     private fun getBitmapFromVectorDrawable(drawableId: Int): Bitmap {
         val drawable = AppCompatResources.getDrawable(this, drawableId)!!
         val bitmap = createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight)
@@ -480,7 +419,7 @@ class MapActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.layout_customer_visit_bottom_sheet, null)
         val dialog = BottomSheetDialog(this)
         dialog.setContentView(dialogView)
-        dialog.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        dialog.window?.clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
 
         val tvName = dialogView.findViewById<TextView>(R.id.tv_customer_name)
         val tvAddress = dialogView.findViewById<TextView>(R.id.tv_customer_address)
@@ -503,7 +442,6 @@ class MapActivity : AppCompatActivity() {
         currentMarker = marker
         currentBottomSheet = dialog
     }
-
 
 
     private fun startVisitDetails(customer: CustomerVisitPlan) {

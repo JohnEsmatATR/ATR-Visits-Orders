@@ -172,5 +172,8 @@ dependencies {
 
     implementation 'org.osmdroid:osmdroid-android:6.1.12'
 
+    implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
+
+
 
 }

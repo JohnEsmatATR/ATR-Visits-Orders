@@ -1,19 +1,14 @@
 package com.akhnaton.foodvisits.ui.home
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.work.Constraints
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -29,14 +24,11 @@ import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingIntent
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingStatus
-import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
-import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.GooeyMenu
 import com.akhnaton.foodvisits.shared.SendVisitsWorker
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
-import com.akhnaton.foodvisits.shared.SharedPreferencesHelper.Companion.context
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
@@ -60,8 +52,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
-import androidx.work.WorkRequest
-import com.akhnaton.foodvisits.ui.MapActivity
+import com.akhnaton.foodvisits.ui.map.MapActivity
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
