@@ -378,11 +378,11 @@ class MapActivity : AppCompatActivity() {
         )
         view.layout(0, 0, view.measuredWidth, view.measuredHeight)
 
-        val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(view.measuredWidth, view.measuredHeight)
         val canvas = Canvas(bitmap)
         view.draw(canvas)
 
-        return BitmapDrawable(resources, bitmap)
+        return bitmap.toDrawable(resources)
     }
 
     private fun calculateDistanceInKm(

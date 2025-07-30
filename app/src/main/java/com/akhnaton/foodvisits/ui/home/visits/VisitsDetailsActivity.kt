@@ -50,6 +50,9 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.log
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
@@ -146,14 +149,16 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             if (savedTimer == null) {
                 showStartVisitDialog(customerPartySiteId, timerDao)
             } else {
-                val elapsedMillis = System.currentTimeMillis() - savedTimer.startTimeMillis
-                viewModel.setElapsedSeconds((elapsedMillis / 1000).toInt())
+                val elapsedMillis = System.currentTimeMillis() - savedTimer.startTimeMillis // خليه Long
+                val elapsedSeconds = (elapsedMillis / 1000).toInt()
+                viewModel.setElapsedSeconds(elapsedSeconds)
                 viewModel.startTimer()
             }
 
             observeTimer()
         }
     }
+
 
     private fun showStartVisitDialog(customerPartySiteId: String, dao: VisitTimerDao) {
         AlertDialog.Builder(this)
@@ -165,7 +170,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             .setNegativeButton("إلغاء", null)
             .show()
     }
-
 
 
     private fun observeTimer() {
@@ -221,7 +225,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         binding.distanceBetweenCustomer.text = "الموقع غير متاح"
                         Log.w("observeLocation", "Latitude or longitude is blank")
                     }
-                    Log.d(TAG, "observeLocation : ${customerLocation.latitude}, customerLocation.longitude ${ customerLocation.longitude}")
+                    Log.d(
+                        TAG,
+                        "observeLocation : ${customerLocation.latitude}, customerLocation.longitude ${customerLocation.longitude}"
+                    )
                     Log.d(
                         "Locationnnnnnnnnnnnnnnn",
                         "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"
@@ -341,9 +348,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         if (!isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
-
-
-
             } else {
                 val customerLocation = Location("")
                 customerLocation.latitude = customerData.customer_latitude.toDouble()
@@ -368,13 +372,20 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun startVisitTimer(dao: VisitTimerDao, customerPartySiteId: String) {
         val lat = binding.fieldLatitude.text.toString()
         val long = binding.fieldLongitude.text.toString()
-        if (lat.isBlank() || long.isBlank()){
+        if (lat.isBlank() || long.isBlank()) {
             showCustomSnackbar("لم يتم الوصول لبينات الخريطه", R.color.red)
         }else{
+            val mobileTime = System.currentTimeMillis() / 1000
+            Log.d(TAG, "Mobile Time: $mobileTime")
 
+            val diff = SharedPreferencesHelper.getInstance().getTimeDifference()
+            Log.d(TAG, "Saved Time Difference = $diff seconds")
+
+
+            val estimatedServerTime = mobileTime - diff
             val timer = VisitTimerEntity(
                 customerPartySiteId = customerPartySiteId,
-                startTimeMillis = System.currentTimeMillis(),
+                startTimeMillis = estimatedServerTime,
                 startLat = lat,
                 startLong = long
             )
@@ -388,7 +399,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
 
     }
-
 
 
     private fun openMap() {
@@ -442,7 +452,14 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val visitTimer = timerDao.getVisitTimerById(customerPartySiteId)
 
             val checkInDateMillis = visitTimer?.startTimeMillis
+            val mobileTime = System.currentTimeMillis() / 1000
+            Log.d(TAG, "Mobile Time: $mobileTime")
 
+            val diff = SharedPreferencesHelper.getInstance().getTimeDifference()
+            Log.d(TAG, "Saved Time Difference = $diff seconds")
+
+
+            val estimatedServerTime = mobileTime - diff
             val result = repository.saveVisit(
                 version = versionName,
                 token = SharedPreferencesHelper.getInstance().getUserToken(),
@@ -456,8 +473,8 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 startLong = visitTimer?.startLong.toString(),
                 deviceType = "Mob",
                 zoneFlag = zoneFlag,
-                checkInDate = (checkInDateMillis?.div(1000)).toString(),
-                dateVisit = (System.currentTimeMillis() / 1000).toString(),
+                checkInDate = checkInDateMillis.toString(),
+                dateVisit = estimatedServerTime.toString(),
                 customerType = customerTypePosition,
                 orderType = orderType
             )
@@ -637,7 +654,11 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
     private fun isDeveloperModeEnabled(): Boolean {
-        return Settings.Secure.getInt(this.contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0) == 1
+        return Settings.Secure.getInt(
+            this.contentResolver,
+            Settings.Global.DEVELOPMENT_SETTINGS_ENABLED,
+            0
+        ) == 1
     }
 
     private fun showCustomSnackbar(message: String, colorRes: Int) {

@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.Build
 import android.util.Log
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.core.content.edit
 
 class SharedPreferencesHelper : Application() {
 
@@ -19,6 +20,7 @@ class SharedPreferencesHelper : Application() {
         lateinit var context: Context
 
         private val PREFS_NAME = "userInfo"
+        private const val KEY_TIME_DIFFERENCE = "time_difference"
 
 
         @Synchronized
@@ -43,7 +45,27 @@ class SharedPreferencesHelper : Application() {
         }
 
     }
+    fun saveLong(key: String, value: Long) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putLong(key, value)
+            .apply()
+    }
 
+    fun getLong(key: String, default: Long = 0L): Long {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getLong(key, default)
+    }
+    fun saveTimeDifference(diffInSeconds: Long) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit {
+                putLong(KEY_TIME_DIFFERENCE, diffInSeconds)
+            }
+    }
+    fun getTimeDifference(): Long {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getLong(KEY_TIME_DIFFERENCE, 0L)
+    }
     fun getAppContext(): Context {
         return context
     }

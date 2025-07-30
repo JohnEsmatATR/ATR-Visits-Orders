@@ -27,8 +27,11 @@ import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.GooeyMenu
+import com.akhnaton.foodvisits.shared.NetworkWatcher
+import com.akhnaton.foodvisits.shared.RealTimeHelper
 import com.akhnaton.foodvisits.shared.SendVisitsWorker
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.TimeSyncWorker
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
@@ -53,6 +56,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import com.akhnaton.foodvisits.ui.map.MapActivity
+import kotlin.math.log
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
@@ -72,7 +76,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         super.onCreate(savedInstanceState)
         setupBinding()
         startSendVisitsWorker(this@MainActivity)
-
+        NetworkWatcher(applicationContext).registerNetworkCallback()
 
     }
 
@@ -135,12 +139,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                     is AppSettingStatus.Loading -> Log.d("TAG", "Loading: ")
                     is AppSettingStatus.GetAppSetting -> {
                         try {
+                            val serverTime = it.data.data.time
+                            val mobileTime =
+                                System.currentTimeMillis() / 1000
+
+                            val diffInSecondsRaw = serverTime - mobileTime
+                            val diffInSeconds = kotlin.math.abs(diffInSecondsRaw) // لازم قبل ما تقسمه
+                            val diffMinutes = diffInSeconds / 60
+                            val diffSeconds = diffInSeconds % 60
+                            SharedPreferencesHelper.getInstance().saveTimeDifference(diffInSeconds)
+                            Log.d("TAG", "Time Difference: -$diffMinutes minutes, $diffSeconds seconds")
+
+                            Log.d("TAG", "Server Time: $serverTime")
+                            Log.d("TAG", "Mobile Time: $mobileTime")
                             Log.d(
                                 "TAG",
-                                "GetAppSetting: ${it.data.data.food_app_add_customer} "
+                                "Raw Difference: $diffInSecondsRaw seconds"
                             )
+                            Log.d(
+                                "TAG",
+                                "Absolute Difference: $diffMinutes minutes, $diffSeconds seconds"
+                            )
+
                         } catch (e: Exception) {
+                            Log.e("TAG", "Error while comparing times: ${e.message}")
                         }
+
                         try {
                             addCustomerEnable = it.data.data.food_app_add_customer
                         } catch (e: Exception) {

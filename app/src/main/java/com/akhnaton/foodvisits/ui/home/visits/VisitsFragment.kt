@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.visits
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -10,6 +11,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.widget.SearchView
 import androidx.core.app.ActivityCompat
@@ -31,7 +33,10 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
-
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 
 class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
@@ -57,6 +62,11 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+
+
+
+
 
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_visits, container, false)
@@ -215,10 +225,9 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
             val openVisits = dao.getAllVisitTimers()
 
             val isSameVisitOpen = openVisits.any { it.customerPartySiteId == data.customer_party_site_id }
-
             if (openVisits.isEmpty() || isSameVisitOpen) {
-
                 val tsLong = System.currentTimeMillis() / 1000
+                Log.d(TAG, "onSelectEmployeeClickListener: ${tsLong}")
                 startActivity(
                     Intent(requireActivity(), VisitsDetailsActivity::class.java)
                         .putExtra("customerPartySiteId", data.customer_party_site_id)
