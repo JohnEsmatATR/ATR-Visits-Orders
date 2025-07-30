@@ -28,10 +28,8 @@ import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.GooeyMenu
 import com.akhnaton.foodvisits.shared.NetworkWatcher
-import com.akhnaton.foodvisits.shared.RealTimeHelper
 import com.akhnaton.foodvisits.shared.SendVisitsWorker
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
-import com.akhnaton.foodvisits.shared.TimeSyncWorker
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
