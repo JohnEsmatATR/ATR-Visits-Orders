@@ -23,6 +23,8 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
 import android.view.animation.LinearInterpolator;
 
+import androidx.core.content.ContextCompat;
+
 import com.akhnaton.foodvisits.R;
 
 import java.util.ArrayList;
@@ -120,17 +122,17 @@ public class GooeyMenu extends View {
 
 
         mCirclePaint = new Paint();
-        mCirclePaint.setColor(getResources().getColor(R.color.main_button));
+        mCirclePaint.setColor( ContextCompat.getColor(getContext(), R.color.main_button));
         mCirclePaint.setStyle(Paint.Style.FILL);
 
         mCirclePaint = new Paint();
-        mCirclePaint.setColor(getResources().getColor(R.color.main_button));
+        mCirclePaint.setColor( ContextCompat.getColor(getContext(),R.color.main_button));
         mCirclePaint.setStyle(Paint.Style.FILL_AND_STROKE);
 
         mCircleBorder = new Paint(mCirclePaint);
         mCircleBorder.setStyle(Paint.Style.FILL_AND_STROKE);
         mCircleBorder.setStrokeWidth(1f);
-        mCircleBorder.setColor(getResources().getColor(R.color.colorAccent));
+        mCircleBorder.setColor( ContextCompat.getColor(getContext(),R.color.colorAccent));
 
         mBezierEndAnimation = ValueAnimator.ofFloat(BEZIER_CONSTANT + .2f, BEZIER_CONSTANT);
         mBezierEndAnimation.setInterpolator(new LinearInterpolator());

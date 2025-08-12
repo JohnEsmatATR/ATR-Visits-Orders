@@ -12,6 +12,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigation
@@ -47,15 +48,14 @@ open class BaseFragment : Fragment() {
             val layout =
                 LayoutInflater.from(context).inflate(R.layout.snack_bar_layout, null, false)
             layout.setBackgroundColor(
-                if (flag) this.resources.getColor(R.color.red) else this.resources.getColor(
-                    R.color.green
+                if (flag) ContextCompat.getColor(requireContext(), R.color.red) else ContextCompat.getColor(requireContext(),  R.color.green
                 )
             )
             val image = layout.findViewById<ImageView>(R.id.image)
             image.setImageResource(if (flag) R.drawable.ic_error else R.drawable.ic_success)
             val text = layout.findViewById<TextView>(R.id.text)
             text.text = word
-            text.setTextColor(this.resources.getColor(R.color.white))
+            text.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
             val snackbar =
                 Snackbar.make(requireView().rootView, "", BaseTransientBottomBar.LENGTH_SHORT)
             (snackbar.view as ViewGroup).removeAllViews()
@@ -63,12 +63,12 @@ open class BaseFragment : Fragment() {
             val params = snackbar.view.layoutParams as FrameLayout.LayoutParams
             params.gravity = Gravity.TOP
             snackbar.view.setBackgroundColor(
-                if (flag) this.resources.getColor(R.color.red)
-                else this.resources.getColor(R.color.green)
+                if (flag) ContextCompat.getColor(requireContext(), R.color.red)
+                else ContextCompat.getColor(requireContext(), R.color.green)
             )
             snackbar.setBackgroundTint(
-                if (flag) this.resources.getColor(R.color.red)
-                else this.resources.getColor(R.color.green)
+                if (flag) ContextCompat.getColor(requireContext(), R.color.red)
+                else ContextCompat.getColor(requireContext(), R.color.green)
             )
 
             snackbar.view.layoutParams = params

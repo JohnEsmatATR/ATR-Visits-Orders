@@ -30,6 +30,7 @@ import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentVisitsBinding
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.SharedPrefsHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import kotlinx.coroutines.launch
@@ -62,10 +63,6 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-
-
-
-
 
 
         binding =
@@ -197,14 +194,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                 userLongitude = it.longitude
                 Log.d(TAG, "User Location -> Latitude: $userLatitude, Longitude: $userLongitude")
 
-                lifecycleScope.launch {
-                    viewModel.visitsIntent.send(
-                        VisitsIntent.GetPlan(
-                            versionName,
-                            SharedPreferencesHelper.getInstance().getUserToken()
-                        )
-                    )
-                }
+
             }
         }
     }

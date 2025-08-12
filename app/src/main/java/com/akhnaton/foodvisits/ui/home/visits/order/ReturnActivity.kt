@@ -10,6 +10,7 @@ import android.widget.AdapterView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -78,7 +79,12 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
 
         initLoadingDialog()
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
 
+                progressBar.show()
+            }
+        })
         orderList = intent.getParcelableArrayListExtra<OrderItem>("orderList")!!
         categoryName = intent.getStringExtra("categoryName").toString()
         orderType = intent.getStringExtra("orderType").toString()
@@ -538,9 +544,7 @@ class ReturnActivity : AppCompatActivity(), View.OnClickListener,
     }
 
 
-    override fun onBackPressed() {
-        progressBar.show()
-    }
+
 
     private fun initBackPressedDialog() {
 

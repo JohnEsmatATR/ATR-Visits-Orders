@@ -14,6 +14,7 @@ import com.akhnaton.foodvisits.data.statusValue.orderHistory.OrderHistoryIntent
 import com.akhnaton.foodvisits.data.statusValue.orderHistory.OrderHistoryState
 import com.akhnaton.foodvisits.databinding.ActivityOrderHistoryDetailsBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import kotlinx.coroutines.launch
 
 class OrderHistoryDetailsActivity : AppCompatActivity() {
     companion object {
@@ -33,7 +34,7 @@ class OrderHistoryDetailsActivity : AppCompatActivity() {
         val orderNumber = intent.getStringExtra("orderNumber")
         binding.orderNumber.text = orderNumber
 
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.ordersIntent.send(
                 OrderHistoryIntent.OrderHistoryDetails(
                     token = SharedPreferencesHelper.getInstance().getUserToken(),
@@ -44,7 +45,7 @@ class OrderHistoryDetailsActivity : AppCompatActivity() {
         }
 
         binding.backBtn.setOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
             finish()
         }
 
@@ -65,7 +66,7 @@ class OrderHistoryDetailsActivity : AppCompatActivity() {
     }
 
     private fun fetchData() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
                     OrderHistoryState.Idle -> Log.d(TAG, "Idle: ")

@@ -84,7 +84,7 @@ class PromotersDataAdapter(
                     for (row in ordersList) {
                         // name match condition. this might differ depending on your requirement
                         // here we are looking for name or phone number match
-                        if (row.description!!.toLowerCase(Locale.ROOT).contains(
+                        if (row.description!!.lowercase(Locale.ROOT).contains(
                                 charString.lowercase(
                                     Locale.getDefault()
                                 )

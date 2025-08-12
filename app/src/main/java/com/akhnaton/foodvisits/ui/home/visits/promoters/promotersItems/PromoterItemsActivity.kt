@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -53,6 +54,12 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_promoter_items)
 
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+
+                closePage()
+            }
+        })
 
         binding!!.btnSendStock.setOnClickListener { v -> closePage() }
         getRequiredData()
@@ -212,9 +219,7 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
         pp.show()
     }
 
-    override fun onBackPressed() {
-        closePage()
-    }
+
 
 
     override fun onSubmitClickListener(position: Int, item: PromoterItem?, textView: View?) {

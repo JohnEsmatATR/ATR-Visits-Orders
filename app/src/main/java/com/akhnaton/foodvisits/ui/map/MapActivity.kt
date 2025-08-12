@@ -128,17 +128,20 @@ class MapActivity : AppCompatActivity() {
     private fun drawRoutePolyline(geoPoints: List<GeoPoint>) {
         val roadOverlay = Polyline().apply {
             setPoints(geoPoints)
-            color = ContextCompat.getColor(this@MapActivity, R.color.blue)
-            width = 15f
-            isGeodesic = true
+            
+            outlinePaint.color = ContextCompat.getColor(this@MapActivity, R.color.blue)
+            outlinePaint.strokeWidth = 15f
             outlinePaint.strokeJoin = Paint.Join.ROUND
             outlinePaint.strokeCap = Paint.Cap.ROUND
             outlinePaint.isAntiAlias = true
+
+            isGeodesic = true
         }
 
         map.overlays.add(roadOverlay)
         map.invalidate()
     }
+
 
     private fun focusNextCustomer() {
         if (sortedCustomerList.isEmpty()) {
@@ -340,7 +343,8 @@ class MapActivity : AppCompatActivity() {
             if (routePoints.size in 2..40) {
                 routeViewModel.onIntent(RouteIntent.FetchRoute(routePoints))
 
-            } else {
+            }
+            else {
                 Log.d("TAG", "drawRouteFromUserToCustomers: ${routePoints.size} ")
                 Toast.makeText(
                     this@MapActivity,

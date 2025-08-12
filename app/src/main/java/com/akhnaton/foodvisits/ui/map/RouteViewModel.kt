@@ -27,7 +27,7 @@ class RouteViewModel(
         viewModelScope.launch {
             _state.value = RouteState.Loading
 
-            val result = repository.fetchRoute(waypoints)
+            val result = repository.        fetchRoute(waypoints)
             _state.value = result.fold(
                 onSuccess = { RouteState.Success(it) },
                 onFailure = { RouteState.Error(it.message ?: "Unknown Error") }

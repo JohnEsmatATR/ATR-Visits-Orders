@@ -43,6 +43,10 @@ android {
         correctErrorTypes = true
     }
     namespace 'com.akhnaton.foodvisits'
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:deprecation"
+    }
+
 }
 
 dependencies {

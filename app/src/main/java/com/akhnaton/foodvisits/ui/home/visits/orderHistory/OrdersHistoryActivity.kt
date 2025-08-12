@@ -112,15 +112,27 @@ class OrdersHistoryActivity : AppCompatActivity(),
             Log.d("kjbkjbjkjknkn", "onCreate: $timeStampFrom || $timeStampTo")
 
             try {
-                val dateFrom = Date(timeStampFrom.toLong() * 1000L)
-                val dateTo = Date(timeStampTo.toLong() * 1000L)
+                var dateFrom = Date(timeStampFrom.toLong() * 1000L)
+                var dateTo = Date(timeStampTo.toLong() * 1000L)
 
-                dateFrom.hours = 0
-                dateFrom.minutes = 0
-                dateFrom.seconds = 0
-                dateTo.hours = 0
-                dateTo.minutes = 0
-                dateTo.seconds = 0
+                val calendarFrom = Calendar.getInstance().apply {
+                    time = dateFrom
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                dateFrom = calendarFrom.time
+
+                val calendarTo = Calendar.getInstance().apply {
+                    time = dateTo
+                    set(Calendar.HOUR_OF_DAY, 0)
+                    set(Calendar.MINUTE, 0)
+                    set(Calendar.SECOND, 0)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                dateTo = calendarTo.time
+
 
                 Log.d("kjbkjbjkjknkn", "onCreate: $dateFrom || $dateTo")
                 if (dateFrom.before(dateTo) || dateFrom == dateTo) {

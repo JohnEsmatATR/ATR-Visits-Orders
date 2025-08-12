@@ -132,7 +132,7 @@ public class WebOrderActivity extends AppCompatActivity {
 
     private class WebViewClientDemo extends WebViewClient {
         @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
             view.loadUrl(url);
 
             return true;

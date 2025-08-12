@@ -1,5 +1,7 @@
 package com.akhnaton.foodvisits.ui
 
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
@@ -13,6 +15,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.shared.BiometricActivity
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
+import com.akhnaton.foodvisits.shared.RealTimeService
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -23,7 +26,10 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splach)
 
-
+        if (!isServiceRunning(RealTimeService::class.java)) {
+            val serviceIntent = Intent(this, RealTimeService::class.java)
+            startService(serviceIntent)
+        }
         val animationView = findViewById<LottieAnimationView>(R.id.animation_view)
         animationView.setAnimation("celularmaps.json")
 
@@ -63,5 +69,14 @@ class SplashActivity : AppCompatActivity() {
             }
         }, 3400)
 
+    }
+    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (serviceClass.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 }

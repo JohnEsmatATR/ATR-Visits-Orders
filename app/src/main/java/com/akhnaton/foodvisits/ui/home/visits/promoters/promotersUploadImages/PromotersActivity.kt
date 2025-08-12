@@ -76,8 +76,8 @@ class PromotersActivity : AppCompatActivity() {
  Employee_id: ${employee_id}UserType: $userType
  DATA: ${formatCurrentDate()}"""
         )
-        val date = Date()
-        date.month
+        val date  = Calendar.getInstance()
+        date .get(Calendar.MONTH) + 1
     }
 
     private fun uploadImages(imagePathList: List<String>) {

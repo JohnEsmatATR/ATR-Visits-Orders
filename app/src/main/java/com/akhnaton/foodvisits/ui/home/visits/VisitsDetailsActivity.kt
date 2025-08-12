@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -34,7 +35,9 @@ import com.akhnaton.foodvisits.databinding.ActivityVisitsDetailsBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.domin.VisitsRepository
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
+
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.SharedPrefsHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
 import com.akhnaton.foodvisits.shared.location.GetLocationService
@@ -50,10 +53,6 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlin.math.log
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
@@ -375,17 +374,11 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         if (lat.isBlank() || long.isBlank()) {
             showCustomSnackbar("لم يتم الوصول لبينات الخريطه", R.color.red)
         }else{
-            val mobileTime = System.currentTimeMillis() / 1000
-            Log.d(TAG, "Mobile Time: $mobileTime")
+            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this)
 
-            val diff = SharedPreferencesHelper.getInstance().getTimeDifference()
-            Log.d(TAG, "Saved Time Difference = $diff seconds")
-
-
-            val estimatedServerTime = mobileTime - diff
             val timer = VisitTimerEntity(
                 customerPartySiteId = customerPartySiteId,
-                startTimeMillis = estimatedServerTime,
+                startTimeMillis = serverUnixTime,
                 startLat = lat,
                 startLong = long
             )
@@ -450,16 +443,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val timerDao = AppDatabase.getDatabase(this@VisitsDetailsActivity).visitTimerDao()
 
             val visitTimer = timerDao.getVisitTimerById(customerPartySiteId)
-
             val checkInDateMillis = visitTimer?.startTimeMillis
-            val mobileTime = System.currentTimeMillis() / 1000
-            Log.d(TAG, "Mobile Time: $mobileTime")
+            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this@VisitsDetailsActivity)
 
-            val diff = SharedPreferencesHelper.getInstance().getTimeDifference()
-            Log.d(TAG, "Saved Time Difference = $diff seconds")
-
-
-            val estimatedServerTime = mobileTime - diff
             val result = repository.saveVisit(
                 version = versionName,
                 token = SharedPreferencesHelper.getInstance().getUserToken(),
@@ -474,7 +460,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 deviceType = "Mob",
                 zoneFlag = zoneFlag,
                 checkInDate = checkInDateMillis.toString(),
-                dateVisit = estimatedServerTime.toString(),
+                dateVisit = serverUnixTime.toString(),
                 customerType = customerTypePosition,
                 orderType = orderType
             )

@@ -25,11 +25,15 @@ import com.akhnaton.foodvisits.data.statusValue.login.LoginState
 import com.akhnaton.foodvisits.databinding.ActivityLoginBinding
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
+import com.akhnaton.foodvisits.shared.RealTimeService
+
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 import com.google.firebase.messaging.FirebaseMessaging
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -209,7 +213,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    private fun loginIntent(){
+    private fun loginIntent() {
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
                 if (!task.isSuccessful) {
@@ -236,13 +240,18 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                             firebaseToken
                         )
                     )
+
+
+                    val serviceIntent = Intent(this@LoginActivity, RealTimeService::class.java)
+                    ContextCompat.startForegroundService(this@LoginActivity, serviceIntent)
                 }
             }
             .addOnFailureListener {
                 Log.d("FCM", "Failed to get token", it)
             }
-
     }
+
+
 
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {

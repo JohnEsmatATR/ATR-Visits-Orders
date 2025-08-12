@@ -100,7 +100,7 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
             mPriceListDescriptionPosition = mPriceListList[position].price_list_description
         }
 
-        binding.backBtn.setOnClickListener { onBackPressed() }
+        binding.backBtn.setOnClickListener {  onBackPressedDispatcher.onBackPressed() }
         binding.submit.setOnClickListener(this)
 
         fetchData()
