@@ -150,7 +150,8 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         binding.sendOrder.setOnClickListener(this)
         binding.returnOrder.setOnClickListener(this)
         binding.btnSave.setOnClickListener(this)
-        binding.backArrow.setOnClickListener { onBackPressed() }
+        binding.backArrow.setOnClickListener { onBackPressedDispatcher.onBackPressed()
+        }
         mAdapter.deleteProduct(this)
         setupRecycler()
         selectedItemProduct()

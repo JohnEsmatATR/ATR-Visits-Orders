@@ -1,7 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.Manifest
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -58,7 +58,7 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
     private var customerName: String = ""
     private var customerPartySiteId: String = ""
     private var limitArea: Int = 0
-    private lateinit var dialog: ProgressDialog
+    private lateinit var dialog: AlertDialog
     private lateinit var progressBar: SweetAlertDialog
     private lateinit var mainLineAdapter: MainLineAdapter
 

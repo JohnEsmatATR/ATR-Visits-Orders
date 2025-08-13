@@ -16,6 +16,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.data.statusValue.supervisor.creditDetails.CreditLimitIntent
 import com.akhnaton.foodvisits.data.statusValue.supervisor.creditDetails.CreditLimitState
+import kotlinx.coroutines.launch
 
 class CreditLimitFormActivity : AppCompatActivity() {
     private lateinit var binding: ActivityCreditLimitFormBinding
@@ -87,7 +88,7 @@ class CreditLimitFormActivity : AppCompatActivity() {
 
     private fun onClick() {
         binding.backBtn.setOnClickListener {
-            onBackPressed()
+            onBackPressedDispatcher.onBackPressed()
 
         }
 
@@ -167,7 +168,7 @@ class CreditLimitFormActivity : AppCompatActivity() {
         customer_id: String,
         order_total_price: String
     ) {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.creditLimitIntent.send(
                 CreditLimitIntent.GetCreditLimit(app_version, api_token, orderNumber, customer_id, order_total_price)
             )
@@ -207,7 +208,7 @@ class CreditLimitFormActivity : AppCompatActivity() {
         customer_security_cheques: String,
         order_number: String,
     ) {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.creditLimitIntent.send(
                 CreditLimitIntent.SendCreditLimit(
                     app_version,
@@ -247,7 +248,7 @@ class CreditLimitFormActivity : AppCompatActivity() {
     }
 
     private fun fetchCreditLimit() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.state.collect {
                 when (it) {
                     CreditLimitState.Idle -> Log.d(TAG, "Idle: ")

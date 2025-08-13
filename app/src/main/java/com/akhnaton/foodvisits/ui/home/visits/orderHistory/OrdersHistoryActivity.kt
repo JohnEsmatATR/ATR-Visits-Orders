@@ -156,7 +156,8 @@ class OrdersHistoryActivity : AppCompatActivity(),
 
 
         }
-        binding.backBtn.setOnClickListener { onBackPressed() }
+        binding.backBtn.setOnClickListener { onBackPressedDispatcher.onBackPressed()
+        }
         setupRecycler()
         fetchData()
     }

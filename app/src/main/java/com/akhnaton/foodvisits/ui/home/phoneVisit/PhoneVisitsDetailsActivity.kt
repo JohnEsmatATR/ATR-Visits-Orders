@@ -102,7 +102,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("jnjndcbvnj", "onCreate: ${customerData.customer_addresses}")
 
 
-        binding.backBtn.setOnClickListener { onBackPressed() }
+        binding.backBtn.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
         binding.saveVis.setOnClickListener(this)
 
         locationClient = DefaultLocationClient(

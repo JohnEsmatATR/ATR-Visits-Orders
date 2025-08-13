@@ -49,7 +49,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
         )
 
         mBinding!!.backBtn.setOnClickListener {
-                v: View? -> onBackPressed()
+                v: View? -> onBackPressedDispatcher.onBackPressed()
         }
 
         initLoadingDialog()
@@ -74,7 +74,7 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
         api_token: String,
         orderNumber: String
     ) {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.showOrdersIntent.send(
                 ShowOrdersIntent.RejectOrder(app_version, api_token, orderNumber)
             )

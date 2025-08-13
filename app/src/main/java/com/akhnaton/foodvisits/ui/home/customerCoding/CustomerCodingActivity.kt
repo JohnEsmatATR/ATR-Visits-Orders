@@ -8,11 +8,13 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.lifecycleScope
 import com.akhnaton.foodvisits.BuildConfig
@@ -641,6 +643,7 @@ class CustomerCodingActivity : BaseActivity() {
         return mCurrentLocation?.longitude.toString() == "" || mCurrentLocation?.latitude.toString() == ""
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun updateLocation(locationData: LocationData) {
         Log.i(Common.KeroDebug, "onUpdateLocationMain: " + locationData.latitude + " " + locationData.longitude)
@@ -652,12 +655,15 @@ class CustomerCodingActivity : BaseActivity() {
         binding.fieldLatitude.text = location.longitude.toString()
         mCurrentLocation = location
 
-        val address = getAddressFromLatLng(
+        getAddressFromLatLng(
             this@CustomerCodingActivity,
             locationData.latitude,
             locationData.longitude
-        )
-        binding.locationAddress.setText(address ?: "No address found")
+        ) { address ->
+
+            binding.locationAddress.setText(address ?: "No address found")
+        }
+
     }
 
     private fun askPermission() {
@@ -720,22 +726,33 @@ class CustomerCodingActivity : BaseActivity() {
         }
     }
 
-    fun getAddressFromLatLng(context: Context, latitude: Double, longitude: Double): String? {
-        return try {
-            val geocoder = Geocoder(context, Locale("ar"))
-            val addresses: List<Address>? = geocoder.getFromLocation(latitude, longitude, 1)
-            if (!addresses.isNullOrEmpty()) {
-                val address: Address = addresses[0]
-                val fullAddress = (0..address.maxAddressLineIndex).joinToString(", ") { index ->
-                    address.getAddressLine(index)
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun getAddressFromLatLng(context: Context, latitude: Double, longitude: Double, onResult: (String?) -> Unit) {
+        val geocoder = Geocoder(context, Locale("ar"))
+
+        geocoder.getFromLocation(
+            latitude,
+            longitude,
+            1,
+            object : Geocoder.GeocodeListener {
+                override fun onGeocode(addresses: MutableList<Address>) {
+                    if (addresses.isNotEmpty()) {
+                        val address = addresses[0]
+                        val fullAddress = (0..address.maxAddressLineIndex).joinToString(", ") { index ->
+                            address.getAddressLine(index)
+                        }
+                        onResult(fullAddress)
+                    } else {
+                        onResult(null)
+                    }
                 }
-                fullAddress
-            } else {
-                null
+
+                override fun onError(errorMessage: String?) {
+                    onResult(null)
+                }
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
+        )
     }
+
+
 }

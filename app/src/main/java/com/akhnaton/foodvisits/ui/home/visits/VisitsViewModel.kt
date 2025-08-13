@@ -16,6 +16,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -201,16 +202,20 @@ class VisitsViewModel(val context: Context) : ViewModel() {
     }
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     fun getCurrentLocation() {
-        val locationRequest = LocationRequest.create().apply {
-            interval = 4000
-            fastestInterval = 2000
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        }
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            5_000L
+        )
+            .setMinUpdateIntervalMillis(2_000L)
+            .build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let {
-                    Log.d("Locationnnn", "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters")
+                    Log.d(
+                        "Location",
+                        "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"
+                    )
                     _locationState.value = it
                 } ?: run {
                     Log.e("Location", "Location is null")
@@ -218,14 +223,11 @@ class VisitsViewModel(val context: Context) : ViewModel() {
             }
         }
 
-        locationCallback?.let { callback ->
-            fusedLocationProviderClient.requestLocationUpdates(
-                locationRequest,
-                callback,
-                Looper.getMainLooper()
-            )
-        }
-
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback!!,
+            Looper.getMainLooper()
+        )
     }
 
     fun stopLocationUpdates() {

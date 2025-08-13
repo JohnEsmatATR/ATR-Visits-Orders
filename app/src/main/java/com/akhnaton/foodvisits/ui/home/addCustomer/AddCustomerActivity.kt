@@ -95,7 +95,7 @@ class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickL
         }
 
         binding.addCustomerBtn.setOnClickListener(this)
-        binding.backBtn.setOnClickListener{onBackPressed()}
+        binding.backBtn.setOnClickListener{onBackPressedDispatcher.onBackPressed()}
         getLocation()
         getDataFromViewModel()
         fetchData()

@@ -2,7 +2,6 @@ package com.akhnaton.foodvisits.ui.home.visits
 
 import android.Manifest
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
@@ -56,7 +55,7 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
 
     private var userLatitude: Double? = null
     private var userLongitude: Double? = null
-    private lateinit var dialog: ProgressDialog
+    private lateinit var dialog: AlertDialog
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
 
     override fun onCreateView(

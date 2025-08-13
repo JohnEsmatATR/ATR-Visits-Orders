@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.tickets
 
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -30,7 +30,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     private val version = BuildConfig.VERSION_NAME
     private val viewModel: TicketsViewModel by viewModels()
     private lateinit var binding: FragmentTicketsBinding
-    private lateinit var dialog: ProgressDialog
+    private lateinit var dialog: AlertDialog
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,7 +56,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                         dialog.hide()
                         binding.error.visibility = View.GONE
                         binding.ticketTextEd.text?.clear()
-                        requireActivity().onBackPressed()
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
                         val snackbar = Snackbar.make(binding.root, "تم ارسال طلبك بنجاح", Snackbar.LENGTH_LONG)
                         snackbar.setBackgroundTint(ContextCompat.getColor(requireContext(), android.R.color.holo_green_dark))
                         snackbar.show()

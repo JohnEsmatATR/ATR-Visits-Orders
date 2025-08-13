@@ -17,6 +17,7 @@ import com.akhnaton.foodvisits.data.statusValue.supervisor.orderDetails.OrderDet
 import com.akhnaton.foodvisits.databinding.ActivitySuperOrderDetailsBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.data.statusValue.supervisor.orderDetails.OrderDetailsState
+import kotlinx.coroutines.launch
 
 class SuperOrderDetailsActivity : AppCompatActivity() {
     var mBinding: ActivitySuperOrderDetailsBinding? = null
@@ -60,7 +61,7 @@ class SuperOrderDetailsActivity : AppCompatActivity() {
         order_total_price: String,
         customer_id:String,
     ) {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.orderDetailsIntent.send(
                 OrderDetailsIntent.GetOrderDetails(
                     app_version,
@@ -75,7 +76,7 @@ class SuperOrderDetailsActivity : AppCompatActivity() {
     }
 
     private fun fetchOrderDetails() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             viewModel.state.collect {
                 when (it) {
                     OrderDetailsState.Idle -> Log.d(TAG, "Idle: ")

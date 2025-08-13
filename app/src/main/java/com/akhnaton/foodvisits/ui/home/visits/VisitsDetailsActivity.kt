@@ -3,7 +3,6 @@ package com.akhnaton.foodvisits.ui.home.visits
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.app.ProgressDialog
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
@@ -78,7 +77,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var locationClient: ILocationClient
     val myLocation = Location("")
 
-    private lateinit var dialog: ProgressDialog
+    private lateinit var dialog: AlertDialog
     private var isVisitHandled = false
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
@@ -112,7 +111,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             LocationServices.getFusedLocationProviderClient(this)
         )
 
-        binding.backBtn.setOnClickListener { onBackPressed() }
+        binding.backBtn.setOnClickListener { onBackPressedDispatcher.onBackPressed() }
         binding.saveVis.setOnClickListener(this)
         dialog = ProgressDialogHelper().showAlertProgress(
             this@VisitsDetailsActivity,

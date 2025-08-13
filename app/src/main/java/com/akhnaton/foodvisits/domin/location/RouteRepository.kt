@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
 import org.osmdroid.util.GeoPoint
@@ -26,7 +27,7 @@ class RouteRepository {
 
         val jsonBody = JSONObject().put("coordinates", coordinates)
         val mediaType = "application/json".toMediaTypeOrNull()
-        val requestBody = RequestBody.create(mediaType, jsonBody.toString())
+        val requestBody = jsonBody.toString().toRequestBody(mediaType)
 
 
         val keys = listOf(ConstantLinks.ROUTE_KEY2, ConstantLinks.ROUTE_KEY)

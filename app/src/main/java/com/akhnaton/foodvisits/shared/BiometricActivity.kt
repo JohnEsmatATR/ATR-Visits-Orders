@@ -26,7 +26,10 @@ class BiometricActivity : AppCompatActivity() {
         binding = ActivityBiometricBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val biometricManager = BiometricManager.from(this)
-        val canUseBiometric = biometricManager.canAuthenticate() == BiometricManager.BIOMETRIC_SUCCESS
+        val canUseBiometric = biometricManager.canAuthenticate(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        ) == BiometricManager.BIOMETRIC_SUCCESS
         if (!canUseBiometric) {
             binding.loginWithFingerPrint.visibility = View.GONE
         }

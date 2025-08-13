@@ -287,7 +287,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         val task = settingsClient.checkLocationSettings(builder.build())
 
         task.addOnSuccessListener {
-            // Location settings are already satisfied
+
         }
 
         task.addOnFailureListener { exception ->

@@ -10,21 +10,21 @@ import android.os.Bundle
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.akhnaton.foodvisits.shared.Util
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.PendingResult
+import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
 import com.google.android.gms.location.LocationSettingsResult
 import com.google.android.gms.location.LocationSettingsStatusCodes
+import com.google.android.gms.location.Priority
 
 class RequestPermission {
 
     private var mLocationService: GetLocationService = GetLocationService()
     private lateinit var mServiceIntent: Intent
     private val TAG = "RequestPermission"
-    private var googleApiClient: GoogleApiClient? = null
     private val locationPermissionCode = 199
 
     companion object {
@@ -119,38 +119,37 @@ class RequestPermission {
         }
     }
 
-    fun enableLocation(context: Activity) {
-        googleApiClient = GoogleApiClient.Builder(context)
-            .addApi(LocationServices.API)
-            .addConnectionCallbacks(object : GoogleApiClient.ConnectionCallbacks {
-                override fun onConnected(bundle: Bundle?) {}
-                override fun onConnectionSuspended(i: Int) {
-                    googleApiClient?.connect()
-                }
-            })
-            .addOnConnectionFailedListener {
-            }.build()
+    fun enableLocation(activity: Activity) {
 
-        googleApiClient?.connect()
-        val locationRequest = LocationRequest.create()
-        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-        locationRequest.interval = 30 * 1000.toLong()
-        locationRequest.fastestInterval = 5 * 1000.toLong()
+
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            30_000L
+        ).setMinUpdateIntervalMillis(5_000L)
+            .build()
+
         val builder = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
-        builder.setAlwaysShow(true)
-        val result: PendingResult<LocationSettingsResult> =
-            LocationServices.SettingsApi.checkLocationSettings(googleApiClient!!, builder.build())
-        result.setResultCallback {
-            val status: Status = it.status
-            when (status.statusCode) {
-                LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
-                    status.startResolutionForResult(
-                        context,
-                        locationPermissionCode
-                    )
-                } catch (e: IntentSender.SendIntentException) {
+            .setAlwaysShow(true)
+
+        val settingsClient = LocationServices.getSettingsClient(activity)
+        val task = settingsClient.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+
+            Log.d("Location", "Location settings are satisfied.")
+        }
+
+        task.addOnFailureListener { exception ->
+            if (exception is ResolvableApiException) {
+                try {
+
+                    exception.startResolutionForResult(activity, locationPermissionCode)
+                } catch (sendEx: IntentSender.SendIntentException) {
+                    Log.e("Location", "Error resolving location settings: ${sendEx.message}")
                 }
+            } else {
+                Log.e("Location", "Location settings check failed: ${exception.message}")
             }
         }
     }

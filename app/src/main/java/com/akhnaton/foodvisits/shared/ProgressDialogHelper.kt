@@ -1,7 +1,8 @@
 package com.akhnaton.foodvisits.shared
 
-import android.app.ProgressDialog
+import android.app.AlertDialog
 import android.content.Context
+import android.widget.ProgressBar
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 
@@ -28,13 +29,21 @@ class ProgressDialogHelper {
 
 
 
-    fun showAlertProgress(context: Context,message :String): ProgressDialog {
-        val progressBar = ProgressDialog(context)
-        progressBar.setCancelable(false)
-        progressBar.setMessage(message)
-        progressBar.setProgressStyle(ProgressDialog.STYLE_SPINNER)
-        return progressBar
+    fun showAlertProgress(context: Context, message: String): AlertDialog {
+        val progressBar = ProgressBar(context).apply {
+            isIndeterminate = true
+        }
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(message)
+            .setView(progressBar)
+            .setCancelable(false)
+            .create()
+
+        dialog.show()
+        return dialog
     }
+
 
     fun orderLimitAlert(context: Context, message :String) {
         val limitAlert = SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)

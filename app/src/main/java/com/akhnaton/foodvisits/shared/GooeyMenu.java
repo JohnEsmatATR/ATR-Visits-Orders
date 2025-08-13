@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.shared;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Resources;
@@ -87,6 +88,7 @@ public class GooeyMenu extends View {
         init(attrs);
     }
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     private void init(AttributeSet attrs) {
         if (attrs != null) {
             TypedArray typedArray = getContext().getTheme().obtainStyledAttributes(
