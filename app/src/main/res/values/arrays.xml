@@ -9,5 +9,6 @@
         <item>@drawable/ic_web</item>
         <item>@drawable/home_bottom_icon</item>
         <item>@drawable/ic_baseline_person_add_alt_24</item>
+        <item>@drawable/outline_featured_seasonal_and_gifts_24</item>
     </array>
 </resources>

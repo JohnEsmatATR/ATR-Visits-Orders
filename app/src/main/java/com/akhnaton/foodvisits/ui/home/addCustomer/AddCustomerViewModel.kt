@@ -36,6 +36,7 @@ class AddCustomerViewModel : ViewModel() {
                         it.customerType,
                         it.orderType
                     )
+
                     is AddCustomerIntent.GetMainLines -> fetchMainLine(
                         it.version,
                         it.token,
@@ -43,9 +44,19 @@ class AddCustomerViewModel : ViewModel() {
                         it.orderType,
                         it.lineId
                     )
-                    is AddCustomerIntent.CreateCustomer ->createCustomer(
-                        it.version,it.token,it.customerType,it.orderType,it.lineId,it.customerCode,it.customerName,
-                        it.customerAddress,it.nationalId,it.latitude,it.longitude
+
+                    is AddCustomerIntent.CreateCustomer -> createCustomer(
+                        it.version,
+                        it.token,
+                        it.customerType,
+                        it.orderType,
+                        it.lineId,
+                        it.customerCode,
+                        it.customerName,
+                        it.customerAddress,
+                        it.nationalId,
+                        it.latitude,
+                        it.longitude
                     )
                 }
             }

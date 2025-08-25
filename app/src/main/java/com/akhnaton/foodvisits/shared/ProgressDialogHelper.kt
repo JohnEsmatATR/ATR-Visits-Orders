@@ -2,6 +2,8 @@ package com.akhnaton.foodvisits.shared
 
 import android.app.AlertDialog
 import android.content.Context
+import android.content.Intent
+import android.provider.Settings
 import android.widget.ProgressBar
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
@@ -55,9 +57,23 @@ class ProgressDialogHelper {
 
     fun gpsAlert(context: Context) {
         val limitAlert = SweetAlertDialog(context, SweetAlertDialog.ERROR_TYPE)
-        limitAlert.setTitleText("GPS Error").contentText = "  يوجد خطآ في تسجيل الزياره برجاء اغلاق وضع المطور من الاعدادات "
+        limitAlert.setTitleText("GPS Error")
+        limitAlert.setContentText("يوجد خطأ في تسجيل الزيارة، برجاء اغلاق وضع المطور أولاً")
         limitAlert.setCancelable(false)
+        limitAlert.setConfirmClickListener {
+            try {
+
+                val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS)
+                context.startActivity(intent)
+            } catch (e: Exception) {
+
+                val intent = Intent(Settings.ACTION_SETTINGS)
+                context.startActivity(intent)
+            }
+            limitAlert.dismiss()
+        }
         limitAlert.show()
     }
+
 
 }

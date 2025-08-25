@@ -16,7 +16,7 @@ abstract class RouteRetrofitClient {
             val authInterceptor = Interceptor { chain ->
                 val request: Request = chain.request().newBuilder()
                     .addHeader("Authorization", apiKey)
-                    .addHeader("Content-Type:","application/json")
+                    .addHeader("Content-Type","application/json")
                     .build()
                 val response = chain.proceed(request)
                 response

@@ -4,15 +4,19 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -29,6 +33,7 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.SpinnerHelper
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickListener {
 
@@ -54,6 +59,7 @@ class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickL
     private var lineIdPosition: String = ""
     private var mainCustomerLinePosition: String = ""
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_add_employee)
@@ -71,6 +77,7 @@ class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickL
                 )
             }
         }
+
 
         binding.lines.setOnItemClickListener { adapter: AdapterView<*>?, view: View?, position: Int, p3: Long ->
             binding.linesLayout.visibility = View.VISIBLE
@@ -207,6 +214,7 @@ class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickL
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     private fun getLocation() {
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -228,8 +236,50 @@ class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickL
         if (location != null) {
             latitude = location.latitude
             longitude = location.longitude
+            binding.fieldLongitude.text = longitude.toString()
+            binding.fieldLatitude.text= latitude.toString()
             Log.d(TAG, "longitude: ${location.longitude} + latitude: ${location.latitude}")
+            getAddressFromLatLng(
+                this@AddCustomerActivity,
+                latitude,
+                longitude
+            ) { address ->
+                Log.d(TAG, "getLocation: ${address}")
+                binding.suggestedAddress.setText(address ?: "No address found")
+            }
         }
 
     }
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    fun getAddressFromLatLng(context: Context, latitude: Double, longitude: Double, onResult: (String?) -> Unit) {
+        val geocoder = Geocoder(context, Locale("ar"))
+
+        geocoder.getFromLocation(
+            latitude,
+            longitude,
+            1,
+            object : Geocoder.GeocodeListener {
+                override fun onGeocode(addresses: MutableList<Address>) {
+                    if (addresses.isNotEmpty()) {
+                        val address = addresses[0]
+                        val fullAddress = (0..address.maxAddressLineIndex).joinToString(", ") { index ->
+                            address.getAddressLine(index)
+                        }
+                        onResult(fullAddress)
+                    } else {
+                        onResult(null)
+                    }
+                }
+
+                override fun onError(errorMessage: String?) {
+                    onResult(null)
+                }
+            }
+        )
+    }
+
+
+
+
+
 }

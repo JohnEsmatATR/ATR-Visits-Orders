@@ -129,7 +129,7 @@ class MapActivity : AppCompatActivity() {
         val roadOverlay = Polyline().apply {
             setPoints(geoPoints)
             
-            outlinePaint.color = ContextCompat.getColor(this@MapActivity, R.color.blue)
+            outlinePaint.color = ContextCompat.getColor(this@MapActivity, R.color.colorAccent)
             outlinePaint.strokeWidth = 15f
             outlinePaint.strokeJoin = Paint.Join.ROUND
             outlinePaint.strokeCap = Paint.Cap.ROUND

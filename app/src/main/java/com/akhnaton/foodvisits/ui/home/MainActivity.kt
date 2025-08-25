@@ -34,6 +34,7 @@ import com.akhnaton.foodvisits.shared.SendVisitsWorker
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superShowOrders.SuperShowOrdersActivity
@@ -245,16 +246,21 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             startActivity(Intent(this, CustomerCodingActivity::class.java))
 
         }
-
         if (menuNumber == 2) {
+            startActivity(Intent(this, AddCustomerActivity::class.java))
+
+        }
+
+        if (menuNumber == 3) {
             val nav = findNavController(navHostFragment)
             nav.navigateUp() || super.onSupportNavigateUp()
 
         }
 
-        if (menuNumber == 3) {
+        if (menuNumber == 4) {
             startActivity(Intent(this, WebOrderActivity::class.java))
         }
+
 
     }
 
