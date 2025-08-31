@@ -12,6 +12,7 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.activity.addCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -56,7 +57,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         deviceid1 = myAndroidDeviceId
         deviceid2 = myAndroidDeviceId
-
+        handleBackPress()
         if (!checkPermission()) requestPermission()
 
         binding.appVersion.text = "App Version: $versionName"
@@ -268,7 +269,9 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         private const val TAG = "LoginActivity"
     }
 
-
-
-
+    private fun handleBackPress() {
+        onBackPressedDispatcher.addCallback(this@LoginActivity) {
+           finishAffinity()
+        }
+    }
 }
