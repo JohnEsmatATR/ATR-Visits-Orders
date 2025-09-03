@@ -245,37 +245,62 @@ class AddCustomerActivity : AppCompatActivity(), LocationListener, View.OnClickL
                 longitude
             ) { address ->
                 Log.d(TAG, "getLocation: ${address}")
-                binding.suggestedAddress.setText(address ?: "No address found")
+                binding.suggestedAddress.setText(address )
             }
         }
 
     }
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun getAddressFromLatLng(context: Context, latitude: Double, longitude: Double, onResult: (String?) -> Unit) {
+    fun getAddressFromLatLng(
+        context: Context,
+        latitude: Double,
+        longitude: Double,
+        onResult: (String?) -> Unit
+    ) {
         val geocoder = Geocoder(context, Locale("ar"))
 
-        geocoder.getFromLocation(
-            latitude,
-            longitude,
-            1,
-            object : Geocoder.GeocodeListener {
-                override fun onGeocode(addresses: MutableList<Address>) {
-                    if (addresses.isNotEmpty()) {
-                        val address = addresses[0]
-                        val fullAddress = (0..address.maxAddressLineIndex).joinToString(", ") { index ->
-                            address.getAddressLine(index)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            geocoder.getFromLocation(
+                latitude,
+                longitude,
+                1,
+                object : Geocoder.GeocodeListener {
+                    override fun onGeocode(addresses: MutableList<Address>) {
+                        if (addresses.isNotEmpty()) {
+                            val address = addresses[0]
+                            val fullAddress =
+                                (0..address.maxAddressLineIndex).joinToString(", ") { index ->
+                                    address.getAddressLine(index)
+                                }
+                            onResult(fullAddress)
+                        } else {
+                            onResult(null)
                         }
-                        onResult(fullAddress)
-                    } else {
+                    }
+
+                    override fun onError(errorMessage: String?) {
                         onResult(null)
                     }
                 }
-
-                override fun onError(errorMessage: String?) {
+            )
+        } else {
+            // للأجهزة الأقل من API 33، لازم تستخدم النسخة القديمة (synchronous)
+            try {
+                val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+                if (!addresses.isNullOrEmpty()) {
+                    val address = addresses[0]
+                    val fullAddress =
+                        (0..address.maxAddressLineIndex).joinToString(", ") { index ->
+                            address.getAddressLine(index)
+                        }
+                    onResult(fullAddress)
+                } else {
                     onResult(null)
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onResult(null)
             }
-        )
+        }
     }
 
 
