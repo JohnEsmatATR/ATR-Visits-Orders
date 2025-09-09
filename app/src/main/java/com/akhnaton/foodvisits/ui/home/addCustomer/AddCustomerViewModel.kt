@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 class AddCustomerViewModel : ViewModel() {
 
@@ -51,12 +53,18 @@ class AddCustomerViewModel : ViewModel() {
                         it.customerType,
                         it.orderType,
                         it.lineId,
-                        it.customerCode,
+                        it.governorate,
+                        it.city,
                         it.customerName,
+                        it.phone,
+                        it.secondPhone,
                         it.customerAddress,
                         it.nationalId,
                         it.latitude,
-                        it.longitude
+                        it.longitude,
+                        it.suggetsAddress,
+                        it.id_1,
+                        it.id_2
                     )
                 }
             }
@@ -65,7 +73,7 @@ class AddCustomerViewModel : ViewModel() {
 
     private fun fetchCustomerType(version: String, token: String) {
         viewModelScope.launch {
-            _state.value = AddCustomerStatus.Idle
+            _state.value = AddCustomerStatus.Loading
             _state.value = try {
                 AddCustomerStatus.GetCustomerType(
                     PhoneVisitsRepository().getCustomerType(
@@ -87,7 +95,7 @@ class AddCustomerViewModel : ViewModel() {
         orderType: String
     ) {
         viewModelScope.launch {
-            _state.value = AddCustomerStatus.Idle
+            _state.value = AddCustomerStatus.Loading
             _state.value = try {
                 AddCustomerStatus.GetLines(
                     PhoneVisitsRepository().getLines(
@@ -111,7 +119,7 @@ class AddCustomerViewModel : ViewModel() {
         linesId: String
     ) {
         viewModelScope.launch {
-            _state.value = AddCustomerStatus.Idle
+            _state.value = AddCustomerStatus.Loading
             _state.value = try {
                 AddCustomerStatus.GetMainLine(
                     AddCustomerRepository().getMainLineCustomer(
@@ -129,20 +137,26 @@ class AddCustomerViewModel : ViewModel() {
     }
 
     private fun createCustomer(
-        version: String,
-        token: String,
-        customerType: String,
-        orderType: String,
-        lineId: String,
-        customerCode: String,
-        customerName: String,
-        customerAddress: String,
-        nationalId: String,
-        latitude: String,
-        longitude: String,
+        version: RequestBody,
+        token: RequestBody,
+        customerType: RequestBody,
+        orderType: RequestBody,
+        lineId: RequestBody,
+        governorate: RequestBody,
+        city: RequestBody,
+        customerName: RequestBody,
+        phone : RequestBody,
+        secondPhone : RequestBody,
+        customerAddress: RequestBody,
+        nationalId: RequestBody,
+        latitude: RequestBody,
+        longitude: RequestBody,
+        suggetsAddress : RequestBody,
+        id_1: MultipartBody.Part,
+        id_2: MultipartBody.Part,
     ) {
         viewModelScope.launch {
-            _state.value = AddCustomerStatus.Idle
+            _state.value = AddCustomerStatus.Loading
             _state.value = try {
                 AddCustomerStatus.CreateCustomer(
                     AddCustomerRepository().createNewCustomer(
@@ -151,12 +165,18 @@ class AddCustomerViewModel : ViewModel() {
                         customerType,
                         orderType,
                         lineId,
-                        customerCode,
+                        governorate,
+                        city,
                         customerName,
+                        phone,
+                        secondPhone,
                         customerAddress,
                         nationalId,
                         latitude,
-                        longitude
+                        longitude,
+                        suggetsAddress,
+                        id_1,
+                        id_2
                     )
                 )
             } catch (e: Exception) {
