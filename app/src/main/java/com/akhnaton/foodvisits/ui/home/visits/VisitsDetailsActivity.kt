@@ -52,6 +52,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import kotlin.math.log
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
@@ -373,7 +374,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         if (lat.isBlank() || long.isBlank()) {
             showCustomSnackbar("لم يتم الوصول لبينات الخريطه", R.color.red)
         }else{
-            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this)
+            val phoneTime = (System.currentTimeMillis() / 1000).toString()
+            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this) ?: phoneTime.toLong()
+            Log.d(TAG, "startVisitTimer: ${serverUnixTime}")
 
             val timer = VisitTimerEntity(
                 customerPartySiteId = customerPartySiteId,
@@ -440,10 +443,11 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             val repository = VisitsRepository(this@VisitsDetailsActivity)
             val timerDao = AppDatabase.getDatabase(this@VisitsDetailsActivity).visitTimerDao()
-
             val visitTimer = timerDao.getVisitTimerById(customerPartySiteId)
             val checkInDateMillis = visitTimer?.startTimeMillis
-            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this@VisitsDetailsActivity)
+            val phoneTime = (System.currentTimeMillis() / 1000).toString()
+            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this@VisitsDetailsActivity) ?: phoneTime
+
 
             val result = repository.saveVisit(
                 version = versionName,

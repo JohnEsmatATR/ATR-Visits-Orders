@@ -62,7 +62,11 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        val phoneTime = (System.currentTimeMillis() / 1000).toString()
+        val serverUnixTime = SharedPrefsHelper.getServerUnixTime(requireContext()) ?: phoneTime
 
+
+        Log.d(TAG, "serverUnixTime: $serverUnixTime")
 
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_visits, container, false)

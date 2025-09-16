@@ -1,6 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.printFood
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.pdf.PdfDocument
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,6 +22,7 @@ import com.akhnaton.foodvisits.databinding.ActivityFoodInvoiceBinding
 import com.akhnaton.foodvisits.databinding.FoodOrderDetailsBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import kotlinx.coroutines.launch
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -34,11 +38,11 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
     private val viewModel: FoodViewModel by viewModels()
     private var mLinearLayout: ViewGroup? = null
     var data = FoodData()
-    lateinit var printMe:PrinterManager
+        lateinit var printMe:PrinterManager
     val dateFormat = SimpleDateFormat("yyyy-MMM-dd hh:mm:ss a", Locale.ENGLISH)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-            binding= ActivityFoodInvoiceBinding.inflate(layoutInflater)
+        binding= ActivityFoodInvoiceBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         data = intent.getSerializableExtra("foodOrder") as FoodData
@@ -47,7 +51,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         printMe = PrinterManager(baseContext)
 
         binding.tvInvoiceNumber.text = data.orderSalesNumber
-       // binding.tvDateTime.text = dateFormat.format(Date())
+        // binding.tvDateTime.text = dateFormat.format(Date())
 
         data.orderSalesNumber.let {
             lifecycleScope.launch {
@@ -213,8 +217,14 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
 //        PrintMe(this).sendViewToPrinter(binding.printMeLayout)
 
         lifecycleScope.launch {
-            printMe.performTransactionPrintingSuspend(binding.printMeLayout)
+            val bitmaps = viewToPdfBitmaps(binding.printMeLayout)
+            for (bitmap in bitmaps) {
+                printMe.printBitmapSuspend(bitmap)
+            }
         }
+
+
+
 
         lifecycleScope.launch {
             viewModel.foodIntent.send(
@@ -225,5 +235,37 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                 )
             )
         }
+    }
+
+    fun viewToPdfBitmaps(view: View, pageWidth: Int = 384): List<Bitmap> {
+        val pdfDocument = PdfDocument()
+        val bitmaps = mutableListOf<Bitmap>()
+
+        // Measure & layout الـ view
+        view.measure(
+            View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        view.layout(0, 0, view.measuredWidth, view.measuredHeight)
+
+        // PDF page
+        val pageInfo = PdfDocument.PageInfo.Builder(view.measuredWidth, view.measuredHeight, 1).create()
+        val page = pdfDocument.startPage(pageInfo)
+        view.draw(page.canvas)
+        pdfDocument.finishPage(page)
+
+        // Convert PDF page to Bitmap
+        val bitmap = Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        view.draw(canvas)
+
+        // Scale to printer width
+        val scale = pageWidth.toFloat() / bitmap.width.toFloat()
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, pageWidth, (bitmap.height * scale).toInt(), true)
+        bitmaps.add(scaledBitmap)
+
+        pdfDocument.close()
+        Log.d("PrinterManager", "PDF converted to ${bitmaps.size} bitmap(s)")
+        return bitmaps
     }
 }

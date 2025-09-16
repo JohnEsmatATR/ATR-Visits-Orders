@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.data.interfaces.apis
 
 import com.akhnaton.foodvisits.data.model.food.details.FoodOrderDetails
+import com.akhnaton.foodvisits.data.model.food.details.PrintResponse
 import com.akhnaton.foodvisits.data.model.food.order.Food
 import com.akhnaton.foodvisits.shared.ConstantLinks.DELIVERY_PRINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.FOOD_ORDER
@@ -32,6 +33,6 @@ interface IFood {
         @Field("app_version") version: String,
         @Field("api_token") token: String,
         @Field("order_sales_number") orderNumber: String
-    ): FoodOrderDetails
+    ): PrintResponse
 
 }

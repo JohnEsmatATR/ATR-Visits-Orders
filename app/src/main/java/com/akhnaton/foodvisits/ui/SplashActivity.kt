@@ -64,10 +64,10 @@ class SplashActivity : AppCompatActivity() {
                     val (username, password) = getUserCredentials(this@SplashActivity)
                     if (username != null && password != null) {
                         startActivity(Intent(this@SplashActivity, BiometricActivity::class.java))
-                        finishAffinity()
+                        finish()
                     } else {
-                        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
-                        finishAffinity()
+                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+                        finish()
                     }
                 }
             }

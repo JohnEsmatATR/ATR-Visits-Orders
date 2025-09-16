@@ -4,6 +4,8 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Matrix
+import android.graphics.pdf.PdfRenderer
+import android.os.ParcelFileDescriptor
 import android.os.RemoteException
 import android.util.Log
 import android.view.View
@@ -12,6 +14,7 @@ import com.sunmi.peripheral.printer.InnerPrinterCallback
 import com.sunmi.peripheral.printer.InnerPrinterManager
 import com.sunmi.peripheral.printer.InnerResultCallback
 import com.sunmi.peripheral.printer.SunmiPrinterService
+import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -50,98 +53,46 @@ class PrinterManager(context: Context) {
         }
     }
 
-    suspend fun performTransactionPrintingSuspend(
-        view: View
-    ): Pair<Int, String?> {
+    suspend fun printBitmapSuspend(bitmap: Bitmap): Pair<Int, String?> {
         return suspendCoroutine { coroutine ->
             try {
                 service.clearBuffer()
-
                 service.enterPrinterBuffer(true)
 
-
-                service.printBitmapCustom(scaleImage(convertViewToBitmap(view)), 1,null)
+                service.printBitmapCustom(bitmap, 1, null)
                 service.printText("        ", null)
 
                 service.commitPrinterBufferWithCallback(object : InnerResultCallback() {
-                    override fun onRunResult(isSuccess: Boolean) {
-                        Log.d("Transaction", "Transaction completed: $isSuccess")
-                    }
-
-                    override fun onReturnString(result: String?) {
-                        Log.d("Transaction", "Transaction return: $result")
-                    }
-
+                    override fun onRunResult(isSuccess: Boolean) {}
+                    override fun onReturnString(result: String?) {}
                     override fun onRaiseException(code: Int, msg: String?) {
-                        Log.e("Transaction", "Commit failed: $msg")
                         coroutine.resumeWithException(Exception(msg))
                     }
-
-                    override fun onPrintResult(p0: Int, p1: String?) {
-                        Log.d("Transaction", "Commit completed with result: $p0, message: $p1")
-                    }
-                })
-
-                service.exitPrinterBufferWithCallback(true, object : InnerResultCallback() {
-                    override fun onRunResult(isSuccess: Boolean) {
-                        Log.d("Transaction", "Exited mode: $isSuccess")
-                    }
-
-                    override fun onReturnString(result: String?) {
-                        Log.d("Transaction", "Exit return: $result")
-                    }
-
-                    override fun onRaiseException(code: Int, msg: String?) {
-                        Log.e("Transaction", "Exit failed: $msg")
-                        coroutine.resumeWithException(Exception(msg))
-                    }
-
                     override fun onPrintResult(p0: Int, p1: String?) {
                         if (p0 == 1) {
-                            coroutine.resume(Pair(p0, "Failed to print at transactionIndex"))
+                            coroutine.resume(Pair(p0, "Failed"))
                         } else {
                             coroutine.resume(Pair(p0, p1))
                         }
                     }
                 })
 
-            } catch (e: RemoteException) {
-                Log.e("PrinterManager", "Error in transaction printing: ${e.message}")
+                service.exitPrinterBufferWithCallback(true, object : InnerResultCallback() {
+                    override fun onRunResult(isSuccess: Boolean) {}
+                    override fun onReturnString(result: String?) {}
+                    override fun onRaiseException(code: Int, msg: String?) {
+                        coroutine.resumeWithException(Exception(msg))
+                    }
+                    override fun onPrintResult(p0: Int, p1: String?) {}
+                })
+            } catch (e: Exception) {
                 coroutine.resumeWithException(e)
             }
         }
     }
 
-    fun isPrinterStateValid(): Boolean {
-        val printerPaperStatus = service.updatePrinterState()
-        Log.e("PrinterManager", "Printer is out of paper")
-        return printerPaperStatus!=4
-    }
 
 
-    private fun convertViewToBitmap(mView: View): Bitmap {
-        mView.measure(
-            View.MeasureSpec.makeMeasureSpec(mView.width, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-        mView.layout(0, 0, mView.measuredWidth, mView.measuredHeight)
 
-        val bitmap = createBitmap(mView.measuredWidth, mView.measuredHeight)
-
-        val canvas = Canvas(bitmap)
-        mView.draw(canvas)
-        return bitmap
-    }
-
-
-    private fun scaleImage(bitmap1: Bitmap): Bitmap {
-        val width = bitmap1.width
-        val height = bitmap1.height - 100
-        val newWidth = 384
-        val scaleWidth = newWidth.toFloat() / width.toFloat()
-        val matrix = Matrix()
-        matrix.postScale(scaleWidth, 1.0f)
-        return Bitmap.createBitmap(bitmap1, 0, 0, width, height, matrix, true)
-    }
 
 }
