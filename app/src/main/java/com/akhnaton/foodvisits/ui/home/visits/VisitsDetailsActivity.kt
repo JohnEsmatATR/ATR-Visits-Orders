@@ -8,6 +8,8 @@ import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -80,11 +82,20 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var dialog: AlertDialog
     private var isVisitHandled = false
+    private lateinit var dao: VisitTimerDao
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
+
+        dao = AppDatabase.getDatabase(this).visitTimerDao()
+        lifecycleScope.launch {
+            val timerEntity = dao.getVisitTimerById(customerPartySiteId)
+            timerEntity?.let {
+                viewModel.startTimer(it.startTimeMillis)
+            }
+        }
 
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         viewModel = ViewModelProvider(
@@ -145,13 +156,13 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         lifecycleScope.launch {
             val timerDao = AppDatabase.getDatabase(this@VisitsDetailsActivity).visitTimerDao()
             val savedTimer = timerDao.getVisitTimerById(customerPartySiteId)
+
             if (savedTimer == null) {
                 showStartVisitDialog(customerPartySiteId, timerDao)
             } else {
-                val elapsedMillis = System.currentTimeMillis() - savedTimer.startTimeMillis // خليه Long
-                val elapsedSeconds = (elapsedMillis / 1000).toInt()
-                viewModel.setElapsedSeconds(elapsedSeconds)
-                viewModel.startTimer()
+                val now = System.currentTimeMillis() / 1000
+                val elapsed = now - savedTimer.startTimeMillis // فرق بالثواني
+                viewModel.startTimer(elapsed) // يكمل من الفرق
             }
 
             observeTimer()
@@ -159,22 +170,53 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
 
+
+
     private fun showStartVisitDialog(customerPartySiteId: String, dao: VisitTimerDao) {
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle("بدء الزيارة")
             .setMessage("هل تريد بدء الزيارة الآن؟")
             .setPositiveButton("نعم") { _, _ ->
                 startVisitTimer(dao, customerPartySiteId)
             }
             .setNegativeButton("إلغاء", null)
-            .show()
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+            // في الأول نعطله لحد ما يتحقق الشرط
+            positiveButton.isEnabled = false
+
+            val watcher = object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                    val l = binding.fieldLatitude.text.toString().trim()
+                    val t = binding.fieldLongitude.text.toString().trim()
+
+                    // تفعيل أو تعطيل الزر حسب القيم
+                    positiveButton.isEnabled = l.isNotEmpty() && t.isNotEmpty()
+                }
+
+                override fun afterTextChanged(s: Editable?) {}
+            }
+
+            binding.fieldLatitude.addTextChangedListener(watcher)
+            binding.fieldLongitude.addTextChangedListener(watcher)
+        }
+
+        dialog.show()
     }
+
+
 
 
     private fun observeTimer() {
         lifecycleScope.launch {
             viewModel.timerState.collect { timeStaring ->
                 binding.timmer.text = timeStaring
+                Log.d(TAG, "observeTimer: ${timeStaring}")
             }
 
         }
@@ -373,27 +415,22 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         val long = binding.fieldLongitude.text.toString()
         if (lat.isBlank() || long.isBlank()) {
             showCustomSnackbar("لم يتم الوصول لبينات الخريطه", R.color.red)
-        }else{
-            val phoneTime = (System.currentTimeMillis() / 1000).toString()
-            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this) ?: phoneTime.toLong()
-            Log.d(TAG, "startVisitTimer: ${serverUnixTime}")
-
+        } else {
+            val startUnixTime = System.currentTimeMillis() / 1000  // هنا الوقت الفعلي
             val timer = VisitTimerEntity(
                 customerPartySiteId = customerPartySiteId,
-                startTimeMillis = serverUnixTime,
+                startTimeMillis = startUnixTime,
                 startLat = lat,
                 startLong = long
             )
-            Log.d(TAG, "startVisitTimer:${timer} ")
             lifecycleScope.launch {
                 dao.insertVisitTimer(timer)
-                viewModel.setElapsedSeconds(0)
-                viewModel.startTimer()
+                viewModel.startTimer(0) // خزن بداية الوقت
             }
             showCustomSnackbar("تم بدا الزياراه", R.color.green)
         }
-
     }
+
 
 
     private fun openMap() {

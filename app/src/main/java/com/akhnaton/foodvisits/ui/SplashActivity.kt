@@ -53,8 +53,8 @@ class SplashActivity : AppCompatActivity() {
 
 
             val isPOSDevice = manufacturer.contains("sunmi") || manufacturer.contains("pax") || manufacturer.contains("verifone")
-
-            if (isPOSDevice) {
+            val (username, password) = getUserCredentials(this@SplashActivity)
+            if (username != null && password != null) {
 
                 startActivity(Intent(this@SplashActivity, MainActivity::class.java))
                 finishAffinity()

@@ -21,4 +21,5 @@ interface VisitTimerDao {
     @Query("SELECT * FROM visit_timer")
     suspend fun getAllVisitTimers(): List<VisitTimerEntity>
 
+
 }

@@ -41,12 +41,15 @@ class VisitsViewModel(val context: Context) : ViewModel() {
     private var locationCallback: LocationCallback? = null
     private lateinit var checkConnection: CheckConnection
     private var timerJob: Job? = null
-    private var elapsedSeconds = 0
+    private var elapsedSeconds : Long = 0
     private val _timerState = MutableStateFlow("00:00:00")
     val timerState: StateFlow<String> = _timerState
-    fun startTimer() {
+    private var startTimeMillis: Long? = null
 
+
+    fun startTimer(initialElapsed: Long = 0) {
         if (timerJob != null) return
+        elapsedSeconds = initialElapsed
 
         timerJob = viewModelScope.launch {
             while (isActive) {
@@ -61,6 +64,9 @@ class VisitsViewModel(val context: Context) : ViewModel() {
             }
         }
     }
+
+
+
     fun stopTimer() {
         timerJob?.cancel()
         timerJob = null
@@ -244,10 +250,5 @@ class VisitsViewModel(val context: Context) : ViewModel() {
         stopLocationUpdates()
     }
 
-
-
-    fun setElapsedSeconds(seconds: Int) {
-        elapsedSeconds = seconds
-    }
 
 }

@@ -134,7 +134,6 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun observeTimer(){
         visitViewModel.stopTimer()
         visitViewModel.resetTimer()
-        visitViewModel.startTimer()
         lifecycleScope.launch {
             visitViewModel.timerState.collect{timeStaring ->
                 binding.timmer.text=timeStaring
