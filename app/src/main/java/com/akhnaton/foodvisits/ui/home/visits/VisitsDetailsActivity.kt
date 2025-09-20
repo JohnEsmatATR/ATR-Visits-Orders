@@ -420,10 +420,11 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         val long = binding.fieldLongitude.text.toString()
         val name = binding.custName.text.toString()
         Log.d(TAG, "startVisitTimer: $name")
+
         if (lat.isBlank() || long.isBlank()) {
             showCustomSnackbar("لم يتم الوصول لبينات الخريطه", R.color.red)
         } else {
-            val startUnixTime = System.currentTimeMillis() / 1000
+            val startUnixTime = SharedPrefsHelper.getServerUnixTime(applicationContext)
             val timer = VisitTimerEntity(
                 customerPartySiteId = customerPartySiteId,
                 startTimeMillis = startUnixTime,
@@ -434,11 +435,14 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
             lifecycleScope.launch {
                 dao.insertVisitTimer(timer)
-                viewModel.startTimer(0) // خزن بداية الوقت
+                viewModel.startTimer(0)
+
             }
+
             showCustomSnackbar("تم بدا الزياراه", R.color.green)
         }
     }
+
 
 
 
@@ -492,11 +496,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val visitTimer = timerDao.getVisitTimerById(customerPartySiteId)
             val checkInDateMillis = visitTimer?.startTimeMillis
             val phoneTime = (System.currentTimeMillis() / 1000).toString()
-            val serverUnixTime = if (SharedPrefsHelper.isServerTimeSaved(this@VisitsDetailsActivity)) {
-                SharedPrefsHelper.getServerUnixTime(this@VisitsDetailsActivity)
-            } else {
-                System.currentTimeMillis() / 1000
-            }
+            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(applicationContext)
 
 
 
@@ -514,7 +514,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 deviceType = "Mob",
                 zoneFlag = zoneFlag,
                 checkInDate = checkInDateMillis.toString(),
-                dateVisit = phoneTime,
+                dateVisit = serverUnixTime.toString(),
                 customerType = customerTypePosition,
                 orderType = orderType
             )

@@ -38,6 +38,7 @@ class RealTimeService : Service() {
 
                 val serverTimeInSeconds = serverTime / 1000
                 SharedPrefsHelper.saveServerUnixTime(this@RealTimeService, serverTimeInSeconds)
+
                 startTickingLoop()
                 Log.e("RealTimeService", "Failed to fetch time: ${serverTimeInSeconds}")
             } catch (e: Exception) {
@@ -101,15 +102,24 @@ class RealTimeService : Service() {
             while (isActive) {
                 val elapsed = SystemClock.elapsedRealtime() - startElapsedRealtime
                 val currentTimeMillis = startTimeMillis + elapsed
+
                 val formatted = formatTime(currentTimeMillis)
 
+
                 updateNotification(formatted)
+
+
+                val unixSeconds = currentTimeMillis / 1000
+                SharedPrefsHelper.saveServerUnixTime(this@RealTimeService, unixSeconds)
+
+
                 SharedPrefsHelper.saveServerTime(this@RealTimeService, formatted)
 
                 delay(1000)
             }
         }
     }
+
 
     private fun formatTime(timeMillis: Long): String {
         val sdf = SimpleDateFormat("HH:mm:ss", Locale.getDefault())

@@ -32,4 +32,7 @@ object SharedPrefsHelper {
     fun clear(context: Context) {
         getPrefs(context).edit().clear().apply()
     }
+
+
+
 }
