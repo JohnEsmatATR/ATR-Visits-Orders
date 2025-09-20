@@ -8,5 +8,6 @@ data class VisitTimerEntity(
     @PrimaryKey val customerPartySiteId: String,
     val startTimeMillis: Long,
     val startLat: String,
-    val startLong : String
+    val startLong : String,
+    val name : String
 )

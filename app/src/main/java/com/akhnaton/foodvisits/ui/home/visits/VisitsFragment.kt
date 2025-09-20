@@ -218,9 +218,11 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
             val openVisits = dao.getAllVisitTimers()
 
             val isSameVisitOpen = openVisits.any { it.customerPartySiteId == data.customer_party_site_id }
+            val openVisit = openVisits.find { it.customerPartySiteId == data.customer_party_site_id }
+
             if (openVisits.isEmpty() || isSameVisitOpen) {
                 val tsLong = System.currentTimeMillis() / 1000
-                Log.d(TAG, "onSelectEmployeeClickListener: ${tsLong}")
+                Log.d(TAG, "onSelectEmployeeClickListener: $tsLong")
                 startActivity(
                     Intent(requireActivity(), VisitsDetailsActivity::class.java)
                         .putExtra("customerPartySiteId", data.customer_party_site_id)
@@ -231,19 +233,26 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
                         .putExtra("customer_name", data.customer_name)
                 )
             } else {
+                val customerName = openVisits.firstOrNull()?.name
+                openVisits.forEach {
+                    Log.d(TAG, "Visit: id=${it.customerPartySiteId}, name=${it.name}, startTime=${it.startTimeMillis}")
+                }
 
-                showOpenVisitsDialog()
+                Log.d(TAG, "onSelectEmployeeClickListener: $customerName")
+                showOpenVisitsDialog(customerName.toString())
             }
         }
-
     }
-    private fun showOpenVisitsDialog() {
+
+    private fun showOpenVisitsDialog(name: String) {
+
         androidx.appcompat.app.AlertDialog.Builder(requireContext())
             .setTitle("تنبيه")
-            .setMessage("⚠️ يوجد زيارات مفتوحة. برجاء إغلاقها قبل بدء زيارة جديدة.")
+            .setMessage("⚠️ يوجد زيارة مفتوحة للعميل: $name\nبرجاء إغلاقها قبل بدء زيارة جديدة.")
             .setPositiveButton("حسنًا", null)
             .show()
     }
+
 
 
     override fun onClick(p0: View?) {

@@ -179,7 +179,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             .setPositiveButton("نعم") { _, _ ->
                 startVisitTimer(dao, customerPartySiteId)
             }
-            .setNegativeButton("إلغاء", null)
+            .setCancelable(false)
+            .setNegativeButton("إلغاء", { _ , _ ->
+                finish()
+            })
             .create()
 
         dialog.setOnShowListener {
@@ -386,19 +389,21 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
 
     private fun compareLocation() {
-        if (!isDeveloperModeEnabled()) {
+        if (isDeveloperModeEnabled()) {
             if (customerData.customer_latitude == "") {
                 zoneFlag = "IN"
+                saveVisits()
             } else {
                 val customerLocation = Location("")
                 customerLocation.latitude = customerData.customer_latitude.toDouble()
                 customerLocation.longitude = customerData.customer_longitude.toDouble()
 
+
                 val distanceInMeters = myLocation.distanceTo(customerLocation)
 
                 if (distanceInMeters < limitArea) {
                     zoneFlag = "IN"
-
+                    saveVisits()
                     Log.d(TAG, "compareLocation: $limitArea")
                 } else {
                     zoneFlag = customerLocationMissing()
@@ -413,16 +418,20 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     private fun startVisitTimer(dao: VisitTimerDao, customerPartySiteId: String) {
         val lat = binding.fieldLatitude.text.toString()
         val long = binding.fieldLongitude.text.toString()
+        val name = binding.custName.text.toString()
+        Log.d(TAG, "startVisitTimer: $name")
         if (lat.isBlank() || long.isBlank()) {
             showCustomSnackbar("لم يتم الوصول لبينات الخريطه", R.color.red)
         } else {
-            val startUnixTime = System.currentTimeMillis() / 1000  // هنا الوقت الفعلي
+            val startUnixTime = System.currentTimeMillis() / 1000
             val timer = VisitTimerEntity(
                 customerPartySiteId = customerPartySiteId,
                 startTimeMillis = startUnixTime,
                 startLat = lat,
-                startLong = long
+                startLong = long,
+                name = name
             )
+
             lifecycleScope.launch {
                 dao.insertVisitTimer(timer)
                 viewModel.startTimer(0) // خزن بداية الوقت
@@ -483,7 +492,12 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val visitTimer = timerDao.getVisitTimerById(customerPartySiteId)
             val checkInDateMillis = visitTimer?.startTimeMillis
             val phoneTime = (System.currentTimeMillis() / 1000).toString()
-            val serverUnixTime = SharedPrefsHelper.getServerUnixTime(this@VisitsDetailsActivity) ?: phoneTime
+            val serverUnixTime = if (SharedPrefsHelper.isServerTimeSaved(this@VisitsDetailsActivity)) {
+                SharedPrefsHelper.getServerUnixTime(this@VisitsDetailsActivity)
+            } else {
+                System.currentTimeMillis() / 1000
+            }
+
 
 
             val result = repository.saveVisit(
@@ -500,7 +514,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 deviceType = "Mob",
                 zoneFlag = zoneFlag,
                 checkInDate = checkInDateMillis.toString(),
-                dateVisit = serverUnixTime.toString(),
+                dateVisit = phoneTime,
                 customerType = customerTypePosition,
                 orderType = orderType
             )
