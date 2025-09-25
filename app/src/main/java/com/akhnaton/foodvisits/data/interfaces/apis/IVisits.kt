@@ -49,8 +49,6 @@ interface IVisits {
         @Field("visit_actual_target") visitActualTarget: String,
         @Field("latitude") latitude: String,
         @Field("longitude") longitude: String,
-        @Field("start_latitude") startLatitude: String,
-        @Field("start_longitude") startLongitude: String,
         @Field("device_type") deviceType: String,
         @Field("zone_flag") zoneFlag: String,
         @Field("check_in_date") checkInDate: String,

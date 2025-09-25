@@ -522,7 +522,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                         } else {
                             Log.d(
                                 TAG,
-                                "fetchData status: ${it.data.status} , massage ${it.data.status}"
+                                "fetchData status: ${it.data.status} , massage ${it.data.message}"
                             )
                         }
 

@@ -154,8 +154,6 @@ class VisitsViewModel(val context: Context) : ViewModel() {
                     visitActualTarget,
                     latitude,
                     longitude,
-                    startLong,
-                    startLat,
                     deviceType,
                     zoneFlag,
                     checkInDate,

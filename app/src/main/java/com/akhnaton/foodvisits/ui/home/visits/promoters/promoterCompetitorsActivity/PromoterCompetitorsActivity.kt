@@ -46,6 +46,8 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     val competitorsTypeIdArray = ArrayList<String>()
     var competitorsNameId = ""
     var competitorsTypeId = ""
+    private var competitorsNameIdd: Int = -1
+
 
     private val versionName = BuildConfig.VERSION_NAME
 
@@ -55,6 +57,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
     var chk4: CheckBox? = null
     var chk5: CheckBox? = null
     var chk6: CheckBox? = null
+
 
     var mCheckList: ArrayList<Int>? = null
     var mListCheckeBox: ArrayList<CheckBoxId>? = null
@@ -281,33 +284,27 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                     is PromoterStatus.GetCompetitorList -> {
                         hideDialog()
 
-                        val competitorsNameArray = ArrayList<String>()
-                        val competitorsTypeArray = ArrayList<String>()
+                        // الشركات
+                        val competitorsNameArray = mutableListOf<String>()
+                        val competitorsNameIdArray = mutableListOf<Int>()
 
                         for (company in status.response.data.get_competitor) {
                             competitorsNameArray.add(company.competitor_name)
-                            competitorsNameIdArray.add(company.id)
+                            competitorsNameIdArray.add(company.id.toInt())
                         }
+                        setupCompetitorsSpinner(competitorsNameArray, competitorsNameIdArray)
 
-                        val adapterName = ArrayAdapter(
-                            this@PromoterCompetitorsActivity,
-                            android.R.layout.simple_dropdown_item_1line,
-                            competitorsNameArray
-                        )
-                        binding.companiesSpinner.setAdapter(adapterName)
+                        // الأنواع
+                        val competitorsTypeArray = mutableListOf<String>()
+                        val competitorsTypeIdArray = mutableListOf<Int>()
 
                         for (company in status.response.data.get_competitor_types) {
                             competitorsTypeArray.add(company.type_name)
-                            competitorsTypeIdArray.add(company.id)
+                            competitorsTypeIdArray.add(company.id.toInt())
                         }
-
-                        val adapterType = ArrayAdapter(
-                            this@PromoterCompetitorsActivity,
-                            android.R.layout.simple_dropdown_item_1line,
-                            competitorsTypeArray
-                        )
-                        binding.categorySpinner.setAdapter(adapterType)
+                        setupCategorySpinner(competitorsTypeArray, competitorsTypeIdArray)
                     }
+
 
                     is PromoterStatus.Error -> {
                         hideDialog()
@@ -412,4 +409,46 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
 
         binding.selectSizeSpinner.setAdapter(adapter)
     }
+
+    private fun setupCompetitorsSpinner(
+        names: List<String>,
+        ids: List<Int>
+    ) {
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            names
+        )
+        binding.companiesSpinner.setAdapter(adapter)
+
+        // لما يكتب، AutoCompleteTextView هيعمل filter تلقائي
+        binding.companiesSpinner.setOnItemClickListener { parent, _, position, _ ->
+            val selectedName = parent.getItemAtPosition(position).toString()
+            val selectedId = ids[names.indexOf(selectedName)]
+            competitorsNameIdd = selectedId   // هنا خلاص بقت Int ومتوافقة
+
+            Log.d("SpinnerDebug", "Selected selectedName: $selectedName - ID: $selectedId")
+        }
+    }
+    private fun setupCategorySpinner(
+        types: List<String>,
+        ids: List<Int>
+    ) {
+        val adapter = ArrayAdapter(
+            this,
+            android.R.layout.simple_dropdown_item_1line,
+            types
+        )
+        binding.categorySpinner.setAdapter(adapter)
+
+        binding.categorySpinner.setOnItemClickListener { parent, _, position, _ ->
+            val selectedType = parent.getItemAtPosition(position).toString()
+            val selectedId = ids[types.indexOf(selectedType)]
+            competitorsTypeId = selectedId.toString()
+
+            Log.d("SpinnerDebug", "Selected selectedType: $selectedType - ID: $selectedId")
+        }
+    }
+
+
 }

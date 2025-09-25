@@ -4,11 +4,6 @@ import com.akhnaton.foodvisits.data.model.createNewCustomer.Governorate
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
-
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-
-
 sealed class AddCustomerIntent {
 
 

@@ -15,8 +15,7 @@ data class SaveVisitDB(
     val visitActualTarget: String,
     val latitude: String,
     val longitude: String,
-   val startLatitude: String,
-    val startLongitude: String,
+
     val deviceType: String,
     val zoneFlag: String,
     val checkInDate: String,

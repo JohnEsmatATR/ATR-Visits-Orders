@@ -4,9 +4,6 @@ import com.akhnaton.foodvisits.data.model.AreasResponse
 import com.akhnaton.foodvisits.data.model.CreateNewCustomer
 import com.akhnaton.foodvisits.data.model.GovernoratesResponse
 import com.akhnaton.foodvisits.data.model.VisitsCustomerType
-import com.akhnaton.foodvisits.data.model.createNewCustomer.AreasResponse
-import com.akhnaton.foodvisits.data.model.createNewCustomer.Governorate
-import com.akhnaton.foodvisits.data.model.createNewCustomer.GovernoratesResponse
 import com.akhnaton.foodvisits.data.model.visits.CustomerLines
 import com.akhnaton.foodvisits.data.model.visits.Lines
 import com.akhnaton.foodvisits.shared.ConstantLinks
