@@ -2,8 +2,8 @@ package com.akhnaton.foodvisits.ui.home.addCustomer
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.statusValue.addCustomer.GetGovernoratesIntent
-import com.akhnaton.foodvisits.data.statusValue.addCustomer.GetGovernoratesState
+import com.akhnaton.foodvisits.data.statusValue.customerCoding.GetGovernoratesIntent
+import com.akhnaton.foodvisits.data.statusValue.customerCoding.GetGovernoratesState
 import com.akhnaton.foodvisits.domin.AddCustomerRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow

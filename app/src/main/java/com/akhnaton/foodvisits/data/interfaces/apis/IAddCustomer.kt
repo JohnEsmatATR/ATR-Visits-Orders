@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.data.interfaces.apis
 
+import com.akhnaton.foodvisits.data.model.AreasResponse
 import com.akhnaton.foodvisits.data.model.CreateNewCustomer
+import com.akhnaton.foodvisits.data.model.GovernoratesResponse
 import com.akhnaton.foodvisits.data.model.VisitsCustomerType
 import com.akhnaton.foodvisits.data.model.createNewCustomer.AreasResponse
 import com.akhnaton.foodvisits.data.model.createNewCustomer.Governorate

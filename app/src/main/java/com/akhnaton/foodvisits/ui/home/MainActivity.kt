@@ -1,22 +1,26 @@
 package com.akhnaton.foodvisits.ui.home
 
+import android.Manifest
 import android.app.Activity
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.work.Constraints
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.NavHostFragment.Companion.findNavController
 import androidx.navigation.ui.NavigationUI.setupWithNavController
-import androidx.work.Constraints
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
@@ -25,36 +29,39 @@ import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingIntent
 import com.akhnaton.foodvisits.data.statusValue.appSetting.AppSettingStatus
+import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
+import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityMainBinding
 import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.shared.GooeyMenu
-import com.akhnaton.foodvisits.shared.NetworkWatcher
-import com.akhnaton.foodvisits.shared.RealTimeService
 import com.akhnaton.foodvisits.shared.SendVisitsWorker
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper.Companion.context
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
-import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 import com.akhnaton.foodvisits.ui.home.customerCoding.CustomerCodingActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superShowOrders.SuperShowOrdersActivity
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
 import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.akhnaton.foodvisits.ui.home.visits.orderHistory.OrdersHistoryActivity
-import com.akhnaton.foodvisits.ui.map.MapActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.PendingResult
+import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.Priority
+import com.google.android.gms.location.LocationSettingsResult
+import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.tasks.Task
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
+import androidx.work.WorkRequest
+import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyMenuInterface {
@@ -65,21 +72,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var visitViewModel: VisitsViewModel
     private var navHostFragment = NavHostFragment()
+    private var googleApiClient: GoogleApiClient? = null
     private val REQUESTLOCATION = 199
     private var requestPermission = RequestPermission()
     private var addCustomerEnable = false
-    private val locationPermissionCode = 199
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupBinding()
         startSendVisitsWorker(this@MainActivity)
-        NetworkWatcher(applicationContext).registerNetworkCallback()
-
-        if (!isServiceRunning(RealTimeService::class.java)) {
-            val serviceIntent = Intent(this, RealTimeService::class.java)
-            startService(serviceIntent)
-        }
 
 
     }
@@ -104,9 +105,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding.approvalBtn.setOnClickListener(this)
         binding.gooeyMenu.setOnMenuListener(this)
         binding.gooeyMenu.openCloseMenu(false)
-        binding.mapBtn.setOnClickListener {
-            startActivity(Intent(this@MainActivity, MapActivity::class.java))
-        }
 
 
         lifecycleScope.launch {
@@ -143,32 +141,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                     is AppSettingStatus.Loading -> Log.d("TAG", "Loading: ")
                     is AppSettingStatus.GetAppSetting -> {
                         try {
-                            val serverTime = it.data.data.time
-                            val mobileTime =
-                                System.currentTimeMillis() / 1000
-
-                            val diffInSecondsRaw = serverTime - mobileTime
-                            val diffInSeconds = kotlin.math.abs(diffInSecondsRaw) // لازم قبل ما تقسمه
-                            val diffMinutes = diffInSeconds / 60
-                            val diffSeconds = diffInSeconds % 60
-                            SharedPreferencesHelper.getInstance().saveTimeDifference(diffInSeconds)
-                            Log.d("TAG", "Time Difference: -$diffMinutes minutes, $diffSeconds seconds")
-
-                            Log.d("TAG", "Server Time: $serverTime")
-                            Log.d("TAG", "Mobile Time: $mobileTime")
                             Log.d(
                                 "TAG",
-                                "Raw Difference: $diffInSecondsRaw seconds"
+                                "GetAppSetting: ${it.data.data.food_app_add_customer} "
                             )
-                            Log.d(
-                                "TAG",
-                                "Absolute Difference: $diffMinutes minutes, $diffSeconds seconds"
-                            )
-
                         } catch (e: Exception) {
-                            Log.e("TAG", "Error while comparing times: ${e.message}")
                         }
-
                         try {
                             addCustomerEnable = it.data.data.food_app_add_customer
                         } catch (e: Exception) {
@@ -262,12 +240,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             startActivity(Intent(this, WebOrderActivity::class.java))
         }
 
-
     }
 
     override fun onResume() {
         super.onResume()
-        enableLocation(this@MainActivity)
+        enableLocation()
         requestPermission.permissionCheck(this)
 
     }
@@ -278,37 +255,43 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         requestPermission.stopServiceFunc(this)
     }
 
-    fun enableLocation(activity: Activity) {
-        val locationRequest = LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            30_000 // Interval = 30 seconds
-        )
-            .setMinUpdateIntervalMillis(5_000) // Fastest interval = 5 seconds
-            .build()
+    private fun enableLocation() {
+        googleApiClient = GoogleApiClient.Builder(this)
+            .addApi(LocationServices.API)
+            .addConnectionCallbacks(object : GoogleApiClient.ConnectionCallbacks {
+                override fun onConnected(bundle: Bundle?) {}
+                override fun onConnectionSuspended(i: Int) {
+                    googleApiClient?.connect()
+                }
+            })
+            .addOnConnectionFailedListener {
+            }.build()
 
+        googleApiClient?.connect()
+        val locationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 30 * 1000.toLong()
+        locationRequest.fastestInterval = 5 * 1000.toLong()
         val builder = LocationSettingsRequest.Builder()
             .addLocationRequest(locationRequest)
-            .setAlwaysShow(true)
-
-        val settingsClient = LocationServices.getSettingsClient(activity)
-        val task = settingsClient.checkLocationSettings(builder.build())
-
-        task.addOnSuccessListener {
-
-        }
-
-        task.addOnFailureListener { exception ->
-            if (exception is ResolvableApiException) {
-                try {
-                    exception.startResolutionForResult(activity, locationPermissionCode)
-                } catch (sendEx: IntentSender.SendIntentException) {
-                    Log.e(TAG, "Error starting resolution for location: ${sendEx.message}")
+        builder.setAlwaysShow(true)
+        val result: PendingResult<LocationSettingsResult> =
+            LocationServices.SettingsApi.checkLocationSettings(googleApiClient!!, builder.build())
+        result.setResultCallback {
+            val status: Status = it.status
+            when (status.statusCode) {
+                LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
+                    status.startResolutionForResult(
+                        this@MainActivity,
+                        REQUESTLOCATION
+                    )
+                } catch (e: IntentSender.SendIntentException) {
                 }
             }
         }
     }
 
-
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(
         requestCode: Int,
         resultCode: Int,
@@ -318,7 +301,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         when (requestCode) {
             REQUESTLOCATION -> when (resultCode) {
                 Activity.RESULT_OK -> Log.d("abc", "OK")
-                Activity.RESULT_CANCELED -> enableLocation(this@MainActivity)
+                Activity.RESULT_CANCELED -> enableLocation()
             }
         }
     }
@@ -340,16 +323,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             ExistingWorkPolicy.KEEP,
             workRequest
         )
-    }
-
-    private fun isServiceRunning(serviceClass: Class<*>): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (serviceClass.name == service.service.className) {
-                return true
-            }
-        }
-        return false
     }
 
 }

@@ -323,7 +323,7 @@
                     android:layout_height="wrap_content"
                     android:enabled="false"
                     android:textColor="@color/black"
-                    android:hint="ادخل عنوان العميل فى البطاقة"
+                    android:hint="العنوان المقترح"
                     android:inputType="phone"
                     android:maxLines="2" />
             </com.google.android.material.textfield.TextInputLayout>

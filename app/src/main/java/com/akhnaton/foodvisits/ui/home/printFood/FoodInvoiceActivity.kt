@@ -213,6 +213,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         mLinearLayout?.addView(binding.root)
     }
 
+
     override fun onClick(p0: View?) {
 //        PrintMe(this).sendViewToPrinter(binding.printMeLayout)
 

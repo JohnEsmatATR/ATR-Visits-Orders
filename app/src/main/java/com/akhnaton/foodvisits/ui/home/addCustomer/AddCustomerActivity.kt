@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.ui.home.addCustomer
 
-import AreaAdapter
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -31,9 +30,8 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.CustomerType
 import com.akhnaton.foodvisits.data.model.visits.LinesUsers
 import com.akhnaton.foodvisits.data.statusValue.addCustomer.AddCustomerIntent
-import com.akhnaton.foodvisits.data.statusValue.addCustomer.AddCustomerStatus
-import com.akhnaton.foodvisits.data.statusValue.addCustomer.GetGovernoratesIntent
-import com.akhnaton.foodvisits.data.statusValue.addCustomer.GetGovernoratesState
+import com.akhnaton.foodvisits.data.statusValue.customerCoding.GetGovernoratesIntent
+import com.akhnaton.foodvisits.data.statusValue.customerCoding.GetGovernoratesState
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.databinding.ActivityAddEmployeeBinding
@@ -330,23 +328,38 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
     }
 
     private fun openCamera(requestCode: Int) {
-        val imageFile = File.createTempFile("photo_${System.currentTimeMillis()}", ".jpg", cacheDir)
+        try {
 
+            val imageFile = File.createTempFile("photo_${System.currentTimeMillis()}", ".jpg", cacheDir)
 
-        when (requestCode) {
-            REQUEST_FRONT_IMAGE -> frontImageFile = imageFile
-            REQUEST_BACK_IMAGE -> backImageFile = imageFile
+            when (requestCode) {
+                REQUEST_FRONT_IMAGE -> frontImageFile = imageFile
+                REQUEST_BACK_IMAGE -> backImageFile = imageFile
+            }
+
+            val uri = FileProvider.getUriForFile(
+                this,
+                "${packageName}.provider", // لازم يطابق الـ authority في manifest
+                imageFile
+            )
+
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            startActivityForResult(intent, requestCode)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(this, "Camera error: ${e.message}", Toast.LENGTH_SHORT).show()
         }
-
-        val uri = FileProvider.getUriForFile(this, "${packageName}.provider", imageFile)
-
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-        startActivityForResult(intent, requestCode)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         if (resultCode == RESULT_OK) {
             when (requestCode) {
                 REQUEST_FRONT_IMAGE -> {
@@ -361,6 +374,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
             }
         }
     }
+
 
 
     private fun getDataFromViewModel() {
@@ -508,7 +522,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                         } else {
                             Log.d(
                                 TAG,
-                                "fetchData status: ${it.data.status} , massage ${it.data.message}"
+                                "fetchData status: ${it.data.status} , massage ${it.data.status}"
                             )
                         }
 

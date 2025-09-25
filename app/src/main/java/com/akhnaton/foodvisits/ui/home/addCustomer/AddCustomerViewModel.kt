@@ -1,9 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.addCustomer
 
+import AddCustomerStatus
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.statusValue.addCustomer.AddCustomerIntent
-import com.akhnaton.foodvisits.data.statusValue.addCustomer.AddCustomerStatus
 import com.akhnaton.foodvisits.domin.AddCustomerRepository
 import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import kotlinx.coroutines.channels.Channel

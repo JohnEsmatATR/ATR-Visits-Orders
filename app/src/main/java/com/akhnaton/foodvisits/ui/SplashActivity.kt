@@ -53,10 +53,10 @@ class SplashActivity : AppCompatActivity() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     val (username, password) = getUserCredentials(this@SplashActivity)
                     if (username != null && password != null) {
-                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+                        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
                         finishAffinity()
                     } else {
-                        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
                         finishAffinity()
                     }
                 }

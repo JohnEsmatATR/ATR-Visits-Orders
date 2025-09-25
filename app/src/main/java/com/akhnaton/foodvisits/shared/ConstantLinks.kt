@@ -2,8 +2,8 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-      const val BASE_URL = "https://sales.atr-eg.com/" // Prod
-  //const val BASE_URL = "http://10.42.151.27/" //Test
+   const val BASE_URL = "https://sales.atr-eg.com/" // Prod
+   //const val BASE_URL = "http://10.42.151.27/" //Test
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod
 //    private const val ROUTS_API = "test_web_food/routes.php" // test
@@ -34,8 +34,6 @@ object ConstantLinks {
     // Add New Customer
     const val ADD_CUSTOMER = "$ROUTS_API?path=create_new_customer"
 
-    const val GET_GOVERNMENT = "$ROUTS_API?path=get_user_areas"
-
     //Order History
     const val ORDER_HISTORY = "$ROUTS_API?path=get_orders_history"
     const val ORDER_HISTORY_DETAILS = "$ROUTS_API?path=get_orders_history_details"
@@ -60,10 +58,6 @@ object ConstantLinks {
     const val SUPER_APPROVE_ORDER = "$ROUTS_API?path=super_approve_order"
 
     const val ADD_FOOD_CUST_API = "$ROUTS_API?path=add_food_cust_api"
-
-
-
-    const val ROUTE_KEY= "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQ2NzU1NjY3NjYxZjQ5MjliMzlhNmU3N2RhNTQwYmYyIiwiaCI6Im11cm11cjY0In0="
-    const val ROUTE_KEY2= "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjRlMmQ4YmFlM2QwYTRlY2RhZjRhNmQ2NDY0MzI3OWU0IiwiaCI6Im11cm11cjY0In0="
+    const val GET_GOVERNMENT = "$ROUTS_API?path=get_user_areas"
 
 }
