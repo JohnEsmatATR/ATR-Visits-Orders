@@ -57,6 +57,8 @@ class CheckConnection(val context: Context) {
         visitActualTarget: String,
         latitude: String,
         longitude: String,
+        startLat: String,
+        startLong: String,
         deviceType: String,
         zoneFlag: String,
         checkInDate: String,
@@ -73,6 +75,8 @@ class CheckConnection(val context: Context) {
             visitActualTarget = visitActualTarget,
             latitude = latitude,
             longitude = longitude,
+            startLat = startLat,
+            startLong = startLong,
             deviceType = deviceType,
             zoneFlag = zoneFlag,
             checkInDate = checkInDate,
@@ -93,6 +97,8 @@ class CheckConnection(val context: Context) {
                     visitActualTarget,
                     latitude,
                     longitude,
+                    startLat,
+                    startLong,
                     deviceType,
                     zoneFlag,
                     checkInDate,
@@ -102,7 +108,6 @@ class CheckConnection(val context: Context) {
                 )
                 deleteSaveVisitFromDB()
                 response
-
 
 
             } catch (e: Exception) {
@@ -117,15 +122,17 @@ class CheckConnection(val context: Context) {
     }
 
 
-    suspend fun saveVisitOnline() : SaveVisit {
+    suspend fun saveVisitOnline(): SaveVisit {
         var saveVisit: SaveVisit? = null
         if (checkConnection()) {
 
-            val saveVisitDBList: List<SaveVisitDB> = database.getDatabase(context).saveVisitDao().getVisits()
+            val saveVisitDBList: List<SaveVisitDB> =
+                database.getDatabase(context).saveVisitDao().getVisits()
 
             Log.d("jnjndjnjndjnjnd", "saveVisitOnline: $saveVisitDBList")
             for (saveVisitDB in saveVisitDBList) {
-                Log.d("SaveVisitDebug", """
+                Log.d(
+                    "SaveVisitDebug", """
     Sending visit with:
     app_version: ${saveVisitDB.version}
     api_token: ${saveVisitDB.token}
@@ -141,7 +148,8 @@ class CheckConnection(val context: Context) {
     date_visit: ${saveVisitDB.dateVisit}
     customer_type: ${saveVisitDB.customerType}
     order_type: ${saveVisitDB.orderType}
-""".trimIndent())
+""".trimIndent()
+                )
 
                 saveVisit = retrofit.saveVisits(
                     saveVisitDB.version,
@@ -152,6 +160,8 @@ class CheckConnection(val context: Context) {
                     saveVisitDB.visitActualTarget,
                     saveVisitDB.latitude,
                     saveVisitDB.longitude,
+                    saveVisitDB.startLat,
+                    saveVisitDB.startLong,
                     saveVisitDB.deviceType,
                     saveVisitDB.zoneFlag,
                     saveVisitDB.checkInDate,
@@ -159,7 +169,7 @@ class CheckConnection(val context: Context) {
                     saveVisitDB.customerType,
                     saveVisitDB.orderType,
 
-                )
+                    )
             }
         }
         return saveVisit!!
@@ -183,9 +193,11 @@ class CheckConnection(val context: Context) {
     suspend fun deleteSaveVisitFromDB() {
         database.getDatabase(context).saveVisitDao().deleteVisit()
     }
+
     suspend fun getVisits(): List<SaveVisitDB> {
         return database.getDatabase(context).saveVisitDao().getVisits()
     }
+
     suspend fun insertSaveVisitToDB(visitsPlanDB: SaveVisitDB) {
         database.getDatabase(context).saveVisitDao().insert(visitsPlanDB)
     }

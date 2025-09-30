@@ -248,6 +248,11 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                 false
             }
 
+            orderType.isEmpty() -> {
+                Toast.makeText(this, "اختر نوع الطلب", Toast.LENGTH_SHORT).show()
+                false
+            }
+
             lineIdPosition.isEmpty() -> {
                 Toast.makeText(this, "اختر خط العميل", Toast.LENGTH_SHORT).show()
                 false
@@ -283,19 +288,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                 false
             }
 
-            secondPhone.isEmpty() -> {
-                Toast.makeText(this, "ادخل رقم الهاتف الآخر", Toast.LENGTH_SHORT).show()
-                false
-            }
 
-            secondPhone.length > 11 -> {
-                Toast.makeText(
-                    this,
-                    "رقم الهاتف الآخر لا يجب أن يزيد عن 11 رقم",
-                    Toast.LENGTH_SHORT
-                ).show()
-                false
-            }
 
             nationalId.isEmpty() -> {
                 Toast.makeText(this, "ادخل الرقم القومي", Toast.LENGTH_SHORT).show()

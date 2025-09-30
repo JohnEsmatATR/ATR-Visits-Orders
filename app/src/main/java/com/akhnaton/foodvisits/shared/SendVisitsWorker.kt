@@ -76,6 +76,8 @@ class SendVisitsWorker(
                     visit.latitude,
                     visit.longitude,
                     visit.deviceType,
+                    visit.startLat,
+                    visit.startLong,
                     visit.zoneFlag,
                     visit.checkInDate,
                     visit.dateVisit,

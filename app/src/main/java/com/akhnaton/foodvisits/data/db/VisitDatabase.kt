@@ -7,17 +7,21 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.akhnaton.foodvisits.data.db.dao.SaveVisitDao
 import com.akhnaton.foodvisits.data.db.dao.VisitPlanDao
+import com.akhnaton.foodvisits.data.db.dao.VisitTimerDao
 import com.akhnaton.foodvisits.data.db.model.SaveVisitDB
+import com.akhnaton.foodvisits.data.db.model.VisitTimerEntity
 import com.akhnaton.foodvisits.data.model.ListVisitPlanConverters
 import com.akhnaton.foodvisits.data.model.SaveVisitConverters
 import com.akhnaton.foodvisits.data.model.VisitPlanDataConverters
 import com.akhnaton.foodvisits.data.model.VisitsPlan
 
-@Database(entities = [VisitsPlan::class, SaveVisitDB::class], version = 11)
+@Database(entities = [VisitsPlan::class, SaveVisitDB::class, VisitTimerEntity::class], version = 12)
 @TypeConverters(ListVisitPlanConverters::class, SaveVisitConverters::class, VisitPlanDataConverters::class)
 abstract class VisitDatabase : RoomDatabase() {
     abstract fun saveVisitDao(): SaveVisitDao
     abstract fun visitPlanDao(): VisitPlanDao
+
+    abstract fun visitTimerDao(): VisitTimerDao
 
     companion object {
         @Volatile

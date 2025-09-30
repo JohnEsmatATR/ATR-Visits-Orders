@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.app.ProgressDialog
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.net.Uri
@@ -12,17 +13,21 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.db.VisitDatabase
+import com.akhnaton.foodvisits.data.db.model.VisitTimerEntity
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
@@ -47,6 +52,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import kotlin.math.abs
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
@@ -74,6 +80,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
     private lateinit var dialog: AlertDialog
     private var isVisitHandled = false
+
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,7 +92,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             VisitsViewModelFactory(baseContext)
         )[VisitsViewModel::class.java]
         checkConnection = CheckConnection(baseContext)
-        binding.versionName.text=versionName
+        binding.versionName.text = versionName
 
         customerPartySiteId = intent.getStringExtra("customerPartySiteId").toString()
         orderType = intent.getStringExtra("orderType").toString()
@@ -113,6 +120,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             this@VisitsDetailsActivity,
             "Loading..."
         )
+        checkExistingTimer(customerPartySiteId, customerName)
 
         askPermission()
         setSpinnerAdapter()
@@ -137,15 +145,91 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun observeTimer() {
-        viewModel.stopTimer()
-        viewModel.resetTimer()
-        viewModel.startTimer()
         lifecycleScope.launch {
             viewModel.timerState.collect { timeStaring ->
                 binding.timmer.text = timeStaring
             }
         }
     }
+
+    private fun showStartVisitDialog(customerId: String, name: String) {
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("بدء الزيارة")
+            .setMessage("هل تريد بدء الزيارة؟")
+            .setPositiveButton("نعم") { _, _ ->
+                saveVisitStart(customerId, name)
+            }
+            .setNegativeButton("إلغاء") { _, _ ->
+                finish()
+            }
+            .create()
+
+        dialog.setOnShowListener {
+            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+
+            val lat = binding.fieldLatitude.text.toString().trim()
+            val lng = binding.fieldLongitude.text.toString().trim()
+            positiveButton.isEnabled = lat.isNotEmpty() && lng.isNotEmpty()
+
+
+            binding.fieldLatitude.addTextChangedListener {
+                positiveButton.isEnabled =
+                    binding.fieldLatitude.text.toString().trim().isNotEmpty() &&
+                            binding.fieldLongitude.text.toString().trim().isNotEmpty()
+            }
+
+            binding.fieldLongitude.addTextChangedListener {
+                positiveButton.isEnabled =
+                    binding.fieldLatitude.text.toString().trim().isNotEmpty() &&
+                            binding.fieldLongitude.text.toString().trim().isNotEmpty()
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun saveVisitStart(customerId: String, name: String) {
+        lifecycleScope.launch {
+            val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
+            val dao = db.visitTimerDao()
+
+            val currentTime = System.currentTimeMillis()
+            val lat = binding.fieldLatitude.text.toString().trim()
+            val lng = binding.fieldLongitude.text.toString().trim()
+
+            val timerEntity = VisitTimerEntity(
+                customerPartySiteId = customerId,
+                startTimeMillis = currentTime,
+                startLat = lat,
+                startLong = lng,
+                name = name
+            )
+
+            dao.insertVisitTimer(timerEntity)
+
+
+            viewModel.resetTimer()
+            viewModel.startTimer(0)
+        }
+    }
+
+    private fun checkExistingTimer(customerId: String, name: String) {
+        lifecycleScope.launch {
+            val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
+            val dao = db.visitTimerDao()
+            val savedTimer = dao.getVisitTimerById(customerId)
+
+            if (savedTimer != null) {
+                val elapsedSeconds =
+                    (System.currentTimeMillis() - savedTimer.startTimeMillis) / 1000
+                viewModel.startTimer(elapsedSeconds)
+            } else {
+                showStartVisitDialog(customerId, name)
+            }
+        }
+    }
+
 
     @SuppressLint("SetTextI18n")
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
@@ -226,10 +310,11 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         dialog.show()
                         Log.d(TAG, "fetchDataSaveVisits: Idle")
                     }
-                    is VisitsStatus.Loading ->{
+
+                    is VisitsStatus.Loading -> {
                         dialog.show()
                         Log.d(TAG, "fetchDataSaveVisits: Loading")
-                        binding.constrain.isEnabled=false
+                        binding.constrain.isEnabled = false
                     }
 
                     is VisitsStatus.SaveVisits -> {
@@ -240,10 +325,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                             val visits = checkConnection.getVisits()
                             Log.d(TAG, "fetchDataSaveVisits: $visits")
 
-                            binding.constrain.isEnabled=false
+                            binding.constrain.isEnabled = false
                         } else {
                             Log.d(TAG, "fetchDataSaveVisits: تم المعالجة مسبقًا")
-                            binding.constrain.isEnabled=true
+                            binding.constrain.isEnabled = true
                         }
                     }
 
@@ -262,7 +347,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         dialog.hide()
                         //      checkVisitSituation("")
                         Log.d(TAG, "fetchDataSaveVisits1111Error${it.error}")
-                        binding.constrain.isEnabled=true
+                        binding.constrain.isEnabled = true
                     }
 
                     else -> {}
@@ -329,9 +414,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 val customerLocation = Location("")
                 customerLocation.latitude = customerData.customer_latitude.toDouble()
                 customerLocation.longitude = customerData.customer_longitude.toDouble()
-
                 val distanceInMeters = myLocation.distanceTo(customerLocation)
-
                 if (distanceInMeters < limitArea) {
                     zoneFlag = "IN"
                     saveVisits()
@@ -342,6 +425,8 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
                 }
             }
+
+
         } else {
             ProgressDialogHelper().gpsAlert(this)
         }
@@ -387,8 +472,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         val long = binding.fieldLongitude.text.toString()
         val lat = binding.fieldLatitude.text.toString()
 
+
         if (long.isBlank() || lat.isBlank()) {
-            val snackbar = Snackbar.make(binding.root, "لم يتم الوصول لبيانات الخريطة", Snackbar.LENGTH_LONG)
+            val snackbar =
+                Snackbar.make(binding.root, "لم يتم الوصول لبيانات الخريطة", Snackbar.LENGTH_LONG)
             snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
             snackbar.show()
             dialog.hide()
@@ -396,7 +483,9 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         }
         lifecycleScope.launch {
             val repository = VisitsRepository(this@VisitsDetailsActivity)
-
+            val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
+            val dao = db.visitTimerDao()
+            val savedTimer = dao.getVisitTimerById(customerPartySiteId)
             val result = repository.saveVisit(
                 version = versionName,
                 token = SharedPreferencesHelper.getInstance().getUserToken(),
@@ -406,16 +495,19 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 visitActualTarget = binding.actTarget.text.toString().trim(),
                 latitude = lat,
                 longitude = long,
+                startLat = savedTimer?.startLat.toString(),
+                startLong = savedTimer?.startLong.toString(),
                 deviceType = "Mob",
                 zoneFlag = zoneFlag,
-                checkInDate = enteredTime.toString(),
+                checkInDate = savedTimer?.startTimeMillis.toString(),
                 dateVisit = (System.currentTimeMillis() / 1000).toString(),
                 customerType = customerTypePosition,
                 orderType = orderType
             )
-
+            dao.deleteVisitTimerById(customerPartySiteId)
             val message = if (result.status == 200) {
                 "تم حفظ الزيارة أونلاين بنجاح"
+
 
             } else {
                 "تم حفظ الزيارة أوفلاين، وسيتم إرسالها لاحقًا"
@@ -424,6 +516,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
                 .setBackgroundTint(
                     if (result.status == 200)
+
                         ContextCompat.getColor(this@VisitsDetailsActivity, R.color.green)
                     else
                         ContextCompat.getColor(this@VisitsDetailsActivity, R.color.gray)
@@ -604,4 +697,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         binding.accurate.text = ""
         observeLocation()
     }
+
+
 }

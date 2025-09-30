@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.db.VisitDatabase
 import com.akhnaton.foodvisits.data.model.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsStatus
@@ -134,16 +135,49 @@ class VisitsFragment : Fragment(), PlanViewHolder.OnSelectEmployeeClickListener,
     override fun onSelectEmployeeClickListener(data: CustomerVisitPlan, position: Int) {
         val tsLong = System.currentTimeMillis() / 1000
 
-        startActivity(
-            Intent(requireActivity(), VisitsDetailsActivity::class.java)
-                .putExtra("customerPartySiteId", data.customer_party_site_id)
-                .putExtra("time", tsLong.toString())
-                .putExtra("customerSiteData", data)
-                .putExtra("orderType", data.customer_order_type)
-                .putExtra("customerTypePosition", data.customer_type)
-                .putExtra("customer_name", data.customer_name)
-        )
+        lifecycleScope.launch {
+            val db = VisitDatabase.getDatabase(requireContext())
+            val dao = db.visitTimerDao()
+
+            val activeVisit = dao.getActiveVisit()
+
+            if (activeVisit != null) {
+                if (activeVisit.customerPartySiteId == data.customer_party_site_id) {
+
+                    startActivity(
+                        Intent(requireActivity(), VisitsDetailsActivity::class.java)
+                            .putExtra("customerPartySiteId", data.customer_party_site_id)
+                            .putExtra("time", tsLong.toString())
+                            .putExtra("customerSiteData", data)
+                            .putExtra("orderType", data.customer_order_type)
+                            .putExtra("customerTypePosition", data.customer_type)
+                            .putExtra("customer_name", data.customer_name)
+                    )
+                } else {
+
+                    AlertDialog.Builder(requireContext())
+                        .setTitle("تنبيه")
+                        .setMessage("يوجد زيارة مفتوحة بالفعل للعميل: ${activeVisit.name}")
+                        .setPositiveButton("حسناً") { dialog, _ ->
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+            } else {
+
+                startActivity(
+                    Intent(requireActivity(), VisitsDetailsActivity::class.java)
+                        .putExtra("customerPartySiteId", data.customer_party_site_id)
+                        .putExtra("time", tsLong.toString())
+                        .putExtra("customerSiteData", data)
+                        .putExtra("orderType", data.customer_order_type)
+                        .putExtra("customerTypePosition", data.customer_type)
+                        .putExtra("customer_name", data.customer_name)
+                )
+            }
+        }
     }
+
 
     override fun onClick(p0: View?) {
         lifecycleScope.launch {
