@@ -9,6 +9,8 @@ import android.content.Intent
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
+import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
 import android.view.View
@@ -52,6 +54,9 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.greenrobot.eventbus.EventBus
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.abs
 
 class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
@@ -85,7 +90,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
-
+        saveInitialOffsetIfMissing(this)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         viewModel = ViewModelProvider(
             this,
@@ -153,82 +158,85 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun showStartVisitDialog(customerId: String, name: String) {
-        val dialog = AlertDialog.Builder(this)
-            .setTitle("بدء الزيارة")
-            .setMessage("هل تريد بدء الزيارة؟")
-            .setPositiveButton("نعم") { _, _ ->
-                saveVisitStart(customerId, name)
+        checkDeviceTimeBeforeAction {
+            val dialog = AlertDialog.Builder(this)
+                .setTitle("بدء الزيارة")
+                .setMessage("هل تريد بدء الزيارة؟")
+                .setPositiveButton("نعم") { _, _ ->
+                    saveVisitStart(customerId, name)
+                }
+                .setNegativeButton("إلغاء") { _, _ ->
+                    finish()
+                }
+                .create()
+
+            dialog.setOnShowListener {
+                val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                val lat = binding.fieldLatitude.text.toString().trim()
+                val lng = binding.fieldLongitude.text.toString().trim()
+                positiveButton.isEnabled = lat.isNotEmpty() && lng.isNotEmpty()
+
+                binding.fieldLatitude.addTextChangedListener {
+                    positiveButton.isEnabled =
+                        binding.fieldLatitude.text.toString().trim().isNotEmpty() &&
+                                binding.fieldLongitude.text.toString().trim().isNotEmpty()
+                }
+
+                binding.fieldLongitude.addTextChangedListener {
+                    positiveButton.isEnabled =
+                        binding.fieldLatitude.text.toString().trim().isNotEmpty() &&
+                                binding.fieldLongitude.text.toString().trim().isNotEmpty()
+                }
             }
-            .setNegativeButton("إلغاء") { _, _ ->
-                finish()
-            }
-            .create()
 
-        dialog.setOnShowListener {
-            val positiveButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-
-
-            val lat = binding.fieldLatitude.text.toString().trim()
-            val lng = binding.fieldLongitude.text.toString().trim()
-            positiveButton.isEnabled = lat.isNotEmpty() && lng.isNotEmpty()
-
-
-            binding.fieldLatitude.addTextChangedListener {
-                positiveButton.isEnabled =
-                    binding.fieldLatitude.text.toString().trim().isNotEmpty() &&
-                            binding.fieldLongitude.text.toString().trim().isNotEmpty()
-            }
-
-            binding.fieldLongitude.addTextChangedListener {
-                positiveButton.isEnabled =
-                    binding.fieldLatitude.text.toString().trim().isNotEmpty() &&
-                            binding.fieldLongitude.text.toString().trim().isNotEmpty()
-            }
+            dialog.show()
         }
-
-        dialog.show()
     }
 
     private fun saveVisitStart(customerId: String, name: String) {
-        lifecycleScope.launch {
-            val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
-            val dao = db.visitTimerDao()
+        checkDeviceTimeBeforeAction {
+            lifecycleScope.launch {
+                val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
+                val dao = db.visitTimerDao()
 
-            val currentTime = System.currentTimeMillis()
-            val lat = binding.fieldLatitude.text.toString().trim()
-            val lng = binding.fieldLongitude.text.toString().trim()
+                val currentTime = System.currentTimeMillis()/1000
+                val lat = binding.fieldLatitude.text.toString().trim()
+                val lng = binding.fieldLongitude.text.toString().trim()
 
-            val timerEntity = VisitTimerEntity(
-                customerPartySiteId = customerId,
-                startTimeMillis = currentTime,
-                startLat = lat,
-                startLong = lng,
-                name = name
-            )
+                val timerEntity = VisitTimerEntity(
+                    customerPartySiteId = customerId,
+                    startTimeMillis = currentTime,
+                    startLat = lat,
+                    startLong = lng,
+                    name = name
+                )
 
-            dao.insertVisitTimer(timerEntity)
+                dao.insertVisitTimer(timerEntity)
 
-
-            viewModel.resetTimer()
-            viewModel.startTimer(0)
+                viewModel.resetTimer()
+                viewModel.startTimer(0)
+            }
         }
     }
 
     private fun checkExistingTimer(customerId: String, name: String) {
-        lifecycleScope.launch {
-            val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
-            val dao = db.visitTimerDao()
-            val savedTimer = dao.getVisitTimerById(customerId)
+        checkDeviceTimeBeforeAction {
+            lifecycleScope.launch {
+                val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
+                val dao = db.visitTimerDao()
+                val savedTimer = dao.getVisitTimerById(customerId)
 
-            if (savedTimer != null) {
-                val elapsedSeconds =
-                    (System.currentTimeMillis() - savedTimer.startTimeMillis) / 1000
-                viewModel.startTimer(elapsedSeconds)
-            } else {
-                showStartVisitDialog(customerId, name)
+                if (savedTimer != null) {
+                    val elapsedSeconds =
+                        (System.currentTimeMillis() - savedTimer.startTimeMillis) / 1000
+                    viewModel.startTimer(elapsedSeconds)
+                } else {
+                    showStartVisitDialog(customerId, name)
+                }
             }
         }
     }
+
 
 
     @SuppressLint("SetTextI18n")
@@ -468,67 +476,68 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun saveVisits() {
-        dialog.show()
-        val long = binding.fieldLongitude.text.toString()
-        val lat = binding.fieldLatitude.text.toString()
+        checkDeviceTimeBeforeAction {
+            dialog.show()
+            val long = binding.fieldLongitude.text.toString()
+            val lat = binding.fieldLatitude.text.toString()
 
-
-        if (long.isBlank() || lat.isBlank()) {
-            val snackbar =
-                Snackbar.make(binding.root, "لم يتم الوصول لبيانات الخريطة", Snackbar.LENGTH_LONG)
-            snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
-            snackbar.show()
-            dialog.hide()
-            return
-        }
-        lifecycleScope.launch {
-            val repository = VisitsRepository(this@VisitsDetailsActivity)
-            val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
-            val dao = db.visitTimerDao()
-            val savedTimer = dao.getVisitTimerById(customerPartySiteId)
-            val result = repository.saveVisit(
-                version = versionName,
-                token = SharedPreferencesHelper.getInstance().getUserToken(),
-                customerPartySiteId = customerPartySiteId,
-                visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType),
-                visitTarget = binding.visTarget.text.toString().trim(),
-                visitActualTarget = binding.actTarget.text.toString().trim(),
-                latitude = lat,
-                longitude = long,
-                startLat = savedTimer?.startLat.toString(),
-                startLong = savedTimer?.startLong.toString(),
-                deviceType = "Mob",
-                zoneFlag = zoneFlag,
-                checkInDate = savedTimer?.startTimeMillis.toString(),
-                dateVisit = (System.currentTimeMillis() / 1000).toString(),
-                customerType = customerTypePosition,
-                orderType = orderType
-            )
-            dao.deleteVisitTimerById(customerPartySiteId)
-            val message = if (result.status == 200) {
-                "تم حفظ الزيارة أونلاين بنجاح"
-
-
-            } else {
-                "تم حفظ الزيارة أوفلاين، وسيتم إرسالها لاحقًا"
+            if (long.isBlank() || lat.isBlank()) {
+                val snackbar =
+                    Snackbar.make(binding.root, "لم يتم الوصول لبيانات الخريطة", Snackbar.LENGTH_LONG)
+                snackbar.setBackgroundTint(ContextCompat.getColor(this, android.R.color.holo_red_dark))
+                snackbar.show()
+                dialog.hide()
+                return@checkDeviceTimeBeforeAction
             }
 
-            Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-                .setBackgroundTint(
-                    if (result.status == 200)
+            lifecycleScope.launch {
+                val repository = VisitsRepository(this@VisitsDetailsActivity)
+                val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
+                val dao = db.visitTimerDao()
+                val savedTimer = dao.getVisitTimerById(customerPartySiteId)
 
-                        ContextCompat.getColor(this@VisitsDetailsActivity, R.color.green)
-                    else
-                        ContextCompat.getColor(this@VisitsDetailsActivity, R.color.gray)
+                val checkInDateStr = savedTimer?.startTimeMillis
+
+
+                val dateVisitStr = (System.currentTimeMillis() / 1000).toString()
+                val result = repository.saveVisit(
+                    version = versionName,
+                    token = SharedPreferencesHelper.getInstance().getUserToken(),
+                    customerPartySiteId = customerPartySiteId,
+                    visitType = SpinnerHelper().getVisitTypeFromSpinner(binding.visitType),
+                    visitTarget = binding.visTarget.text.toString().trim(),
+                    visitActualTarget = binding.actTarget.text.toString().trim(),
+                    latitude = lat,
+                    longitude = long,
+                    startLat = savedTimer?.startLat.toString(),
+                    startLong = savedTimer?.startLong.toString(),
+                    deviceType = "Mob",
+                    zoneFlag = zoneFlag,
+                    checkInDate =checkInDateStr.toString(),
+                    dateVisit = dateVisitStr,
+                    customerType = customerTypePosition,
+                    orderType = orderType
                 )
-                .show()
+                dao.deleteVisitTimerById(customerPartySiteId)
+                val message = if (result.status == 200) {
+                    "تم حفظ الزيارة أونلاين بنجاح"
+                } else {
+                    "تم حفظ الزيارة أوفلاين، وسيتم إرسالها لاحقًا"
+                }
 
+                Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+                    .setBackgroundTint(
+                        if (result.status == 200)
+                            ContextCompat.getColor(this@VisitsDetailsActivity, R.color.green)
+                        else
+                            ContextCompat.getColor(this@VisitsDetailsActivity, R.color.gray)
+                    )
+                    .show()
 
-            delay(1500)
-            startActivity(Intent(this@VisitsDetailsActivity, MainActivity::class.java))
+                delay(1500)
+                startActivity(Intent(this@VisitsDetailsActivity, MainActivity::class.java))
+            }
         }
-
-
     }
 
 
@@ -698,5 +707,40 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
         observeLocation()
     }
 
-
+    private fun saveInitialOffsetIfMissing(context: Context) {
+        val prefs = context.getSharedPreferences("time_check_prefs", Context.MODE_PRIVATE)
+        if (!prefs.contains("stored_offset")) {
+            val offset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
+            prefs.edit().putLong("stored_offset", offset).apply()
+            Log.d("TimeCheck", "Saved initial offset = $offset")
+        }
+    }
+    private fun isDeviceTimeTamperedOffline(context: Context): Pair<Boolean, Long> {
+        val prefs = context.getSharedPreferences("time_check_prefs", Context.MODE_PRIVATE)
+        val storedOffset = prefs.getLong("stored_offset", Long.MIN_VALUE)
+        if (storedOffset == Long.MIN_VALUE) {
+            Log.w("TimeCheck", "No stored offset — call saveInitialOffsetIfMissing first when you trust time.")
+            return Pair(false, 0L)
+        }
+        val currentOffset = System.currentTimeMillis() - SystemClock.elapsedRealtime()
+        val delta = currentOffset - storedOffset
+        Log.d("TimeCheck", "storedOffset=$storedOffset, currentOffset=$currentOffset, deltaMs=$delta")
+        val tampered = abs(delta) > 15 * 60 * 1000L
+        return Pair(tampered, delta)
+    }
+    private fun checkDeviceTimeBeforeAction(action: () -> Unit) {
+        val (tampered, _) = isDeviceTimeTamperedOffline(this)
+        if (tampered) {
+            AlertDialog.Builder(this)
+                .setTitle("تحذير")
+                .setMessage("تم اكتشاف تعديل في ساعة الجهاز، برجاء ضبط الساعة قبل اتمام الزيارات")
+                .setCancelable(false)
+                .setPositiveButton("موافق") { _, _ ->
+                    finish()
+                }
+                .show()
+        } else {
+            action()
+        }
+    }
 }
