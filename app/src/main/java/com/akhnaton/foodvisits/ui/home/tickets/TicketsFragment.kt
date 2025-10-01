@@ -50,8 +50,12 @@ class TicketsFragment : Fragment(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.state.collect() {
                 when (it) {
-                    is TicketsStatus.Idle -> Log.d(TAG, "fetchData: ")
-                    is TicketsStatus.Loading -> dialog.show()
+                    is TicketsStatus.Idle -> {
+                        dialog.hide()
+                    }
+                    is TicketsStatus.Loading -> {
+                        dialog.show()
+                    }
                     is TicketsStatus.SendTickets -> {
                         dialog.hide()
                         binding.error.visibility = View.GONE

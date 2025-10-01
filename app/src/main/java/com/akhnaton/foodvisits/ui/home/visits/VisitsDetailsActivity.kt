@@ -162,6 +162,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             val dialog = AlertDialog.Builder(this)
                 .setTitle("بدء الزيارة")
                 .setMessage("هل تريد بدء الزيارة؟")
+                .setCancelable(false)
                 .setPositiveButton("نعم") { _, _ ->
                     saveVisitStart(customerId, name)
                 }
@@ -188,24 +189,24 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                                 binding.fieldLongitude.text.toString().trim().isNotEmpty()
                 }
             }
-
+            dialog.setCanceledOnTouchOutside(false)
             dialog.show()
         }
     }
-
     private fun saveVisitStart(customerId: String, name: String) {
         checkDeviceTimeBeforeAction {
             lifecycleScope.launch {
                 val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
                 val dao = db.visitTimerDao()
 
-                val currentTime = System.currentTimeMillis()/1000
+                // خزّن الوقت بالثواني
+                val currentTimeSeconds = System.currentTimeMillis() / 1000
                 val lat = binding.fieldLatitude.text.toString().trim()
                 val lng = binding.fieldLongitude.text.toString().trim()
 
                 val timerEntity = VisitTimerEntity(
                     customerPartySiteId = customerId,
-                    startTimeMillis = currentTime,
+                    startTimeMillis = currentTimeSeconds, // هنا seconds
                     startLat = lat,
                     startLong = lng,
                     name = name
@@ -227,15 +228,29 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 val savedTimer = dao.getVisitTimerById(customerId)
 
                 if (savedTimer != null) {
-                    val elapsedSeconds =
-                        (System.currentTimeMillis() - savedTimer.startTimeMillis) / 1000
+                    // الوقت الحالي بالثواني
+                    val now = System.currentTimeMillis() / 1000
+
+                    // الفرق بالثواني
+                    val elapsedSeconds = now - savedTimer.startTimeMillis
+
+                    android.util.Log.d(
+                        "DEBUGGGGG",
+                        "Saved Start = ${savedTimer.startTimeMillis}, Now = $now, Elapsed = $elapsedSeconds"
+                    )
+
+                    // كمل العد من الفرق
                     viewModel.startTimer(elapsedSeconds)
                 } else {
+                    // مفيش تايمر محفوظ → افتح الدايالوج لبدء زيارة جديدة
                     showStartVisitDialog(customerId, name)
                 }
             }
         }
     }
+
+
+
 
 
 

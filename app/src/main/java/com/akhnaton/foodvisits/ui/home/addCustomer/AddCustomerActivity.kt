@@ -404,6 +404,10 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                             governorate = selectedGovernorate?.id.toString()
                             binding.spSelectGovernorate.setText(selectedGovernorate?.name_ar ?: "")
 
+                            city = ""
+                            binding.spSelectArea.setText("") // clear text
+                            binding.spSelectArea.setAdapter(null) // clear old adapter
+
                             Log.d("Governorate", "Selected: ${selectedGovernorate?.name_ar}")
 
                             selectedGovernorate?.let {

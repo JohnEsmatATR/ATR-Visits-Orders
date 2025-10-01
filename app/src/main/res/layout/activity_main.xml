@@ -72,6 +72,7 @@
                 android:layout_width="@dimen/_28sdp"
                 android:layout_height="@dimen/_28sdp"
                 android:layout_marginStart="@dimen/_5sdp"
+                android:visibility="gone"
                 android:background="@drawable/map"
                 android:padding="@dimen/_12sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
