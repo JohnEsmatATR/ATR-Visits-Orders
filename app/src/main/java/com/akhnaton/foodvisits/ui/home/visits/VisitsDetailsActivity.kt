@@ -199,7 +199,6 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 val db = VisitDatabase.getDatabase(this@VisitsDetailsActivity)
                 val dao = db.visitTimerDao()
 
-                // خزّن الوقت بالثواني
                 val currentTimeSeconds = System.currentTimeMillis() / 1000
                 val lat = binding.fieldLatitude.text.toString().trim()
                 val lng = binding.fieldLongitude.text.toString().trim()
@@ -228,10 +227,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                 val savedTimer = dao.getVisitTimerById(customerId)
 
                 if (savedTimer != null) {
-                    // الوقت الحالي بالثواني
+
                     val now = System.currentTimeMillis() / 1000
 
-                    // الفرق بالثواني
+
                     val elapsedSeconds = now - savedTimer.startTimeMillis
 
                     android.util.Log.d(
@@ -239,10 +238,10 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                         "Saved Start = ${savedTimer.startTimeMillis}, Now = $now, Elapsed = $elapsedSeconds"
                     )
 
-                    // كمل العد من الفرق
+
                     viewModel.startTimer(elapsedSeconds)
                 } else {
-                    // مفيش تايمر محفوظ → افتح الدايالوج لبدء زيارة جديدة
+
                     showStartVisitDialog(customerId, name)
                 }
             }

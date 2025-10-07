@@ -84,6 +84,8 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
     private lateinit var backImageFile: File
     private val REQUEST_FRONT_IMAGE = 1001
     private val REQUEST_BACK_IMAGE = 1002
+    private lateinit var governorName : String
+    private lateinit var cityName : String
 
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -240,7 +242,8 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
         val address = binding.customerAddress.text.toString().trim()
         val nationalId = binding.customerNational.text.toString().trim()
         val phone = binding.spWriteCustomerPhone.text.toString().trim()
-        val secondPhone = binding.spWriteCustomerMobile.text.toString().trim()
+        val city = binding.spSelectArea.text.toString().trim()
+        val governor = binding.spSelectGovernorate.text.toString().trim()
 
         return when {
             customerTypePosition.isEmpty() -> {
@@ -305,15 +308,25 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                 false
             }
 
-            !::frontImageFile.isInitialized -> {
+            !::frontImageFile.isInitialized || frontImageFile.length() == 0L -> {
                 Toast.makeText(this, "قم بتصوير البطاقة الأمامية", Toast.LENGTH_SHORT).show()
                 false
             }
 
-            !::backImageFile.isInitialized -> {
+            !::backImageFile.isInitialized || backImageFile.length() == 0L -> {
                 Toast.makeText(this, "قم بتصوير البطاقة الخلفية", Toast.LENGTH_SHORT).show()
                 false
             }
+            governor.isEmpty() ->{
+                Toast.makeText(this, "اختر الماحفظه", Toast.LENGTH_SHORT).show()
+                false
+            }
+            city.isEmpty() ->{
+                Toast.makeText(this, "اختر المدينة", Toast.LENGTH_SHORT).show()
+                false
+            }
+
+
 
             else -> true
         }
@@ -332,7 +345,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
 
             val uri = FileProvider.getUriForFile(
                 this,
-                "${packageName}.provider", // لازم يطابق الـ authority في manifest
+                "${packageName}.provider",
                 imageFile
             )
 
@@ -356,17 +369,25 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
         if (resultCode == RESULT_OK) {
             when (requestCode) {
                 REQUEST_FRONT_IMAGE -> {
-                    val bitmap = BitmapFactory.decodeFile(frontImageFile.absolutePath)
-                    binding.imFrontIdImage.setImageBitmap(bitmap)
+                    if (frontImageFile.exists() && frontImageFile.length() > 0L) {
+                        val bitmap = BitmapFactory.decodeFile(frontImageFile.absolutePath)
+                        binding.imFrontIdImage.setImageBitmap(bitmap)
+                    } else {
+                        Toast.makeText(this, "لم يتم التقاط الصورة الأمامية", Toast.LENGTH_SHORT).show()
+                    }
                 }
-
                 REQUEST_BACK_IMAGE -> {
-                    val bitmap = BitmapFactory.decodeFile(backImageFile.absolutePath)
-                    binding.imBackIdImage.setImageBitmap(bitmap)
+                    if (backImageFile.exists() && backImageFile.length() > 0L) {
+                        val bitmap = BitmapFactory.decodeFile(backImageFile.absolutePath)
+                        binding.imBackIdImage.setImageBitmap(bitmap)
+                    } else {
+                        Toast.makeText(this, "لم يتم التقاط الصورة الخلفية", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
+
 
 
 
@@ -403,12 +424,15 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                             val selectedGovernorate = adapter.getItem(position)
                             governorate = selectedGovernorate?.id.toString()
                             binding.spSelectGovernorate.setText(selectedGovernorate?.name_ar ?: "")
+                            governorName = selectedGovernorate?.name_ar.toString()
+
 
                             city = ""
                             binding.spSelectArea.setText("") // clear text
                             binding.spSelectArea.setAdapter(null) // clear old adapter
 
                             Log.d("Governorate", "Selected: ${selectedGovernorate?.name_ar}")
+                            Log.d("Governorate", "Selected: ${selectedGovernorate?.id}")
 
                             selectedGovernorate?.let {
                                 lifecycleScope.launch {
@@ -436,6 +460,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                             val selectedArea = adapter.getItem(position)
                             city = selectedArea?.id.toString()
                             binding.spSelectArea.setText(selectedArea?.name_ar ?: "")
+                            cityName = selectedArea?.name_ar.toString()
                             Log.d("Area", "Selected: ${selectedArea?.name_ar}")
                         }
                     }
@@ -658,7 +683,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                 }
             )
         } else {
-            // للأجهزة الأقل من API 33، لازم تستخدم النسخة القديمة (synchronous)
+
             try {
                 val addresses = geocoder.getFromLocation(latitude, longitude, 1)
                 if (!addresses.isNullOrEmpty()) {
