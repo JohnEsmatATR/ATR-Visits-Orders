@@ -110,6 +110,7 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
                         Log.d(TAG, "fetchData: Orders: ${it.data}")
                         binding.tvCustomerName.text = it.data.data.invoice_info.customer_name
                         binding.tvCustomerAddress.text = it.data.data.invoice_info.customer_address
+                        binding.txtPaymentMethod.text = it.data.data.invoice_info.payment_method
 
                         when (data.orderType) {
                             "Food" -> {

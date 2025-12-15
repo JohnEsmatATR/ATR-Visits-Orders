@@ -11,7 +11,8 @@ data class FoodDetailsData(
 data class FoodInvoiceInfo(
     val customer_name: String,
     val customer_address: String,
-    val invoice_total_value: Float
+    val invoice_total_value: Float,
+    val payment_method: String
 )
 
 class FoodInvoiceDetails {
