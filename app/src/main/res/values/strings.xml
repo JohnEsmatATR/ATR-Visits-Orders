@@ -154,4 +154,12 @@
     <string name="cutsomer_coding">تكويد عميل</string>
     <string name="submit">ارسال</string>
 
+    <string name="support_info">
+    --- معلومات الدعم ---
+    التطبيق: %1$s
+    النسخة: %2$s
+    النظام: %3$s
+    الجهاز: %4$s
+    </string>
+
 </resources>

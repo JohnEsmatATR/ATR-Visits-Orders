@@ -2,8 +2,8 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-   const val BASE_URL = "https://sales.atr-eg.com/" // Prod
-  // const val BASE_URL = "http://10.42.151.27/" //Test
+//   const val BASE_URL = "https://sales.atr-eg.com/" // Prod
+   const val BASE_URL = "http://10.42.151.27/" //Test
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod
 //    private const val ROUTS_API = "test_web_food/routes.php" // test
@@ -15,7 +15,8 @@ object ConstantLinks {
     const val FOOD_ORDER = "$ROUTS_API?path=get_food_invoices_list"
     const val FOOD_ORDER_DETAILS = "$ROUTS_API?path=get_food_invoice_details"
 
-    const val VISITS_PATH = "$ROUTS_API?path=get_user_order_type"
+//    const val VISITS_PATH = "$ROUTS_API?path=get_user_order_type"
+    const val VISITS_PATH = "sales_backend/getSalesAndCustomerTypes"
     const val VISIT_PLAN = "$ROUTS_API?path=get_visit_plan"
     const val CUSTOMER_TYPE = "$ROUTS_API?path=get_user_customer_type"
     const val LINES = "$ROUTS_API?path=get_user_lines"
