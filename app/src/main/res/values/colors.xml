@@ -20,10 +20,14 @@
     <color name="main_button">#E6E6E5</color>
     <color name="default_color_dark">#52a6b8</color>
     <color name="gray">#35323D</color>
+    <color name="grey">#ececf4</color>
+    <color name="grey2">#a9a9a9</color>
     <color name="float_transparent">#00000000</color>
     <color name="testing">#F5F5FA</color>
     <color name="spinner_color">#F5F5F8</color>
 
     <color name="receipt_color">#04074A</color>
+    <color name="main_color_gold">#F8CB6C</color>
+    <color name="main_color_gold2">#20F38E26</color>
 
 </resources>

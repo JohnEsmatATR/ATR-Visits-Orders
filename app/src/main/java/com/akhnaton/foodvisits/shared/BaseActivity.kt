@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.shared
 
+import android.app.Dialog
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.Gravity
@@ -104,6 +105,5 @@ open class BaseActivity : AppCompatActivity() {
         view.visibility = View.GONE
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
     }
-
 
 }

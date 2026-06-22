@@ -162,4 +162,26 @@
     الجهاز: %4$s
     </string>
 
+    <string name="determine_itinerary_visit">تحديد مسار الزيارة</string>
+    <string name="choose_type_sale">اختر نوع البيع</string>
+    <string name="please_specify_target_sales_type_begin_creating_visit_plan">يرجي تحديد نوع البيع المستهدف للبدء بانشاء خطة الزيارة</string>
+    <string name="change_type_sale">تغيير نوع البيع</string>
+    <string name="search_customer_name_code">ابحث باسم العميل أو الكود...</string>
+    <string name="change_work">تغيير العمل</string>
+    <string name="choose_customer_address">اختر عنوان العميل</string>
+    <string name="objective_visit">هدف الزيارة</string>
+    <string name="collect_today">تحصيل اليوم</string>
+    <string name="visiting_position">موقف الزيارة</string>
+    <string name="save_visit">حفظ الزيارة</string>
+    <string name="visit_notes">ملاحظات الزيارة</string>
+    <string name="client">العميل</string>
+    <string name="order">طلبية</string>
+    <string name="negative">سلبية</string>
+    <string name="collection">تحصيل</string>
+    <string name="saved_successfully">تم الحفظ بنجاح</string>
+    <string name="order_creation_cycle">دورة إنشاء الطلبية</string>
+    <string name="choose_from_menu">اختر من القائمة...</string>
+    <string name="code">كود</string>
+    <string name="sale_type">نوع الطلب</string>
+
 </resources>

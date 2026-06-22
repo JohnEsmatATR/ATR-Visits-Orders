@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         binding.loginButton.setOnClickListener(this)
         makeLogin()
 
-       // requestNotificationPermission()
+        // requestNotificationPermission()
 
 
     }
@@ -96,23 +96,24 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                         if (it.login.status != 400) {
                             val username = binding.username.text.toString()
                             val password = binding.password.text.toString()
+
+                            var data = it.login.data.get(0)
                             dialog.hide()
                             SharedPreferencesHelper().setLogged()
                             SharedPreferencesHelper().setUserData(
-                                it.login.data.user.api_token,
-                                it.login.data.user.user_name,
-                                it.login.data.user.employee_id,
-                                it.login.data.user.make_order,
-                                it.login.data.user.prom,
-                                it.login.data.user.telephone,
-
+                                data.TOKEN,
+                                data.USER_NAME,
+                                data.USER_ID,
+                                true,
+                                true,
+                                true,
                             )
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 saveUserCredentials(this@LoginActivity, username, password)
                             }
 
-                            Log.d(TAG, "makeLogin: " + it.login.data.user.employee_id)
+                            Log.d(TAG, "makeLogin: " + data.USER_ID)
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finishAffinity()
                         } else {
@@ -139,9 +140,12 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun checkPermission(): Boolean {
-        val fineLocation = ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_FINE_LOCATION)
-        val coarseLocation = ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_COARSE_LOCATION)
-        val readPhoneState = ContextCompat.checkSelfPermission(applicationContext, permission.READ_PHONE_STATE)
+        val fineLocation =
+            ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_FINE_LOCATION)
+        val coarseLocation =
+            ContextCompat.checkSelfPermission(applicationContext, permission.ACCESS_COARSE_LOCATION)
+        val readPhoneState =
+            ContextCompat.checkSelfPermission(applicationContext, permission.READ_PHONE_STATE)
 
         val notificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             ContextCompat.checkSelfPermission(applicationContext, permission.POST_NOTIFICATIONS)
@@ -182,21 +186,34 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> {
-                val locationAccepted = grantResults.getOrNull(permissions.indexOf(permission.ACCESS_FINE_LOCATION)) == PackageManager.PERMISSION_GRANTED
-                val coarseAccepted = grantResults.getOrNull(permissions.indexOf(permission.ACCESS_COARSE_LOCATION)) == PackageManager.PERMISSION_GRANTED
-                val readPhoneAccepted = grantResults.getOrNull(permissions.indexOf(permission.READ_PHONE_STATE)) == PackageManager.PERMISSION_GRANTED
-                val notificationAccepted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    grantResults.getOrNull(permissions.indexOf(permission.POST_NOTIFICATIONS)) == PackageManager.PERMISSION_GRANTED
-                } else true
+                val locationAccepted =
+                    grantResults.getOrNull(permissions.indexOf(permission.ACCESS_FINE_LOCATION)) == PackageManager.PERMISSION_GRANTED
+                val coarseAccepted =
+                    grantResults.getOrNull(permissions.indexOf(permission.ACCESS_COARSE_LOCATION)) == PackageManager.PERMISSION_GRANTED
+                val readPhoneAccepted =
+                    grantResults.getOrNull(permissions.indexOf(permission.READ_PHONE_STATE)) == PackageManager.PERMISSION_GRANTED
+                val notificationAccepted =
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        grantResults.getOrNull(permissions.indexOf(permission.POST_NOTIFICATIONS)) == PackageManager.PERMISSION_GRANTED
+                    } else true
 
                 if (locationAccepted && coarseAccepted && readPhoneAccepted && notificationAccepted) {
-                    Toast.makeText(this, "Thanks for accepting permissions", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Thanks for accepting permissions", Toast.LENGTH_SHORT)
+                        .show()
                 } else {
                     if (!notificationAccepted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        Toast.makeText(this, "You denied notification permission. App may not show notifications.", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this,
+                            "You denied notification permission. App may not show notifications.",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
 
-                    Toast.makeText(this, "Permission Denied. You cannot access location data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "Permission Denied. You cannot access location data",
+                        Toast.LENGTH_SHORT
+                    ).show()
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
                         shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)
@@ -231,10 +248,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                 lifecycleScope.launch {
                     viewModel.loginIntent.send(
                         LoginIntent.Login(
-                            versionName,
                             username,
                             password,
-                            firebaseToken
                         )
                     )
 
@@ -247,8 +262,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                 Log.d("FCM", "Failed to get token", it)
             }
     }
-
-
 
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
@@ -267,7 +280,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
     private fun handleBackPress() {
         onBackPressedDispatcher.addCallback(this@LoginActivity) {
-           finishAffinity()
+            finishAffinity()
         }
     }
 }

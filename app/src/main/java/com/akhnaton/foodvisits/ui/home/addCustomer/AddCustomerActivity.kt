@@ -231,6 +231,7 @@ class AddCustomerActivity : BaseActivity(), LocationListener, View.OnClickListen
                     }
 
                     is PhoneVisitsStatus.SavePhoneVisits -> TODO()
+                    else -> {}
                 }
             }
         }

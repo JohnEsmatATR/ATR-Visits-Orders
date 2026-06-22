@@ -1,7 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
@@ -28,6 +30,22 @@ class PhoneVisitsViewModel : ViewModel() {
         viewModelScope.launch {
             phoneVisitsIntent.consumeAsFlow().collect {
                 when (it) {
+                    is PhoneVisitsIntent.GetSalesAndCustomerTypes -> getSalesAndCustomerTypes()
+                    is PhoneVisitsIntent.GetCustomers -> getCustomers(it.saleType)
+                    is PhoneVisitsIntent.GetCustomerData -> getCustomerData(
+                        it.saleType,
+                        it.customerCode,
+                        it.line
+                    )
+
+                    is PhoneVisitsIntent.SaveVisitPhone -> saveVisitPhone(
+                        it.saveVisitPhoneReq,
+                    )
+
+                    is PhoneVisitsIntent.RefreshToken -> refreshToken(it.userId, it.token)
+
+                    //------------------------------------------------------------------------------
+
                     is PhoneVisitsIntent.GetPlan -> fetchPlan(it.version, it.token)
                     is PhoneVisitsIntent.GetCustomerType -> fetchCustomerType(it.version, it.token)
                     is PhoneVisitsIntent.GetLines -> fetchLines(
@@ -77,6 +95,88 @@ class PhoneVisitsViewModel : ViewModel() {
             }
         }
     }
+
+    private fun getSalesAndCustomerTypes() {
+        Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL1")
+                PhoneVisitsStatus.GetSalesAndCustomerTypes(
+                    PhoneVisitsRepository().getSalesAndCustomerTypes()
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun getCustomers(saleType: String) {
+        Log.d("WHAT", "getCustomersVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "getCustomersVIEWMODEL1")
+                PhoneVisitsStatus.GetCustomers(
+                    PhoneVisitsRepository().getCustomers(saleType)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "getCustomersVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun getCustomerData(saleType: String, customerCode: String, line: String) {
+        Log.d("WHAT", "getCustomersVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "getCustomersVIEWMODEL1")
+                PhoneVisitsStatus.GetCustomerData(
+                    PhoneVisitsRepository().getCustomerData(saleType, customerCode, line)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "getCustomerDataVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun saveVisitPhone(saveVisitPhoneReq: SaveVisitPhoneReq) {
+        Log.d("WHAT", "getCustomersVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "getCustomersVIEWMODEL1")
+                PhoneVisitsStatus.SaveVisitPhone(
+                    PhoneVisitsRepository().saveVisitPhone(saveVisitPhoneReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "saveVisitPhoneVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun refreshToken(userId: String, token: String) {
+        Log.d("WHAT", "refreshTokenVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "refreshTokenVIEWMODEL1")
+                PhoneVisitsStatus.RefreshToken(
+                    PhoneVisitsRepository().refreshToken(userId, token)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "refreshTokenVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------
 
     private fun fetchPlan(version: String, token: String) {
         viewModelScope.launch {

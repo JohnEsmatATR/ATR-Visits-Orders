@@ -1,0 +1,22 @@
+package com.akhnaton.foodvisits.data.model.getStartOrderData
+
+data class Product(
+    val CATEGORY_ID: String,
+    val CUST_PRICE: String,
+    val DESCRIPTION: String,
+    val INVENTORY_ITEM_ID: String,
+    val ITEM_CODE: String,
+    val ITEM_PRICE: String,
+    val MANDATORY_QOUTA: String,
+    val PERCENTAGE_RATE: String,
+    val PRODUCT_NAME: String,
+    val QUANTITY: String,
+    val QUANTITY_RATE: String,
+    val QUOTA_QTY: String,
+    val RATE_TYPE: String,
+    val REFRIGERATOR_ITEMS: Any,
+    val SEGMENT2: String,
+    val SEGMENT4: String,
+    val SUPER_ID: String,
+    val TAX_AMOUNT: String
+)

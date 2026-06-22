@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:alpha="0.5"
+    app:cardCornerRadius="24dp"
+    app:cardElevation="1dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_16sdp">
+
+        <ImageView
+            android:id="@+id/imgLock"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_lock"
+            android:tint="#D0D0D0" />
+
+        <TextView
+            android:id="@+id/tvCategoryCode"
+            android:layout_width="54dp"
+            android:layout_height="54dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/fab_golden_shadow_green"
+            android:gravity="center"
+            android:text="E"
+            android:textColor="#7FD28B"
+            android:textSize="@dimen/_18ssp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/tvCategoryCode"
+            android:layout_marginHorizontal="12dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvDisplayName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12064 ص.الصديق 1218"
+                android:layout_gravity="end"
+                android:gravity="end"
+                android:textColor="#777777"
+                android:textSize="@dimen/_14ssp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvCustomerCodeCategoryCode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="كود: 10000  •  فئة: E"
+                android:textColor="#B0B0B0"
+                android:textSize="@dimen/_12ssp"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

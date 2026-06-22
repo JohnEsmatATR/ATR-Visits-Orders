@@ -1,7 +1,20 @@
 package com.akhnaton.foodvisits.data.statusValue.phoneVisits
 
+import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
+
 
 sealed class PhoneVisitsIntent {
+
+    object GetSalesAndCustomerTypes : PhoneVisitsIntent()
+    data class GetCustomers(val saleType: String) : PhoneVisitsIntent()
+    data class GetCustomerData(val saleType: String, val customerCode: String, val line: String) :
+        PhoneVisitsIntent()
+    data class SaveVisitPhone(val saveVisitPhoneReq: SaveVisitPhoneReq) :
+        PhoneVisitsIntent()
+
+    data class RefreshToken(val userId: String, val token: String) : PhoneVisitsIntent()
+
+    //----------------------------------------------------------------------------------------------
 
     data class GetPlan(val version: String, val token: String) : PhoneVisitsIntent()
 

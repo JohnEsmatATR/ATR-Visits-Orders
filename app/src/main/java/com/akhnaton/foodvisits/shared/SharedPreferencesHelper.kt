@@ -45,6 +45,7 @@ class SharedPreferencesHelper : Application() {
         }
 
     }
+
     fun saveLong(key: String, value: Long) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -56,16 +57,19 @@ class SharedPreferencesHelper : Application() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getLong(key, default)
     }
+
     fun saveTimeDifference(diffInSeconds: Long) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit {
                 putLong(KEY_TIME_DIFFERENCE, diffInSeconds)
             }
     }
+
     fun getTimeDifference(): Long {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getLong(KEY_TIME_DIFFERENCE, 0L)
     }
+
     fun getAppContext(): Context {
         return context
     }
@@ -99,6 +103,7 @@ class SharedPreferencesHelper : Application() {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean("telephone", false)
     }
+
     fun setLoginCredentials(username: String, password: String) {
         Log.d("SharedPrefs", "Saving username: $username, password: $password")
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -107,7 +112,6 @@ class SharedPreferencesHelper : Application() {
             .putString("login_password", password)
             .apply()
     }
-
 
 
     fun getLoginCredentials(): Pair<String?, String?> {
@@ -126,7 +130,6 @@ class SharedPreferencesHelper : Application() {
         makeOrder: Boolean,
         prom: Boolean,
         telephone: Boolean,
-
     ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -136,7 +139,6 @@ class SharedPreferencesHelper : Application() {
             .putBoolean("make_order", makeOrder)
             .putBoolean("prom", prom)
             .putBoolean("telephone", telephone).apply()
-
     }
 
     fun isLogged(): Boolean {
@@ -147,6 +149,11 @@ class SharedPreferencesHelper : Application() {
     fun setLogged() {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean("LOGGED", true).apply()
+    }
+
+    fun saveUserToken(token: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putString("api_token", token).apply()
     }
 
     fun logOut() {

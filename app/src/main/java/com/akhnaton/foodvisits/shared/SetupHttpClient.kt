@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.shared
 
 import android.annotation.SuppressLint
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import java.security.SecureRandom
@@ -55,12 +56,39 @@ class SetupHttpClient {
 
             // verify hostname
             builder.hostnameVerifier { hostname, session ->
-                hostname == "sales.atr-eg.com"
+                hostname == "sales.atr-eg.com" || hostname == "preweb.atr-eg.com"
             }
 
             val httpLoggingInterceptor = HttpLoggingInterceptor()
             httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+            builder.addInterceptor(
+                Interceptor { chain ->
+
+                    val token =
+                        SharedPreferencesHelper
+                            .getInstance()
+                            .getUserToken() ?: ""
+
+                    val request =
+                        chain.request()
+                            .newBuilder()
+                            .addHeader(
+                                "Authorization",
+                                "Bearer $token"
+                            )
+                            .build()
+
+                    chain.proceed(request)
+                }
+            )
+
+            builder.authenticator(
+                TokenAuthenticator()
+            )
+
             builder.addInterceptor(httpLoggingInterceptor)
+
             return builder.build()
 
         } catch (e: Exception) {

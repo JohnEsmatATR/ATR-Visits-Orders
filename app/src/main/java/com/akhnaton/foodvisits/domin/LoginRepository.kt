@@ -7,9 +7,7 @@ class LoginRepository {
     private val retrofit = RetrofitClient.getInstance(ILogin::class.java)
 
     suspend fun login(
-        version: String,
         username: String,
         password: String,
-        firebaseToken :String
-    ) = retrofit.login(version, username, password,firebaseToken)
+    ) = retrofit.login(username, password)
 }

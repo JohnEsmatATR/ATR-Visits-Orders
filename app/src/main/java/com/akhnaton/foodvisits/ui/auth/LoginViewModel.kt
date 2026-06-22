@@ -28,10 +28,8 @@ class LoginViewModel : ViewModel() {
             loginIntent.consumeAsFlow().collect {
                 when (it) {
                     is LoginIntent.Login -> loginRepo(
-                        it.version,
                         it.username,
                         it.password,
-                        it.firebaseToken
                     )
                 }
             }
@@ -39,15 +37,13 @@ class LoginViewModel : ViewModel() {
     }
 
     private fun loginRepo(
-        version: String,
         username: String,
         password: String,
-        firebaseToken :String
     ) {
         viewModelScope.launch {
             _state.value = LoginState.Loading
             _state.value = try {
-                LoginState.LogIn(LoginRepository().login(version, username, password,firebaseToken))
+                LoginState.LogIn(LoginRepository().login( username, password))
             } catch (e: Exception) {
                 LoginState.Error(e.message)
             }

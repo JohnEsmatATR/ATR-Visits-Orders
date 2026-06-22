@@ -43,8 +43,49 @@
         tools:layout="@layout/activity_profile" />
 
     <fragment
+        android:id="@+id/OrderCreationCycleFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleFragment"
+        android:label="fragment_order_creation_cycle"
+        tools:layout="@layout/fragment_order_creation_cycle" />
+
+    <fragment
+        android:id="@+id/telephoneVisitFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.TelephoneVisitFragment"
+        android:label="fragment_telephone_visit"
+        tools:layout="@layout/fragment_telephone_visit">
+        <action
+            android:id="@+id/toOrderCreationCycle"
+            app:destination="@id/OrderCreationCycleFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/customerDetailsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.CustomerDetailsFragment"
+        android:label="fragment_customer_details"
+        tools:layout="@layout/fragment_customer_details">
+        <action
+            android:id="@+id/toTelephoneVisit"
+            app:destination="@id/telephoneVisitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/customersFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.CustomersFragment"
+        android:label="fragment_customers"
+        tools:layout="@layout/fragment_customers" >
+        <action
+            android:id="@+id/toCustomerDetails"
+            app:destination="@id/customerDetailsFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/visitPhoneFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsFragment2"
         android:label="fragment_visit_phone"
-        tools:layout="@layout/fragment_phone_visits" />
+        tools:layout="@layout/fragment_phone_visits2" >
+        <action
+            android:id="@+id/toCustomers"
+            app:destination="@id/customersFragment" />
+    </fragment>
+
 </navigation>

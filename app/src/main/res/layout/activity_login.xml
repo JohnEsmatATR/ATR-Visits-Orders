@@ -89,6 +89,7 @@
                             android:drawablePadding="10dp"
                             android:hint="@string/username"
                             android:inputType="text"
+                            android:text="john.melad"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -108,6 +109,7 @@
                             android:drawableStart="@drawable/ic_lock_outline_black_24dp"
                             android:drawablePadding="10dp"
                             android:hint="@string/password"
+                            android:text="Asd@147"
                             android:inputType="textPassword"
                             android:maxLines="1" />
                     </com.google.android.material.textfield.TextInputLayout>

@@ -2,11 +2,25 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-//   const val BASE_URL = "https://sales.atr-eg.com/" // Prod
-   const val BASE_URL = "http://10.42.151.27/" //Test
+    //    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
+//       const val BASE_URL = "https://sales.atr-eg.com/" // Prod
+//   const val BASE_URL = "http://10.42.151.27/" // Old Test
+    const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
+
+    //ENDPOINTS
+    const val LOGIN_ENDPOINT = "Auth/login"
+    const val GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT = "Personalization/getSalesAndCustomerTypes"
+    const val GET_CUSTOMERS_ENDPOINT = "Customer/getCustomers"
+    const val GET_CUSTOMER_DATA_ENDPOINT = "Customer/getCustomerData"
+    const val SAVE_VISIT_ENDPOINT = "visit/saveVisit"
+    const val GET_START_ORDER_DATA_ENDPOINT = "Order/getStartOrderData"
+    const val REFRESH_TOKEN = "Auth/refresh_token"
+
+    //----------------------------------------------------------------------------------------------
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod
-//    private const val ROUTS_API = "test_web_food/routes.php" // test
+
+    //    private const val ROUTS_API = "test_web_food/routes.php" // test
     const val APP_SETTING = "$ROUTS_API?path=get_app_settings"
     const val LOGIN_PATH = "$ROUTS_API?path=login"
     const val CHART_PATH = "$ROUTS_API?path=user_chart_info"
@@ -15,8 +29,7 @@ object ConstantLinks {
     const val FOOD_ORDER = "$ROUTS_API?path=get_food_invoices_list"
     const val FOOD_ORDER_DETAILS = "$ROUTS_API?path=get_food_invoice_details"
 
-//    const val VISITS_PATH = "$ROUTS_API?path=get_user_order_type"
-    const val VISITS_PATH = "sales_backend/getSalesAndCustomerTypes"
+    const val VISITS_PATH = "$ROUTS_API?path=get_user_order_type"
     const val VISIT_PLAN = "$ROUTS_API?path=get_visit_plan"
     const val CUSTOMER_TYPE = "$ROUTS_API?path=get_user_customer_type"
     const val LINES = "$ROUTS_API?path=get_user_lines"
@@ -27,7 +40,7 @@ object ConstantLinks {
     const val GENERATE_ORDER_NUMBER =
         "$ROUTS_API?path=generate_and_validate_user_customer_before_crate_order"
     const val GET_CATEGORIES = "$ROUTS_API?path=get_categories_based_on_order_type"
-        const val GET_PRODUCT = "$ROUTS_API?path=get_products_based_on_sub_categories"
+    const val GET_PRODUCT = "$ROUTS_API?path=get_products_based_on_sub_categories"
     const val SEND_ORDER = "$ROUTS_API?path=create_new_order"
     const val SAVE_ORDER_PENDING = "$ROUTS_API?path=save_order"
     const val SAVED_ORDER = "$ROUTS_API?path=get_saved_order_products"
@@ -47,8 +60,10 @@ object ConstantLinks {
     const val PROMOTER_SEND_COMPETITORS = "$ROUTS_API?path=send_competitors"
     const val PROMOTER_UPLOAD_IMAGE = "$ROUTS_API?path=upload_image"
     const val PROMOTER_COMPETITOR_LIST = "$ROUTS_API?path=get_competitor_list"
-    const val ROUTE_KEY= "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQ2NzU1NjY3NjYxZjQ5MjliMzlhNmU3N2RhNTQwYmYyIiwiaCI6Im11cm11cjY0In0="
-    const val ROUTE_KEY2= "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjRlMmQ4YmFlM2QwYTRlY2RhZjRhNmQ2NDY0MzI3OWU0IiwiaCI6Im11cm11cjY0In0="
+    const val ROUTE_KEY =
+        "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQ2NzU1NjY3NjYxZjQ5MjliMzlhNmU3N2RhNTQwYmYyIiwiaCI6Im11cm11cjY0In0="
+    const val ROUTE_KEY2 =
+        "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjRlMmQ4YmFlM2QwYTRlY2RhZjRhNmQ2NDY0MzI3OWU0IiwiaCI6Im11cm11cjY0In0="
 
 
     // supervisor

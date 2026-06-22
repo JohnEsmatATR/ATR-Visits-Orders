@@ -3,6 +3,12 @@ package com.akhnaton.foodvisits.data.interfaces.apis
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.VisitsPlaneDataDumy
 import com.akhnaton.foodvisits.data.model.VisitsCustomerType
+import com.akhnaton.foodvisits.data.model.customers.GetCustomersRes
+import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
+import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
+import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
+import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
+import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneRes
 import com.akhnaton.foodvisits.data.model.visits.CustomerLines
 import com.akhnaton.foodvisits.data.model.visits.CustomerSite
 import com.akhnaton.foodvisits.data.model.visits.Lines
@@ -11,14 +17,51 @@ import com.akhnaton.foodvisits.shared.ConstantLinks
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMERS_SITE
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_LINE
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_TYPE
+import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CUSTOMERS_ENDPOINT
+import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CUSTOMER_DATA_ENDPOINT
+import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.LINES
+import com.akhnaton.foodvisits.shared.ConstantLinks.REFRESH_TOKEN
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_VISIT
+import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_VISIT_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.VISITS_PATH
+import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface IPhoneVisits {
+
+    @GET(GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT)
+    suspend fun getSalesAndCustomerTypes(): GetSalesAndCustomerTypesRes
+
+    @GET(GET_CUSTOMERS_ENDPOINT)
+    suspend fun getCustomers(
+        @Query("sale_type") saleType: String
+    ): GetCustomersRes
+
+    @GET(GET_CUSTOMER_DATA_ENDPOINT)
+    suspend fun getCustomerData(
+        @Query("sale_type") saleType: String,
+        @Query("customer_code") customerCode: String,
+        @Query("line") line: String
+    ): GetCustomerDataRes
+
+    @POST(SAVE_VISIT_ENDPOINT)
+    suspend fun saveVisitPhone(
+        @Body saveVisitPhoneReq: SaveVisitPhoneReq
+    ): SaveVisitPhoneRes
+
+    @FormUrlEncoded
+    @POST(REFRESH_TOKEN)
+    suspend fun refreshToken(
+        @Field("USER_ID") userId: String,
+        @Field("TOKEN") token: String,
+    ): RefreshTokenRes
+
+    //----------------------------------------------------------------------------------------------
 
     @FormUrlEncoded
     @POST(VISITS_PATH)

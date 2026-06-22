@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Outer Big Glow -->
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="100dp"
+                android:height="100dp" />
+            <solid android:color="#104CAF50"/>
+        </shape>
+    </item>
+
+    <!-- Medium Glow -->
+    <item>
+        <shape android:shape="oval">
+            <size
+                android:width="92dp"
+                android:height="92dp" />
+            <solid android:color="#204CAF50"/>
+        </shape>
+    </item>
+
+</layer-list>
