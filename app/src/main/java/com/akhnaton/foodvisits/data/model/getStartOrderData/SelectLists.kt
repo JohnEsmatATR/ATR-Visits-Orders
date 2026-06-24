@@ -5,5 +5,6 @@ data class SelectLists(
     val select: String,
     val select_list: List<Select>,
     val select_name: String,
-    var selectedValue: String? = null
+    var selectedValue: String? = null,
+    var selectedId: String? = null
 )

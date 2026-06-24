@@ -205,6 +205,7 @@
             android:id="@+id/btnContinue"
             android:layout_width="match_parent"
             android:layout_height="56dp"
+            app:cornerRadius="@dimen/_8sdp"
             android:layout_margin="16dp"
             android:backgroundTint="#FF8C3A"
             android:text="المتابعة لكتالوج المنتجات"

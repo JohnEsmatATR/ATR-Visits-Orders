@@ -43,10 +43,20 @@
         tools:layout="@layout/activity_profile" />
 
     <fragment
+        android:id="@+id/invoiceFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.order.InvoiceFragment"
+        android:label="fragment_invoice"
+        tools:layout="@layout/fragment_invoice" />
+
+    <fragment
         android:id="@+id/OrderCreationCycleFragment"
         android:name="com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleFragment"
         android:label="fragment_order_creation_cycle"
-        tools:layout="@layout/fragment_order_creation_cycle" />
+        tools:layout="@layout/fragment_order_creation_cycle">
+        <action
+            android:id="@+id/toInvoice"
+            app:destination="@id/invoiceFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/telephoneVisitFragment"

@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.order
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -26,8 +27,9 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomerDataAdapter
-import com.akhnaton.foodvisits.ui.home.phoneVisit.OrderCreationCycleAdapter
+import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -46,6 +48,9 @@ class OrderCreationCycleFragment : Fragment() {
     lateinit var siteAddress: String
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
+
+    private var selectLists =
+        mutableListOf<SelectLists>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -68,6 +73,38 @@ class OrderCreationCycleFragment : Fragment() {
         binding.tvCustomerCode.setText("${getString(R.string.code)}: $customerCode")
         binding.tvSaleType.setText("${getString(R.string.sale_type)}: $saleType")
 
+        binding.btnContinue.setOnClickListener {
+            val missingRequired =
+                selectLists.any {
+                    it.required == 1 &&
+                            it.selectedValue.isNullOrEmpty()
+                }
+            if (missingRequired) {
+                DialogUtils.showResultDialog(
+                    requireContext(),
+                    "برجاء استكمال جميع الاختيارات المطلوبة",
+                    false
+                )
+                return@setOnClickListener
+            }
+            val selectionsJson =
+                Gson().toJson(selectLists)
+
+            val bundle = Bundle().apply {
+                putString("customerName", customerName)
+                putString("customerCode", customerCode)
+                putString("siteAddress", siteAddress)
+                putString("customerPartySiteId", customerPartySiteId)
+                putString("saleType", saleType)
+                putString("selectedOptions", selectionsJson)
+            }
+
+            findNavController().navigate(
+                R.id.toInvoice,
+                bundle
+            )
+        }
+
         getStartOrderData()
         fetchData()
 
@@ -85,6 +122,7 @@ class OrderCreationCycleFragment : Fragment() {
         }
     }
 
+    @SuppressLint("LongLogTag")
     private fun fetchData() {
         lifecycleScope.launch {
             viewModel.status.collect {
@@ -95,7 +133,10 @@ class OrderCreationCycleFragment : Fragment() {
                     is Order2Status.GetStartOrderData -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
-                            setRecycler(it.data.data.select_lists.toMutableList())
+                            selectLists =
+                                it.data.data.select_lists.toMutableList()
+
+                            setRecycler(selectLists)
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(

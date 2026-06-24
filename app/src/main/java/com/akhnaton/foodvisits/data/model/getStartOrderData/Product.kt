@@ -18,5 +18,6 @@ data class Product(
     val SEGMENT2: String,
     val SEGMENT4: String,
     val SUPER_ID: String,
-    val TAX_AMOUNT: String
+    val TAX_AMOUNT: String,
+    var selectedQty: Int,
 )

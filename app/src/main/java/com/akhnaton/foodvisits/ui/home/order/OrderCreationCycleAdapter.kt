@@ -1,5 +1,6 @@
-package com.akhnaton.foodvisits.ui.home.phoneVisit
+package com.akhnaton.foodvisits.ui.home.order
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,13 +9,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
-import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
-import com.akhnaton.foodvisits.data.model.getStartOrderData.PaymentTerm
-import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectItem
 import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
-import com.akhnaton.foodvisits.data.model.order.CardItem
-import com.akhnaton.foodvisits.data.model.supervisor.orderDetails.SuperOrderDetails
-import com.akhnaton.foodvisits.ui.home.visits.order.OrderViewHolder
 
 class OrderCreationCycleAdapter(
     private val listener: OnItemClickListener
@@ -44,17 +39,26 @@ class OrderCreationCycleAdapter(
         val item = mList[position]
         holder.tvTitle.text =
             if (item.required == 1)
-                "* ${item.select_name}"
+                "'*' ${item.select_name}"
             else
                 item.select_name
+
+        Log.d("DROPDOWN", "========================")
+        Log.d("DROPDOWN", "Title: ${item.select_name}")
+        Log.d("DROPDOWN", "Required: ${item.required}")
+        Log.d("DROPDOWN", "Select: ${item.select}")
+
+        item.select_list.forEachIndexed { index, option ->
+            Log.d("DROPDOWN", "Item[$index] = $option")
+        }
 
         val dropdownItems =
             item.select_list.map {
                 when {
-                    it is PaymentTerm ->
+                    it.PAYMENT_TERM_DESC != null ->
                         it.PAYMENT_TERM_DESC
 
-                    it is SelectItem ->
+                    it.name != null ->
                         it.name
 
                     else ->
@@ -64,7 +68,7 @@ class OrderCreationCycleAdapter(
 
         val adapter = ArrayAdapter(
             holder.itemView.context,
-            android.R.layout.simple_list_item_1,
+            android.R.layout.simple_dropdown_item_1line,
             dropdownItems
         )
 
@@ -72,8 +76,20 @@ class OrderCreationCycleAdapter(
 
         holder.etOption.setOnItemClickListener { _, _, index, _ ->
 
+            val selectedItem =
+                item.select_list[index]
+
             item.selectedValue =
-                dropdownItems[index]
+                if (selectedItem.PAYMENT_TERM_DESC != null)
+                    selectedItem.PAYMENT_TERM_DESC
+                else
+                    selectedItem.name
+
+            item.selectedId =
+                if (selectedItem.PAYMENT_TERM_ID != null)
+                    selectedItem.PAYMENT_TERM_ID
+                else
+                    selectedItem.id.toString()
 
             listener.onClick(item)
         }
