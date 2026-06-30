@@ -25,10 +25,56 @@
         tools:layout="@layout/fragment_food" />
 
     <fragment
+        android:id="@+id/ordersMenuFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.ordersMenu.OrdersMenuFragment"
+        android:label="fragment_orders_menu"
+        tools:layout="@layout/fragment_orders_menu">
+
+        <action
+            android:id="@+id/toInvoice"
+            app:destination="@id/invoiceFragment" />
+
+    </fragment>
+
+<!--    <fragment-->
+<!--        android:id="@+id/visitsFragment"-->
+<!--        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsFragment2"-->
+<!--        android:label="fragment_visits"-->
+<!--        tools:layout="@layout/fragment_phone_visits" />-->
+
+    <fragment
+        android:id="@+id/gpsVisitFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.visits2.GpsVisitFragment"
+        android:label="fragment_gps_visit"
+        tools:layout="@layout/fragment_gps_visit">
+        <action
+            android:id="@+id/toOrderCreationCycle"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toCompetitors"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toCalls"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toImages"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toInventory"
+            app:destination="@id/OrderCreationCycleFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/visitsFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.visits.VisitsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.visits2.VisitsFragment2"
         android:label="fragment_visits"
-        tools:layout="@layout/fragment_phone_visits" />
+        tools:layout="@layout/fragment_visits2">
+
+        <action
+            android:id="@+id/toGpsVisit"
+            app:destination="@id/gpsVisitFragment" />
+
+    </fragment>
 
     <fragment
         android:id="@+id/ticketsFragment"
@@ -46,7 +92,11 @@
         android:id="@+id/invoiceFragment"
         android:name="com.akhnaton.foodvisits.ui.home.order.InvoiceFragment"
         android:label="fragment_invoice"
-        tools:layout="@layout/fragment_invoice" />
+        tools:layout="@layout/fragment_invoice">
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/OrderCreationCycleFragment"
@@ -65,6 +115,18 @@
         tools:layout="@layout/fragment_telephone_visit">
         <action
             android:id="@+id/toOrderCreationCycle"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toCompetitors"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toCalls"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toImages"
+            app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toInventory"
             app:destination="@id/OrderCreationCycleFragment" />
     </fragment>
 

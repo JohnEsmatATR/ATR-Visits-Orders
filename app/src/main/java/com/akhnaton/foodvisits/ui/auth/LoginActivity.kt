@@ -105,8 +105,11 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 data.USER_NAME,
                                 data.USER_ID,
                                 true,
+                                if (data.USER_CATEGORY == "prom") true else false,
                                 true,
-                                true,
+                            )
+                            SharedPreferencesHelper().setDebugUsername(
+                                binding.username.text.toString()
                             )
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

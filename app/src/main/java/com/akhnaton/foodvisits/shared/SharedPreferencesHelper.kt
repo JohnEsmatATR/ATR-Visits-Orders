@@ -84,6 +84,18 @@ class SharedPreferencesHelper : Application() {
             .getString("user_name", "").toString()
     }
 
+    fun setDebugUsername(username: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString("debug_user_name", username)
+            .apply()
+    }
+
+    fun getDebugUsername(): String {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getString("debug_user_name", "").toString()
+    }
+
     fun getEmployeeId(): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString("employee_id", "").toString()

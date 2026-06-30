@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.ui.home.order
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,7 +17,9 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
+import com.akhnaton.foodvisits.data.model.getStartOrderData.Data
 import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
+import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectedOption
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Intent
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Status
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
@@ -26,6 +29,7 @@ import com.akhnaton.foodvisits.databinding.FragmentTelephoneVisitBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomerDataAdapter
 import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
@@ -69,6 +73,10 @@ class OrderCreationCycleFragment : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         binding.tvCustomerName.setText(customerName)
         binding.tvCustomerCode.setText("${getString(R.string.code)}: $customerCode")
         binding.tvSaleType.setText("${getString(R.string.sale_type)}: $saleType")
@@ -87,8 +95,27 @@ class OrderCreationCycleFragment : Fragment() {
                 )
                 return@setOnClickListener
             }
+
+            val selectedOptions =
+                selectLists.mapNotNull {
+
+                    if (
+                        !it.selectedId.isNullOrEmpty()
+                    ) {
+
+                        SelectedOption(
+                            key = it.select,
+                            id = it.selectedId!!,
+                            value = it.selectedValue ?: ""
+                        )
+
+                    } else {
+                        null
+                    }
+                }
+
             val selectionsJson =
-                Gson().toJson(selectLists)
+                Gson().toJson(selectedOptions)
 
             val bundle = Bundle().apply {
                 putString("customerName", customerName)
@@ -97,6 +124,7 @@ class OrderCreationCycleFragment : Fragment() {
                 putString("customerPartySiteId", customerPartySiteId)
                 putString("saleType", saleType)
                 putString("selectedOptions", selectionsJson)
+                putBoolean("isEdit", false)
             }
 
             findNavController().navigate(
@@ -133,8 +161,13 @@ class OrderCreationCycleFragment : Fragment() {
                     is Order2Status.GetStartOrderData -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    Data::class.java
+                                )
                             selectLists =
-                                it.data.data.select_lists.toMutableList()
+                                data.select_lists.toMutableList()
 
                             setRecycler(selectLists)
                         } else if (it.data.status == 401) {
@@ -149,17 +182,35 @@ class OrderCreationCycleFragment : Fragment() {
                         }
                     }
 
-                    is Order2Status.RefreshToken -> {
+                    is PhoneVisitsStatus.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
-//                            val data =
-//                                Gson().fromJson(
-//                                    it.data.data,
-//                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-//                                )
-//                            getData()
+                            Log.d("WHATRefreshToken", "${it.data.message}")
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                            getStartOrderData()
                         } else {
-
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
+                                }
+                            )
                         }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 

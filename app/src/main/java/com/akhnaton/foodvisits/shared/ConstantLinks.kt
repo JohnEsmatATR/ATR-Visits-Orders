@@ -2,7 +2,7 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-    //    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
+//        const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
 //       const val BASE_URL = "https://sales.atr-eg.com/" // Prod
 //   const val BASE_URL = "http://10.42.151.27/" // Old Test
     const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
@@ -12,8 +12,15 @@ object ConstantLinks {
     const val GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT = "Personalization/getSalesAndCustomerTypes"
     const val GET_CUSTOMERS_ENDPOINT = "Customer/getCustomers"
     const val GET_CUSTOMER_DATA_ENDPOINT = "Customer/getCustomerData"
+    const val VISITS_SELECT_ENDPOINT = "Visit/visitsSelect"
     const val SAVE_VISIT_ENDPOINT = "visit/saveVisit"
     const val GET_START_ORDER_DATA_ENDPOINT = "Order/getStartOrderData"
+    const val SAVED_ORDER_ENDPOINT = "Order/saveOrder"
+    const val GET_VISIT_PLAN = "visit/getVisitPlan"
+    const val GET_LIST = "order/getList"
+    const val DELETE_ORDER = "order/deleteOrder"
+    const val GET_ITEMS = "order/getItems"
+    const val EDIT_ORDER = "Order/editOrder"
     const val REFRESH_TOKEN = "Auth/refresh_token"
 
     //----------------------------------------------------------------------------------------------

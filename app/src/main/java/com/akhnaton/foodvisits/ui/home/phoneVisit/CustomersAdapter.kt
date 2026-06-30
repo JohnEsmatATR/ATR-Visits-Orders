@@ -21,9 +21,9 @@ class CustomersAdapter(
 
     override fun getItemViewType(position: Int): Int {
         return if (list[position].SELECTABLE)
-            TYPE_LOCKED
-        else
             TYPE_UNLOCKED
+        else
+            TYPE_LOCKED
     }
 
     class LockedViewHolder(view: View) : RecyclerView.ViewHolder(view) {

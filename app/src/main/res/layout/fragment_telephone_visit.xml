@@ -19,7 +19,9 @@
             <!-- Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center">
 
                 <TextView
                     android:id="@+id/tvTitle"
@@ -51,6 +53,17 @@
                     app:layout_constraintTop_toTopOf="parent" />
 
             </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tvTimer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="00:00:00"
+                android:textColor="@color/orange"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
             <!-- Active Visit Card -->
 
             <com.google.android.material.card.MaterialCardView
@@ -131,6 +144,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:text="تفاصيل العميل"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_14ssp"
                         android:textStyle="bold" />
 
@@ -142,16 +156,16 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:text="الاسم"
-                        android:textSize="@dimen/_10ssp"
-                        android:textColor="#B0B0B0" />
+                        android:textColor="#B0B0B0"
+                        android:textSize="@dimen/_10ssp" />
 
                     <TextView
                         android:id="@+id/tvCustomerName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:textSize="@dimen/_12ssp"
                         android:text="صيدلية ايناس فوزى منى"
+                        android:textSize="@dimen/_12ssp"
                         android:textStyle="bold" />
 
 
@@ -162,8 +176,8 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:text="الكود"
-                        android:textSize="@dimen/_10ssp"
-                        android:textColor="#B0B0B0" />
+                        android:textColor="#B0B0B0"
+                        android:textSize="@dimen/_10ssp" />
 
                     <TextView
                         android:id="@+id/tvCustomerCode"
@@ -181,17 +195,17 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:textSize="@dimen/_10ssp"
                         android:text="العنوان"
-                        android:textColor="#B0B0B0" />
+                        android:textColor="#B0B0B0"
+                        android:textSize="@dimen/_10ssp" />
 
                     <TextView
                         android:id="@+id/tvSiteAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:textSize="@dimen/_12ssp"
-                        android:text="شارع حسن البنا منطي قليوب مصر" />
+                        android:text="شارع حسن البنا منطي قليوب مصر"
+                        android:textSize="@dimen/_12ssp" />
 
                 </LinearLayout>
 
@@ -220,6 +234,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
                         android:text="تقرير الزيارة"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_14ssp"
                         android:textStyle="bold" />
 
@@ -244,11 +259,11 @@
                             android:id="@+id/etObjectiveVisit"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textSize="@dimen/_12ssp"
                             android:drawablePadding="@dimen/_12sdp"
                             android:drawableTint="@color/black"
                             android:hint="@string/objective_visit"
-                            android:inputType="textEmailAddress" />
+                            android:inputType="number"
+                            android:textSize="@dimen/_12ssp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -281,10 +296,10 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
                                 android:drawablePadding="@dimen/_12sdp"
-                                android:textSize="@dimen/_12ssp"
                                 android:drawableTint="@color/black"
                                 android:hint="@string/collect_today"
-                                android:inputType="textEmailAddress" />
+                                android:inputType="number"
+                                android:textSize="@dimen/_12ssp" />
 
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -321,6 +336,75 @@
                         </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilVisibility"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/grey"
+                            app:boxBackgroundColor="@color/grey"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@android:color/transparent"
+                            app:boxStrokeWidth="0dp"
+                            app:endIconMode="dropdown_menu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/etVisibility"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clickable="true"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:focusable="false"
+                                android:hint="@string/visibility"
+                                android:inputType="none"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilSendOrderNote"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/grey"
+                            app:boxBackgroundColor="@color/grey"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@android:color/transparent"
+                            app:boxStrokeWidth="0dp"
+                            app:endIconMode="dropdown_menu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/etSendOrderNote"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clickable="true"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:focusable="false"
+                                android:hint="@string/send_order_note"
+                                android:inputType="none"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
@@ -343,16 +427,200 @@
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/_100sdp"
                             android:drawablePadding="@dimen/_12sdp"
-                            android:textSize="@dimen/_12ssp"
                             android:drawableTint="@color/black"
                             android:hint="@string/visit_notes"
-                            android:inputType="textMultiLine" />
+                            android:inputType="textMultiLine"
+                            android:textSize="@dimen/_12ssp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:id="@+id/llPromoterProcedures"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginHorizontal="16dp"
+                    android:text="إجراءات المروج"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_14ssp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardVisitReport"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="24dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardCustomer">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="20dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_competitors" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="تقرير الزيارة"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_14ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardCalls"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="24dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardCustomer">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="20dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_gravity="center"
+                                android:background="@drawable/ic_calls"
+                                android:src="@drawable/ic_calls" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="المكالمات"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_14ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardImages"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="24dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardCustomer">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="20dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_images" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="الصور"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_14ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardInventory"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="16dp"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="24dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardCustomer">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="20dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_inventory" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="المخزون"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_14ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+
+            </LinearLayout>
 
             <!-- Save Button -->
 

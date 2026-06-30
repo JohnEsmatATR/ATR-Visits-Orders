@@ -16,6 +16,9 @@ class PhoneVisitsRepository {
     suspend fun getCustomerData(saleType: String, customerCode: String, line: String) =
         retrofit.getCustomerData(saleType, customerCode, line)
 
+    suspend fun visitsSelect(orderType: String, customerCode: String) =
+        retrofit.visitsSelect(orderType, customerCode)
+
     suspend fun saveVisitPhone(saveVisitPhoneReq: SaveVisitPhoneReq) =
         retrofit.saveVisitPhone(saveVisitPhoneReq)
 

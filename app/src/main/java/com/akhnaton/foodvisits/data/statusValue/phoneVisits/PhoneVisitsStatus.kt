@@ -8,6 +8,7 @@ import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneRes
+import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
 import com.akhnaton.foodvisits.data.model.visits.CustomerLines
 import com.akhnaton.foodvisits.data.model.visits.CustomerSite
 import com.akhnaton.foodvisits.data.model.visits.Lines
@@ -22,6 +23,7 @@ sealed class PhoneVisitsStatus {
     data class GetSalesAndCustomerTypes(val data: GetSalesAndCustomerTypesRes) : PhoneVisitsStatus()
     data class GetCustomers(val data: GetCustomersRes) : PhoneVisitsStatus()
     data class GetCustomerData(val data: GetCustomerDataRes) : PhoneVisitsStatus()
+    data class VisitsSelect(val data: VisitsSelectRes) : PhoneVisitsStatus()
     data class SaveVisitPhone(val data: SaveVisitPhoneRes) : PhoneVisitsStatus()
     data class RefreshToken(val data: RefreshTokenRes) : PhoneVisitsStatus()
 

@@ -37,11 +37,11 @@ class OrderCreationCycleAdapter(
         position: Int
     ) {
         val item = mList[position]
-        holder.tvTitle.text =
-            if (item.required == 1)
-                "'*' ${item.select_name}"
-            else
-                item.select_name
+        holder.tvTitle.text = item.select_name
+        if (item.required == 1)
+            holder.tvReq.visibility = View.VISIBLE
+        else
+            holder.tvReq.visibility = View.GONE
 
         Log.d("DROPDOWN", "========================")
         Log.d("DROPDOWN", "Title: ${item.select_name}")
@@ -79,17 +79,25 @@ class OrderCreationCycleAdapter(
             val selectedItem =
                 item.select_list[index]
 
-            item.selectedValue =
-                if (selectedItem.PAYMENT_TERM_DESC != null)
-                    selectedItem.PAYMENT_TERM_DESC
-                else
-                    selectedItem.name
+            when {
+                selectedItem.PAYMENT_TERM_ID != null -> {
 
-            item.selectedId =
-                if (selectedItem.PAYMENT_TERM_ID != null)
-                    selectedItem.PAYMENT_TERM_ID
-                else
-                    selectedItem.id.toString()
+                    item.selectedId =
+                        selectedItem.PAYMENT_TERM_ID
+
+                    item.selectedValue =
+                        selectedItem.PAYMENT_TERM_DESC
+                }
+
+                selectedItem.id != null -> {
+
+                    item.selectedId =
+                        selectedItem.id.toString()
+
+                    item.selectedValue =
+                        selectedItem.name
+                }
+            }
 
             listener.onClick(item)
         }
@@ -110,6 +118,9 @@ class OrderCreationCycleAdapter(
 
         val tvTitle: TextView =
             itemView.findViewById(R.id.tvTitle)
+
+        val tvReq: TextView =
+            itemView.findViewById(R.id.tvReq)
         val etOption: AutoCompleteTextView =
             itemView.findViewById(R.id.etOption)
 

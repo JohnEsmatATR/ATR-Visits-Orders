@@ -1,16 +1,15 @@
 package com.akhnaton.foodvisits.data.model.saveVisitPhone
 
 data class SaveVisitPhoneReq(
-    val check_in_date: Long,
-    val customer_party_site_id: String,
-    val customer_type: String,
-    val date_visit: Long,
+    val act_target: Int,
+    val another_order_type: String,
+    val check_in: String,
+    val comment: String,
+    val device_type: String,
     val grade: String,
-    val order_type: String,
+    val ord_type: String,
+    val party_site_id: String,
     val phone_visit: String,
-    val promoters_notes: String,
-    val visit_actual_target: String,
-    val visit_notes: String,
-    val visit_target: String,
-    val visit_visibility: String
+    val visibility: String,
+    val visit_target: Int
 )

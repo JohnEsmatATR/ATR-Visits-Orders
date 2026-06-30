@@ -9,6 +9,7 @@ import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCu
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneRes
+import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
 import com.akhnaton.foodvisits.data.model.visits.CustomerLines
 import com.akhnaton.foodvisits.data.model.visits.CustomerSite
 import com.akhnaton.foodvisits.data.model.visits.Lines
@@ -25,6 +26,7 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.REFRESH_TOKEN
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_VISIT
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_VISIT_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.VISITS_PATH
+import com.akhnaton.foodvisits.shared.ConstantLinks.VISITS_SELECT_ENDPOINT
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -48,6 +50,12 @@ interface IPhoneVisits {
         @Query("customer_code") customerCode: String,
         @Query("line") line: String
     ): GetCustomerDataRes
+
+    @GET(VISITS_SELECT_ENDPOINT)
+    suspend fun visitsSelect(
+        @Query("order_type") orderType: String,
+        @Query("customer_code") customerCode: String
+    ): VisitsSelectRes
 
     @POST(SAVE_VISIT_ENDPOINT)
     suspend fun saveVisitPhone(

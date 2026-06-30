@@ -1,12 +1,14 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -20,8 +22,10 @@ import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentCustomersBinding
 import com.akhnaton.foodvisits.databinding.FragmentPhoneVisits2Binding
+import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -37,6 +41,12 @@ class CustomersFragment : Fragment() {
 
     lateinit var saleType: String
 
+    private var allCustomers =
+        mutableListOf<com.akhnaton.foodvisits.data.model.customers.Data>()
+
+    private var displayedCustomers =
+        mutableListOf<com.akhnaton.foodvisits.data.model.customers.Data>()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -47,8 +57,54 @@ class CustomersFragment : Fragment() {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
+        binding.ivBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.tvBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.etSearch.addTextChangedListener {
+            filterCustomers(
+                it.toString().trim()
+            )
+        }
+
         getCustomers()
         fetchData()
+    }
+
+    private fun filterCustomers(
+        keyword: String
+    ) {
+        displayedCustomers =
+            if (keyword.isBlank()) {
+                allCustomers.toMutableList()
+            } else {
+                allCustomers.filter {
+                    it.CUSTOMER_NAME.contains(
+                        keyword,
+                        true
+                    ) ||
+                            it.CUSTOMER_CODE.contains(
+                                keyword,
+                                true
+                            )
+                }.toMutableList()
+            }
+        if (displayedCustomers.isEmpty()) {
+            binding.llZeroState.visibility =
+                View.VISIBLE
+            binding.rv.visibility =
+                View.GONE
+        } else {
+            binding.llZeroState.visibility =
+                View.GONE
+            binding.rv.visibility =
+                View.VISIBLE
+            setRecycler(displayedCustomers)
+        }
     }
 
     private fun getCustomers() {
@@ -76,7 +132,23 @@ class CustomersFragment : Fragment() {
 //                                    it.data.data,
 //                                    Data::class.java
 //                                )
-                            setRecycler(it.data.data.toMutableList())
+                            allCustomers =
+                                it.data.data.toMutableList()
+                            displayedCustomers =
+                                allCustomers.toMutableList()
+                            if (displayedCustomers.isEmpty()) {
+                                binding.llZeroState.visibility =
+                                    View.VISIBLE
+                                binding.rv.visibility =
+                                    View.GONE
+                            } else {
+                                binding.llZeroState.visibility =
+                                    View.GONE
+                                binding.rv.visibility =
+                                    View.VISIBLE
+                                setRecycler(displayedCustomers)
+                            }
+
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.phoneVisitsIntent.send(
@@ -86,20 +158,48 @@ class CustomersFragment : Fragment() {
                                     )
                                 )
                             }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
                         }
                     }
 
                     is PhoneVisitsStatus.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
+                            Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
                                 Gson().fromJson(
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
+                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
                             getData()
                         } else {
-
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
+                                }
+                            )
                         }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 

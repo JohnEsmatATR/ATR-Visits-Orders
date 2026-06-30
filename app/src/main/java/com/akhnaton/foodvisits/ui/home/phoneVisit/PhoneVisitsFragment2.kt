@@ -15,6 +15,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -24,6 +25,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.impl.model.Preference
 import cn.pedant.SweetAlert.SweetAlertDialog
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
@@ -36,8 +38,10 @@ import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentPhoneVisits2Binding
 import com.akhnaton.foodvisits.databinding.FragmentPhoneVisitsBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superOrderDetails.OrderDetailsAdapter
 import com.akhnaton.foodvisits.ui.home.supervisor.superOrderDetails.ReturnDetailsAdapter
 import com.google.gson.Gson
@@ -140,6 +144,16 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
                                     )
                                 )
                             }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
                         }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
                     }
@@ -147,14 +161,32 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
                     is PhoneVisitsStatus.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
+                            Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
                                 Gson().fromJson(
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
+                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
                             getData()
                         } else {
-
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
+                                }
+                            )
                         }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 
@@ -255,7 +287,6 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
-
 
                     else -> {}
                 }

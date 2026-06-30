@@ -2,6 +2,8 @@ package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.IOrder
 import com.akhnaton.foodvisits.data.interfaces.apis.IOrder2
+import com.akhnaton.foodvisits.data.model.editOrder.EditOrderReq
+import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
 import com.google.gson.JsonElement
 
@@ -19,4 +21,24 @@ class Order2Repository {
             orderType,
             customerCode
         )
+
+    suspend fun saveOrder(
+        saveOrderReq: SaveOrderReq
+    ) =
+        retrofit.saveOrder(
+            saveOrderReq,
+        )
+
+    suspend fun getItems(
+        orderId: String
+    ) = retrofit.getItems(
+        orderId
+    )
+
+    suspend fun editOrder(
+        editOrderReq: EditOrderReq
+    ) = retrofit.editOrder(
+        editOrderReq
+    )
+
 }

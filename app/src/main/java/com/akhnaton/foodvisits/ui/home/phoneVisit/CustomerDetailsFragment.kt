@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -16,12 +17,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
+import com.akhnaton.foodvisits.data.model.getCustomerData.Data
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentCustomerDetailsBinding
 import com.akhnaton.foodvisits.databinding.FragmentCustomersBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -57,6 +61,14 @@ class CustomerDetailsFragment : Fragment() {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
+        binding.ivBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.tvBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
         binding.tvCustomerName.setText("${getString(R.string.client)}: $customerName")
 
         getCustomerData()
@@ -86,12 +98,12 @@ class CustomerDetailsFragment : Fragment() {
                     is PhoneVisitsStatus.GetCustomerData -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
-//                            val data =
-//                                Gson().fromJson(
-//                                    it.data.data,
-//                                    Data::class.java
-//                                )
-                            setRecycler(it.data.data.customer_address.toMutableList())
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    Data::class.java
+                                )
+                            setRecycler(data.customer_address.toMutableList())
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.phoneVisitsIntent.send(
@@ -101,20 +113,48 @@ class CustomerDetailsFragment : Fragment() {
                                     )
                                 )
                             }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
                         }
                     }
 
                     is PhoneVisitsStatus.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
+                            Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
                                 Gson().fromJson(
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
+                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
                             getData()
                         } else {
-
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
+                                }
+                            )
                         }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 

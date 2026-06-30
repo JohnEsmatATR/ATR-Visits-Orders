@@ -183,7 +183,31 @@
     <string name="choose_from_menu">اختر من القائمة...</string>
     <string name="code">كود</string>
     <string name="sale_type">نوع الطلب</string>
+    <string name="invoice">الفاتورة</string>
+    <string name="currency">ج.م</string>
+    <string name="cust_price">جمهور</string>
+    <string name="quantity">الكمية</string>
+    <string name="total">الإجمالي</string>
+    <string name="requested">مطلوب</string>
+    <string name="remaining">Back Order</string>
+    <string name="no_product_choosen">لم يتم اختيار المنتج</string>
+    <string name="price2">السعر</string>
+    <string name="no_selected_products">لا يوجد بيانات</string>
+    <string name="selected">المختارة</string>
+    <string name="all">الكل</string>
+    <string name="total_specified">اجمالي المحدد</string>
+    <string name="total_price_before_tax">اجمالي السعر قبل الضريبة</string>
+    <string name="total_tax">اجمالي الضريبة</string>
+    <string name="total_price_after_tax">اجمالي السعر بعد الضريبة</string>
+    <string name="piece">قطعة</string>
+    <string name="product">صنف</string>
+    <string name="search">بحث</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="visibility">تقييم عرض الصنف</string>
+    <string name="send_order_note">ختار نوع بيع اخر</string>
+    <string name="orders">Orders</string>
+    <string name="saved">المحفوظة</string>
+    <string name="sent">المرسلة</string>
 
 </resources>

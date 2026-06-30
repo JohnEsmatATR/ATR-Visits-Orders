@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardCornerRadius="@dimen/_16sdp"
+    android:layout_marginTop="@dimen/_8sdp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/_16sdp">
+
+        <!-- Saved Badge -->
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:background="@color/main_color_gold2"
+            android:gravity="center"
+            android:paddingHorizontal="16dp"
+            android:text="محفوظة"
+            android:textColor="#D68A2D"
+            android:textSize="@dimen/_8ssp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <!-- Pharmacy Name -->
+        <TextView
+            android:id="@+id/tvPharmacyName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="صيدلية ايناس فوزي متى"
+            android:textColor="#000000"
+            android:textDirection="rtl"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/tvStatus"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="12dp"/>
+
+        <!-- Code & Invoice -->
+        <TextView
+            android:id="@+id/tvInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="كود: 10004 • فاتورة: 141249250626-24284"
+            android:textColor="#7A7A7A"
+            android:textDirection="rtl"
+            android:textSize="@dimen/_10ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvPharmacyName"/>
+
+        <!-- Divider -->
+        <View
+            android:id="@+id/divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:background="#EEEEEE"
+            app:layout_constraintTop_toBottomOf="@id/tvInfo"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Item Count -->
+        <TextView
+            android:id="@+id/tvItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:text="1 أصناف (1360 قطعة)"
+            android:textColor="#E18A17"
+            android:textDirection="rtl"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"/>
+
+        <!-- Date -->
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2026/06/25 15:09"
+            android:textColor="#7A7A7A"
+            android:textSize="@dimen/_10ssp"
+            app:layout_constraintEnd_toStartOf="@id/ivCalendar"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="@dimen/_8sdp"/>
+
+        <!-- Calendar Icon -->
+        <ImageView
+            android:id="@+id/ivCalendar"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@android:drawable/ic_menu_my_calendar"
+            android:tint="#9E9E9E"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvDate"
+            app:layout_constraintBottom_toBottomOf="@id/tvDate"/>
+
+        <!-- Total Label -->
+        <TextView
+            android:id="@+id/tvTotalLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="إجمالي القيمة:"
+            android:textColor="#6D6D6D"
+            android:textDirection="rtl"
+            android:textSize="@dimen/_12ssp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDate"
+            android:layout_marginTop="@dimen/_8sdp"/>
+
+        <!-- Amount -->
+        <TextView
+            android:id="@+id/tvAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="16755.20 ج.م"
+            android:textColor="#2FA64A"
+            android:textSize="@dimen/_14ssp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBaseline_toBaselineOf="@id/tvTotalLabel"/>
+
+        <View
+            android:id="@+id/bottomAnchor"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="@dimen/_12sdp"
+            app:layout_constraintTop_toBottomOf="@id/tvTotalLabel"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <LinearLayout
+            android:id="@+id/layoutExpanded"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_12sdp"
+            android:orientation="vertical"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/bottomAnchor"            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#EEEEEE"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="أصناف الطلب"
+                android:textStyle="bold"
+                android:textSize="@dimen/_12ssp"
+                android:layout_marginTop="@dimen/_8sdp"/>
+
+            <LinearLayout
+                android:id="@+id/layoutItemsContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"/>
+
+            <LinearLayout
+                android:id="@+id/layoutActions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:layout_marginTop="@dimen/_12sdp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/_42sdp"
+                    android:layout_weight="1"
+                    app:cornerRadius="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:text="تعديل"
+                    android:visibility="gone"
+                    android:textColor="@android:color/white" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDelete"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/_42sdp"
+                    android:layout_weight="1"
+                    app:cornerRadius="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:backgroundTint="@color/grey"
+                    android:text="حذف"
+                    android:visibility="gone"
+                    android:textColor="@color/red" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDetails"
+                    android:layout_width="0dp"
+                    android:layout_height="@dimen/_42sdp"
+                    android:layout_weight="1"
+                    app:cornerRadius="@dimen/_8sdp"
+                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:text="عرض التفاصيل"
+                    android:visibility="gone"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

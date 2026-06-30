@@ -28,10 +28,16 @@
         android:visible="true"
         app:showAsAction="ifRoom" />
 
+<!--    <item-->
+<!--        android:id="@+id/foodFragment"-->
+<!--        android:icon="@drawable/ic_print"-->
+<!--        android:title="@string/print"-->
+<!--        app:showAsAction="ifRoom" />-->
+
     <item
-        android:id="@+id/foodFragment"
+        android:id="@+id/ordersMenuFragment"
         android:icon="@drawable/ic_print"
-        android:title="@string/print"
+        android:title="@string/orders"
         app:showAsAction="ifRoom" />
 
 </menu>

@@ -70,12 +70,25 @@ class SetupHttpClient {
                             .getInstance()
                             .getUserToken() ?: ""
 
+                    val debugUserName =
+                        SharedPreferencesHelper
+                            .getInstance()
+                            .getDebugUsername() ?: ""
+
                     val request =
                         chain.request()
                             .newBuilder()
                             .addHeader(
                                 "Authorization",
                                 "Bearer $token"
+                            )
+                            .addHeader(
+                                "Language",
+                                "ar"
+                            )
+                            .addHeader(
+                                "debg_user_name",
+                                debugUserName
                             )
                             .build()
 

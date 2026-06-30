@@ -8,3 +8,9 @@ data class SelectLists(
     var selectedValue: String? = null,
     var selectedId: String? = null
 )
+
+data class SelectedOption(
+    val key: String,
+    val id: String,
+    val value: String
+)

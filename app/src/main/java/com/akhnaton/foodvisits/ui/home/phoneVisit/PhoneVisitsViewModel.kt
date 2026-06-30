@@ -37,6 +37,10 @@ class PhoneVisitsViewModel : ViewModel() {
                         it.customerCode,
                         it.line
                     )
+                    is PhoneVisitsIntent.VisitsSelect -> visitsSelect(
+                        it.orderType,
+                        it.customerCode
+                    )
 
                     is PhoneVisitsIntent.SaveVisitPhone -> saveVisitPhone(
                         it.saveVisitPhoneReq,
@@ -139,6 +143,22 @@ class PhoneVisitsViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "getCustomerDataVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun visitsSelect(orderType: String, customerCode: String) {
+        Log.d("WHAT", "visitsSelectVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "visitsSelectVIEWMODEL1")
+                PhoneVisitsStatus.VisitsSelect(
+                    PhoneVisitsRepository().visitsSelect(orderType, customerCode)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "visitsSelectVIEWMODEL2 ${e.message}")
                 PhoneVisitsStatus.Error(e.message)
             }
         }

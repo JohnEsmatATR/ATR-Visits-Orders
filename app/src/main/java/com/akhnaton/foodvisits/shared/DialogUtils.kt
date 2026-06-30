@@ -54,14 +54,14 @@ object DialogUtils {
 
         if (isSuccess) {
             imgStatus.setImageResource(R.drawable.ic_right)
-            bgCircle.setBackgroundResource(
-                R.drawable.circle_success_bg
-            )
+//            bgCircle.setBackgroundResource(
+//                R.drawable.circle_success_bg
+//            )
         } else {
             imgStatus.setImageResource(R.drawable.ic_wrong)
-            bgCircle.setBackgroundResource(
-                R.drawable.circle_error_bg
-            )
+//            bgCircle.setBackgroundResource(
+//                R.drawable.circle_error_bg
+//            )
         }
 
         btnOk.visibility = View.GONE

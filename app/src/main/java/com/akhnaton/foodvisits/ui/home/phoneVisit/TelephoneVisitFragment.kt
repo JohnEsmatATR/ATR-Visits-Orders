@@ -1,7 +1,10 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -15,8 +18,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
+import com.akhnaton.foodvisits.data.model.getCustomerData.Data
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
@@ -26,9 +31,13 @@ import com.akhnaton.foodvisits.shared.BaseActivity
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 import kotlin.getValue
 
 class TelephoneVisitFragment : Fragment() {
@@ -47,17 +56,43 @@ class TelephoneVisitFragment : Fragment() {
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
 
-    var promotersNotes: String = ""
+    var anotherOrderType: String = ""
     var grade: String = ""
-    var visitVisibility: String = "N"
-    var visitNotes: String = ""
+    var visibility: String = "A"
+    var comment: String = ""
     var phoneVisit: String = "1"
     var dateVisit: Long = 0
-    var visitTarget: String = "3"
-    var visitActualTarget: String = "3"
-    var checkInDate: Long = 0
+    var visitTarget: String = ""
+    var actTarget: String = ""
+    var checkIn: String = ""
     var orderType: String = "SALE"
     var customerType: String = "RETAIL"
+
+    var isProm: Boolean = false
+
+    private var timerHandler = Handler(Looper.getMainLooper())
+    private var startTimeMillis = 0L
+
+    val timerRunnable = object : Runnable {
+        override fun run() {
+            val elapsed =
+                System.currentTimeMillis() - startTimeMillis
+            val hours =
+                elapsed / (1000 * 60 * 60)
+            val minutes =
+                (elapsed / (1000 * 60)) % 60
+            val seconds =
+                (elapsed / 1000) % 60
+            binding.tvTimer.text =
+                String.format(
+                    "%02d:%02d:%02d",
+                    hours,
+                    minutes,
+                    seconds
+                )
+            timerHandler.postDelayed(this, 1000)
+        }
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -73,58 +108,98 @@ class TelephoneVisitFragment : Fragment() {
         saleType =
             arguments?.getString("saleType").toString()
 
+        isProm = SharedPreferencesHelper.getInstance().getProm()
+
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
+
+        checkIn = startTimer()
+
+        if (isProm) binding.llPromoterProcedures.visibility = View.VISIBLE
+        else binding.llPromoterProcedures.visibility = View.GONE
+
+        lifecycleScope.launch {
+            viewModel.phoneVisitsIntent.send(
+                PhoneVisitsIntent.VisitsSelect(
+                    saleType, customerCode
+                )
+            )
+        }
+
+        binding.cardVisitReport.setOnClickListener {
+
+        }
+
+        binding.cardCalls.setOnClickListener {
+
+        }
+
+        binding.cardImages.setOnClickListener {
+
+        }
+
+        binding.cardInventory.setOnClickListener {
+
+        }
+
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
 
         binding.tvCustomerName.setText(customerName)
         binding.tvCustomerCode.setText(customerCode)
         binding.tvSiteAddress.setText(siteAddress)
 
-        val positions = listOf(
-            getString(R.string.order),
-            getString(R.string.collection),
-            getString(R.string.negative)
-        )
-
-        val adapter = ArrayAdapter(
-            requireContext(),
-            android.R.layout.simple_dropdown_item_1line,
-            positions
-        )
-
-        binding.etVisitingPosition.setAdapter(adapter)
-
-        binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
-            val selectedPosition = positions[position]
-            if (selectedPosition == getString(R.string.order)) grade = "A"
-            else if (selectedPosition == getString(R.string.collection)) grade = "B"
-            else if (selectedPosition == getString(R.string.negative)) grade = "C"
-        }
+//        val positions = listOf(
+//            getString(R.string.order),
+//            getString(R.string.collection),
+//            getString(R.string.negative)
+//        )
+//
+//        val adapter = ArrayAdapter(
+//            requireContext(),
+//            android.R.layout.simple_dropdown_item_1line,
+//            positions
+//        )
+//
+//        binding.etVisitingPosition.setAdapter(adapter)
+//
+//        binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
+//            val selectedPosition = positions[position]
+//            if (selectedPosition == getString(R.string.order)) grade = "A"
+//            else if (selectedPosition == getString(R.string.collection)) grade = "B"
+//            else if (selectedPosition == getString(R.string.negative)) grade = "C"
+//        }
 
         binding.btnSave.setOnClickListener {
             Log.d("WHATbtnSave", "Clicked")
-            checkInDate = getCurrentTimeTimestamp()
-            dateVisit = getCurrentDateTimestamp()
-            visitActualTarget = binding.etCollectToday.text.toString()
-            visitNotes = binding.etVisitNotes.text.toString()
+//            checkIn = getCurrentTimeTimestamp().toString()
+//            dateVisit = getCurrentDateTimestamp()
+            actTarget = binding.etCollectToday.text.toString()
+            comment = binding.etVisitNotes.text.toString()
             visitTarget = binding.etObjectiveVisit.text.toString()
+
+            dateVisit = endTimer()
 
             lifecycleScope.launch {
                 viewModel.phoneVisitsIntent.send(
                     PhoneVisitsIntent.SaveVisitPhone(
                         SaveVisitPhoneReq(
-                            check_in_date = checkInDate,
-                            customer_party_site_id = customerPartySiteId,
-                            customer_type = customerType,
-                            date_visit = dateVisit,
+                            party_site_id = customerPartySiteId,
+                            visit_target = visitTarget.toInt(),
+                            ord_type = saleType,
+                            visibility = visibility,
                             grade = grade,
-                            order_type = orderType,
+                            act_target = actTarget.toInt(),
+                            another_order_type = anotherOrderType,
+                            comment = comment,
+                            check_in = checkIn,
                             phone_visit = phoneVisit,
-                            promoters_notes = promotersNotes,
-                            visit_actual_target = visitActualTarget,
-                            visit_notes = visitNotes,
-                            visit_target = visitTarget,
-                            visit_visibility = visitVisibility
+                            device_type = "Android version - ${BuildConfig.VERSION_NAME}"
+
+//                            date_visit = dateVisit,
+//                            promoters_notes = promotersNotes,
+//                            visit_notes = visitNotes,
                         )
                     )
                 )
@@ -157,14 +232,14 @@ class TelephoneVisitFragment : Fragment() {
                     is PhoneVisitsStatus.SaveVisitPhone -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
-//                            Toast.makeText(
-//                                requireContext(),
-//                                "${it.data.data.visit_id}",
-//                                Toast.LENGTH_SHORT
-//                            ).show()
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
+                                )
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
-                                message = getString(R.string.saved_successfully),
+                                message = it.data.message,
                                 isSuccess = true,
                                 seconds = 2,
                                 onAutoDismiss = {
@@ -191,6 +266,86 @@ class TelephoneVisitFragment : Fragment() {
                                     )
                                 )
                             }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
+                    is PhoneVisitsStatus.VisitsSelect -> {
+                        dialog.dismiss()
+                        if (it.data.status == 200) {
+                            val visitGoal = it.data.data.visit_goal
+                            val visabilty = it.data.data.visabilty
+                            val sendOrderNote = it.data.data.send_order_note
+//                            val positions = listOf(
+//                                getString(R.string.order),
+//                                getString(R.string.collection),
+//                                getString(R.string.negative)
+//                            )
+
+                            val visitGoalStrings = visitGoal.map { it.name }
+                            val visabiltyStrings = visabilty.map { it.name }
+                            val sendOrderNoteStrings = sendOrderNote.map { it.name }
+
+                            val adapter1 = ArrayAdapter(
+                                requireContext(),
+                                android.R.layout.simple_dropdown_item_1line,
+                                visitGoalStrings
+                            )
+                            binding.etVisitingPosition.setAdapter(adapter1)
+                            binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
+                                val selectedPosition = visitGoal[position]
+                                grade = selectedPosition.id
+                            }
+
+                            val adapter2 = ArrayAdapter(
+                                requireContext(),
+                                android.R.layout.simple_dropdown_item_1line,
+                                visabiltyStrings
+                            )
+                            binding.etVisibility.setAdapter(adapter2)
+                            binding.etVisibility.setOnItemClickListener { _, _, position, _ ->
+                                val selectedPosition = visabilty[position]
+                                visibility = selectedPosition.id
+                            }
+
+                            val adapter3 = ArrayAdapter(
+                                requireContext(),
+                                android.R.layout.simple_dropdown_item_1line,
+                                sendOrderNoteStrings
+                            )
+                            binding.etSendOrderNote.setAdapter(adapter3)
+                            binding.etSendOrderNote.setOnItemClickListener { _, _, position, _ ->
+                                val selectedPosition = sendOrderNote[position]
+                                anotherOrderType = selectedPosition.id
+                            }
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.phoneVisitsIntent.send(
+                                    PhoneVisitsIntent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
                         }
                     }
 
@@ -215,21 +370,39 @@ class TelephoneVisitFragment : Fragment() {
 //                        }
 //                    }
 
-//                    is PhoneVisitsStatus.RefreshToken -> {
-//                        dialog.hide()
-//                        if (it.data.status == 200) {
-//                            val data =
-//                                Gson().fromJson(
-//                                    it.data.data,
-//                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-//                                )
-////                            getData()
-//                        } else {
-//
-//                        }
-////                        binding.tryAgainButtons.root.visibility = View.GONE
-//
-//                    }
+                    is PhoneVisitsStatus.RefreshToken -> {
+                        dialog.hide()
+                        if (it.data.status == 200) {
+                            Log.d("WHATRefreshToken", "${it.data.message}")
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+//                            getData()
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
+                                }
+                            )
+                        }
+//                        binding.tryAgainButtons.root.visibility = View.GONE
+
+                    }
 
 //                    is PhoneVisitsStatus.Error -> {
 //                        Log.d(TAG, "fetchData: ${it.error}")
@@ -257,6 +430,29 @@ class TelephoneVisitFragment : Fragment() {
         calendar.set(Calendar.MILLISECOND, 0)
 
         return calendar.timeInMillis / 1000
+    }
+
+    fun startTimer(): String {
+
+        val currentMillis = System.currentTimeMillis()
+
+        checkIn = SimpleDateFormat(
+            "dd-MM-yyyy HH:mm:ss",
+            Locale.ENGLISH
+        ).format(Date(currentMillis))
+
+        startTimeMillis = currentMillis
+
+        timerHandler.post(timerRunnable)
+
+        return checkIn
+    }
+
+    fun endTimer(): Long {
+        dateVisit =
+            System.currentTimeMillis() / 1000
+        timerHandler.removeCallbacks(timerRunnable)
+        return dateVisit
     }
 
     override fun onCreateView(
