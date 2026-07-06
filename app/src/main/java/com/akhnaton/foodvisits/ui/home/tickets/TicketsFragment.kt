@@ -13,6 +13,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.tickets.TicketsIntent
@@ -20,6 +21,7 @@ import com.akhnaton.foodvisits.data.statusValue.tickets.TicketsStatus
 import com.akhnaton.foodvisits.databinding.FragmentTicketsBinding
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.google.android.datatransport.runtime.scheduling.persistence.EventStoreModule_PackageNameFactory.packageName
 import com.google.android.gms.common.wrappers.Wrappers.packageManager
 import com.google.android.material.snackbar.Snackbar
@@ -45,7 +47,13 @@ class TicketsFragment : Fragment(), View.OnClickListener {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
-        binding.sendTicket.setOnClickListener(this)
+        MainActivity.binding.navView2.visibility = View.GONE
+
+        binding.btnBack.setOnClickListener {
+            findNavController().popBackStack()
+        }
+
+        binding.btnSendTicket.setOnClickListener(this)
         fetchData()
         return binding.root
     }
@@ -65,7 +73,8 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                     is TicketsStatus.SendTickets -> {
                         dialog.hide()
                         binding.error.visibility = View.GONE
-                        binding.ticketTextEd.text?.clear()
+                        binding.etTitle.text?.clear()
+                        binding.etDescription.text?.clear()
                         requireActivity().onBackPressedDispatcher.onBackPressed()
                         val snackbar =
                             Snackbar.make(binding.root, "تم ارسال طلبك بنجاح", Snackbar.LENGTH_LONG)
@@ -92,8 +101,8 @@ class TicketsFragment : Fragment(), View.OnClickListener {
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onClick(p0: View?) {
-        var message = binding.ticketTextEd.text.toString()
-        if (binding.ticketTextEd.text!!.isNotEmpty()) {
+        var message = binding.etDescription.text.toString()
+        if (binding.etDescription.text!!.isNotEmpty()) {
             val appName = requireContext().applicationInfo
                 .loadLabel(requireContext().packageManager)
                 .toString()
@@ -142,8 +151,8 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                 )
             }
         } else {
-            binding.ticketTextEd.error = "يجب كتابة الرسالة اولا"
-            binding.ticketTextEd.isFocusable = true
+            binding.error.error = "يجب كتابة الرسالة اولا"
+            binding.error.isFocusable = true
         }
     }
 

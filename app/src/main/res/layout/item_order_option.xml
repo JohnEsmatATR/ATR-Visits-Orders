@@ -40,7 +40,6 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:gravity="end"
-                android:text="aaaaa"
                 android:textColor="#202020"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -50,7 +49,7 @@
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/_50sdp"
             android:layout_marginTop="12dp"
             android:hint="@string/choose_from_menu"
             android:layoutDirection="rtl"
@@ -60,13 +59,12 @@
             app:boxCornerRadiusTopEnd="14dp"
             app:boxCornerRadiusTopStart="14dp"
             app:boxStrokeWidth="0dp"
-            app:endIconMode="dropdown_menu"
-            app:endIconTint="#F59A3D">
+            app:endIconMode="dropdown_menu">
 
             <AutoCompleteTextView
                 android:id="@+id/etOption"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="match_parent"
                 android:background="@android:color/transparent"
                 android:gravity="start|center_vertical"
                 android:inputType="none"

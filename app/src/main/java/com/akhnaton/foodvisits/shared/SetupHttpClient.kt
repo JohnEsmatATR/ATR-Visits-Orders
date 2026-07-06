@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.shared
 
 import android.annotation.SuppressLint
+import com.akhnaton.foodvisits.BuildConfig
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -83,12 +84,20 @@ class SetupHttpClient {
                                 "Bearer $token"
                             )
                             .addHeader(
-                                "Language",
+                                "language",
                                 "ar"
                             )
                             .addHeader(
                                 "debg_user_name",
                                 debugUserName
+                            )
+                            .addHeader(
+                                "version",
+                                "${BuildConfig.VERSION_NAME}"
+                            )
+                            .addHeader(
+                                "devicetype",
+                                "Android"
                             )
                             .build()
 

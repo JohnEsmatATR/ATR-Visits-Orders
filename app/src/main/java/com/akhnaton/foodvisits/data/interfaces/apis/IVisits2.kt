@@ -6,6 +6,7 @@ import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 //import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 import com.akhnaton.foodvisits.data.model.getList.GetListRes
+import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
 //import com.akhnaton.foodvisits.data.model.getList.GetListRes
 import com.akhnaton.foodvisits.data.model.getStartOrderData.GetStartOrderDataRes
 import com.akhnaton.foodvisits.data.model.getVisitPlan.GetVisitPlanRes
@@ -29,10 +30,10 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CUSTOMER_DATA_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_ITEMS
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_LIST
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_PRODUCT
+import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_START_ORDER_DATA_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_VISIT_PLAN
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER
-import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_ORDER_PENDING
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_VISIT_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.SEND_ORDER
@@ -68,6 +69,10 @@ interface IVisits2 {
         @Query("page") page: String,
         @Query("per_page") perPage: String,
         @Query("status") status: String,
+        @Query("date_from") dateFrom: String,
+        @Query("date_to") dateTo: String,
+        @Query("search") search: String,
+        @Query("order_type") orderType: String,
     ): GetListRes
 
     @DELETE("$DELETE_ORDER/{order_id}")
@@ -79,5 +84,8 @@ interface IVisits2 {
     suspend fun getItems(
         @Path("order_id") orderId: String
     ): GetItemsRes
+
+    @GET(GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT)
+    suspend fun getSalesAndCustomerTypes(): GetSalesAndCustomerTypesRes
 
 }

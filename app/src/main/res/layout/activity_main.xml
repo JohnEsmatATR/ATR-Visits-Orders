@@ -16,6 +16,7 @@
             android:id="@+id/constrain"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:background="@color/gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -121,6 +122,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/ic_ripple"
+            android:visibility="gone"
             app:fabCradleRoundedCornerRadius="0dp"
             app:itemIconTint="@drawable/bottom_navigation_selector"
             app:labelVisibilityMode="labeled"
@@ -128,6 +130,28 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu" />
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/nav_view2"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_60sdp"
+            android:background="@drawable/bg_bottom_nav"
+            app:elevation="0dp"
+            android:outlineProvider="none"
+            android:layout_marginBottom="@dimen/_16sdp"
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            app:itemBackground="@drawable/bottom_nav_item_bg"
+            app:itemIconSize="@dimen/_16sdp"
+            android:layoutDirection="rtl"
+            app:itemIconTint="@color/bottom_nav_icon_selector"
+            app:itemTextColor="@color/bottom_nav_icon_selector"
+            app:labelVisibilityMode="selected"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_gravity="bottom"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/bottom_nav_menu" />
+
 
         <com.akhnaton.foodvisits.shared.GooeyMenu
             android:id="@+id/gooeyMenu"
@@ -137,6 +161,7 @@
             android:contentDescription="@string/home"
             app:gap_between_menu_fab="@dimen/min_gap"
             app:layout_anchor="@+id/nav_view"
+            android:visibility="gone"
             app:layout_anchorGravity="top|center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

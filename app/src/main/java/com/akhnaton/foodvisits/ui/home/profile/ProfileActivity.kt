@@ -13,6 +13,7 @@ import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.clearUserCredentials
 import com.akhnaton.foodvisits.shared.FirebaseProfileClient
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
@@ -64,7 +65,7 @@ class ProfileActivity : AppCompatActivity(), View.OnClickListener {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                 SharedPreferencesHelper.getInstance().logOut()
                 clearUserCredentials(this@ProfileActivity)
-                startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
+                startActivity(Intent(this@ProfileActivity, LoginActivity2::class.java))
                 finishAffinity()
             }
 

@@ -43,6 +43,8 @@ import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -117,6 +119,8 @@ class GpsVisitFragment : Fragment() {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
+
+        MainActivity.binding.navView2.visibility = View.GONE
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
@@ -238,7 +242,7 @@ class GpsVisitFragment : Fragment() {
                             comment = comment,
                             check_in = checkIn,
                             phone_visit = phoneVisit,
-                            device_type = "Android version - ${BuildConfig.VERSION_NAME}",
+                            device_type = "Android",
                             latitude = customerLatitude.toString(),
                             longitude = customerLongitude.toString(),
                             zone_flag = if (currentDistanceMeters <= (validGpsRange ?: 0)) "IN"
@@ -280,6 +284,7 @@ class GpsVisitFragment : Fragment() {
                                         putString("siteAddress", siteAddress)
                                         putString("customerPartySiteId", customerPartySiteId)
                                         putString("saleType", saleType)
+                                        putString("fragment", "Gps")
                                     }
 
                                     findNavController().navigate(
@@ -417,7 +422,7 @@ class GpsVisitFragment : Fragment() {
                                     SharedPreferencesHelper.getInstance().logOut()
                                     startActivity(
                                         Intent(
-                                            requireContext(), LoginActivity::class.java
+                                            requireContext(), LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()

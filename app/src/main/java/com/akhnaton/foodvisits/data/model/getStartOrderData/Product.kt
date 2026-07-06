@@ -20,4 +20,5 @@ data class Product(
     val SUPER_ID: String,
     val TAX_AMOUNT: String,
     var selectedQty: Int,
+    var orderedQuantity: Int,
 )

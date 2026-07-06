@@ -25,6 +25,12 @@ sealed class Order2Intent {
         val editOrderReq: EditOrderReq
     ) : Order2Intent()
 
+    data class GetItemDetails(
+        val itemId: String,
+        val priceList: String,
+        val orgId: String,
+    ) : Order2Intent()
+
     data class RefreshToken(val userId: String, val token: String) : Order2Intent()
 
 }

@@ -3,30 +3,31 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/visitsFragment"
-        android:icon="@drawable/location"
-        android:title="@string/visits"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/ticketsFragment"
-        android:icon="@drawable/ticket64"
-        android:iconTint="@color/colorPrimary"
-        android:title="@string/tickets"
-        app:showAsAction="always" />
-
-    <item
         android:id="@+id/mainFragment"
-        android:title=""
-        android:enabled="false"
+        android:title="الرئيسية"
+        android:icon="@drawable/icon_home"
+        android:visible="true"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/visitPhoneFragment"
         android:icon="@drawable/ic_phone_24"
-        android:title="@string/phone_visit"
+        android:title="هاتفية"
         android:visible="true"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/visitsFragment"
+        android:icon="@drawable/location"
+        android:title="زيارات"
+        app:showAsAction="always" />
+
+<!--    <item-->
+<!--        android:id="@+id/ticketsFragment"-->
+<!--        android:icon="@drawable/ticket64"-->
+<!--        android:iconTint="@color/colorPrimary"-->
+<!--        android:title="@string/tickets"-->
+<!--        app:showAsAction="always" />-->
 
 <!--    <item-->
 <!--        android:id="@+id/foodFragment"-->
@@ -37,7 +38,13 @@
     <item
         android:id="@+id/ordersMenuFragment"
         android:icon="@drawable/ic_print"
-        android:title="@string/orders"
+        android:title="طلبيات"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/moreFragment"
+        android:icon="@drawable/ic_more"
+        android:title="المزيد"
         app:showAsAction="ifRoom" />
 
 </menu>

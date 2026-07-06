@@ -35,6 +35,8 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.order.products.ProductAdapter
 import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
 import com.google.gson.Gson
@@ -80,6 +82,14 @@ class InvoiceFragment : Fragment() {
     private var getItemsResponse = mutableListOf<com.akhnaton.foodvisits.data.model.getItems.Data>()
     lateinit var orderData: com.akhnaton.foodvisits.data.model.getList.Data
     private var isSend: Boolean? = false
+    lateinit var priceListId: String
+    lateinit var orgId: String
+
+    private var selectedItemCode: String? = null
+
+    private var pendingItem: Product? = null
+    private var pendingQty: Int = 0
+    private var isSearchVisible: Boolean? = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -94,26 +104,18 @@ class InvoiceFragment : Fragment() {
             selectedOptionsJson = arguments?.getString("selectedOptions").toString()
 
             val type = object : TypeToken<List<SelectedOption>>() {}.type
-            val selectedOptions: List<SelectedOption> =
-                Gson().fromJson(
-                    selectedOptionsJson,
-                    type
-                )
-            paymentId =
-                selectedOptions
-                    .firstOrNull {
-                        it.key == "payment_terms"
-                    }?.id ?: "106014"
-            warehouseId =
-                selectedOptions
-                    .firstOrNull {
-                        it.key == "warehouse_type"
-                    }?.id
-            saleTypeId =
-                selectedOptions
-                    .firstOrNull {
-                        it.key == "sale_type"
-                    }?.id
+            val selectedOptions: List<SelectedOption> = Gson().fromJson(
+                selectedOptionsJson, type
+            )
+            paymentId = selectedOptions.firstOrNull {
+                it.key == "payment_terms"
+            }?.id ?: "106014"
+            warehouseId = selectedOptions.firstOrNull {
+                it.key == "warehouse_type"
+            }?.id
+            saleTypeId = selectedOptions.firstOrNull {
+                it.key == "sale_type"
+            }?.id
             Log.d("WHATinvoice", paymentId.toString())
             Log.d("WHATinvoice", warehouseId.toString())
             Log.d("WHATinvoice", saleTypeId.toString())
@@ -121,12 +123,11 @@ class InvoiceFragment : Fragment() {
         } else {
             OrigSysDocumentRef = arguments?.getString("OrigSysDocumentRef").toString()
             orderJson = arguments?.getString("orderJson").toString()
-            orderData =
-                Gson().fromJson(
-                    orderJson,
-                    com.akhnaton.foodvisits.data.model.getList.Data::class.java
-                )
-            paymentId = "106014"
+            orderData = Gson().fromJson(
+                orderJson, com.akhnaton.foodvisits.data.model.getList.Data::class.java
+            )
+            paymentId = orderData.PAYMENT_TERM_ID
+//            paymentId = "106014"
             customerCode = orderData.CUSTOMER_CODE
             customerPartySiteId = orderData.PARTY_SITE_ID
             saleType = orderData.ORDER_TYPE
@@ -139,6 +140,8 @@ class InvoiceFragment : Fragment() {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
+
+        MainActivity.binding.navView2.visibility = View.GONE
 
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -172,9 +175,14 @@ class InvoiceFragment : Fragment() {
             updateScreen()
         }
 
+        binding.ivSearch.setOnClickListener {
+            isSearchVisible = !isSearchVisible!!
+            if (isSearchVisible == true) binding.etSearch.visibility = View.VISIBLE
+            if (isSearchVisible == false) binding.etSearch.visibility = View.GONE
+        }
+
         binding.etSearch.addTextChangedListener {
-            val keyword =
-                it.toString().trim()
+            val keyword = it.toString().trim()
             filterProducts(keyword)
         }
 
@@ -183,37 +191,32 @@ class InvoiceFragment : Fragment() {
             if (!isEdit!!) {
                 val selections = currentSelections()
 
-                val itemsMap =
-                    selections.entries.mapIndexed { index, entry ->
+                val itemsMap = selections.entries.mapIndexed { index, entry ->
 
-                        val product =
-                            allProducts.first {
-                                it.ITEM_CODE == entry.key
-                            }
+                    val product = allProducts.first {
+                        it.ITEM_CODE == entry.key
+                    }
 
-                        index.toString() to SaveOrderItemReq(
-                            inventoryItemId =
-                                product.INVENTORY_ITEM_ID.toInt(),
+                    index.toString() to SaveOrderItemReq(
+                        inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
 
-                            quantity =
-                                entry.value
-                        )
-                    }.toMap()
-                val request =
-                    SaveOrderReq(
-                        orderId = orderId,
-                        partySiteId = customerPartySiteId,
-                        orderType = saleType,
-                        deviceType = "Android version - ${BuildConfig.VERSION_NAME}",
-                        send = "0",
-                        warehouseType = warehouseId.toString(),
+                        quantity = entry.value
+                    )
+                }.toMap()
+                val request = SaveOrderReq(
+                    orderId = orderId,
+                    partySiteId = customerPartySiteId,
+                    orderType = saleType,
+                    deviceType = "Android",
+                    send = "0",
+                    warehouseType = warehouseId.toString(),
 //                        login = SharedPreferencesHelper
 //                            .getInstance()
 //                            .getEmployeeId()
 //                            .toInt(),
-                        paymentId = paymentId.toString().toInt(),
-                        items = itemsMap
-                    )
+                    paymentId = paymentId.toString().toInt(),
+                    items = itemsMap
+                )
 
                 Log.d("WHATrequest", request.toString())
 
@@ -227,28 +230,22 @@ class InvoiceFragment : Fragment() {
             } else if (isEdit!!) {
                 val selections = currentSelections()
 
-                val itemsMap =
-                    selections.entries.mapIndexed { index, entry ->
+                val itemsMap = selections.entries.mapIndexed { index, entry ->
 
-                        val product =
-                            allProducts.first {
-                                it.ITEM_CODE == entry.key
-                            }
+                    val product = allProducts.first {
+                        it.ITEM_CODE == entry.key
+                    }
 
-                        index.toString() to EditOrderItemReq(
-                            inventoryItemId =
-                                product.INVENTORY_ITEM_ID.toInt(),
+                    index.toString() to EditOrderItemReq(
+                        inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
 
-                            quantity =
-                                entry.value
-                        )
-                    }.toMap()
-
-                val editOrderReq =
-                    EditOrderReq(
-                        orderId = OrigSysDocumentRef,
-                        items = itemsMap
+                        quantity = entry.value
                     )
+                }.toMap()
+
+                val editOrderReq = EditOrderReq(
+                    orderId = OrigSysDocumentRef, items = itemsMap
+                )
 
                 lifecycleScope.launch {
                     viewModel.orderIntent.send(
@@ -264,37 +261,32 @@ class InvoiceFragment : Fragment() {
             isSend = true
             val selections = currentSelections()
 
-            val itemsMap =
-                selections.entries.mapIndexed { index, entry ->
+            val itemsMap = selections.entries.mapIndexed { index, entry ->
 
-                    val product =
-                        allProducts.first {
-                            it.ITEM_CODE == entry.key
-                        }
+                val product = allProducts.first {
+                    it.ITEM_CODE == entry.key
+                }
 
-                    index.toString() to SaveOrderItemReq(
-                        inventoryItemId =
-                            product.INVENTORY_ITEM_ID.toInt(),
+                index.toString() to SaveOrderItemReq(
+                    inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
 
-                        quantity =
-                            entry.value
-                    )
-                }.toMap()
-            val request =
-                SaveOrderReq(
-                    orderId = orderId,
-                    partySiteId = customerPartySiteId,
-                    orderType = saleType,
-                    deviceType = "Android version - ${BuildConfig.VERSION_NAME}",
-                    send = "1",
-                    warehouseType = warehouseId.toString(),
+                    quantity = entry.value
+                )
+            }.toMap()
+            val request = SaveOrderReq(
+                orderId = orderId,
+                partySiteId = customerPartySiteId,
+                orderType = saleType,
+                deviceType = "Android",
+                send = "1",
+                warehouseType = warehouseId.toString(),
 //                    login = SharedPreferencesHelper
 //                        .getInstance()
 //                        .getEmployeeId()
 //                        .toInt(),
-                    paymentId = paymentId.toString().toInt(),
-                    items = itemsMap
-                )
+                paymentId = paymentId.toString().toInt(),
+                items = itemsMap
+            )
 
             Log.d("WHATrequest", request.toString())
 
@@ -392,12 +384,12 @@ class InvoiceFragment : Fragment() {
                         dialog.dismiss()
                         if (it.data.status == 200) {
 //                            setRecycler(it.data.data.products.toMutableList())
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    Data::class.java
-                                )
+                            val data = Gson().fromJson(
+                                it.data.data, Data::class.java
+                            )
                             orderId = data.invoice_number
+                            priceListId = data.price_list_id
+                            orgId = data.org_id
                             binding.tvInvoice.setText(
                                 "${getString(R.string.invoice)}: ${data.invoice_number}"
                             )
@@ -419,9 +411,7 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(),
-                                it.data.message,
-                                false
+                                requireContext(), it.data.message, false
                             )
                         }
                     }
@@ -446,15 +436,12 @@ class InvoiceFragment : Fragment() {
                                         findNavController().navigate(
                                             R.id.toHome,
                                             null,
-                                            androidx.navigation.NavOptions.Builder()
-                                                .setPopUpTo(
-                                                    findNavController().graph.startDestinationId,
-                                                    true
-                                                )
-                                                .build()
+                                            androidx.navigation.NavOptions.Builder().setPopUpTo(
+                                                findNavController().graph.startDestinationId,
+                                                true
+                                            ).build()
                                         )
-                                    }
-                                )
+                                    })
                             }
 
                         } else if (it.saveOrderRes.status == 401) {
@@ -468,9 +455,7 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(),
-                                it.saveOrderRes.message,
-                                false
+                                requireContext(), it.saveOrderRes.message, false
                             )
                         }
                     }
@@ -495,9 +480,7 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(),
-                                it.data.message,
-                                false
+                                requireContext(), it.data.message, false
                             )
                         }
                     }
@@ -518,9 +501,53 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(),
-                                it.data.message,
-                                false
+                                requireContext(), it.data.message, false
+                            )
+                        }
+                    }
+
+                    is Order2Status.GetItemDetails -> {
+                        dialog.dismiss()
+                        if (it.data.status == 200) {
+//                            getItemsResponse = it.data.data.toMutableList()
+//                            prefillOrderSelections()
+                            it.data.data.forEach { detail ->
+                                val product = allProducts.firstOrNull {
+                                    it.ITEM_CODE == detail.ITEM_CODE
+                                }
+                                product?.orderedQuantity =
+                                    detail.QUANTITY.toIntOrNull() ?: 0
+                            }
+                            pendingItem?.let { item ->
+                                val selections = currentSelections()
+                                if (pendingQty > 0) {
+                                    selections[item.ITEM_CODE] = pendingQty
+                                } else {
+                                    selections.remove(item.ITEM_CODE)
+                                }
+                                binding.tabSelected.text =
+                                    "${getString(R.string.selected)} (${selections.size})"
+                                calculateTotals()
+                                if (isSelectedTab) {
+                                    updateScreen()
+                                } else {
+                                    binding.rvProducts.adapter?.notifyDataSetChanged()
+                                }
+                            }
+                            pendingItem = null
+                            pendingQty = 0
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.orderIntent.send(
+                                    Order2Intent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                requireContext(), it.data.message, false
                             )
                         }
                     }
@@ -529,11 +556,10 @@ class InvoiceFragment : Fragment() {
                         dialog.hide()
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
+                            val data = Gson().fromJson(
+                                it.data.data,
+                                com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                            )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
 //                            getData()
                         } else {
@@ -543,17 +569,14 @@ class InvoiceFragment : Fragment() {
                                 isSuccess = false,
                                 showOkButton = true,
                                 onOk = {
-                                    SharedPreferencesHelper.getInstance()
-                                        .logOut()
+                                    SharedPreferencesHelper.getInstance().logOut()
                                     startActivity(
                                         Intent(
-                                            requireContext(),
-                                            LoginActivity::class.java
+                                            requireContext(), LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()
-                                }
-                            )
+                                })
                         }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 
@@ -584,23 +607,18 @@ class InvoiceFragment : Fragment() {
                 }
 
                 override fun onQuantityChanged(
-                    item: Product, qty: Int
+                    item: Product,
+                    qty: Int
                 ) {
-                    val selections = currentSelections()
-                    binding.tabSelected.setText(
-                        "${requireContext().getString(R.string.selected)} (${currentSelections().size})"
+
+                    pendingItem = item
+                    pendingQty = qty
+
+                    getItemDetails(
+                        item.ITEM_CODE,
+                        priceListId,
+                        orgId
                     )
-                    if (qty > 0) {
-                        selections[item.ITEM_CODE] = qty
-                    } else {
-                        selections.remove(item.ITEM_CODE)
-                    }
-
-                    calculateTotals()
-
-                    if (isSelectedTab) {
-                        updateScreen()
-                    }
                 }
             })
 
@@ -640,13 +658,11 @@ class InvoiceFragment : Fragment() {
                 baseList.filter {
 
                     it.PRODUCT_NAME.contains(
-                        keyword,
-                        true
+                        keyword, true
                     ) ||
 
                             it.ITEM_CODE.contains(
-                                keyword,
-                                true
+                                keyword, true
                             )
 
                 }.toMutableList()
@@ -654,11 +670,8 @@ class InvoiceFragment : Fragment() {
 
         setRecycler(displayedProducts)
 
-        binding.llZeroState.visibility =
-            if (displayedProducts.isEmpty())
-                View.VISIBLE
-            else
-                View.GONE
+        binding.llZeroState.visibility = if (displayedProducts.isEmpty()) View.VISIBLE
+        else View.GONE
     }
 
     private fun calculateTotals() {
@@ -726,43 +739,28 @@ class InvoiceFragment : Fragment() {
         getItemsResponse.forEach { preview ->
 
             Log.d(
-                "MATCH",
-                "Searching for: ${preview.ITEM_NAME}"
+                "MATCH", "Searching for: ${preview.ITEM_NAME}"
             )
 
-            val matchedProduct =
-                allProducts.firstOrNull {
+            val matchedProduct = allProducts.firstOrNull {
 
-                    it.PRODUCT_NAME
-                        .trim()
-                        .replace("'", "") ==
-                            preview.ITEM_NAME
-                                .trim()
-                                .replace("'", "")
-                }
+                it.PRODUCT_NAME.trim().replace("'", "") == preview.ITEM_NAME.trim().replace("'", "")
+            }
 
             Log.d(
-                "MATCH",
-                "Found: ${matchedProduct?.PRODUCT_NAME}"
+                "MATCH", "Found: ${matchedProduct?.PRODUCT_NAME}"
             )
 
             matchedProduct?.let {
 
-                orderSelections[it.ITEM_CODE] =
-                    preview.QUANTITY.toInt()
+                orderSelections[it.ITEM_CODE] = preview.QUANTITY.toInt()
             }
         }
     }
 
     private fun String.normalizeName(): String {
-        return this
-            .replace("'", "")
-            .replace("\"", "")
-            .replace("،", "")
-            .replace(".", "")
-            .replace("-", "")
-            .trim()
-            .lowercase()
+        return this.replace("'", "").replace("\"", "").replace("،", "").replace(".", "")
+            .replace("-", "").trim().lowercase()
     }
 
     private fun getItems() {
@@ -770,6 +768,16 @@ class InvoiceFragment : Fragment() {
             viewModel.orderIntent.send(
                 Order2Intent.GetItems(
                     OrigSysDocumentRef
+                )
+            )
+        }
+    }
+
+    private fun getItemDetails(itemId: String, priceList: String, orgId: String) {
+        lifecycleScope.launch {
+            viewModel.orderIntent.send(
+                Order2Intent.GetItemDetails(
+                    itemId, priceList, orgId
                 )
             )
         }

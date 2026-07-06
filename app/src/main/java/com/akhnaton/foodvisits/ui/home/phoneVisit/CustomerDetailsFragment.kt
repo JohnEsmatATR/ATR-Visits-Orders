@@ -26,6 +26,8 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -60,6 +62,8 @@ class CustomerDetailsFragment : Fragment() {
         Log.d("WHAT", "SALE_TYPE: $saleType")
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+
+        MainActivity.binding.navView2.visibility = View.GONE
 
         binding.ivBack.setOnClickListener {
             findNavController().popBackStack()
@@ -149,7 +153,7 @@ class CustomerDetailsFragment : Fragment() {
                                     startActivity(
                                         Intent(
                                             requireContext(),
-                                            LoginActivity::class.java
+                                            LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()

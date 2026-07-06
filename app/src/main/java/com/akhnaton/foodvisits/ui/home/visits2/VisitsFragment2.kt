@@ -29,6 +29,8 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomersAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
@@ -54,6 +56,8 @@ class VisitsFragment2 : Fragment() {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
+
+        MainActivity.binding.navView2.visibility = View.VISIBLE
 
 //        binding.tvDay.setText(DateUtils.getTodayDayName())
 //        binding.tvDate.setText(DateUtils.getTodayDate())
@@ -132,7 +136,7 @@ class VisitsFragment2 : Fragment() {
                                     startActivity(
                                         Intent(
                                             requireContext(),
-                                            LoginActivity::class.java
+                                            LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()

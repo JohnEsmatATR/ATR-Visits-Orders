@@ -4,6 +4,7 @@ import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.editOrder.EditOrderReq
 import com.akhnaton.foodvisits.data.model.editOrder.EditOrderRes
 import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
+import com.akhnaton.foodvisits.data.model.getItemDetails.GetItemDetailsRes
 import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 //import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 import com.akhnaton.foodvisits.data.model.getStartOrderData.GetStartOrderDataRes
@@ -20,6 +21,7 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.GENERATE_ORDER_NUMBER
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CATEGORIES
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CUSTOMER_DATA_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_ITEMS
+import com.akhnaton.foodvisits.shared.ConstantLinks.GET_ITEMS_DETAILS
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_PRODUCT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_START_ORDER_DATA_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER
@@ -58,5 +60,12 @@ interface IOrder2 {
     suspend fun editOrder(
         @Body editOrderReq: EditOrderReq,
     ): EditOrderRes
+
+    @GET(GET_ITEMS_DETAILS)
+    suspend fun getItemDetails(
+        @Query("item_id") itemId: String,
+        @Query("price_list") priceList: String,
+        @Query("org_id") orgId: String,
+    ): GetItemDetailsRes
 
 }

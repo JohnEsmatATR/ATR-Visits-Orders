@@ -27,6 +27,7 @@ import com.akhnaton.foodvisits.data.model.chart.ChartInfo
 import com.akhnaton.foodvisits.databinding.FragmentMainBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
@@ -58,7 +59,7 @@ class MainFragment : Fragment() {
     ): View {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_main, container, false)
 
-
+        binding.tvUsername.setText(SharedPreferencesHelper.getInstance().getUsername())
         lifecycleScope.launch {
             viewModel.chartIntent.send(
                 ChartIntent.Chart(
@@ -101,9 +102,10 @@ class MainFragment : Fragment() {
                             setChart(it.data.data.user_chart_info)
                             setAdapterData(it.data.data.user_chart_info)
                         } else {
-                            startActivity(Intent(requireContext(), LoginActivity::class.java))
+                            startActivity(Intent(requireContext(), LoginActivity2::class.java))
                         }
                     }
+
                     is ChartStatus.Error -> {
                         Log.d(TAG, "makeLogin Error: ${it.error}")
                     }

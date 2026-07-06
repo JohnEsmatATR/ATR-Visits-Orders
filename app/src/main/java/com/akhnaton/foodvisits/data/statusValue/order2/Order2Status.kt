@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.data.statusValue.order2
 
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.editOrder.EditOrderRes
+import com.akhnaton.foodvisits.data.model.getItemDetails.GetItemDetailsRes
 import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 import com.akhnaton.foodvisits.data.model.getStartOrderData.GetStartOrderDataRes
 import com.akhnaton.foodvisits.data.model.order.Categories
@@ -22,6 +23,7 @@ sealed class Order2Status {
     data class SaveOrder(val saveOrderRes: SaveOrderRes) : Order2Status()
     data class GetItems(val data: GetItemsRes) : Order2Status()
     data class EditOrder(val data: EditOrderRes) : Order2Status()
+    data class GetItemDetails(val data: GetItemDetailsRes) : Order2Status()
     data class RefreshToken(val data: RefreshTokenRes) : Order2Status()
     data class Error(val error: String?) : Order2Status()
 }

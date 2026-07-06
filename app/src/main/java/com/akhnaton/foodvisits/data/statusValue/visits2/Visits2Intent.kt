@@ -25,8 +25,14 @@ sealed class Visits2Intent {
     data class GetList(
         val page: String,
         val perPage: String,
-        val status: String
+        val status: String,
+        val dateFrom: String,
+        val dateTo: String,
+        val search: String,
+        val orderType: String,
     ) : Visits2Intent()
+
+    object GetSalesAndCustomerTypes : Visits2Intent()
 
     data class RefreshToken(val userId: String, val token: String) : Visits2Intent()
 

@@ -61,6 +61,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import androidx.work.WorkRequest
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.addCustomer.AddCustomerActivity
 
 
@@ -68,7 +69,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
     val TAG = "MainActivity"
     private lateinit var checkConnection: CheckConnection
-    private lateinit var binding: ActivityMainBinding
+
+    companion object {
+        lateinit var binding: ActivityMainBinding
+    }
+
     private val viewModel: MainActivityViewModel by viewModels()
     private lateinit var visitViewModel: VisitsViewModel
     private var navHostFragment = NavHostFragment()
@@ -81,8 +86,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         super.onCreate(savedInstanceState)
         setupBinding()
         startSendVisitsWorker(this@MainActivity)
-
-
     }
 
     private fun setupBinding() {
@@ -98,14 +101,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_fragment) as NavHostFragment
         val navController = navHostFragment.navController
-        setupWithNavController(binding.navView, navController)
+        setupWithNavController(binding.navView2, navController)
 
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
         binding.approvalBtn.setOnClickListener(this)
         binding.gooeyMenu.setOnMenuListener(this)
         binding.gooeyMenu.openCloseMenu(false)
-
 
         lifecycleScope.launch {
             viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
@@ -127,7 +129,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     override fun onStart() {
         super.onStart()
         if (!SharedPreferencesHelper().isLogged()) {
-            startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+            startActivity(Intent(this@MainActivity, LoginActivity2::class.java))
         } else {
             Log.d("TAG", "onStart: User Login Success")
         }

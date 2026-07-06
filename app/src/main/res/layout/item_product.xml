@@ -34,6 +34,7 @@
                 android:background="@drawable/bg_rounded_grey"
                 android:backgroundTint="@color/grey"
                 android:gravity="end"
+                android:visibility="gone"
                 android:padding="@dimen/_4sdp"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_8ssp"

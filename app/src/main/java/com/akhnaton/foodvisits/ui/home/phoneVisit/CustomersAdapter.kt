@@ -58,7 +58,8 @@ class CustomersAdapter(
             LockedViewHolder(
                 LayoutInflater.from(parent.context)
                     .inflate(
-                        R.layout.item_customer_locked,
+                        R.layout.item_customer_unlocked,
+//                        R.layout.item_customer_locked,
                         parent,
                         false
                     )

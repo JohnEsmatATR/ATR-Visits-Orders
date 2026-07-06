@@ -54,6 +54,10 @@ class Order2ViewModel : ViewModel() {
                         it.editOrderReq,
                     )
 
+                    is Order2Intent.GetItemDetails -> getItemDetails(
+                        it.itemId, it.priceList, it.orgId
+                    )
+
                     else -> {}
                 }
             }
@@ -123,6 +127,25 @@ class Order2ViewModel : ViewModel() {
                 Order2Status.EditOrder(
                     Order2Repository().editOrder(
                         editOrderReq
+                    )
+                )
+            } catch (e: Exception) {
+                Order2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun getItemDetails(
+        itemId: String,
+        priceList: String,
+        orgId: String,
+    ) {
+        viewModelScope.launch {
+            _status.value = Order2Status.Loading
+            _status.value = try {
+                Order2Status.GetItemDetails(
+                    Order2Repository().getItemDetails(
+                        itemId, priceList, orgId
                     )
                 )
             } catch (e: Exception) {

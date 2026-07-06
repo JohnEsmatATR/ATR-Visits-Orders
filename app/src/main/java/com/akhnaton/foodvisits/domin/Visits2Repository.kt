@@ -24,11 +24,19 @@ class Visits2Repository {
     suspend fun getList(
         page: String,
         perPage: String,
-        status: String
+        status: String,
+        dateFrom: String,
+        dateTo: String,
+        search: String,
+        orderType: String,
     ) = retrofit.getList(
         page,
         perPage,
-        status
+        status,
+        dateFrom,
+        dateTo,
+        search,
+        orderType,
     )
 
     suspend fun deleteOrder(
@@ -42,4 +50,7 @@ class Visits2Repository {
     ) = retrofit.getItems(
         orderId
     )
+
+    suspend fun getSalesAndCustomerTypes() =
+        retrofit.getSalesAndCustomerTypes()
 }

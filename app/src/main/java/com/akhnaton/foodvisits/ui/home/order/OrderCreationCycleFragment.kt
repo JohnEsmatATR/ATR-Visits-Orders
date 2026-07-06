@@ -30,6 +30,8 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomerDataAdapter
 import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
@@ -52,6 +54,7 @@ class OrderCreationCycleFragment : Fragment() {
     lateinit var siteAddress: String
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
+    lateinit var fragment: String
 
     private var selectLists =
         mutableListOf<SelectLists>()
@@ -69,12 +72,22 @@ class OrderCreationCycleFragment : Fragment() {
             arguments?.getString("customerPartySiteId").toString()
         saleType =
             arguments?.getString("saleType").toString()
+        fragment =
+            arguments?.getString("fragment").toString()
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
+        MainActivity.binding.navView2.visibility = View.GONE
+
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            if (fragment == "Telephone") findNavController().navigate(
+                R.id.toVisitPhone
+            )
+            else if (fragment == "Gps")
+                findNavController().navigate(
+                    R.id.toVisitGps
+                )
         }
 
         binding.tvCustomerName.setText(customerName)
@@ -138,7 +151,7 @@ class OrderCreationCycleFragment : Fragment() {
 
     }
 
-        private fun getStartOrderData() {
+    private fun getStartOrderData() {
         lifecycleScope.launch {
             viewModel.orderIntent.send(
                 Order2Intent.GetStartOrderData(
@@ -205,7 +218,7 @@ class OrderCreationCycleFragment : Fragment() {
                                     startActivity(
                                         Intent(
                                             requireContext(),
-                                            LoginActivity::class.java
+                                            LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()

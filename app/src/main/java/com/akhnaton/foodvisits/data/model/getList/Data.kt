@@ -11,7 +11,8 @@ data class Data(
     val ORDER_TYPE: String,
     val ORIG_SYS_DOCUMENT_REF: String,
     val PARTY_SITE_ID: String,
+    val PAYMENT_TERM_ID: String,
     val RNUM: String,
     val TOTAL_QUANTITY: String,
-    val TOTAL_VALUE: String
+    val TOTAL_VALUE: String,
 )

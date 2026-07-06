@@ -41,4 +41,14 @@ class Order2Repository {
         editOrderReq
     )
 
+    suspend fun getItemDetails(
+        itemId: String,
+        priceList: String,
+        orgId: String,
+    ) = retrofit.getItemDetails(
+        itemId,
+        priceList,
+        orgId,
+    )
+
 }

@@ -15,6 +15,7 @@ import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class SplashActivity : AppCompatActivity() {
@@ -42,7 +43,10 @@ class SplashActivity : AppCompatActivity() {
             Log.d("SplashCheck", "Manufacturer: $manufacturer, Model: $model")
 
 
-            val isPOSDevice = manufacturer.contains("sunmi") || manufacturer.contains("pax") || manufacturer.contains("verifone")
+            val isPOSDevice =
+                manufacturer.contains("sunmi") || manufacturer.contains("pax") || manufacturer.contains(
+                    "verifone"
+                )
 
             if (isPOSDevice) {
 
@@ -56,7 +60,8 @@ class SplashActivity : AppCompatActivity() {
                         startActivity(Intent(this@SplashActivity, MainActivity::class.java))
                         finishAffinity()
                     } else {
-                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+//                        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+                        startActivity(Intent(this@SplashActivity, LoginActivity2::class.java))
                         finishAffinity()
                     }
                 }

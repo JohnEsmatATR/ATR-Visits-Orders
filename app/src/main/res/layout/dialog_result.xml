@@ -30,8 +30,8 @@
 
             <ImageView
                 android:id="@+id/imgStatus"
-                android:layout_width="@dimen/_25sdp"
-                android:layout_height="@dimen/_25sdp"
+                android:layout_width="@dimen/_40sdp"
+                android:layout_height="@dimen/_40sdp"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_right"
                 android:tint="@android:color/white" />
@@ -59,27 +59,30 @@
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnYes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_8sdp"
-                android:backgroundTint="@color/colorPrimary"
-                android:text="Yes"
-                android:visibility="gone" />
-
-            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnNo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/grey"
-                android:text="No"
+                android:layout_marginEnd="@dimen/_8sdp"
+                app:cornerRadius="@dimen/_12sdp"
+                android:text="لا"
                 android:textColor="@color/black"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnYes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:cornerRadius="@dimen/_12sdp"
+                android:backgroundTint="@color/colorPrimary"
+                android:text="نعم"
                 android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOk"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:cornerRadius="@dimen/_12sdp"
                 android:backgroundTint="@color/colorPrimary"
                 android:text="OK"
                 android:visibility="gone" />

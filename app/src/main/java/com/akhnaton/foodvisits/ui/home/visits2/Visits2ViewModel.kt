@@ -35,7 +35,15 @@ class Visits2ViewModel : ViewModel() {
             visitsIntent.consumeAsFlow().collect {
                 when (it) {
                     is Visits2Intent.GetVisitPlan -> getVisitPlan()
-                    is Visits2Intent.GetList -> getList(it.page, it.perPage, it.status)
+                    is Visits2Intent.GetList -> getList(
+                        it.page,
+                        it.perPage,
+                        it.status,
+                        it.dateFrom,
+                        it.dateTo,
+                        it.search,
+                        it.orderType
+                    )
 
                     is Visits2Intent.SaveVisitGps -> saveVisitGps(
                         it.saveVisitGpsReq,
@@ -50,6 +58,7 @@ class Visits2ViewModel : ViewModel() {
                     )
 
                     is Visits2Intent.VisitsSelect -> visitsSelect(it.orderType, it.customerCode)
+                    is Visits2Intent.GetSalesAndCustomerTypes -> getSalesAndCustomerTypes()
                     is Visits2Intent.RefreshToken -> refreshToken(it.userId, it.token)
 
                     else -> {}
@@ -106,14 +115,30 @@ class Visits2ViewModel : ViewModel() {
         }
     }
 
-    private fun getList(page: String, perPage: String, status: String) {
+    private fun getList(
+        page: String,
+        perPage: String,
+        status: String,
+        dateFrom: String,
+        dateTo: String,
+        search: String,
+        orderType: String,
+    ) {
         Log.d("WHAT", "getVisitPlanVIEWMODEL")
         viewModelScope.launch {
             _status.value = Visits2Status.Loading
             _status.value = try {
                 Log.d("WHAT", "getVisitPlanVIEWMODEL1")
                 Visits2Status.GetList(
-                    Visits2Repository().getList(page, perPage, status)
+                    Visits2Repository().getList(
+                        page,
+                        perPage,
+                        status,
+                        dateFrom,
+                        dateTo,
+                        search,
+                        orderType
+                    )
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "getVisitPlanVIEWMODEL2 ${e.message}")
@@ -149,6 +174,22 @@ class Visits2ViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "getItemsVIEWMODEL2 ${e.message}")
+                Visits2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun getSalesAndCustomerTypes() {
+        Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = Visits2Status.Loading
+            _status.value = try {
+                Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL1")
+                Visits2Status.GetSalesAndCustomerTypes(
+                    PhoneVisitsRepository().getSalesAndCustomerTypes()
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL2 ${e.message}")
                 Visits2Status.Error(e.message)
             }
         }

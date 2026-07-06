@@ -66,8 +66,13 @@ class ProductAdapter(
             tvSegment2.text =
                 item.SEGMENT2
 
-            tvQuantity.text =
-                "${holder.itemView.context.getString(R.string.quantity)}: ${item.QUANTITY}"
+            if (item.orderedQuantity > 0) {
+                tvQuantity.visibility = View.VISIBLE
+                tvQuantity.text =
+                    "${holder.itemView.context.getString(R.string.quantity)}: ${item.orderedQuantity}"
+            } else {
+                tvQuantity.visibility = View.GONE
+            }
 
             tvRequested.text =
                 etQty.text.toString()
@@ -202,6 +207,7 @@ class ProductAdapter(
         item: Product,
         binding: ItemProductBinding
     ) {
+        val availableQty = item.QUANTITY.toIntOrNull() ?: 0
 
         with(binding) {
 
@@ -212,7 +218,7 @@ class ProductAdapter(
                 tvRequested.visibility = View.VISIBLE
                 tvTotalPrice.visibility = View.VISIBLE
 
-                if (qty > item.QUANTITY.toInt()) tvBackOrder.visibility = View.VISIBLE
+                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
                 else tvBackOrder.visibility = View.GONE
 
                 tvRequested.text =
@@ -225,7 +231,7 @@ class ProductAdapter(
                     "${totalPrice} ${binding.root.context.getString(R.string.currency)}"
 
                 val backOrder =
-                    qty - item.QUANTITY.toInt()
+                    qty - availableQty
 
                 tvBackOrder.text =
                     "${binding.root.context.getString(R.string.remaining)}: $backOrder"
@@ -237,7 +243,7 @@ class ProductAdapter(
                 tvRequested.visibility = View.GONE
                 tvTotalPrice.visibility = View.GONE
 
-                if (qty > item.QUANTITY.toInt()) tvBackOrder.visibility = View.VISIBLE
+                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
                 else tvBackOrder.visibility = View.GONE
 
                 tvZeroState.text =

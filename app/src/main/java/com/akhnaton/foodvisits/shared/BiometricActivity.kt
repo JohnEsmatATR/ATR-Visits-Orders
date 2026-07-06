@@ -13,6 +13,7 @@ import com.akhnaton.foodvisits.databinding.ActivityBiometricBinding
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.clearUserCredentials
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.profile.ProfileActivity
 
@@ -86,7 +87,7 @@ class BiometricActivity : AppCompatActivity() {
     private fun logoutFun(){
         SharedPreferencesHelper.getInstance().logOut()
         clearUserCredentials(this@BiometricActivity)
-        startActivity(Intent(this@BiometricActivity, LoginActivity::class.java))
+        startActivity(Intent(this@BiometricActivity, LoginActivity2::class.java))
         finishAffinity()
     }
 }

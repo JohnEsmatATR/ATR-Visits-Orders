@@ -6,11 +6,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class CompetitorsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        MainActivity.binding.navView2.visibility = View.GONE
+
     }
 
     override fun onCreateView(

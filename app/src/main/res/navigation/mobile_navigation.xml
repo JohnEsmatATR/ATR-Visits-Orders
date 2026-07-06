@@ -6,6 +6,16 @@
     app:startDestination="@id/mainFragment">
 
     <fragment
+        android:id="@+id/moreFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.more.MoreFragment"
+        android:label="fragment_more"
+        tools:layout="@layout/fragment_more">
+        <action
+            android:id="@+id/toTickets"
+            app:destination="@id/ticketsFragment" />
+    </fragment>
+
+    <fragment
         android:id="@+id/mainFragment"
         android:name="com.akhnaton.foodvisits.ui.home.main.MainFragment"
         android:label="fragment_main"
@@ -106,6 +116,12 @@
         <action
             android:id="@+id/toInvoice"
             app:destination="@id/invoiceFragment" />
+        <action
+            android:id="@+id/toVisitPhone"
+            app:destination="@id/visitPhoneFragment" />
+        <action
+            android:id="@+id/toVisitGps"
+            app:destination="@id/gpsVisitFragment" />
     </fragment>
 
     <fragment

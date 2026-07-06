@@ -32,6 +32,8 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -113,7 +115,7 @@ class TelephoneVisitFragment : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        checkIn = startTimer()
+        MainActivity.binding.navView2.visibility = View.GONE
 
         if (isProm) binding.llPromoterProcedures.visibility = View.VISIBLE
         else binding.llPromoterProcedures.visibility = View.GONE
@@ -195,7 +197,7 @@ class TelephoneVisitFragment : Fragment() {
                             comment = comment,
                             check_in = checkIn,
                             phone_visit = phoneVisit,
-                            device_type = "Android version - ${BuildConfig.VERSION_NAME}"
+                            device_type = "Android"
 
 //                            date_visit = dateVisit,
 //                            promoters_notes = promotersNotes,
@@ -249,6 +251,7 @@ class TelephoneVisitFragment : Fragment() {
                                         putString("siteAddress", siteAddress)
                                         putString("customerPartySiteId", customerPartySiteId)
                                         putString("saleType", saleType)
+                                        putString("fragment", "Telephone")
                                     }
 
                                     findNavController().navigate(
@@ -281,6 +284,8 @@ class TelephoneVisitFragment : Fragment() {
 
                     is PhoneVisitsStatus.VisitsSelect -> {
                         dialog.dismiss()
+                        binding.tvTimer.visibility = View.VISIBLE
+                        checkIn = startTimer()
                         if (it.data.status == 200) {
                             val visitGoal = it.data.data.visit_goal
                             val visabilty = it.data.data.visabilty
@@ -393,7 +398,7 @@ class TelephoneVisitFragment : Fragment() {
                                     startActivity(
                                         Intent(
                                             requireContext(),
-                                            LoginActivity::class.java
+                                            LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()

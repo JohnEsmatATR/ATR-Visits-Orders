@@ -42,6 +42,8 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.supervisor.superOrderDetails.OrderDetailsAdapter
 import com.akhnaton.foodvisits.ui.home.supervisor.superOrderDetails.ReturnDetailsAdapter
 import com.google.gson.Gson
@@ -90,9 +92,10 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-
 //        binding.addVisit.setOnClickListener(this)
 //        binding.tryAgainButtons.tryAgain.setOnClickListener { getData() }
+
+        MainActivity.binding.navView2.visibility = View.VISIBLE
 
         getOrderTypeItemClick()
         getCustomerTypeItemClick()
@@ -181,7 +184,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
                                     startActivity(
                                         Intent(
                                             requireContext(),
-                                            LoginActivity::class.java
+                                            LoginActivity2::class.java
                                         )
                                     )
                                     requireActivity().finishAffinity()

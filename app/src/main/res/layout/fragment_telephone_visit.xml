@@ -6,10 +6,11 @@
 
     </data>
 
-    <androidx.core.widget.NestedScrollView
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grey">
+        android:background="@color/grey"
+        android:fillViewport="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,7 +63,8 @@
                 android:text="00:00:00"
                 android:textColor="@color/orange"
                 android:textSize="24sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <!-- Active Visit Card -->
 
@@ -241,7 +243,7 @@
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_50sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:backgroundTint="@color/grey"
                         app:boxBackgroundColor="@color/grey"
@@ -260,9 +262,9 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:drawablePadding="@dimen/_12sdp"
-                            android:drawableTint="@color/black"
                             android:hint="@string/objective_visit"
                             android:inputType="number"
+                            android:textAlignment="viewEnd"
                             android:textSize="@dimen/_12ssp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
@@ -275,11 +277,12 @@
                         <com.google.android.material.textfield.TextInputLayout
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_height="@dimen/_50sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_weight="1"
                             android:backgroundTint="@color/grey"
+                            android:layoutDirection="rtl"
                             app:boxBackgroundColor="@color/grey"
                             app:boxCornerRadiusBottomEnd="12dp"
                             app:boxCornerRadiusBottomStart="12dp"
@@ -299,6 +302,8 @@
                                 android:drawableTint="@color/black"
                                 android:hint="@string/collect_today"
                                 android:inputType="number"
+                                android:paddingEnd="@dimen/_12sdp"
+                                android:textAlignment="viewStart"
                                 android:textSize="@dimen/_12ssp" />
 
                         </com.google.android.material.textfield.TextInputLayout>
@@ -308,10 +313,11 @@
                             android:id="@+id/tilVisitingPosition"
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
+                            android:layout_height="@dimen/_50sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_weight="1"
                             android:backgroundTint="@color/grey"
+                            android:layoutDirection="rtl"
                             app:boxBackgroundColor="@color/grey"
                             app:boxCornerRadiusBottomEnd="12dp"
                             app:boxCornerRadiusBottomStart="12dp"
@@ -330,6 +336,8 @@
                                 android:focusable="false"
                                 android:hint="@string/visiting_position"
                                 android:inputType="none"
+                                android:paddingEnd="@dimen/_12sdp"
+                                android:textAlignment="viewStart"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp" />
 
@@ -345,11 +353,12 @@
                             android:id="@+id/tilVisibility"
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
-                            android:layout_marginEnd="@dimen/_8sdp"
+                            android:layout_height="@dimen/_50sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_weight="1"
                             android:backgroundTint="@color/grey"
+                            android:layoutDirection="rtl"
                             app:boxBackgroundColor="@color/grey"
                             app:boxCornerRadiusBottomEnd="12dp"
                             app:boxCornerRadiusBottomStart="12dp"
@@ -368,6 +377,8 @@
                                 android:focusable="false"
                                 android:hint="@string/visibility"
                                 android:inputType="none"
+                                android:paddingEnd="@dimen/_12sdp"
+                                android:textAlignment="viewStart"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp" />
 
@@ -377,10 +388,11 @@
                             android:id="@+id/tilSendOrderNote"
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="0dp"
-                            android:layout_height="match_parent"
+                            android:layout_height="@dimen/_50sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_weight="1"
                             android:backgroundTint="@color/grey"
+                            android:layoutDirection="rtl"
                             app:boxBackgroundColor="@color/grey"
                             app:boxCornerRadiusBottomEnd="12dp"
                             app:boxCornerRadiusBottomStart="12dp"
@@ -399,6 +411,8 @@
                                 android:focusable="false"
                                 android:hint="@string/send_order_note"
                                 android:inputType="none"
+                                android:paddingEnd="@dimen/_12sdp"
+                                android:textAlignment="viewStart"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp" />
 
@@ -426,8 +440,11 @@
                             android:id="@+id/etVisitNotes"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/_100sdp"
+                            android:layout_gravity="top"
                             android:drawablePadding="@dimen/_12sdp"
                             android:drawableTint="@color/black"
+                            android:gravity="top"
+                            android:textAlignment="viewEnd"
                             android:hint="@string/visit_notes"
                             android:inputType="textMultiLine"
                             android:textSize="@dimen/_12ssp" />
@@ -490,7 +507,7 @@
                                 android:layout_gravity="center"
                                 android:text="تقرير الزيارة"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_14ssp"
+                                android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -528,7 +545,7 @@
                                 android:layout_gravity="center"
                                 android:text="المكالمات"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_14ssp"
+                                android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -574,7 +591,7 @@
                                 android:layout_gravity="center"
                                 android:text="الصور"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_14ssp"
+                                android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -611,7 +628,7 @@
                                 android:layout_gravity="center"
                                 android:text="المخزون"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_14ssp"
+                                android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
 
                         </LinearLayout>
@@ -628,7 +645,8 @@
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
-                android:layout_margin="16dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
                 android:backgroundTint="#F7941D"
                 android:text="@string/save_visit"
                 android:textColor="#FFF"
@@ -642,6 +660,6 @@
 
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+    </ScrollView>
 
 </layout>
