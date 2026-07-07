@@ -17,9 +17,13 @@ class ProductAdapter(
     private val listener: OnItemActionListener
 ) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
-    inner class ViewHolder(
+    class ViewHolder(
         val binding: ItemProductBinding
-    ) : RecyclerView.ViewHolder(binding.root)
+    ) : RecyclerView.ViewHolder(binding.root) {
+
+        var watcher: TextWatcher? = null
+        var ignoreWatcher = false
+    }
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -91,8 +95,9 @@ class ProductAdapter(
                 selections[item.ITEM_CODE] ?: 0
 
             if (etQty.text.toString() != qty.toString()) {
+                holder.ignoreWatcher = true
                 etQty.setText(qty.toString())
-            }
+                holder.ignoreWatcher = false            }
 
             updateSelectionUI(
                 qty,
@@ -107,7 +112,9 @@ class ProductAdapter(
 
                 selections[item.ITEM_CODE] = qty
 
+                holder.ignoreWatcher = true
                 etQty.setText(qty.toString())
+                holder.ignoreWatcher = false
 
                 updateSelectionUI(
                     qty,
@@ -135,7 +142,9 @@ class ProductAdapter(
                     selections[item.ITEM_CODE] = qty
                 }
 
+                holder.ignoreWatcher = true
                 etQty.setText(qty.toString())
+                holder.ignoreWatcher = false
 
                 updateSelectionUI(
                     qty,
@@ -149,52 +158,83 @@ class ProductAdapter(
                 )
             }
 
-            etQty.addTextChangedListener(
-                object : TextWatcher {
+//            etQty.addTextChangedListener(
+//                object : TextWatcher {
+//
+//                    override fun beforeTextChanged(
+//                        s: CharSequence?,
+//                        start: Int,
+//                        count: Int,
+//                        after: Int
+//                    ) {
+//                    }
+//
+//                    override fun onTextChanged(
+//                        s: CharSequence?,
+//                        start: Int,
+//                        before: Int,
+//                        count: Int
+//                    ) {
+//                    }
+//
+//                    override fun afterTextChanged(
+//                        s: Editable?
+//                    ) {
+//
+//                        val qty =
+//                            s.toString()
+//                                .toIntOrNull() ?: 0
+//
+//                        if (qty == 0) {
+//                            selections.remove(item.ITEM_CODE)
+//                        } else {
+//                            selections[item.ITEM_CODE] = qty
+//                        }
+//
+//                        updateSelectionUI(
+//                            qty,
+//                            item,
+//                            holder.binding
+//                        )
+//
+//                        listener.onQuantityChanged(
+//                            item,
+//                            qty
+//                        )
+//                    }
+//                }
+//            )
 
-                    override fun beforeTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        count: Int,
-                        after: Int
-                    ) {
-                    }
+            holder.watcher?.let {
+                etQty.removeTextChangedListener(it)
+            }
 
-                    override fun onTextChanged(
-                        s: CharSequence?,
-                        start: Int,
-                        before: Int,
-                        count: Int
-                    ) {
-                    }
-
-                    override fun afterTextChanged(
-                        s: Editable?
-                    ) {
-
-                        val qty =
-                            s.toString()
-                                .toIntOrNull() ?: 0
-
-                        if (qty == 0) {
-                            selections.remove(item.ITEM_CODE)
-                        } else {
-                            selections[item.ITEM_CODE] = qty
-                        }
-
-                        updateSelectionUI(
-                            qty,
-                            item,
-                            holder.binding
-                        )
-
-                        listener.onQuantityChanged(
-                            item,
-                            qty
-                        )
-                    }
+            holder.watcher = object : TextWatcher {
+                override fun beforeTextChanged(
+                    p0: CharSequence?,
+                    p1: Int,
+                    p2: Int,
+                    p3: Int
+                ) {
                 }
-            )
+
+                override fun onTextChanged(
+                    p0: CharSequence?,
+                    p1: Int,
+                    p2: Int,
+                    p3: Int
+                ) {
+                }
+
+                override fun afterTextChanged(p0: Editable?) {
+                    if (holder.ignoreWatcher)
+                        return
+                }
+
+
+            }
+
+            etQty.addTextChangedListener(holder.watcher)
 
             root.setOnClickListener {
                 listener.onItemClicked(item)
@@ -218,8 +258,8 @@ class ProductAdapter(
                 tvRequested.visibility = View.VISIBLE
                 tvTotalPrice.visibility = View.VISIBLE
 
-                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
-                else tvBackOrder.visibility = View.GONE
+//                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
+//                else tvBackOrder.visibility = View.GONE
 
                 tvRequested.text =
                     "${binding.root.context.getString(R.string.requested)}: $qty"
@@ -243,8 +283,8 @@ class ProductAdapter(
                 tvRequested.visibility = View.GONE
                 tvTotalPrice.visibility = View.GONE
 
-                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
-                else tvBackOrder.visibility = View.GONE
+//                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
+//                else tvBackOrder.visibility = View.GONE
 
                 tvZeroState.text =
                     "${binding.root.context.getString(R.string.no_product_choosen)}"

@@ -21,4 +21,5 @@ data class Product(
     val TAX_AMOUNT: String,
     var selectedQty: Int,
     var orderedQuantity: Int,
+    var clicked: Boolean = false,
 )

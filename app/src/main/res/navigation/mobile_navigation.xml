@@ -13,6 +13,9 @@
         <action
             android:id="@+id/toTickets"
             app:destination="@id/ticketsFragment" />
+        <action
+            android:id="@+id/toPrint"
+            app:destination="@id/foodFragment" />
     </fragment>
 
     <fragment

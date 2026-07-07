@@ -33,8 +33,17 @@ class CustomersAdapter(
         val tvDisplayName: TextView =
             view.findViewById(R.id.tvDisplayName)
 
-        val tvCustomerCodeCategoryCode: TextView =
-            view.findViewById(R.id.tvCustomerCodeCategoryCode)
+        val tvCustomerCode: TextView =
+            view.findViewById(R.id.tvCustomerCode)
+
+        val tvCategoryMeaning: TextView =
+            view.findViewById(R.id.tvCategoryMeaning)
+
+        val tvTeamName: TextView =
+            view.findViewById(R.id.tvTeamName)
+
+        val tvCustomerProfileDesc: TextView =
+            view.findViewById(R.id.tvCustomerProfileDesc)
     }
 
     class UnlockedViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -44,8 +53,17 @@ class CustomersAdapter(
         val tvDisplayName: TextView =
             view.findViewById(R.id.tvDisplayName)
 
-        val tvCustomerCodeCategoryCode: TextView =
-            view.findViewById(R.id.tvCustomerCodeCategoryCode)
+        val tvCustomerCode: TextView =
+            view.findViewById(R.id.tvCustomerCode)
+
+        val tvCategoryMeaning: TextView =
+            view.findViewById(R.id.tvCategoryMeaning)
+
+        val tvTeamName: TextView =
+            view.findViewById(R.id.tvTeamName)
+
+        val tvCustomerProfileDesc: TextView =
+            view.findViewById(R.id.tvCustomerProfileDesc)
     }
 
     override fun onCreateViewHolder(
@@ -95,8 +113,17 @@ class CustomersAdapter(
                 holder.tvDisplayName.text =
                     item.DISPLAY_NAME
 
-                holder.tvCustomerCodeCategoryCode.text =
-                    "كود: ${item.CUSTOMER_CODE} • فئة: ${item.CATEGORY_CODE}"
+                holder.tvCustomerCode.text =
+                    "الكود : ${item.CUSTOMER_CODE}"
+
+                holder.tvCategoryMeaning.text =
+                    "الفئة : ${item.CATEGORY_CODE}"
+
+                holder.tvTeamName.text =
+                    "الخط : ${item.TEAM_NAME}"
+
+                holder.tvCustomerProfileDesc.text =
+                    "نوع العميل : ${item.CUSTOMER_PROFILE_DESC}"
             }
 
             is UnlockedViewHolder -> {
@@ -107,8 +134,17 @@ class CustomersAdapter(
                 holder.tvDisplayName.text =
                     item.DISPLAY_NAME
 
-                holder.tvCustomerCodeCategoryCode.text =
-                    "كود: ${item.CUSTOMER_CODE} • فئة: ${item.CATEGORY_CODE}"
+                holder.tvCustomerCode.text =
+                    "الكود : ${item.CUSTOMER_CODE}"
+
+                holder.tvCategoryMeaning.text =
+                    "الفئة : ${item.CATEGORY_CODE}"
+
+                holder.tvTeamName.text =
+                    "الخط : ${item.TEAM_NAME}"
+
+                holder.tvCustomerProfileDesc.text =
+                    "نوع العميل : ${item.CUSTOMER_PROFILE_DESC}"
             }
         }
 

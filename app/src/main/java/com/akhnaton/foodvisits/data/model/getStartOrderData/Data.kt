@@ -5,5 +5,5 @@ data class Data(
     val products: List<Product>,
     val select_lists: List<SelectLists>,
     val price_list_id: String,
-    val org_id: String,
+    val store_id: String,
 )

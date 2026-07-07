@@ -219,6 +219,30 @@ class GpsVisitFragment : Fragment() {
 //        }
 
         binding.btnSave.setOnClickListener {
+            if (binding.etObjectiveVisit.text.toString().isEmpty()) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "هدف الزيارة مطلوب",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+            }
+            if (binding.etVisitingPosition.text.toString().isEmpty()) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "موقف الزيارة مطلوب",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+            }
+            if (binding.etVisibility.text.toString().isEmpty()) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "تقييم عرض الصنف مطلوب",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+            }
             Log.d("WHATbtnSave", "Clicked")
 //            checkInDate = getCurrentTimeTimestamp()
 //            dateVisit = getCurrentDateTimestamp()

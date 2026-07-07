@@ -65,7 +65,7 @@ interface IOrder2 {
     suspend fun getItemDetails(
         @Query("item_id") itemId: String,
         @Query("price_list") priceList: String,
-        @Query("org_id") orgId: String,
+        @Query("store_id") storeId: String,
     ): GetItemDetailsRes
 
 }

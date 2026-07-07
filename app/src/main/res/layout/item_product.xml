@@ -173,6 +173,7 @@
                     android:backgroundTint="@color/main_color_gold2"
                     android:gravity="end"
                     android:padding="@dimen/_4sdp"
+                    android:visibility="gone"
                     android:textColor="@color/red"
                     android:textSize="@dimen/_8ssp"
                     android:textStyle="bold" />

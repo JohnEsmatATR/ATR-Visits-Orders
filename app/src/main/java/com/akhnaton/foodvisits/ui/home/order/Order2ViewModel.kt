@@ -55,7 +55,7 @@ class Order2ViewModel : ViewModel() {
                     )
 
                     is Order2Intent.GetItemDetails -> getItemDetails(
-                        it.itemId, it.priceList, it.orgId
+                        it.itemId, it.priceList, it.storeId
                     )
 
                     else -> {}
@@ -138,14 +138,14 @@ class Order2ViewModel : ViewModel() {
     private fun getItemDetails(
         itemId: String,
         priceList: String,
-        orgId: String,
+        storeId: String,
     ) {
         viewModelScope.launch {
             _status.value = Order2Status.Loading
             _status.value = try {
                 Order2Status.GetItemDetails(
                     Order2Repository().getItemDetails(
-                        itemId, priceList, orgId
+                        itemId, priceList, storeId
                     )
                 )
             } catch (e: Exception) {

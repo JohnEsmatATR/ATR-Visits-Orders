@@ -44,6 +44,13 @@ class MoreFragment : Fragment() {
                 R.id.toTickets
             )
         }
+
+        binding.cardPrint.setOnClickListener {
+            findNavController().navigate(
+                R.id.toPrint
+            )
+        }
+
         binding.cardOrders.setOnClickListener {
             requireContext().startActivity(Intent(requireActivity(), WebOrderActivity::class.java))
         }

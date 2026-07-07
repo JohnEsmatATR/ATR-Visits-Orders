@@ -23,30 +23,24 @@ object DialogUtils {
         onNo: (() -> Unit)? = null,
         onAutoDismiss: (() -> Unit)? = null
     ) {
-
         val dialog = Dialog(context)
-
         dialog.setContentView(R.layout.dialog_result)
-
         dialog.window?.setBackgroundDrawableResource(
             android.R.color.transparent
         )
+        dialog.setCanceledOnTouchOutside(false)
+        dialog.setCancelable(false)
 
         val tvMessage =
             dialog.findViewById<TextView>(R.id.tvMessage)
-
         val imgStatus =
             dialog.findViewById<ImageView>(R.id.imgStatus)
-
         val bgCircle =
             dialog.findViewById<View>(R.id.bgCircle)
-
         val btnOk =
             dialog.findViewById<TextView>(R.id.btnOk)
-
         val btnYes =
             dialog.findViewById<TextView>(R.id.btnYes)
-
         val btnNo =
             dialog.findViewById<TextView>(R.id.btnNo)
 

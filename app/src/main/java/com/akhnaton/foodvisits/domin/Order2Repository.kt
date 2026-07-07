@@ -44,11 +44,11 @@ class Order2Repository {
     suspend fun getItemDetails(
         itemId: String,
         priceList: String,
-        orgId: String,
+        storeId: String,
     ) = retrofit.getItemDetails(
         itemId,
         priceList,
-        orgId,
+        storeId,
     )
 
 }

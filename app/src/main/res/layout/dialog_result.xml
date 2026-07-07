@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 app:cornerRadius="@dimen/_12sdp"
                 android:backgroundTint="@color/colorPrimary"
-                android:text="OK"
+                android:text="تم"
                 android:visibility="gone" />
 
         </LinearLayout>

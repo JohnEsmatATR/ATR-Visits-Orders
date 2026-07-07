@@ -83,7 +83,7 @@ class InvoiceFragment : Fragment() {
     lateinit var orderData: com.akhnaton.foodvisits.data.model.getList.Data
     private var isSend: Boolean? = false
     lateinit var priceListId: String
-    lateinit var orgId: String
+    lateinit var storeId: String
 
     private var selectedItemCode: String? = null
 
@@ -389,7 +389,7 @@ class InvoiceFragment : Fragment() {
                             )
                             orderId = data.invoice_number
                             priceListId = data.price_list_id
-                            orgId = data.org_id
+                            storeId = data.store_id
                             binding.tvInvoice.setText(
                                 "${getString(R.string.invoice)}: ${data.invoice_number}"
                             )
@@ -611,14 +611,36 @@ class InvoiceFragment : Fragment() {
                     qty: Int
                 ) {
 
+                    Log.d("WHATclicked", item.clicked.toString())
                     pendingItem = item
                     pendingQty = qty
-
-                    getItemDetails(
-                        item.ITEM_CODE,
-                        priceListId,
-                        orgId
-                    )
+                    if (item.clicked == true) {
+                        pendingItem?.let { item ->
+                            val selections = currentSelections()
+                            if (pendingQty > 0) {
+                                selections[item.ITEM_CODE] = pendingQty
+                            } else {
+                                selections.remove(item.ITEM_CODE)
+                            }
+                            binding.tabSelected.text =
+                                "${getString(R.string.selected)} (${selections.size})"
+                            calculateTotals()
+                            if (isSelectedTab) {
+                                updateScreen()
+                            } else {
+                                binding.rvProducts.adapter?.notifyDataSetChanged()
+                            }
+                        }
+                        pendingItem = null
+                        pendingQty = 0
+                    } else if (item.clicked == false) {
+                        item.clicked = true
+                        getItemDetails(
+                            item.ITEM_CODE,
+                            priceListId,
+                            storeId
+                        )
+                    }
                 }
             })
 
@@ -635,32 +657,22 @@ class InvoiceFragment : Fragment() {
     ) {
 
         val baseList =
-
             if (isSelectedTab) {
-
                 allProducts.filter {
                     (currentSelections()[it.ITEM_CODE] ?: 0) > 0
                 }
-
             } else {
-
                 allProducts
             }
 
         displayedProducts =
-
             if (keyword.isBlank()) {
-
                 baseList.toMutableList()
-
             } else {
-
                 baseList.filter {
-
                     it.PRODUCT_NAME.contains(
                         keyword, true
                     ) ||
-
                             it.ITEM_CODE.contains(
                                 keyword, true
                             )
@@ -773,11 +785,11 @@ class InvoiceFragment : Fragment() {
         }
     }
 
-    private fun getItemDetails(itemId: String, priceList: String, orgId: String) {
+    private fun getItemDetails(itemId: String, priceList: String, storeId: String) {
         lifecycleScope.launch {
             viewModel.orderIntent.send(
                 Order2Intent.GetItemDetails(
-                    itemId, priceList, orgId
+                    itemId, priceList, storeId
                 )
             )
         }

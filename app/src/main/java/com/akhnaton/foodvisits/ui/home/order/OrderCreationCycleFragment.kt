@@ -81,9 +81,10 @@ class OrderCreationCycleFragment : Fragment() {
         MainActivity.binding.navView2.visibility = View.GONE
 
         binding.btnBack.setOnClickListener {
-            if (fragment == "Telephone") findNavController().navigate(
-                R.id.toVisitPhone
-            )
+            if (fragment == "Telephone")
+                findNavController().navigate(
+                    R.id.toVisitPhone
+                )
             else if (fragment == "Gps")
                 findNavController().navigate(
                     R.id.toVisitGps

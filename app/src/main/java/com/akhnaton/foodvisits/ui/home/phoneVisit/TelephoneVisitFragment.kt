@@ -174,6 +174,24 @@ class TelephoneVisitFragment : Fragment() {
 //        }
 
         binding.btnSave.setOnClickListener {
+            if (binding.etObjectiveVisit.text.toString().isEmpty()) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "هدف الزيارة مطلوب",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
+            if (binding.etVisitingPosition.text.toString().isEmpty()) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "موقف الزيارة مطلوب",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
             Log.d("WHATbtnSave", "Clicked")
 //            checkIn = getCurrentTimeTimestamp().toString()
 //            dateVisit = getCurrentDateTimestamp()
