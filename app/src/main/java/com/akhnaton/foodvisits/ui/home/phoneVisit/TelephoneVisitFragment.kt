@@ -210,7 +210,8 @@ class TelephoneVisitFragment : Fragment() {
                             ord_type = saleType,
                             visibility = visibility,
                             grade = grade,
-                            act_target = actTarget.toInt(),
+                            act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
+//                            act_target = if (actTarget.isEmpty()),
                             another_order_type = anotherOrderType,
                             comment = comment,
                             check_in = checkIn,
@@ -263,19 +264,28 @@ class TelephoneVisitFragment : Fragment() {
                                 isSuccess = true,
                                 seconds = 2,
                                 onAutoDismiss = {
-                                    val bundle = Bundle().apply {
-                                        putString("customerName", customerName)
-                                        putString("customerCode", customerCode)
-                                        putString("siteAddress", siteAddress)
-                                        putString("customerPartySiteId", customerPartySiteId)
-                                        putString("saleType", saleType)
-                                        putString("fragment", "Telephone")
+
+                                    if (grade == "A") {
+                                        val bundle = Bundle().apply {
+                                            putString("customerName", customerName)
+                                            putString("customerCode", customerCode)
+                                            putString("siteAddress", siteAddress)
+                                            putString("customerPartySiteId", customerPartySiteId)
+                                            putString("saleType", saleType)
+                                            putString("fragment", "Telephone")
+                                        }
+
+                                        findNavController().navigate(
+                                            R.id.toOrderCreationCycle,
+                                            bundle
+                                        )
+                                    } else {
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome
+                                        )
                                     }
 
-                                    findNavController().navigate(
-                                        R.id.toOrderCreationCycle,
-                                        bundle
-                                    )
                                 }
                             )
                         } else if (it.data.status == 401) {
@@ -305,9 +315,14 @@ class TelephoneVisitFragment : Fragment() {
                         binding.tvTimer.visibility = View.VISIBLE
                         checkIn = startTimer()
                         if (it.data.status == 200) {
-                            val visitGoal = it.data.data.visit_goal
-                            val visabilty = it.data.data.visabilty
-                            val sendOrderNote = it.data.data.send_order_note
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.visitesSelect.Data::class.java
+                                )
+                            val visitGoal = data.visit_goal
+                            val visabilty = data.visabilty
+                            val sendOrderNote = data.send_order_note
 //                            val positions = listOf(
 //                                getString(R.string.order),
 //                                getString(R.string.collection),
@@ -338,6 +353,7 @@ class TelephoneVisitFragment : Fragment() {
                             binding.etVisibility.setOnItemClickListener { _, _, position, _ ->
                                 val selectedPosition = visabilty[position]
                                 visibility = selectedPosition.id
+                                Log.d("WHATvisibility", "$visibility")
                             }
 
                             val adapter3 = ArrayAdapter(

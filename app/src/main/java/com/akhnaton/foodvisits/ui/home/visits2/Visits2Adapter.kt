@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.visits2
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
@@ -59,16 +60,24 @@ class Visits2Adapter(
         val tvSiteAddress: TextView =
             itemView.findViewById(R.id.tvSiteAddress)
 
+        val ivLocation: ImageView =
+            itemView.findViewById(R.id.ivLocation)
+
         init {
 
             itemView.setOnClickListener {
-
                 val position = adapterPosition
-
                 if (position != RecyclerView.NO_POSITION) {
                     listener.onClick(
                         mList[position]
                     )
+                }
+            }
+
+            ivLocation.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onLocationClick(mList[position])
                 }
             }
         }
@@ -76,5 +85,7 @@ class Visits2Adapter(
 
     interface OnItemClickListener {
         fun onClick(item: CustomerVisitPlan)
+        fun onLocationClick(item: CustomerVisitPlan)
+
     }
 }

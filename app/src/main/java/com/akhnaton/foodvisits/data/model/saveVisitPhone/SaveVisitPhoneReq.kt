@@ -1,7 +1,7 @@
 package com.akhnaton.foodvisits.data.model.saveVisitPhone
 
 data class SaveVisitPhoneReq(
-    val act_target: Int,
+    val act_target: Int? = null,
     val another_order_type: String,
     val check_in: String,
     val comment: String,

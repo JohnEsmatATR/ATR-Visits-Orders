@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -59,6 +60,8 @@ class OrderCreationCycleFragment : Fragment() {
     private var selectLists =
         mutableListOf<SelectLists>()
 
+    private lateinit var backPressedCallback: OnBackPressedCallback
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -82,14 +85,34 @@ class OrderCreationCycleFragment : Fragment() {
 
         binding.btnBack.setOnClickListener {
             if (fragment == "Telephone")
-                findNavController().navigate(
-                    R.id.toVisitPhone
+                findNavController().popBackStack(
+                    R.id.toVisitPhone,
+                    false
                 )
             else if (fragment == "Gps")
-                findNavController().navigate(
-                    R.id.toVisitGps
+                findNavController().popBackStack(
+                    R.id.toVisitGps,
+                    false
                 )
         }
+
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if (fragment == "Telephone")
+                    findNavController().navigate(
+                        R.id.toVisitPhone
+                    )
+                else if (fragment == "Gps")
+                    findNavController().navigate(
+                        R.id.toVisitGps
+                    )
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        )
 
         binding.tvCustomerName.setText(customerName)
         binding.tvCustomerCode.setText("${getString(R.string.code)}: $customerCode")
@@ -105,7 +128,9 @@ class OrderCreationCycleFragment : Fragment() {
                 DialogUtils.showResultDialog(
                     requireContext(),
                     "برجاء استكمال جميع الاختيارات المطلوبة",
-                    false
+                    false,
+                    showOkButton = true,
+                    isDismissable = true
                 )
                 return@setOnClickListener
             }

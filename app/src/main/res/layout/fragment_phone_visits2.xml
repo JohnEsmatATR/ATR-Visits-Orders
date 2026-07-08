@@ -76,6 +76,7 @@
                 android:id="@+id/rv"
                 android:layoutDirection="rtl"
                 android:layout_width="match_parent"
+                android:layout_marginBottom="@dimen/_80sdp"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="2"

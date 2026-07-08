@@ -24,7 +24,7 @@ data class SaveOrderReq(
 //    @SerializedName("login")
 //    val login: Int,
 
-    @SerializedName("payment_id")
+    @SerializedName("[payment_id]")
     val paymentId: Int,
 
     @SerializedName("items")

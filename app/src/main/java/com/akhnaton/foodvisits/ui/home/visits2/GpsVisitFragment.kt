@@ -124,8 +124,6 @@ class GpsVisitFragment : Fragment() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        checkIn = startTimer()
-
         if (isProm) binding.llPromoterProcedures.visibility = View.VISIBLE
         else binding.llPromoterProcedures.visibility = View.GONE
 
@@ -144,9 +142,7 @@ class GpsVisitFragment : Fragment() {
         }
 
         fusedLocationClient.lastLocation.addOnSuccessListener { currentLocation: Location? ->
-
             if (currentLocation != null && customerLatitude != null && customerLongitude != null) {
-
                 val distanceKm = getDistanceFromCurrentLocation(
                     currentLocation = currentLocation,
                     targetLat = customerLatitude!!,
@@ -164,9 +160,7 @@ class GpsVisitFragment : Fragment() {
                 )
 
                 currentDistanceMeters = results[0]
-
                 binding.tvDistance.text = "%.2f KM".format(currentDistanceMeters / 1000)
-
                 Log.d(
                     "Distance", "%.2f KM".format(distanceKm)
                 )
@@ -226,6 +220,7 @@ class GpsVisitFragment : Fragment() {
                     isSuccess = false,
                     showOkButton = true
                 )
+                return@setOnClickListener
             }
             if (binding.etVisitingPosition.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
@@ -234,6 +229,7 @@ class GpsVisitFragment : Fragment() {
                     isSuccess = false,
                     showOkButton = true
                 )
+                return@setOnClickListener
             }
             if (binding.etVisibility.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
@@ -242,6 +238,7 @@ class GpsVisitFragment : Fragment() {
                     isSuccess = false,
                     showOkButton = true
                 )
+                return@setOnClickListener
             }
             Log.d("WHATbtnSave", "Clicked")
 //            checkInDate = getCurrentTimeTimestamp()
@@ -261,7 +258,7 @@ class GpsVisitFragment : Fragment() {
                             ord_type = saleType,
                             visibility = visibility,
                             grade = grade,
-                            act_target = actTarget.toInt(),
+                            act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
                             another_order_type = anotherOrderType,
                             comment = comment,
                             check_in = checkIn,
@@ -291,29 +288,36 @@ class GpsVisitFragment : Fragment() {
                     is Visits2Status.SaveVisitGps -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
-//                            val data =
-//                                Gson().fromJson(
-//                                    it.data.data,
-//                                    Data::class.java
-//                                )
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    Data::class.java
+                                )
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = it.data.message,
                                 isSuccess = true,
                                 seconds = 2,
                                 onAutoDismiss = {
-                                    val bundle = Bundle().apply {
-                                        putString("customerName", customerName)
-                                        putString("customerCode", customerCode)
-                                        putString("siteAddress", siteAddress)
-                                        putString("customerPartySiteId", customerPartySiteId)
-                                        putString("saleType", saleType)
-                                        putString("fragment", "Gps")
-                                    }
+                                    if (grade == "A") {
+                                        val bundle = Bundle().apply {
+                                            putString("customerName", customerName)
+                                            putString("customerCode", customerCode)
+                                            putString("siteAddress", siteAddress)
+                                            putString("customerPartySiteId", customerPartySiteId)
+                                            putString("saleType", saleType)
+                                            putString("fragment", "Gps")
+                                        }
 
-                                    findNavController().navigate(
-                                        R.id.toOrderCreationCycle, bundle
-                                    )
+                                        findNavController().navigate(
+                                            R.id.toOrderCreationCycle, bundle
+                                        )
+                                    } else {
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome
+                                        )
+                                    }
                                 })
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
@@ -338,10 +342,17 @@ class GpsVisitFragment : Fragment() {
 
                     is Visits2Status.VisitsSelect -> {
                         dialog.dismiss()
+                        binding.tvTimer.visibility = View.VISIBLE
+                        checkIn = startTimer()
                         if (it.data.status == 200) {
-                            val visitGoal = it.data.data.visit_goal
-                            val visabilty = it.data.data.visabilty
-                            val sendOrderNote = it.data.data.send_order_note
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.visitesSelect.Data::class.java
+                                )
+                            val visitGoal = data.visit_goal
+                            val visabilty = data.visabilty
+                            val sendOrderNote = data.send_order_note
 //                            val positions = listOf(
 //                                getString(R.string.order),
 //                                getString(R.string.collection),

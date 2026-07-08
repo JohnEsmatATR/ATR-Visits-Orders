@@ -20,6 +20,6 @@ data class Product(
     val SUPER_ID: String,
     val TAX_AMOUNT: String,
     var selectedQty: Int,
-    var orderedQuantity: Int,
+    var orderedQuantity: Int = -1,
     var clicked: Boolean = false,
 )

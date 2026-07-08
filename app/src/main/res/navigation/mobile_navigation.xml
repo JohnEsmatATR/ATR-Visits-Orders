@@ -64,6 +64,9 @@
             android:id="@+id/toOrderCreationCycle"
             app:destination="@id/OrderCreationCycleFragment" />
         <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
+        <action
             android:id="@+id/toCompetitors"
             app:destination="@id/OrderCreationCycleFragment" />
         <action
@@ -135,6 +138,9 @@
         <action
             android:id="@+id/toOrderCreationCycle"
             app:destination="@id/OrderCreationCycleFragment" />
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
         <action
             android:id="@+id/toCompetitors"
             app:destination="@id/OrderCreationCycleFragment" />

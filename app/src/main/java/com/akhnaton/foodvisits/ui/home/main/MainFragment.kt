@@ -28,11 +28,13 @@ import com.akhnaton.foodvisits.databinding.FragmentMainBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -72,6 +74,7 @@ class MainFragment : Fragment() {
         setupRecycler()
         fetchData()
         sliderImage()
+
         return binding.root
     }
 
@@ -191,5 +194,10 @@ class MainFragment : Fragment() {
         mAdapter.setChartDataList(data)
     }
 
-
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+//        (activity as? MainActivity)?.let {
+//            it.findViewById<BottomNavigationView>(R.id.nav_view2).visibility = View.VISIBLE
+//        }
+    }
 }

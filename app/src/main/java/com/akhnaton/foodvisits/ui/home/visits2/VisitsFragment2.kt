@@ -1,7 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.visits2
 
+import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.annotation.RequiresPermission
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -28,12 +31,16 @@ import com.akhnaton.foodvisits.shared.DateUtils
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
+import com.akhnaton.foodvisits.shared.openLocationInMap
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomersAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -51,6 +58,12 @@ class VisitsFragment2 : Fragment() {
     private lateinit var binding: FragmentVisits2Binding
     private lateinit var dialog: AlertDialog
 
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    var customerLatitude: Double? = 0.0
+    var customerLongitude: Double? = 0.0
+    private var currentDistanceMeters: Float = 0f
+
+    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -61,6 +74,33 @@ class VisitsFragment2 : Fragment() {
 
 //        binding.tvDay.setText(DateUtils.getTodayDayName())
 //        binding.tvDate.setText(DateUtils.getTodayDate())
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+
+        fusedLocationClient.lastLocation.addOnSuccessListener { currentLocation: Location? ->
+            if (currentLocation != null && customerLatitude != null && customerLongitude != null) {
+                val distanceKm = getDistanceFromCurrentLocation(
+                    currentLocation = currentLocation,
+                    targetLat = customerLatitude!!,
+                    targetLng = customerLongitude!!
+                )
+
+                val results = FloatArray(1)
+
+                Location.distanceBetween(
+                    currentLocation.latitude,
+                    currentLocation.longitude,
+                    customerLatitude!!,
+                    customerLongitude!!,
+                    results
+                )
+
+                currentDistanceMeters = results[0]
+                Log.d(
+                    "Distance", "%.2f KM".format(distanceKm)
+                )
+            }
+        }
 
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
@@ -181,6 +221,13 @@ class VisitsFragment2 : Fragment() {
                 findNavController().navigate(
                     R.id.toGpsVisit,
                     bundle
+                )
+            }
+
+            override fun onLocationClick(item: CustomerVisitPlan) {
+                Log.d("Visits", "Location clicked: ${item.customer_name}")
+                openLocationInMap(
+                    requireContext(), item.customer_latitude, item.customer_longitude
                 )
             }
         })

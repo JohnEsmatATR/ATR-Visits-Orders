@@ -18,6 +18,7 @@ object DialogUtils {
         seconds: Long? = null,
         showOkButton: Boolean = false,
         showYesNoButtons: Boolean = false,
+        isDismissable: Boolean = false,
         onOk: (() -> Unit)? = null,
         onYes: (() -> Unit)? = null,
         onNo: (() -> Unit)? = null,
@@ -28,8 +29,9 @@ object DialogUtils {
         dialog.window?.setBackgroundDrawableResource(
             android.R.color.transparent
         )
-        dialog.setCanceledOnTouchOutside(false)
-        dialog.setCancelable(false)
+
+        dialog.setCanceledOnTouchOutside(isDismissable)
+        dialog.setCancelable(isDismissable)
 
         val tvMessage =
             dialog.findViewById<TextView>(R.id.tvMessage)

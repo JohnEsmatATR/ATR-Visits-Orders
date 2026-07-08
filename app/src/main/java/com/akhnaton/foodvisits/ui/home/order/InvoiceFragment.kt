@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
@@ -87,12 +88,16 @@ class InvoiceFragment : Fragment() {
 
     private var selectedItemCode: String? = null
 
-    private var pendingItem: Product? = null
-    private var pendingQty: Int = 0
+    //    private var pendingItem: Product? = null
+//    private var pendingQty: Int = 0
     private var isSearchVisible: Boolean? = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        requireActivity().window.setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        )
 
         isEdit = arguments?.getBoolean("isEdit", false)
         if (!isEdit!!) {
@@ -176,9 +181,10 @@ class InvoiceFragment : Fragment() {
         }
 
         binding.ivSearch.setOnClickListener {
-            isSearchVisible = !isSearchVisible!!
-            if (isSearchVisible == true) binding.etSearch.visibility = View.VISIBLE
-            if (isSearchVisible == false) binding.etSearch.visibility = View.GONE
+            if (isSearchVisible == true) isSearchVisible = false
+            else if (isSearchVisible == false) isSearchVisible = true
+            if (isSearchVisible == true) binding.searchLayout.visibility = View.VISIBLE
+            if (isSearchVisible == false) binding.searchLayout.visibility = View.GONE
         }
 
         binding.etSearch.addTextChangedListener {
@@ -518,24 +524,25 @@ class InvoiceFragment : Fragment() {
                                 product?.orderedQuantity =
                                     detail.QUANTITY.toIntOrNull() ?: 0
                             }
-                            pendingItem?.let { item ->
-                                val selections = currentSelections()
-                                if (pendingQty > 0) {
-                                    selections[item.ITEM_CODE] = pendingQty
-                                } else {
-                                    selections.remove(item.ITEM_CODE)
-                                }
-                                binding.tabSelected.text =
-                                    "${getString(R.string.selected)} (${selections.size})"
-                                calculateTotals()
-                                if (isSelectedTab) {
-                                    updateScreen()
-                                } else {
-                                    binding.rvProducts.adapter?.notifyDataSetChanged()
-                                }
-                            }
-                            pendingItem = null
-                            pendingQty = 0
+                            binding.rvProducts.adapter?.notifyDataSetChanged()
+//                            pendingItem?.let { item ->
+//                                val selections = currentSelections()
+//                                if (pendingQty > 0) {
+//                                    selections[item.ITEM_CODE] = pendingQty
+//                                } else {
+//                                    selections.remove(item.ITEM_CODE)
+//                                }
+//                                binding.tabSelected.text =
+//                                    "${getString(R.string.selected)} (${selections.size})"
+//                                calculateTotals()
+//                                if (isSelectedTab) {
+//                                    updateScreen()
+//                                } else {
+//                                    binding.rvProducts.adapter?.notifyDataSetChanged()
+//                                }
+//                            }
+//                            pendingItem = null
+//                            pendingQty = 0
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -608,32 +615,26 @@ class InvoiceFragment : Fragment() {
 
                 override fun onQuantityChanged(
                     item: Product,
-                    qty: Int
+                    qty: Int,
+                    position: Int
                 ) {
 
-                    Log.d("WHATclicked", item.clicked.toString())
-                    pendingItem = item
-                    pendingQty = qty
-                    if (item.clicked == true) {
-                        pendingItem?.let { item ->
-                            val selections = currentSelections()
-                            if (pendingQty > 0) {
-                                selections[item.ITEM_CODE] = pendingQty
-                            } else {
-                                selections.remove(item.ITEM_CODE)
-                            }
-                            binding.tabSelected.text =
-                                "${getString(R.string.selected)} (${selections.size})"
-                            calculateTotals()
-                            if (isSelectedTab) {
-                                updateScreen()
-                            } else {
-                                binding.rvProducts.adapter?.notifyDataSetChanged()
-                            }
-                        }
-                        pendingItem = null
-                        pendingQty = 0
-                    } else if (item.clicked == false) {
+                    val selections = currentSelections()
+
+                    if (qty > 0)
+                        selections[item.ITEM_CODE] = qty
+                    else
+                        selections.remove(item.ITEM_CODE)
+
+                    binding.tabSelected.text =
+                        "${getString(R.string.selected)} (${selections.size})"
+
+                    calculateTotals()
+
+                    binding.rvProducts.adapter?.notifyItemChanged(position)
+
+                    // Only call API first time
+                    if (!item.clicked) {
                         item.clicked = true
                         getItemDetails(
                             item.ITEM_CODE,
@@ -641,6 +642,20 @@ class InvoiceFragment : Fragment() {
                             storeId
                         )
                     }
+                }
+
+                override fun onDeleteClicked(item: Product) {
+
+                    val selections = currentSelections()
+
+                    selections.remove(item.ITEM_CODE)
+
+                    binding.tabSelected.text =
+                        "${getString(R.string.selected)} (${selections.size})"
+
+                    calculateTotals()
+
+                    updateScreen()
                 }
             })
 
