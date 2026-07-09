@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.printFood
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.pdf.PdfDocument
@@ -270,4 +272,13 @@ class FoodInvoiceActivity : AppCompatActivity(), View.OnClickListener {
         Log.d("PrinterManager", "PDF converted to ${bitmaps.size} bitmap(s)")
         return bitmaps
     }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
+    }
+
 }

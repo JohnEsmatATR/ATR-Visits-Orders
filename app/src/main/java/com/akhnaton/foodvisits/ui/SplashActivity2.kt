@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -45,5 +47,13 @@ class SplashActivity2 : AppCompatActivity() {
                 }
             }
         }, 3400)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 }

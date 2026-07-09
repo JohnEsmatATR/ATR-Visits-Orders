@@ -1,7 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.visits.promoters.promoterDayDetails
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -152,6 +154,14 @@ class PromoterDayDetailsActivity : AppCompatActivity() {
         pDialog!!.titleText = "Loading";
         pDialog!!.setCancelable(false);
         pDialog!!.show();
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 
 }

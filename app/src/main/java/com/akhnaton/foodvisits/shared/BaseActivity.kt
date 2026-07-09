@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.shared
 
 import android.app.Dialog
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.PersistableBundle
 import android.view.Gravity
@@ -104,6 +106,14 @@ open class BaseActivity : AppCompatActivity() {
     fun hideProgressDialog(view: View) {
         view.visibility = View.GONE
         window.clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE)
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 
 }

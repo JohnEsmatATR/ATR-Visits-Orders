@@ -258,36 +258,54 @@ class TelephoneVisitFragment : Fragment() {
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
                                 )
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = true,
-                                seconds = 2,
-                                onAutoDismiss = {
-
-                                    if (grade == "A") {
-                                        val bundle = Bundle().apply {
-                                            putString("customerName", customerName)
-                                            putString("customerCode", customerCode)
-                                            putString("siteAddress", siteAddress)
-                                            putString("customerPartySiteId", customerPartySiteId)
-                                            putString("saleType", saleType)
-                                            putString("fragment", "Telephone")
-                                        }
-
-                                        findNavController().navigate(
-                                            R.id.toOrderCreationCycle,
-                                            bundle
-                                        )
-                                    } else {
+                            var message = "${it.data.message}"
+                            if (data.is_suspended == true) {
+                                message = "${data.message}"
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
                                         MainActivity.binding.navView2.visibility = View.VISIBLE
                                         findNavController().navigate(
                                             R.id.toHome
                                         )
                                     }
+                                )
+                            } else if (data.is_suspended == false) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = message,
+                                    isSuccess = true,
+                                    seconds = 2,
+                                    onAutoDismiss = {
+                                        if (grade == "A") {
+                                            val bundle = Bundle().apply {
+                                                putString("customerName", customerName)
+                                                putString("customerCode", customerCode)
+                                                putString("siteAddress", siteAddress)
+                                                putString(
+                                                    "customerPartySiteId",
+                                                    customerPartySiteId
+                                                )
+                                                putString("saleType", saleType)
+                                                putString("fragment", "Telephone")
+                                            }
 
-                                }
-                            )
+                                            findNavController().navigate(
+                                                R.id.toOrderCreationCycle,
+                                                bundle
+                                            )
+                                        } else {
+                                            MainActivity.binding.navView2.visibility = View.VISIBLE
+                                            findNavController().navigate(
+                                                R.id.toHome
+                                            )
+                                        }
+                                    }
+                                )
+                            }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.phoneVisitsIntent.send(

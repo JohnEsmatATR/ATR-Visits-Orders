@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.data.model.customers
 
 data class Data(
     val CATEGORY_CODE: String,
+    val CATEGORY_MEANING: String,
     val CUSTOMER_CODE: String,
     val CUSTOMER_ID: String,
     val CUSTOMER_NAME: String,

@@ -47,6 +47,7 @@
         tools:targetApi="31">
         <activity
             android:name=".ui.SplashActivity2"
+            android:screenOrientation="portrait"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -58,9 +59,11 @@
         <activity
             android:name=".ui.auth.LoginActivity2"
             android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".shared.BiometricActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <service
@@ -74,74 +77,97 @@
         <activity
             android:name=".ui.home.customerCoding.CustomerCodingActivity"
             android:exported="false"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.home.supervisor.creditLimit.CreditLimitFormActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.supervisor.superOrderDetails.SuperOrderDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.supervisor.superShowOrders.SuperShowOrdersActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.promoters.promoterDayDetails.PromoterDayDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.promoters.promotersUploadImages.PromotersActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.promoters.promotersItems.PromoterItemsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.SplashActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.orderHistory.OrderHistoryDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.orderHistory.OrdersHistoryActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".ui.home.addCustomer.AddCustomerActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".ui.home.visits.order.ReturnActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.order.OrderActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.visits.paymentType.PaymentActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".ui.home.phoneVisit.PhoneVisitsDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.home.visits.VisitsDetailsActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".ui.home.profile.SetupProfileActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.printFood.FoodInvoiceActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.auth.LoginActivity"
+            android:screenOrientation="portrait"
             android:exported="true" />
         <activity
             android:name=".ui.home.profile.ProfileActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.MainActivity"
             android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <activity
             android:name=".ui.home.WebOrderActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <service

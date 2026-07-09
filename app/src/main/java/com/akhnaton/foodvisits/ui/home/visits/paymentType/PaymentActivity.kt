@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.visits.paymentType
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -204,6 +206,12 @@ class PaymentActivity : AppCompatActivity(), View.OnClickListener {
         loadingDialog.dismiss()
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
 
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
+    }
 
 }

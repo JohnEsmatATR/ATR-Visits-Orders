@@ -1,7 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -450,5 +452,12 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         }
     }
 
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
+    }
 
 }

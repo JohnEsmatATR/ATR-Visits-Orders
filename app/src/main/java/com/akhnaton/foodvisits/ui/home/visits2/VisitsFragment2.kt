@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -63,6 +65,8 @@ class VisitsFragment2 : Fragment() {
     var customerLongitude: Double? = 0.0
     private var currentDistanceMeters: Float = 0f
 
+    private var allCustomers = mutableListOf<CustomerVisitPlan>()
+
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -102,14 +106,53 @@ class VisitsFragment2 : Fragment() {
             }
         }
 
+        binding.swipeRefresh.setColorSchemeColors(
+            ContextCompat.getColor(requireContext(), R.color.colorPrimary)
+        )
+
+        binding.swipeRefresh.setOnRefreshListener {
+            loadVisitPlan()
+        }
+
+        binding.etSearch.addTextChangedListener {
+            filterCustomers(
+                it.toString().trim()
+            )
+        }
+
+        loadVisitPlan()
+        fetchData()
+
+    }
+
+    private fun filterCustomers(keyword: String) {
+        val filteredList =
+            if (keyword.isBlank()) {
+                allCustomers
+            } else {
+                allCustomers.filter {
+                    it.customer_name.contains(keyword, true) ||
+                            it.customer_code.contains(keyword, true) ||
+                            it.customer_address.contains(keyword, true)
+                }.toMutableList()
+            }
+        if (filteredList.isEmpty()) {
+            binding.rv.visibility = View.GONE
+            binding.llZeroState.visibility = View.VISIBLE
+        } else {
+            binding.rv.visibility = View.VISIBLE
+            binding.llZeroState.visibility = View.GONE
+        }
+
+        setRecycler(filteredList)
+    }
+
+    private fun loadVisitPlan() {
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 Visits2Intent.GetVisitPlan
             )
         }
-
-        fetchData()
-
     }
 
     private fun fetchData() {
@@ -117,10 +160,15 @@ class VisitsFragment2 : Fragment() {
             viewModel.status.collect {
                 when (it) {
                     is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> dialog.show()
+                    is Visits2Status.Loading -> {
+                        if (!binding.swipeRefresh.isRefreshing) {
+                            dialog.show()
+                        }
+                    }
 
                     is Visits2Status.GetVisitPlan -> {
                         dialog.dismiss()
+                        binding.swipeRefresh.isRefreshing = false
                         if (it.data.status == 200) {
                             binding.tvDate.setText(DateUtils.getTodayDate())
                             val data =
@@ -130,7 +178,8 @@ class VisitsFragment2 : Fragment() {
                                 )
                             binding.tvDay.setText(data.day)
                             binding.tvDate.setText(data.date)
-                            setRecycler(data.customer_visit_plan.toMutableList())
+                            allCustomers = data.customer_visit_plan.toMutableList()
+                            setRecycler(allCustomers)
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.visitsIntent.send(
@@ -155,6 +204,7 @@ class VisitsFragment2 : Fragment() {
 
                     is Visits2Status.RefreshToken -> {
                         dialog.hide()
+                        binding.swipeRefresh.isRefreshing = false
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
@@ -190,6 +240,7 @@ class VisitsFragment2 : Fragment() {
                     is Visits2Status.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
                         dialog.hide()
+                        binding.swipeRefresh.isRefreshing = false
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
@@ -203,6 +254,13 @@ class VisitsFragment2 : Fragment() {
     private fun setRecycler(
         list: MutableList<CustomerVisitPlan>
     ) {
+        if (list.size == 0) {
+            binding.llZeroState.visibility = View.VISIBLE
+            binding.rv.visibility = View.GONE
+        } else {
+            binding.llZeroState.visibility = View.GONE
+            binding.rv.visibility = View.VISIBLE
+        }
         val adapter = Visits2Adapter(object : Visits2Adapter.OnItemClickListener {
             override fun onClick(item: CustomerVisitPlan) {
                 Log.d("WHAT", "onClick: $item")

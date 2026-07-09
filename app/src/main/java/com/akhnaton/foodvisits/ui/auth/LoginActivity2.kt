@@ -3,9 +3,11 @@ package com.akhnaton.foodvisits.ui.auth
 import android.Manifest.permission
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -319,4 +321,13 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
             finishAffinity()
         }
     }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
+    }
+
 }

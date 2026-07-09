@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.data.model.saveOrder
+package com.akhnaton.foodvisits.data.model.editOrder
 
 data class ItemsSummary(
     val AVAILABLE_QUANTITY: Int,

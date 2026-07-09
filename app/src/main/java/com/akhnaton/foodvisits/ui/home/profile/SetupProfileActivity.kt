@@ -2,8 +2,10 @@ package com.akhnaton.foodvisits.ui.home.profile
 
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -115,5 +117,13 @@ class SetupProfileActivity : AppCompatActivity(), View.OnClickListener {
             FirebaseProfileClient().setProfileImgSetup(mainImageURI, this@SetupProfileActivity)
         } else
             Toast.makeText(SharedPreferencesHelper.context, "you should to add image first", Toast.LENGTH_SHORT).show()
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 }

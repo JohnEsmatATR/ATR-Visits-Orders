@@ -117,7 +117,7 @@ class CustomersAdapter(
                     "الكود : ${item.CUSTOMER_CODE}"
 
                 holder.tvCategoryMeaning.text =
-                    "الفئة : ${item.CATEGORY_CODE}"
+                    "الفئة : ${item.CATEGORY_MEANING}"
 
                 holder.tvTeamName.text =
                     "الخط : ${item.TEAM_NAME}"
@@ -138,7 +138,7 @@ class CustomersAdapter(
                     "الكود : ${item.CUSTOMER_CODE}"
 
                 holder.tvCategoryMeaning.text =
-                    "الفئة : ${item.CATEGORY_CODE}"
+                    "الفئة : ${item.CATEGORY_MEANING}"
 
                 holder.tvTeamName.text =
                     "الخط : ${item.TEAM_NAME}"

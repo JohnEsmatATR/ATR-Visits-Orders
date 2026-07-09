@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -757,4 +758,13 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             action()
         }
     }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
+    }
+
 }

@@ -1,7 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.visits.orderHistory
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -256,5 +258,13 @@ class OrdersHistoryActivity : AppCompatActivity(),
     fun convertDateToLong(date: String): Long {
         val df = SimpleDateFormat("yyyy.MM.dd HH:mm")
         return df.parse(date).time
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 }

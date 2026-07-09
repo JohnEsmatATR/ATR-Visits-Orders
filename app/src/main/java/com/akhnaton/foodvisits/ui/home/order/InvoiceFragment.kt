@@ -417,7 +417,8 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(), it.data.message, false
+                                requireContext(), it.data.message, false,
+                                showOkButton = true,
                             )
                         }
                     }
@@ -425,20 +426,36 @@ class InvoiceFragment : Fragment() {
                     is Order2Status.SaveOrder -> {
                         dialog.dismiss()
                         if (it.saveOrderRes.status == 200) {
+                            val data =
+                                Gson().fromJson(
+                                    it.saveOrderRes.data,
+                                    com.akhnaton.foodvisits.data.model.saveOrder.Data::class.java
+                                )
                             if (isSend == false) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message,
+                                    message = it.saveOrderRes.message[0],
                                     isSuccess = true,
-                                    seconds = 2,
+                                    showOkButton = true,
+                                    onOk = {
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome,
+                                            null,
+                                            androidx.navigation.NavOptions.Builder().setPopUpTo(
+                                                findNavController().graph.startDestinationId,
+                                                true
+                                            ).build())
+                                    }
                                 )
                             } else if (isSend == true) {
+                                MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message,
+                                    message = it.saveOrderRes.message[0],
                                     isSuccess = true,
-                                    seconds = 2,
-                                    onAutoDismiss = {
+                                    showOkButton = true,
+                                    onOk = {
                                         findNavController().navigate(
                                             R.id.toHome,
                                             null,
@@ -461,7 +478,8 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(), it.saveOrderRes.message, false
+                                requireContext(), it.saveOrderRes.message[0], false,
+                                showOkButton = true,
                             )
                         }
                     }
@@ -469,11 +487,17 @@ class InvoiceFragment : Fragment() {
                     is Order2Status.EditOrder -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.editOrder.Data::class.java
+                                )
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
-                                message = it.data.message,
+                                message = it.data.message[0],
                                 isSuccess = true,
                                 seconds = 2,
+                                showOkButton = true,
                             )
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
@@ -486,7 +510,8 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(), it.data.message, false
+                                requireContext(), it.data.message[0], false,
+                                showOkButton = true,
                             )
                         }
                     }
@@ -507,7 +532,8 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(), it.data.message, false
+                                requireContext(), it.data.message, false,
+                                showOkButton = true,
                             )
                         }
                     }
@@ -554,7 +580,8 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(), it.data.message, false
+                                requireContext(), it.data.message, false,
+                                showOkButton = true,
                             )
                         }
                     }
@@ -637,7 +664,7 @@ class InvoiceFragment : Fragment() {
                     if (!item.clicked) {
                         item.clicked = true
                         getItemDetails(
-                            item.ITEM_CODE,
+                            item.INVENTORY_ITEM_ID,
                             priceListId,
                             storeId
                         )

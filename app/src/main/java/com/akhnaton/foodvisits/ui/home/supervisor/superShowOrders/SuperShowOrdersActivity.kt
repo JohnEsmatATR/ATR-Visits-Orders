@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.supervisor.superShowOrders
 
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -304,5 +306,13 @@ class SuperShowOrdersActivity : AppCompatActivity(), ShowOrdersAdapter.OnOrderLi
 
     companion object {
         private const val TAG = "SuperShowOrderActivity"
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 }

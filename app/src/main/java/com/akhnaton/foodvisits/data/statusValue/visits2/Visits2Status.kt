@@ -15,9 +15,7 @@ import com.akhnaton.foodvisits.data.model.order.Product
 import com.akhnaton.foodvisits.data.model.order.SaveOrderResponse
 import com.akhnaton.foodvisits.data.model.order.SavedOrderResponse
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
-import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderRes
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsRes
-import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneRes
 import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import org.json.JSONObject

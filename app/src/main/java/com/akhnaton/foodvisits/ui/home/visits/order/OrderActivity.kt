@@ -1,7 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.visits.order
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -708,6 +710,14 @@ class OrderActivity : AppCompatActivity(), View.OnClickListener,
         mAdapter.addProduct(mAdapterCardsProduct)
         binding.itemsCount.text =
             "${mAdapterCardsProduct.size} Items"
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val configuration = Configuration(newBase.resources.configuration)
+        configuration.fontScale = 1.0f
+
+        val context = newBase.createConfigurationContext(configuration)
+        super.attachBaseContext(context)
     }
 
 }
