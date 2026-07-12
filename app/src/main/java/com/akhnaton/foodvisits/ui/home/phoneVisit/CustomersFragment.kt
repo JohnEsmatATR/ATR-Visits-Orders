@@ -234,6 +234,8 @@ class CustomersFragment : Fragment() {
                 putString("customerName", customer.CUSTOMER_NAME)
             }
 
+            binding.etSearch.text?.clear()
+
             findNavController().navigate(
                 R.id.toCustomerDetails,
                 bundle

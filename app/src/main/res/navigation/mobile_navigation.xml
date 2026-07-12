@@ -112,6 +112,9 @@
         <action
             android:id="@+id/toHome"
             app:destination="@id/mainFragment" />
+        <action
+            android:id="@+id/toVisitPhone"
+            app:destination="@id/visitPhoneFragment" />
     </fragment>
 
     <fragment

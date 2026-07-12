@@ -22,4 +22,5 @@ data class Product(
     var selectedQty: Int,
     var orderedQuantity: Int = -1,
     var clicked: Boolean = false,
+    var TOTAL_QUANTITY: Int = -1,
 )

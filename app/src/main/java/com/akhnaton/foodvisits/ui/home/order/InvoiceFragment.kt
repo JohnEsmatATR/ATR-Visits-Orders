@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
@@ -92,6 +93,8 @@ class InvoiceFragment : Fragment() {
 //    private var pendingQty: Int = 0
     private var isSearchVisible: Boolean? = false
 
+    private lateinit var backPressedCallback: OnBackPressedCallback
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -148,8 +151,41 @@ class InvoiceFragment : Fragment() {
 
         MainActivity.binding.navView2.visibility = View.GONE
 
+        backPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "هل انت متأكد انك تريد الرجوع ؟",
+                    isSuccess = true,
+                    showYesNoButtons = true,
+                    onYes = {
+                        findNavController().popBackStack(
+                            R.id.visitPhoneFragment,
+                            false
+                        )
+                    }
+                )
+            }
+        }
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        )
+
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "هل انت متأكد انك تريد الرجوع ؟",
+                isSuccess = true,
+                showYesNoButtons = true,
+                onYes = {
+                    findNavController().popBackStack(
+                        R.id.visitPhoneFragment,
+                        false
+                    )
+                }
+            )
         }
 
         binding.tabSelected.setText(
@@ -264,45 +300,53 @@ class InvoiceFragment : Fragment() {
         }
 
         binding.btnSend.setOnClickListener {
-            isSend = true
-            val selections = currentSelections()
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "هل انت متأكد انك تريد ارسال الطلب ؟",
+                isSuccess = true,
+                showYesNoButtons = true,
+                onYes = {
+                    isSend = true
+                    val selections = currentSelections()
 
-            val itemsMap = selections.entries.mapIndexed { index, entry ->
+                    val itemsMap = selections.entries.mapIndexed { index, entry ->
 
-                val product = allProducts.first {
-                    it.ITEM_CODE == entry.key
-                }
+                        val product = allProducts.first {
+                            it.ITEM_CODE == entry.key
+                        }
 
-                index.toString() to SaveOrderItemReq(
-                    inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
+                        index.toString() to SaveOrderItemReq(
+                            inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
 
-                    quantity = entry.value
-                )
-            }.toMap()
-            val request = SaveOrderReq(
-                orderId = orderId,
-                partySiteId = customerPartySiteId,
-                orderType = saleType,
-                deviceType = "Android",
-                send = "1",
-                warehouseType = warehouseId.toString(),
+                            quantity = entry.value
+                        )
+                    }.toMap()
+                    val request = SaveOrderReq(
+                        orderId = orderId,
+                        partySiteId = customerPartySiteId,
+                        orderType = saleType,
+                        deviceType = "Android",
+                        send = "1",
+                        warehouseType = warehouseId.toString(),
 //                    login = SharedPreferencesHelper
 //                        .getInstance()
 //                        .getEmployeeId()
 //                        .toInt(),
-                paymentId = paymentId.toString().toInt(),
-                items = itemsMap
-            )
-
-            Log.d("WHATrequest", request.toString())
-
-            lifecycleScope.launch {
-                viewModel.orderIntent.send(
-                    Order2Intent.SaveOrder(
-                        saveOrderReq = request
+                        paymentId = paymentId.toString().toInt(),
+                        items = itemsMap
                     )
-                )
-            }
+
+                    Log.d("WHATrequest", request.toString())
+
+                    lifecycleScope.launch {
+                        viewModel.orderIntent.send(
+                            Order2Intent.SaveOrder(
+                                saveOrderReq = request
+                            )
+                        )
+                    }
+                }
+            )
         }
 
         getStartOrderData()
@@ -396,9 +440,11 @@ class InvoiceFragment : Fragment() {
                             orderId = data.invoice_number
                             priceListId = data.price_list_id
                             storeId = data.store_id
-                            binding.tvInvoice.setText(
-                                "${getString(R.string.invoice)}: ${data.invoice_number}"
-                            )
+                            val ltrNumber = "\u200E${data.invoice_number}\u200E"
+
+                            binding.tvInvoice.text =
+                                "${getString(R.string.invoice)}: $ltrNumber"
+
                             allProducts = data.products.toMutableList()
 
                             if (isEdit == true) {
@@ -434,25 +480,25 @@ class InvoiceFragment : Fragment() {
                             if (isSend == false) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message[0],
+                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
-                                        MainActivity.binding.navView2.visibility = View.VISIBLE
-                                        findNavController().navigate(
-                                            R.id.toHome,
-                                            null,
-                                            androidx.navigation.NavOptions.Builder().setPopUpTo(
-                                                findNavController().graph.startDestinationId,
-                                                true
-                                            ).build())
+//                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                        findNavController().navigate(
+//                                            R.id.toHome,
+//                                            null,
+//                                            androidx.navigation.NavOptions.Builder().setPopUpTo(
+//                                                findNavController().graph.startDestinationId,
+//                                                true
+//                                            ).build())
                                     }
                                 )
                             } else if (isSend == true) {
                                 MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message[0],
+                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
@@ -478,7 +524,9 @@ class InvoiceFragment : Fragment() {
                             }
                         } else {
                             DialogUtils.showResultDialog(
-                                requireContext(), it.saveOrderRes.message[0], false,
+                                requireContext(),
+                                it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                false,
                                 showOkButton = true,
                             )
                         }
@@ -543,13 +591,17 @@ class InvoiceFragment : Fragment() {
                         if (it.data.status == 200) {
 //                            getItemsResponse = it.data.data.toMutableList()
 //                            prefillOrderSelections()
-                            it.data.data.forEach { detail ->
-                                val product = allProducts.firstOrNull {
-                                    it.ITEM_CODE == detail.ITEM_CODE
-                                }
-                                product?.orderedQuantity =
-                                    detail.QUANTITY.toIntOrNull() ?: 0
+                            val product = allProducts.firstOrNull() { pro ->
+                                pro.INVENTORY_ITEM_ID == it.data.data.INVENTORY_ITEM_ID
                             }
+                            product?.TOTAL_QUANTITY = it.data.data.QUANTITY.toInt()
+//                            it.data.data.forEach { detail ->
+//                                val product = allProducts.firstOrNull {
+//                                    it.ITEM_CODE == detail.ITEM_CODE
+//                                }
+//                                product?.orderedQuantity =
+//                                    detail.QUANTITY.toIntOrNull() ?: 0
+//                            }
                             binding.rvProducts.adapter?.notifyDataSetChanged()
 //                            pendingItem?.let { item ->
 //                                val selections = currentSelections()
@@ -619,7 +671,12 @@ class InvoiceFragment : Fragment() {
                     is Order2Status.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
                         dialog.hide()
-
+                        DialogUtils.showResultDialog(
+                            context = requireContext(),
+                            message = "خطأ",
+                            isSuccess = true,
+                            showOkButton = true,
+                        )
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
 
@@ -669,6 +726,15 @@ class InvoiceFragment : Fragment() {
                             storeId
                         )
                     }
+//                    if (qty > item.TOTAL_QUANTITY) {
+//                        DialogUtils.showResultDialog(
+//                            context = requireContext(),
+//                            message = "لا يوجد كمية كافية",
+//                            isSuccess = false,
+//                            showOkButton = true
+//                        )
+//                        return
+//                    }
                 }
 
                 override fun onDeleteClicked(item: Product) {

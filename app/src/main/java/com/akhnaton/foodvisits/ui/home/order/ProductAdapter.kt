@@ -11,6 +11,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getStartOrderData.Product
 import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
 import com.akhnaton.foodvisits.databinding.ItemProductBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 
 class ProductAdapter(
     private val list: MutableList<Product>,
@@ -64,10 +65,10 @@ class ProductAdapter(
                 }"
             tvSegment2.text =
                 item.SEGMENT2
-            if (item.orderedQuantity >= 0) {
+            if (item.TOTAL_QUANTITY >= 0) {
                 tvQuantity.visibility = View.VISIBLE
                 tvQuantity.text =
-                    "${holder.itemView.context.getString(R.string.quantity)}: ${item.orderedQuantity}"
+                    "${holder.itemView.context.getString(R.string.quantity)}: ${item.TOTAL_QUANTITY}"
             } else {
                 tvQuantity.visibility = View.GONE
             }
@@ -259,7 +260,11 @@ class ProductAdapter(
         item: Product,
         binding: ItemProductBinding
     ) {
-        val availableQty = item.QUANTITY.toIntOrNull() ?: 0
+        val availableQty =
+            if (item.TOTAL_QUANTITY >= 0)
+                item.TOTAL_QUANTITY
+            else
+                item.QUANTITY.toIntOrNull() ?: 0
 
         with(binding) {
 
