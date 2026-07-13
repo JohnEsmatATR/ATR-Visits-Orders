@@ -9,7 +9,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grey"
+        android:background="@color/background"
         android:orientation="vertical">
 
         <LinearLayout
@@ -313,7 +313,7 @@
                     android:layout_width="0dp"
                     android:layout_height="@dimen/_40sdp"
                     android:layout_weight="1"
-                    android:backgroundTint="@color/grey"
+                    android:backgroundTint="@color/background"
                     android:text="حفظ"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_10ssp"

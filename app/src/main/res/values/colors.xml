@@ -22,6 +22,7 @@
     <color name="default_color_dark">#52a6b8</color>
     <color name="gray">#35323D</color>
     <color name="grey">#ececf4</color>
+    <color name="background">#F5F5F5</color>
     <color name="grey2">#a9a9a9</color>
     <color name="float_transparent">#00000000</color>
     <color name="testing">#F5F5FA</color>

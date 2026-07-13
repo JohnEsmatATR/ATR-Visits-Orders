@@ -194,7 +194,7 @@
                     android:layout_weight="1"
                     app:cornerRadius="@dimen/_8sdp"
                     android:layout_marginEnd="@dimen/_8sdp"
-                    android:backgroundTint="@color/grey"
+                    android:backgroundTint="@color/background"
                     android:text="حذف"
                     android:visibility="gone"
                     android:textColor="@color/red" />

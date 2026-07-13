@@ -10,13 +10,13 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/grey"
+        android:background="@color/background"
         android:fillViewport="true">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/grey"
+            android:background="@color/background"
             tools:context=".ui.home.tickets.TicketsFragment">
 
             <ImageView
@@ -83,7 +83,7 @@
                     android:layout_marginHorizontal="@dimen/_16sdp"
                     android:layout_marginBottom="@dimen/_8sdp"
                     android:backgroundTint="@color/white"
-                    app:boxBackgroundColor="@color/grey"
+                    app:boxBackgroundColor="@color/background"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
@@ -124,8 +124,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_16sdp"
                     android:layout_marginBottom="@dimen/_8sdp"
-                    android:backgroundTint="@color/grey"
-                    app:boxBackgroundColor="@color/grey"
+                    android:backgroundTint="@color/background"
+                    app:boxBackgroundColor="@color/background"
                     app:boxCornerRadiusBottomEnd="12dp"
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
