@@ -77,16 +77,6 @@ class ProductAdapter(
             tvRequested.text =
                 etQty.text.toString()
 
-//            var backOrder = item.QUANTITY.toInt() - etQty.text.toString().toInt()
-//            tvBackOrder.text =
-//                "Back Order: ${backOrder}"
-
-//            var totalPrice = item.ITEM_PRICE.toInt() * etQty.text.toString().toInt()
-//            tvTotalPrice.text =
-//                String.format("%.2f", totalPrice)
-
-//            etQty.setText(item.selectedQty.toString())
-
             val qty =
                 selections[item.ITEM_CODE] ?: 0
 
@@ -156,53 +146,6 @@ class ProductAdapter(
                     position
                 )
             }
-
-//            etQty.addTextChangedListener(
-//                object : TextWatcher {
-//
-//                    override fun beforeTextChanged(
-//                        s: CharSequence?,
-//                        start: Int,
-//                        count: Int,
-//                        after: Int
-//                    ) {
-//                    }
-//
-//                    override fun onTextChanged(
-//                        s: CharSequence?,
-//                        start: Int,
-//                        before: Int,
-//                        count: Int
-//                    ) {
-//                    }
-//
-//                    override fun afterTextChanged(
-//                        s: Editable?
-//                    ) {
-//
-//                        val qty =
-//                            s.toString()
-//                                .toIntOrNull() ?: 0
-//
-//                        if (qty == 0) {
-//                            selections.remove(item.ITEM_CODE)
-//                        } else {
-//                            selections[item.ITEM_CODE] = qty
-//                        }
-//
-//                        updateSelectionUI(
-//                            qty,
-//                            item,
-//                            holder.binding
-//                        )
-//
-//                        listener.onQuantityChanged(
-//                            item,
-//                            qty
-//                        )
-//                    }
-//                }
-//            )
 
             holder.watcher?.let {
                 etQty.removeTextChangedListener(it)
@@ -274,9 +217,6 @@ class ProductAdapter(
 
                 tvRequested.visibility = View.VISIBLE
                 tvTotalPrice.visibility = View.VISIBLE
-
-//                if (qty > availableQty) tvBackOrder.visibility = View.VISIBLE
-//                else tvBackOrder.visibility = View.GONE
 
                 tvRequested.text =
                     "${binding.root.context.getString(R.string.requested)}: $qty"

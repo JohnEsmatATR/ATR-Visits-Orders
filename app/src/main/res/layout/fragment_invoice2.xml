@@ -17,7 +17,8 @@
             android:id="@+id/cardBottom"
             android:layout_width="0dp"
             android:layout_height="@dimen/_50sdp"
-            android:layout_margin="16dp"
+            android:layout_marginHorizontal="@dimen/_8sdp"
+            android:layout_marginBottom="@dimen/_16sdp"
             app:cardBackgroundColor="@color/colorPrimary"
             app:cardCornerRadius="20dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -42,11 +43,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:text="مراجعة وتأكيد الطلب"
-                    android:layout_marginEnd="24dp"
-                    android:textColor="@android:color/white"
                     android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="24dp"
+                    android:text="مراجعة وتأكيد الطلب"
+                    android:textColor="@android:color/white"
                     android:textSize="@dimen/_12ssp"
                     android:textStyle="bold" />
 
@@ -66,14 +67,15 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
+                android:orientation="vertical">
 
                 <!-- Header -->
 
                 <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
+                    android:layout_marginTop="@dimen/_8sdp">
 
                     <LinearLayout
                         android:id="@+id/llHeader"
@@ -112,9 +114,10 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
                     android:layout_marginTop="@dimen/_8sdp"
                     android:text="طلبية جديدة"
-                    android:layout_gravity="end"
                     android:textColor="#F68A1F"
                     android:textSize="@dimen/_12ssp"
                     android:textStyle="bold" />
@@ -124,6 +127,7 @@
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
                     android:layout_marginTop="@dimen/_8sdp"
                     app:cardBackgroundColor="@android:color/white"
                     app:cardCornerRadius="20dp">
@@ -132,15 +136,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="18dp">
+                        android:padding="@dimen/_8sdp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginEnd="@dimen/_8sdp"
                             android:text="اختر الصنف"
                             android:textColor="#666"
                             android:textSize="@dimen/_10ssp"
-                            android:layout_gravity="end"
                             android:textStyle="bold" />
 
                         <com.google.android.material.textfield.TextInputLayout
@@ -149,7 +154,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="@dimen/_8sdp"
-                            android:layout_marginTop="@dimen/_8sdp"
+                            android:layout_marginTop="@dimen/_4sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             app:boxBackgroundColor="@color/background"
                             app:boxCornerRadiusBottomEnd="12dp"
@@ -168,11 +173,11 @@
                                 android:layout_height="wrap_content"
                                 android:drawableStart="@drawable/ic_search"
                                 android:drawablePadding="@dimen/_12sdp"
-                                android:textAlignment="viewEnd"
-                                android:text=""
                                 android:drawableTint="@color/black"
                                 android:hint="@string/search_customer_name_code"
-                                android:inputType="textEmailAddress" />
+                                android:inputType="textEmailAddress"
+                                android:text=""
+                                android:textAlignment="viewEnd" />
 
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -180,21 +185,82 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
+                <LinearLayout
+                    android:id="@+id/layoutAdd"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:visibility="gone"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnMinus"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_circle_orange"
+                        android:text="-"
+                        android:textSize="@dimen/_12sdp"
+                        android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etQty"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_40sdp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="@dimen/_4sdp"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:backgroundTint="@color/white"
+                        android:gravity="center"
+                        android:inputType="number"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnPlus"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/bg_circle_orange"
+                        android:text="+"
+                        android:textSize="@dimen/_12sdp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="@dimen/_1sdp"
+                        android:layout_gravity="center"
+                        android:layout_weight="1" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnAdd"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:text="Add"
+                        android:textSize="@dimen/_12sdp"
+                        android:textStyle="bold"
+                        app:cornerRadius="@dimen/_8sdp" />
+
+                </LinearLayout>
                 <!-- Order Items -->
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="25dp"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
+                    android:layout_marginTop="@dimen/_12sdp"
                     android:orientation="horizontal">
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="0 أصناف"
                         android:layout_gravity="center"
+                        android:layout_weight="1"
                         android:gravity="start"
+                        android:text="0 أصناف"
                         android:textAlignment="viewStart"
                         android:textColor="#777"
                         android:textSize="@dimen/_10ssp" />
@@ -212,6 +278,7 @@
                     android:id="@+id/rvProducts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
                     android:nestedScrollingEnabled="false" />
 
                 <!-- Empty View -->
@@ -220,6 +287,7 @@
                     android:id="@+id/llZeroState"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:visibility="gone">
