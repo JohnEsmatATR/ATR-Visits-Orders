@@ -35,29 +35,20 @@ class ProductBottomSheet(
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-
         adapter = ProductBottomSheetAdapter(products) {
-
             listener.onSelected(it)
-
             dismiss()
         }
 
         binding.rvProducts.adapter = adapter
-
         binding.rvProducts.layoutManager =
             LinearLayoutManager(requireContext())
-
         binding.btnDone.setOnClickListener {
-
             dismiss()
-
         }
 
         binding.etSearch.addTextChangedListener {
-
             adapter.filter.filter(it.toString())
-
         }
 
     }

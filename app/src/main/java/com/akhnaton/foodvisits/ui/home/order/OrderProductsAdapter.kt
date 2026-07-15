@@ -49,7 +49,7 @@ class OrderProductsAdapter(
             "${item.SEGMENT2}"
 
         val totalPrice =
-            "${holder.binding.root.context.getString(R.string.total)}: %.2f".format(item.selectedQty * item.ITEM_PRICE.toDouble())
+            "${holder.binding.root.context.getString(R.string.total)}: ${item.selectedQty * item.ITEM_PRICE.toDouble()}"
 
         holder.binding.tvTotalPrice.text =
             "${totalPrice} ${holder.binding.root.context.getString(R.string.currency)}"

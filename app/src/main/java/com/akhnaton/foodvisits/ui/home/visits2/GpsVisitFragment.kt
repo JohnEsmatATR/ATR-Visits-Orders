@@ -374,11 +374,6 @@ class GpsVisitFragment : Fragment() {
                             val visitGoal = data.visit_goal
                             val visabilty = data.visabilty
                             val sendOrderNote = data.send_order_note
-//                            val positions = listOf(
-//                                getString(R.string.order),
-//                                getString(R.string.collection),
-//                                getString(R.string.negative)
-//                            )
 
                             val visitGoalStrings = visitGoal.map { it.name }
                             val visabiltyStrings = visabilty.map { it.name }
@@ -389,6 +384,10 @@ class GpsVisitFragment : Fragment() {
                                 android.R.layout.simple_dropdown_item_1line,
                                 visitGoalStrings
                             )
+                            if (visitGoal.size > 0) {
+                                grade = visitGoal[0].id
+                                binding.etVisitingPosition.setText(visitGoal[0].name)
+                            }
                             binding.etVisitingPosition.setAdapter(adapter1)
                             binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
                                 val selectedPosition = visitGoal[position]

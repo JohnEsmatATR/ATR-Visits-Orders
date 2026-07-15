@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.BottomSheetOrderSummaryBinding
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
@@ -36,10 +37,10 @@ class OrderSummaryBottomSheet(
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        binding.tvSelectedCount.text = selectedCount
-        binding.tvBeforeTax.text = beforeTax
-        binding.tvTax.text = tax
-        binding.tvAfterTax.text = afterTax
+        binding.tvSelectedCount.text = "${selectedCount} صنف"
+        binding.tvBeforeTax.text = "${beforeTax} ${context?.getString(R.string.currency)}"
+        binding.tvTax.text = "$tax ${context?.getString(R.string.currency)}"
+        binding.tvAfterTax.text = "$afterTax ${context?.getString(R.string.currency)}"
 
         binding.btnSave.setOnClickListener {
             listener.onSave()

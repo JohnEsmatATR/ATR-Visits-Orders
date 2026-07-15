@@ -151,7 +151,7 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
 
                     binding.fieldLongitude.text = it.longitude.toString()
                     binding.fieldLatitude.text = it.latitude.toString()
-                    binding.accurate.text = "${String.format("%.1f", it.accuracy)} متر"
+                    binding.accurate.text = "${it.accuracy} متر "
 
 
                     myLocation.latitude = it.latitude

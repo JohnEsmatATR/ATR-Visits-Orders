@@ -589,12 +589,16 @@ class InvoiceFragment : Fragment() {
                     is Order2Status.GetItemDetails -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
+                            val data = Gson().fromJson(
+                                it.data.data,
+                                com.akhnaton.foodvisits.data.model.getItemDetails.Data::class.java
+                            )
 //                            getItemsResponse = it.data.data.toMutableList()
 //                            prefillOrderSelections()
                             val product = allProducts.firstOrNull() { pro ->
-                                pro.INVENTORY_ITEM_ID == it.data.data.INVENTORY_ITEM_ID
+                                pro.INVENTORY_ITEM_ID == data.INVENTORY_ITEM_ID
                             }
-                            product?.TOTAL_QUANTITY = it.data.data.QUANTITY.toInt()
+                            product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
 //                            it.data.data.forEach { detail ->
 //                                val product = allProducts.firstOrNull {
 //                                    it.ITEM_CODE == detail.ITEM_CODE
@@ -689,8 +693,9 @@ class InvoiceFragment : Fragment() {
     private fun setRecycler(
         list: MutableList<Product>
     ) {
+        list.forEach { it.MESSAGE = "" }
         val adapter = ProductAdapter(
-            list, currentSelections(), object : ProductAdapter.OnItemActionListener {
+            list, object : ProductAdapter.OnItemActionListener {
 
                 override fun onItemClicked(
                     item: Product
@@ -698,24 +703,22 @@ class InvoiceFragment : Fragment() {
                 }
 
                 override fun onQuantityChanged(
-                    item: Product,
-                    qty: Int,
-                    position: Int
+                    item: Product
                 ) {
 
                     val selections = currentSelections()
 
-                    if (qty > 0)
-                        selections[item.ITEM_CODE] = qty
-                    else
-                        selections.remove(item.ITEM_CODE)
+//                    if (qty > 0)
+//                        selections[item.ITEM_CODE] = qty
+//                    else
+//                        selections.remove(item.ITEM_CODE)
 
                     binding.tabSelected.text =
                         "${getString(R.string.selected)} (${selections.size})"
 
                     calculateTotals()
 
-                    binding.rvProducts.adapter?.notifyItemChanged(position)
+//                    binding.rvProducts.adapter?.notifyItemChanged(position)
 
                     // Only call API first time
                     if (!item.clicked) {

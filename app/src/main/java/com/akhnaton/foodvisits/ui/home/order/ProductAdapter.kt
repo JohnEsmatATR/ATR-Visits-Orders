@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.order.products
 import android.annotation.SuppressLint
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,6 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 
 class ProductAdapter(
     private val list: MutableList<Product>,
-    private val selections: MutableMap<String, Int>,
     private val listener: OnItemActionListener
 ) : RecyclerView.Adapter<ProductAdapter.ViewHolder>() {
 
@@ -53,6 +53,13 @@ class ProductAdapter(
         val item = list[position]
         with(holder.binding) {
             tvProductName.text = item.PRODUCT_NAME
+            holder.binding.tvQuota.text = if (item.MANDATORY_QOUTA == "1") {
+                holder.binding.tvQuota.setTextColor(holder.binding.root.resources.getColor(R.color.red))
+                "كوتة إجبارية : ${item.QUOTA_QTY}"
+            } else {
+                holder.binding.tvQuota.setTextColor(holder.binding.root.resources.getColor(R.color.green))
+                "كوتة : ${item.QUOTA_QTY}"
+            }
             tvItemCode.text =
                 "كود: ${item.ITEM_CODE}"
             tvPrice.text =
@@ -72,18 +79,46 @@ class ProductAdapter(
             } else {
                 tvQuantity.visibility = View.GONE
             }
-            ivDelete.visibility = View.GONE
+//            ivDelete.visibility = View.GONE
 
             tvRequested.text =
                 etQty.text.toString()
 
-            val qty =
-                selections[item.ITEM_CODE] ?: 0
+            tvMessage.text = item.MESSAGE
+
+            if (item.MESSAGE != null) {
+                if (item.MESSAGE.isNotEmpty())
+                    tvMessage.visibility = View.VISIBLE
+                else
+                    tvMessage.visibility = View.GONE
+            }
+
+            val qty = item.selectedQty
 
             if (etQty.text.toString() != qty.toString()) {
                 holder.ignoreWatcher = true
                 etQty.setText(qty.toString())
                 holder.ignoreWatcher = false
+            }
+
+            Log.d("WHATyouSay", "${item.CHECKED}")
+            Log.d("WHATyouSay", "${item.IS_BACK_ORDER}")
+            Log.d("WHATyouSay", "${item.selectedQty}")
+            Log.d("WHATyouSay", "${item.TOTAL_QUANTITY}")
+
+            if (item.CHECKED == true) {
+                if (item.IS_BACK_ORDER == true) {
+                    if (item.selectedQty > item.TOTAL_QUANTITY) {
+                        tvBackOrder.visibility = View.VISIBLE
+                        val backOrder =
+                            item.selectedQty - item.TOTAL_QUANTITY
+                        tvBackOrder.text =
+                            "${holder.binding.root.context.getString(R.string.remaining)}: $backOrder"
+                        etQty.setText("$backOrder")
+                    }
+                } else if (item.IS_BACK_ORDER == false) {
+                    etQty.setText("${item.TOTAL_QUANTITY}")
+                }
             }
 
             updateSelectionUI(
@@ -93,58 +128,29 @@ class ProductAdapter(
             )
 
             btnPlus.setOnClickListener {
-
-                val qty =
-                    (selections[item.ITEM_CODE] ?: 0) + 1
-
-                selections[item.ITEM_CODE] = qty
+                item.selectedQty++
 
                 holder.ignoreWatcher = true
-                etQty.setText(qty.toString())
+                etQty.setText(item.selectedQty.toString())
                 holder.ignoreWatcher = false
 
-                updateSelectionUI(
-                    qty,
-                    item,
-                    holder.binding
-                )
-
-                listener.onQuantityChanged(
-                    item,
-                    qty,
-                    position
-                )
+                updateSelectionUI(item.selectedQty, item, holder.binding)
+                listener.onQuantityChanged(item)
             }
 
             btnMinus.setOnClickListener {
+                if (item.selectedQty > 1) {
+                    item.selectedQty--
 
-                var qty =
-                    (selections[item.ITEM_CODE] ?: 0) - 1
+                    holder.ignoreWatcher = true
+                    etQty.setText(item.selectedQty.toString())
+                    holder.ignoreWatcher = false
 
-                if (qty < 0)
-                    qty = 0
-
-                if (qty == 0) {
-                    selections.remove(item.ITEM_CODE)
+                    updateSelectionUI(item.selectedQty, item, holder.binding)
+                    listener.onQuantityChanged(item)
                 } else {
-                    selections[item.ITEM_CODE] = qty
+                    listener.onDeleteClicked(item)
                 }
-
-                holder.ignoreWatcher = true
-                etQty.setText(qty.toString())
-                holder.ignoreWatcher = false
-
-                updateSelectionUI(
-                    qty,
-                    item,
-                    holder.binding
-                )
-
-                listener.onQuantityChanged(
-                    item,
-                    qty,
-                    position
-                )
             }
 
             holder.watcher?.let {
@@ -170,21 +176,21 @@ class ProductAdapter(
 
                 override fun afterTextChanged(s: Editable?) {
                     if (holder.ignoreWatcher) return
-                    val qty = s.toString().toIntOrNull() ?: 0
-                    if (qty == 0)
-                        selections.remove(item.ITEM_CODE)
-                    else
-                        selections[item.ITEM_CODE] = qty
-                    updateSelectionUI(
-                        qty,
-                        item,
-                        holder.binding
-                    )
-                    listener.onQuantityChanged(
-                        item,
-                        qty,
-                        position
-                    )
+
+                    val text = s?.toString().orEmpty()
+
+                    if (text.isBlank()) {
+                        item.selectedQty = 0
+                        updateSelectionUI(0, item, holder.binding)
+                        listener.onQuantityChanged(item)
+                        return
+                    }
+
+                    val qty = text.toIntOrNull() ?: return
+
+                    item.selectedQty = qty
+                    updateSelectionUI(qty, item, holder.binding)
+                    listener.onQuantityChanged(item)
                 }
 
 
@@ -224,14 +230,40 @@ class ProductAdapter(
                 val totalPrice =
                     "${binding.root.context.getString(R.string.total)}: %.2f".format(qty * item.ITEM_PRICE.toDouble())
 
+//                val totalPrice =
+//                    "${binding.root.context.getString(R.string.total)}: ${qty * item.ITEM_PRICE.toDouble()}"
+
                 tvTotalPrice.text =
                     "${totalPrice} ${binding.root.context.getString(R.string.currency)}"
 
-                val backOrder =
-                    qty - availableQty
+//                if (item.IS_BACK_ORDER == true && item.selectedQty > item.TOTAL_QUANTITY) {
+//                    tvBackOrder.visibility = View.VISIBLE
+//                    val backOrder =
+//                        item.selectedQty - item.TOTAL_QUANTITY
+//                    tvBackOrder.text =
+//                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
+//                    etQty.setText("$backOrder")
+//                } else if (item.IS_BACK_ORDER == false && item.selectedQty > item.TOTAL_QUANTITY) {
+//                    val backOrder =
+//                        item.selectedQty - item.TOTAL_QUANTITY
+//                    tvBackOrder.text =
+//                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
+//                }
 
-                tvBackOrder.text =
-                    "${binding.root.context.getString(R.string.remaining)}: $backOrder"
+//                if (item.IS_BACK_ORDER && item.selectedQty > item.TOTAL_QUANTITY) {
+//                    tvBackOrder.visibility = View.VISIBLE
+//                    val backOrder =
+//                        item.selectedQty - item.TOTAL_QUANTITY
+//
+//                    tvBackOrder.text =
+//                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
+//                } else if (item.IS_BACK_ORDER && item.TOTAL_QUANTITY == 0) {
+//                    tvBackOrder.visibility = View.VISIBLE
+//                    tvBackOrder.text =
+//                        "${binding.root.context.getString(R.string.remaining)}: ${item.selectedQty}"
+//                } else if (!item.IS_BACK_ORDER) {
+//                    tvBackOrder.visibility = View.GONE
+//                }
 
                 ivDelete.visibility = View.VISIBLE
                 ivDelete.setOnClickListener {
@@ -239,16 +271,15 @@ class ProductAdapter(
                 }
 
             } else {
-
-                ivDelete.visibility = View.GONE
-
                 tvZeroState.visibility = View.VISIBLE
 
                 tvRequested.visibility = View.GONE
                 tvTotalPrice.visibility = View.GONE
+                tvBackOrder.visibility = View.GONE
+                tvMessage.visibility = View.GONE
 
                 tvZeroState.text =
-                    binding.tvItemCode.context.getString(R.string.no_product_choosen)
+                    "لم يتم تحديد الكمية"
             }
         }
     }
@@ -261,8 +292,6 @@ class ProductAdapter(
 
         fun onQuantityChanged(
             item: Product,
-            qty: Int,
-            position: Int
         )
 
         fun onDeleteClicked(

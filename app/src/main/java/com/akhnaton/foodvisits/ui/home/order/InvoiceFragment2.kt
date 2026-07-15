@@ -19,14 +19,18 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getStartOrderData.Data
 import com.akhnaton.foodvisits.data.model.getStartOrderData.Product
+import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
 import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectedOption
+import com.akhnaton.foodvisits.data.model.saveOrder.ItemsSummary
+import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderItemReq
+import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Intent
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Status
 import com.akhnaton.foodvisits.databinding.FragmentInvoice2Binding
-import com.akhnaton.foodvisits.databinding.FragmentInvoiceBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.mappers.ProductMapper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.order.products.ProductAdapter
@@ -53,14 +57,12 @@ class InvoiceFragment2 : Fragment() {
     lateinit var selectedOptionsJson: String
     private var allProducts = mutableListOf<Product>()
 
-    private val orderSelections = mutableMapOf<String, Int>()
+    private val selectedProducts = mutableListOf<Product>()
 
     lateinit var orderId: String
     var paymentId: String? = ""
     var warehouseId: String? = ""
     var saleTypeId: String? = ""
-    private var displayedProducts = mutableListOf<Product>()
-
     private var isEdit: Boolean? = false
     lateinit var OrigSysDocumentRef: String
     lateinit var orderJson: String
@@ -75,12 +77,12 @@ class InvoiceFragment2 : Fragment() {
 
     private lateinit var orderAdapter: ProductAdapter
 
-    var selections: MutableMap<String, Int>? = null
     var totalQty = 0
     var beforeTax = 0.0
 
-    var tax = 0
-    var afterTax = 0
+    var tax = 0.0
+    var afterTax = 0.0
+    var total = 0.0
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -158,8 +160,7 @@ class InvoiceFragment2 : Fragment() {
         )
 
         orderAdapter = ProductAdapter(
-            displayedProducts,
-            currentSelections(),
+            selectedProducts,
             object : ProductAdapter.OnItemActionListener {
 
                 override fun onItemClicked(
@@ -167,33 +168,31 @@ class InvoiceFragment2 : Fragment() {
                 ) {
                 }
 
-                override fun onQuantityChanged(
-                    item: Product,
-                    qty: Int,
-                    position: Int
-                ) {
-                    selections = currentSelections()
-                    if (qty > 0)
-                        selections?.set(item.ITEM_CODE, qty)
-                    else
-                        selections?.remove(item.ITEM_CODE)
-                    calculateTotals()
-                    // Only call API first time
+                override fun onQuantityChanged(item: Product) {
+
                     if (!item.clicked) {
-                        item.clicked = true
-//                        getItemDetails(
-//                            item.INVENTORY_ITEM_ID,
-//                            priceListId,
-//                            storeId
-//                        )
+//                        item.clicked = true
+//                                getItemDetails(
+//                                    item.INVENTORY_ITEM_ID,
+//                                    priceListId,
+//                                    storeId
+//                                )
                     }
+
+                    updateTotal()
+                    updateEmptyView()
+                    calculateTotals()
                 }
 
                 override fun onDeleteClicked(item: Product) {
-                    selections = currentSelections()
-                    selections?.remove(item.ITEM_CODE)
+                    val index = selectedProducts.indexOf(item)
+                    if (index != -1) {
+                        selectedProducts.removeAt(index)
+                        orderAdapter.notifyItemRemoved(index)
+                    }
+                    updateTotal()
+                    updateEmptyView()
                     calculateTotals()
-                    updateScreen()
                 }
             })
 
@@ -201,22 +200,32 @@ class InvoiceFragment2 : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = orderAdapter
         }
+        updateEmptyView()
 
         binding.cardBottom.setOnClickListener {
+            if (total == 0.0) {
+                DialogUtils.showResultDialog(
+                    requireContext(), "يجب تحديد الكمية لكل صنف", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+            }
             calculateTotals()
             OrderSummaryBottomSheet(
-                selectedCount = currentSelections().size.toString(),
+                selectedCount = selectedProducts.size.toString(),
                 beforeTax = beforeTax.toString(),
                 tax = tax.toString(),
                 afterTax = afterTax.toString(),
                 listener = object : OrderSummaryBottomSheet.Listener {
 
                     override fun onSave() {
-                        // Save order
+                        isSend = false
+                        saveOrder(false)
                     }
 
                     override fun onSend() {
-                        // Send order
+                        isSend = true
+                        saveOrder(true)
                     }
                 }
             ).show(parentFragmentManager, "OrderSummary")
@@ -240,8 +249,9 @@ class InvoiceFragment2 : Fragment() {
                 allProducts,
                 object : ProductBottomSheet.OnProductSelected {
                     override fun onSelected(product: Product) {
-                        binding.etSearch.setText(product.PRODUCT_NAME)
+                        binding.etQty.requestFocus()
                         selectedProduct = product
+                        binding.etSearch.setText(product.PRODUCT_NAME)
                         getItemDetails(
                             product.INVENTORY_ITEM_ID,
                             priceListId,
@@ -258,8 +268,9 @@ class InvoiceFragment2 : Fragment() {
                 allProducts,
                 object : ProductBottomSheet.OnProductSelected {
                     override fun onSelected(product: Product) {
-                        binding.etSearch.setText(product.PRODUCT_NAME)
+                        binding.etQty.requestFocus()
                         selectedProduct = product
+                        binding.etSearch.setText(product.PRODUCT_NAME)
                         getItemDetails(
                             product.INVENTORY_ITEM_ID,
                             priceListId,
@@ -288,16 +299,40 @@ class InvoiceFragment2 : Fragment() {
         }
 
         binding.btnAdd.setOnClickListener {
+            if (binding.etQty.text.toString().isEmpty()) {
+                DialogUtils.showResultDialog(
+                    requireContext(), "يجب اضافة كمية للمنتج", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+            }
             val product = selectedProduct ?: return@setOnClickListener
             val qty =
                 binding.etQty.text.toString().toIntOrNull() ?: 1
-            val currentQty =
-                orderSelections[product.ITEM_CODE] ?: 0
-            orderSelections[product.ITEM_CODE] =
-                currentQty + qty
-            updateScreen()
+            val existing =
+                selectedProducts.firstOrNull {
+                    it.ITEM_CODE == product.ITEM_CODE
+                }
+            if (existing == null) {
+                product.selectedQty = qty
+                selectedProducts.add(product)
+                orderAdapter.notifyItemInserted(selectedProducts.lastIndex)
+            } else {
+                DialogUtils.showResultDialog(
+                    requireContext(), "المنتج موجود بالفعل", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+//                existing.selectedQty += qty
+//                orderAdapter.notifyItemChanged(
+//                    selectedProducts.indexOf(existing)
+//                )
+            }
             updateTotal()
-            binding.etSearch.text?.clear()
+            updateEmptyView()
+            calculateTotals()
+//            updateTotal()
+            binding.etSearch.text = ""
             binding.etQty.text?.clear()
             binding.layoutAdd.visibility = View.GONE
             selectedProduct = null
@@ -307,7 +342,7 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun updateEmptyView() {
-        if (displayedProducts.isEmpty()) {
+        if (selectedProducts.isEmpty()) {
             binding.llZeroState.visibility = View.VISIBLE
             binding.rvProducts.visibility = View.GONE
         } else {
@@ -317,15 +352,14 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun updateTotal() {
-        var total = 0.0
-        allProducts.forEach {
-
-            val qty = orderSelections[it.ITEM_CODE] ?: 0
-
-            total += it.CUST_PRICE.toDouble() * qty
+        total = 0.0
+        selectedProducts.forEach {
+            total += it.selectedQty * it.ITEM_PRICE.toDouble()
         }
+        binding.tvProductsCount.text =
+            "${selectedProducts.size} أصناف"
         binding.tvTotal.text =
-            String.format("%.2f ج.م", total)
+            String.format("%.2f %s", total, getString(R.string.currency))
     }
 
     private fun getStartOrderData() {
@@ -349,8 +383,6 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun prefillOrderSelections() {
-        Log.d("MATCH getItemsResponse", getItemsResponse.size.toString())
-        Log.d("MATCH allProducts", allProducts.size.toString())
         getItemsResponse.forEach { preview ->
             Log.d(
                 "MATCH", "Searching for: ${preview.ITEM_NAME}"
@@ -362,70 +394,30 @@ class InvoiceFragment2 : Fragment() {
                 "MATCH", "Found: ${matchedProduct?.PRODUCT_NAME}"
             )
             matchedProduct?.let {
-                orderSelections[it.ITEM_CODE] = preview.QUANTITY.toInt()
+                it.selectedQty = preview.QUANTITY.toInt()
+                selectedProducts.add(it)
             }
+
+            orderAdapter.notifyDataSetChanged()
+            updateTotal()
+            updateEmptyView()
+            calculateTotals()
         }
-    }
-
-    private fun updateScreen() {
-        filterProducts(binding.etSearch.text.toString())
-        binding.llZeroState.visibility =
-            if (displayedProducts.isEmpty()) View.VISIBLE
-            else View.GONE
-        binding.rvProducts.visibility =
-            if (displayedProducts.isEmpty()) View.GONE
-            else View.VISIBLE
-        calculateTotals()
-    }
-
-    private fun currentSelections(): MutableMap<String, Int> {
-        return orderSelections
-    }
-
-    private fun filterProducts(
-        keyword: String
-    ) {
-
-        val baseList = allProducts.filter {
-            (currentSelections()[it.ITEM_CODE] ?: 0) > 0
-        }
-
-        val filtered = if (keyword.isBlank()) {
-            baseList
-        } else {
-            baseList.filter {
-                it.PRODUCT_NAME.contains(keyword, true) ||
-                        it.ITEM_CODE.contains(keyword, true)
-            }
-        }
-
-        setRecycler(filtered.toMutableList())
-
-        binding.llZeroState.visibility = if (displayedProducts.isEmpty()) View.VISIBLE
-        else View.GONE
-    }
-
-    private fun setRecycler(list: MutableList<Product>) {
-
-        displayedProducts.clear()
-
-        displayedProducts.addAll(list)
-
-        orderAdapter.notifyDataSetChanged()
     }
 
     private fun calculateTotals() {
-        selections = currentSelections()
         totalQty = 0
         beforeTax = 0.0
-        allProducts.forEach { product ->
-            val qty = selections?.get(product.ITEM_CODE) ?: 0
-            totalQty += qty
-            beforeTax += qty * product.ITEM_PRICE.toDouble()
+        tax = 0.0
+        selectedProducts.forEach {
+            totalQty += it.selectedQty
+            beforeTax +=
+                it.selectedQty * it.ITEM_PRICE.toDouble()
+            tax +=
+                it.selectedQty * it.TAX_AMOUNT.toDouble()
+            afterTax = beforeTax + tax
         }
-
-        val tax = beforeTax * 0.14
-        val afterTax = beforeTax + tax
+//        tax = (beforeTax * .14).toInt()
     }
 
     private fun getItemDetails(itemId: String, priceList: String, storeId: String) {
@@ -436,6 +428,86 @@ class InvoiceFragment2 : Fragment() {
                 )
             )
         }
+    }
+
+    private fun saveOrder(send: Boolean) {
+        val items = selectedProducts.mapIndexed { index, product ->
+            (index + 1).toString() to SaveOrderItemReq(
+                inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
+                quantity = product.selectedQty
+            )
+        }.toMap()
+
+        val request = SaveOrderReq(
+            orderId = orderId,
+            partySiteId = customerPartySiteId,
+            orderType = saleType,
+            deviceType = "android",
+            send = if (send) "1" else "0",
+            warehouseType = warehouseId ?: "",
+            paymentId = paymentId?.toIntOrNull() ?: 106014,
+            items = items
+        )
+
+        lifecycleScope.launch {
+            viewModel.orderIntent.send(
+                Order2Intent.SaveOrder(request)
+            )
+        }
+    }
+
+    private fun setRecycler(
+        allSummaries: MutableList<ItemsSummary>
+    ) {
+        var productsList = ProductMapper.mapItemSummaryToProducts(
+            allSummaries,
+            allProducts
+        ) as MutableList<Product>
+
+        Log.d("WHATyouSay2", allSummaries.toString())
+        Log.d("WHATyouSay2", productsList.toString())
+
+//        productsList.forEach { it.MESSAGE = "" }
+        selectedProducts.forEach { it.MESSAGE = "تم الرفض" }
+        selectedProducts.forEach { it.CHECKED = true }
+        orderAdapter = ProductAdapter(
+            productsList,
+            object : ProductAdapter.OnItemActionListener {
+                override fun onItemClicked(
+                    item: Product
+                ) {
+                }
+
+                override fun onQuantityChanged(item: Product) {
+                    if (!item.clicked) {
+//                        item.clicked = true
+//                                getItemDetails(
+//                                    item.INVENTORY_ITEM_ID,
+//                                    priceListId,
+//                                    storeId
+//                                )
+                    }
+                    updateTotal()
+                    updateEmptyView()
+                    calculateTotals()
+                }
+
+                override fun onDeleteClicked(item: Product) {
+                    val index = selectedProducts.indexOf(item)
+                    if (index != -1) {
+                        selectedProducts.removeAt(index)
+                        orderAdapter.notifyItemRemoved(index)
+                    }
+                    updateTotal()
+                    updateEmptyView()
+                    calculateTotals()
+                }
+            })
+        binding.rvProducts.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = orderAdapter
+        }
+        updateEmptyView()
     }
 
     private fun fetchData() {
@@ -465,7 +537,10 @@ class InvoiceFragment2 : Fragment() {
                                 prefillOrderSelections()
                             }
 
-                            updateScreen()
+                            orderAdapter.notifyDataSetChanged()
+                            updateEmptyView()
+                            updateTotal()
+                            calculateTotals()
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -498,6 +573,7 @@ class InvoiceFragment2 : Fragment() {
                                     showOkButton = true,
                                     onOk = {
                                     })
+                                setRecycler(data.items_summary.toMutableList())
                             } else if (isSend == true) {
                                 MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
@@ -571,6 +647,10 @@ class InvoiceFragment2 : Fragment() {
                         if (it.data.status == 200) {
                             getItemsResponse = it.data.data.toMutableList()
                             prefillOrderSelections()
+                            orderAdapter.notifyDataSetChanged()
+                            updateTotal()
+                            updateEmptyView()
+                            calculateTotals()
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -591,11 +671,16 @@ class InvoiceFragment2 : Fragment() {
                     is Order2Status.GetItemDetails -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
+                            val data = Gson().fromJson(
+                                it.data.data,
+                                com.akhnaton.foodvisits.data.model.getItemDetails.Data::class.java
+                            )
                             val product = allProducts.firstOrNull() { pro ->
-                                pro.INVENTORY_ITEM_ID == it.data.data.INVENTORY_ITEM_ID
+                                pro.INVENTORY_ITEM_ID == data.INVENTORY_ITEM_ID
                             }
-                            product?.TOTAL_QUANTITY = it.data.data.QUANTITY.toInt()
-                            binding.etQty.setHint(product?.TOTAL_QUANTITY.toString())
+                            product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
+                            binding.etQty.hint =
+                                "${product?.TOTAL_QUANTITY ?: 0}"
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(

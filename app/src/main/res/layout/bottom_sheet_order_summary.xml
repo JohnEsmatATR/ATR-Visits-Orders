@@ -28,6 +28,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textAlignment="viewStart"
                 android:textColor="@color/orange"
                 android:textStyle="bold" />
 
@@ -50,7 +51,8 @@
                 android:id="@+id/tvBeforeTax"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textAlignment="viewStart" />
 
             <TextView
                 android:layout_width="0dp"
@@ -70,7 +72,8 @@
                 android:id="@+id/tvTax"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:textAlignment="viewStart" />
 
             <TextView
                 android:layout_width="0dp"
@@ -91,6 +94,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textAlignment="viewStart"
                 android:textColor="@color/orange"
                 android:textStyle="bold" />
 
@@ -115,7 +119,9 @@
                 android:layout_height="48dp"
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
+                android:backgroundTint="@color/colorPrimary"
                 android:text="إرسال"
+                android:textColor="@color/white"
                 app:cornerRadius="@dimen/_8sdp" />
 
             <com.google.android.material.button.MaterialButton
