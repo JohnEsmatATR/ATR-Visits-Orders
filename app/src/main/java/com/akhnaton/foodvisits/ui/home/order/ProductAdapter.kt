@@ -106,20 +106,20 @@ class ProductAdapter(
             Log.d("WHATyouSay", "${item.selectedQty}")
             Log.d("WHATyouSay", "${item.TOTAL_QUANTITY}")
 
-            if (item.CHECKED == true) {
-                if (item.IS_BACK_ORDER == true) {
-                    if (item.selectedQty > item.TOTAL_QUANTITY) {
-                        tvBackOrder.visibility = View.VISIBLE
-                        val backOrder =
-                            item.selectedQty - item.TOTAL_QUANTITY
-                        tvBackOrder.text =
-                            "${holder.binding.root.context.getString(R.string.remaining)}: $backOrder"
-                        etQty.setText("$backOrder")
-                    }
-                } else if (item.IS_BACK_ORDER == false) {
-                    etQty.setText("${item.TOTAL_QUANTITY}")
-                }
-            }
+//            if (item.CHECKED == true) {
+//                if (item.IS_BACK_ORDER == true) {
+//                    if (item.selectedQty > item.TOTAL_QUANTITY) {
+//                        tvBackOrder.visibility = View.VISIBLE
+//                        val backOrder =
+//                            item.selectedQty - item.TOTAL_QUANTITY
+//                        tvBackOrder.text =
+//                            "${holder.binding.root.context.getString(R.string.remaining)}: $backOrder"
+//                        etQty.setText("${item.selectedQty}")
+//                    }
+//                } else if (item.IS_BACK_ORDER == false) {
+//                    etQty.setText("${item.selectedQty}")
+//                }
+//            }
 
             updateSelectionUI(
                 qty,
@@ -216,7 +216,18 @@ class ProductAdapter(
                 item.QUANTITY.toIntOrNull() ?: 0
 
         with(binding) {
+            if (item.CHECKED) {
+                if (item.IS_BACK_ORDER == true) {
+                    tvBackOrder.visibility = View.VISIBLE
+                    val backOrder =
+                        maxOf(0, item.selectedQty - item.TOTAL_QUANTITY)
+                    tvBackOrder.text =
+                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
+                } else {
+                    tvBackOrder.visibility = View.GONE
+                }
 
+            }
             if (qty > 0) {
 
                 tvZeroState.visibility = View.GONE

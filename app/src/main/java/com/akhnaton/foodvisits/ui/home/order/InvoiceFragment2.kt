@@ -57,7 +57,7 @@ class InvoiceFragment2 : Fragment() {
     lateinit var selectedOptionsJson: String
     private var allProducts = mutableListOf<Product>()
 
-    private val selectedProducts = mutableListOf<Product>()
+    private var selectedProducts = mutableListOf<Product>()
 
     lateinit var orderId: String
     var paymentId: String? = ""
@@ -83,6 +83,8 @@ class InvoiceFragment2 : Fragment() {
     var tax = 0.0
     var afterTax = 0.0
     var total = 0.0
+    private var isSavedBefore: Boolean? = false
+    private var itemsSummaryList = mutableListOf<ItemsSummary>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -201,6 +203,16 @@ class InvoiceFragment2 : Fragment() {
             adapter = orderAdapter
         }
         updateEmptyView()
+
+        binding.btnAddReturn.setOnClickListener {
+            if (isSavedBefore == false) {
+                binding.btnAddReturn.isClickable = false
+                binding.btnAddReturn.isEnabled = false
+            } else if (isSavedBefore == true) {
+                binding.btnAddReturn.isClickable = true
+                binding.btnAddReturn.isEnabled = true
+            }
+        }
 
         binding.cardBottom.setOnClickListener {
             if (total == 0.0) {
@@ -431,12 +443,20 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun saveOrder(send: Boolean) {
-        val items = selectedProducts.mapIndexed { index, product ->
-            (index + 1).toString() to SaveOrderItemReq(
-                inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
-                quantity = product.selectedQty
+        Log.d("WHATmap", selectedProducts.toString())
+        val items = if (isSavedBefore == false) {
+            selectedProducts.mapIndexed { index, product ->
+                (index + 1).toString() to SaveOrderItemReq(
+                    inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
+                    quantity = product.selectedQty
+                )
+            }.toMap()
+        } else {
+            ProductMapper.mapItemsSummaryToRequest(
+                itemsSummaryList,
+                selectedProducts
             )
-        }.toMap()
+        }
 
         val request = SaveOrderReq(
             orderId = orderId,
@@ -459,19 +479,16 @@ class InvoiceFragment2 : Fragment() {
     private fun setRecycler(
         allSummaries: MutableList<ItemsSummary>
     ) {
-        var productsList = ProductMapper.mapItemSummaryToProducts(
+        selectedProducts = ProductMapper.mapItemSummaryToProducts(
             allSummaries,
             allProducts
         ) as MutableList<Product>
 
         Log.d("WHATyouSay2", allSummaries.toString())
-        Log.d("WHATyouSay2", productsList.toString())
+        Log.d("WHATyouSay2", selectedProducts.toString())
 
-//        productsList.forEach { it.MESSAGE = "" }
-        selectedProducts.forEach { it.MESSAGE = "تم الرفض" }
-        selectedProducts.forEach { it.CHECKED = true }
         orderAdapter = ProductAdapter(
-            productsList,
+            selectedProducts,
             object : ProductAdapter.OnItemActionListener {
                 override fun onItemClicked(
                     item: Product
@@ -566,6 +583,7 @@ class InvoiceFragment2 : Fragment() {
                                 com.akhnaton.foodvisits.data.model.saveOrder.Data::class.java
                             )
                             if (isSend == false) {
+                                isSavedBefore = true
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = it.saveOrderRes.message.firstOrNull().orEmpty(),
@@ -573,7 +591,9 @@ class InvoiceFragment2 : Fragment() {
                                     showOkButton = true,
                                     onOk = {
                                     })
-                                setRecycler(data.items_summary.toMutableList())
+                                itemsSummaryList = data.items_summary.toMutableList()
+                                Log.d("WHATitemsSummaryList", itemsSummaryList.toString())
+                                setRecycler(itemsSummaryList)
                             } else if (isSend == true) {
                                 MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(

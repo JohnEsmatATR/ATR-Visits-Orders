@@ -18,10 +18,12 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvQuota"
+                android:id="@+id/tvBackOrder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:visibility="gone"
                 android:textSize="@dimen/_10ssp"
+                android:textColor="@color/red"
                 android:textStyle="bold" />
 
             <TextView
@@ -201,7 +203,7 @@
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/tvBackOrder"
+                    android:id="@+id/tvQuota"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end"
@@ -213,8 +215,7 @@
                     android:padding="@dimen/_4sdp"
                     android:textColor="@color/red"
                     android:textSize="@dimen/_8ssp"
-                    android:textStyle="bold"
-                    android:visibility="gone" />
+                    android:textStyle="bold" />
 
             </LinearLayout>
 

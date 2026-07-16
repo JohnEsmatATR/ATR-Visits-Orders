@@ -480,7 +480,7 @@ class InvoiceFragment : Fragment() {
                             if (isSend == false) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                    message = "it.saveOrderRes.message.firstOrNull().orEmpty()",
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
@@ -498,7 +498,7 @@ class InvoiceFragment : Fragment() {
                                 MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                    message = "it.saveOrderRes.message.firstOrNull().orEmpty()",
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
@@ -525,7 +525,7 @@ class InvoiceFragment : Fragment() {
                         } else {
                             DialogUtils.showResultDialog(
                                 requireContext(),
-                                it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                "it.saveOrderRes.message.firstOrNull().orEmpty()",
                                 false,
                                 showOkButton = true,
                             )
