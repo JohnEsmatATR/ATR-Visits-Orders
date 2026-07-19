@@ -89,8 +89,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="48dp"
                             android:backgroundTint="#FF8C3A"
-                            android:enabled="false"
-                            android:clickable="false"
                             android:text="اضافة مرتجع"
                             android:textColor="@android:color/white"
                             app:cornerRadius="@dimen/_8sdp" />

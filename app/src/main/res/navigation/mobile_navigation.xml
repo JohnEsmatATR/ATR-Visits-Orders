@@ -128,6 +128,19 @@
         <action
             android:id="@+id/toVisitPhone"
             app:destination="@id/visitPhoneFragment" />
+        <action
+            android:id="@+id/toReturns"
+            app:destination="@id/returnsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/returnsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.returns.ReturnsFragment"
+        android:label="fragment_returns"
+        tools:layout="@layout/fragment_returns">
+        <action
+            android:id="@+id/toInvoice"
+            app:destination="@id/invoiceFragment" />
     </fragment>
 
     <fragment

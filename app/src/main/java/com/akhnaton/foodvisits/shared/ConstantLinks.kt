@@ -23,6 +23,7 @@ object ConstantLinks {
     const val EDIT_ORDER = "Order/editOrder"
     const val GET_ITEMS_DETAILS = "Order/getItemsDetails"
     const val GET_PRICE_LISTS = "Order/getPriceLists"
+    const val START_RETURN_DATA = "Return/startReturnData"
     const val REFRESH_TOKEN = "Auth/refresh_token"
 
     //----------------------------------------------------------------------------------------------

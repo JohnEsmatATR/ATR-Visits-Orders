@@ -205,13 +205,26 @@ class InvoiceFragment2 : Fragment() {
         updateEmptyView()
 
         binding.btnAddReturn.setOnClickListener {
-            if (isSavedBefore == false) {
-                binding.btnAddReturn.isClickable = false
-                binding.btnAddReturn.isEnabled = false
-            } else if (isSavedBefore == true) {
-                binding.btnAddReturn.isClickable = true
-                binding.btnAddReturn.isEnabled = true
+//            if (isSavedBefore == false) {
+//                binding.btnAddReturn.isClickable = false
+//                binding.btnAddReturn.isEnabled = false
+//            } else if (isSavedBefore == true) {
+//                binding.btnAddReturn.isClickable = true
+//                binding.btnAddReturn.isEnabled = true
+//            }
+
+            val bundle = Bundle().apply {
+                putString("customerPartySiteId", customerPartySiteId)
+                putString("saleType", saleType)
             }
+
+            findNavController().navigate(
+                R.id.toReturns,
+                bundle,
+                androidx.navigation.NavOptions.Builder().setPopUpTo(
+                    findNavController().graph.startDestinationId, true
+                ).build()
+            )
         }
 
         binding.cardBottom.setOnClickListener {
