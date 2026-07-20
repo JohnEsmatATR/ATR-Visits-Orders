@@ -13,6 +13,17 @@ sealed class ReturnsIntent {
         val orderType: String
     ) : ReturnsIntent()
 
+    data class StartReturnData(
+        val orderId: String,
+        val priceListId: String
+    ) : ReturnsIntent()
+
+    data class GetItemDetails(
+        val itemId: String,
+        val priceList: String,
+        val storeId: String,
+    ) : ReturnsIntent()
+
     data class RefreshToken(val userId: String, val token: String) : ReturnsIntent()
 
 }

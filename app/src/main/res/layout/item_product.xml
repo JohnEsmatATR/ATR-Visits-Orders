@@ -21,10 +21,10 @@
                 android:id="@+id/tvBackOrder"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:textSize="@dimen/_10ssp"
                 android:textColor="@color/red"
-                android:textStyle="bold" />
+                android:textSize="@dimen/_10ssp"
+                android:textStyle="bold"
+                android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tvProductName"
@@ -215,7 +215,8 @@
                     android:padding="@dimen/_4sdp"
                     android:textColor="@color/red"
                     android:textSize="@dimen/_8ssp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -262,12 +263,12 @@
             android:layout_gravity="end"
             android:layout_marginEnd="@dimen/_4sdp"
             android:gravity="end"
-            android:textAlignment="viewEnd"
             android:padding="@dimen/_4sdp"
-            android:visibility="gone"
+            android:textAlignment="viewEnd"
             android:textColor="@color/red"
             android:textSize="@dimen/_12ssp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone" />
 
     </LinearLayout>
 

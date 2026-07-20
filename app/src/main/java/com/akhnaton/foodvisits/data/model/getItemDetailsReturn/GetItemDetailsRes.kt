@@ -1,8 +1,8 @@
-package com.akhnaton.foodvisits.data.model.startReturnData
+package com.akhnaton.foodvisits.data.model.getItemDetailsReturn
 
 import com.google.gson.JsonElement
 
-data class StartReturnDataRes(
+data class GetItemDetailsRes(
     val `data`: JsonElement?,
     val message: String,
     val status: Int,

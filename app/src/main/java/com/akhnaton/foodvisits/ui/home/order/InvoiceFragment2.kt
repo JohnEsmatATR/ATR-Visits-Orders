@@ -79,7 +79,6 @@ class InvoiceFragment2 : Fragment() {
 
     var totalQty = 0
     var beforeTax = 0.0
-
     var tax = 0.0
     var afterTax = 0.0
     var total = 0.0
@@ -205,17 +204,20 @@ class InvoiceFragment2 : Fragment() {
         updateEmptyView()
 
         binding.btnAddReturn.setOnClickListener {
-//            if (isSavedBefore == false) {
-//                binding.btnAddReturn.isClickable = false
-//                binding.btnAddReturn.isEnabled = false
-//            } else if (isSavedBefore == true) {
-//                binding.btnAddReturn.isClickable = true
-//                binding.btnAddReturn.isEnabled = true
-//            }
+            Log.d("WHATisSavedBefore", isSavedBefore.toString())
+            if (isSavedBefore == false) {
+                DialogUtils.showResultDialog(
+                    requireContext(), "يجب اضافة طلبية أولا", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+            }
 
             val bundle = Bundle().apply {
                 putString("customerPartySiteId", customerPartySiteId)
                 putString("saleType", saleType)
+                putString("orderId", orderId)
+                putString("storeId", storeId)
             }
 
             findNavController().navigate(

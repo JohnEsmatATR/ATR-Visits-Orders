@@ -8,5 +8,11 @@ data class Product(
     val ITEM_CODE: String,
     val SAVED_ITEMS: List<SAVEDITEMS>,
     val SEGMENT2: String,
-    val SEGMENT4: String
+    val SEGMENT4: String,
+    var TOTAL_QUANTITY: Int = -1,
+    var MESSAGE: String =  "",
+    var selectedQty: Int = 0,
+    var CHECKED: Boolean = false,
+    var IS_BACK_ORDER: Boolean? = false,
+    var clicked: Boolean = false,
 )

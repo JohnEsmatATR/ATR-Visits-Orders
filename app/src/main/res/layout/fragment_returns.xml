@@ -87,13 +87,13 @@
                         android:orientation="horizontal">
 
                         <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAddReturn"
+                            android:id="@+id/btnAddOrder"
                             android:layout_width="wrap_content"
                             android:layout_height="48dp"
                             android:backgroundTint="@color/red"
                             android:enabled="false"
                             android:clickable="false"
-                            android:text="اضافة فاتورة"
+                            android:text="اضافة طلبية"
                             android:textColor="@android:color/white"
                             app:cornerRadius="@dimen/_8sdp" />
 
@@ -105,16 +105,10 @@
                             android:gravity="center"
                             android:textStyle="bold" />
 
-                        <ImageView
-                            android:id="@+id/btnBack"
-                            android:layout_width="@dimen/_32sdp"
-                            android:layout_height="@dimen/_32sdp"
-                            app:tint="@color/red"
-                            android:src="@drawable/ic_arrow_right" />
                     </LinearLayout>
 
                     <ImageButton
-                        android:id="@+id/btnNext"
+                        android:id="@+id/btnBack"
                         android:layout_width="55dp"
                         android:layout_height="55dp"
                         android:layout_alignParentEnd="true"
@@ -201,68 +195,80 @@
 
                 <LinearLayout
                     android:id="@+id/layoutAdd"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
                     android:layout_marginHorizontal="@dimen/_8sdp"
-                    android:layout_marginTop="@dimen/_4sdp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:layout_height="wrap_content"
+                    android:visibility="visible"
+                    android:orientation="vertical">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnMinus"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        app:backgroundTint="@color/red"
-                        android:background="@drawable/bg_circle_orange"
-                        android:text="-"
-                        android:textSize="@dimen/_12sdp"
-                        android:textStyle="bold" />
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/rvPrices"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nestedScrollingEnabled="false" />
 
-                    <EditText
-                        android:id="@+id/etQty"
-                        android:layout_width="@dimen/_40sdp"
-                        android:layout_height="@dimen/_40sdp"
-                        android:layout_gravity="center"
-                        android:layout_marginHorizontal="@dimen/_4sdp"
-                        android:background="@drawable/bg_rounded_grey"
-                        android:backgroundTint="@color/white"
-                        android:gravity="center"
-                        android:inputType="number"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12ssp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:orientation="horizontal">
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnPlus"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        android:layout_gravity="center"
-                        app:backgroundTint="@color/red"
-                        android:background="@drawable/bg_circle_orange"
-                        android:text="+"
-                        android:textSize="@dimen/_12sdp"
-                        android:textStyle="bold" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnMinus"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            app:backgroundTint="@color/red"
+                            android:background="@drawable/bg_circle_orange"
+                            android:text="-"
+                            android:textSize="@dimen/_12sdp"
+                            android:textStyle="bold" />
 
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="@dimen/_1sdp"
-                        android:layout_gravity="center"
-                        android:layout_weight="1" />
+                        <EditText
+                            android:id="@+id/etQty"
+                            android:layout_width="@dimen/_40sdp"
+                            android:layout_height="@dimen/_40sdp"
+                            android:layout_gravity="center"
+                            android:layout_marginHorizontal="@dimen/_4sdp"
+                            android:background="@drawable/bg_rounded_grey"
+                            android:backgroundTint="@color/white"
+                            android:gravity="center"
+                            android:inputType="number"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold" />
 
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnAdd"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="center"
-                        android:text="Add"
-                        app:backgroundTint="@color/red"
-                        android:textSize="@dimen/_12sdp"
-                        android:textStyle="bold"
-                        app:cornerRadius="@dimen/_8sdp" />
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPlus"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_gravity="center"
+                            app:backgroundTint="@color/red"
+                            android:background="@drawable/bg_circle_orange"
+                            android:text="+"
+                            android:textSize="@dimen/_12sdp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/_1sdp"
+                            android:layout_gravity="center"
+                            android:layout_weight="1" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnAdd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:text="Add"
+                            app:backgroundTint="@color/red"
+                            android:textSize="@dimen/_12sdp"
+                            android:textStyle="bold"
+                            app:cornerRadius="@dimen/_8sdp" />
+
+                    </LinearLayout>
 
                 </LinearLayout>
-                <!-- Order Items -->
 
                 <LinearLayout
                     android:layout_width="match_parent"

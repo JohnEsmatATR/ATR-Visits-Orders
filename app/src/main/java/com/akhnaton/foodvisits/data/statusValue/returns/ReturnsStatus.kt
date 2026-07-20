@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.data.statusValue.returns
 
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.deleteOrder.DeleteOrderRes
+import com.akhnaton.foodvisits.data.model.getItemDetailsReturn.GetItemDetailsRes
 import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 //import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 import com.akhnaton.foodvisits.data.model.getList.GetListRes
@@ -27,6 +28,7 @@ sealed class ReturnsStatus {
     object Loading : ReturnsStatus()
     data class GetPriceLists(val data: GetPriceListsRes) : ReturnsStatus()
     data class StartReturnData(val data: StartReturnDataRes) : ReturnsStatus()
+    data class GetItemDetails(val data: GetItemDetailsRes) : ReturnsStatus()
     data class RefreshToken(val data: RefreshTokenRes) : ReturnsStatus()
     data class Error(val error: String?) : ReturnsStatus()
 }

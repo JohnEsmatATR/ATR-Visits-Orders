@@ -30,4 +30,14 @@ class ReturnsRepository {
         priceListId,
     )
 
+    suspend fun getItemDetails(
+        itemId: String,
+        priceList: String,
+        storeId: String,
+    ) = retrofit.getItemDetails(
+        itemId,
+        priceList,
+        storeId,
+    )
+
 }

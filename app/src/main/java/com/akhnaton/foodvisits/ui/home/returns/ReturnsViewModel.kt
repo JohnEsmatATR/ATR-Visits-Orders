@@ -42,6 +42,17 @@ class ReturnsViewModel : ViewModel() {
                         it.orderType,
                     )
 
+                    is ReturnsIntent.StartReturnData -> startReturnData(
+                        it.orderId,
+                        it.priceListId,
+                    )
+
+                    is ReturnsIntent.GetItemDetails -> getItemDetails(
+                        it.itemId,
+                        it.priceList,
+                        it.storeId
+                    )
+
                     else -> {}
                 }
             }
@@ -75,6 +86,22 @@ class ReturnsViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "startReturnDataVIEWMODEL2 ${e.message}")
+                ReturnsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun getItemDetails(itemId: String, priceList: String, storeId: String) {
+        Log.d("WHAT", "getItemDetailsVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = ReturnsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "getItemDetailsVIEWMODEL1")
+                ReturnsStatus.GetItemDetails(
+                    ReturnsRepository().getItemDetails(itemId, priceList, storeId)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "getItemDetailsVIEWMODEL2 ${e.message}")
                 ReturnsStatus.Error(e.message)
             }
         }
