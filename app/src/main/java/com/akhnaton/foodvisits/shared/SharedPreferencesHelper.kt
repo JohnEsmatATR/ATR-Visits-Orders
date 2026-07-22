@@ -140,8 +140,11 @@ class SharedPreferencesHelper : Application() {
         username: String,
         employeeId: String,
         makeOrder: Boolean,
-        prom: Boolean,
+        isProm: Boolean,
         telephone: Boolean,
+        isSuper: Boolean,
+        allowedToMakeOrder: Boolean,
+        allowedToMakeRate: Boolean,
     ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -149,8 +152,12 @@ class SharedPreferencesHelper : Application() {
             .putString("user_name", username)
             .putString("employee_id", employeeId)
             .putBoolean("make_order", makeOrder)
-            .putBoolean("prom", prom)
-            .putBoolean("telephone", telephone).apply()
+            .putBoolean("is_prom", isProm)
+            .putBoolean("telephone", telephone)
+            .putBoolean("is_super", isSuper)
+            .putBoolean("allowed_to_make_order", allowedToMakeOrder)
+            .putBoolean("allowed_to_make_rate", allowedToMakeRate)
+            .apply()
     }
 
     fun isLogged(): Boolean {
@@ -171,6 +178,21 @@ class SharedPreferencesHelper : Application() {
     fun logOut() {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putBoolean("LOGGED", false).apply()
+    }
+
+    fun isSuper(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("is_super", false)
+    }
+
+    fun isAllowedToMakeOrder(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("allowed_to_make_order", false)
+    }
+
+    fun isAllowedToMakeRate(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("allowed_to_make_rate", false)
     }
 
 

@@ -26,6 +26,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.login.LoginIntent
 import com.akhnaton.foodvisits.data.statusValue.login.LoginState
 import com.akhnaton.foodvisits.databinding.ActivityLoginBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
@@ -109,7 +110,10 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 true,
                                 if (data.USER_CATEGORY == "prom") true else false,
                                 true,
-                            )
+                                if (data.USER_CATEGORY == "super" || data.USER_CATEGORY == "gsuper") true else false,
+                                data.ALLOWED_TO_MAKE_ORDER,
+                                data.ALLOWED_TO_MAKE_RATE,
+                                )
                             SharedPreferencesHelper().setDebugUsername(
                                 binding.username.text.toString()
                             )
@@ -123,7 +127,13 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                             finishAffinity()
                         } else {
                             dialog.hide()
-                            binding.error.text = it.login.message
+//                            binding.error.text = it.login.message
+                            DialogUtils.showResultDialog(
+                                context = this@LoginActivity,
+                                message = it.login.message,
+                                isSuccess = false,
+                                showOkButton = true
+                            )
                         }
                     }
 

@@ -20,7 +20,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.getSalesMan.SalesMan
 import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
 import com.akhnaton.foodvisits.data.model.getVisitPlan.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
@@ -39,6 +42,7 @@ import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
+import com.akhnaton.foodvisits.ui.home.order.OrderSummaryBottomSheet
 import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomersAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -66,6 +70,7 @@ class VisitsFragment2 : Fragment() {
     private var currentDistanceMeters: Float = 0f
 
     private var allCustomers = mutableListOf<CustomerVisitPlan>()
+    private var allReps = mutableListOf<SalesMan>()
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -106,11 +111,27 @@ class VisitsFragment2 : Fragment() {
             }
         }
 
+        if (SharedPreferencesHelper.getInstance().isSuper()) {
+            binding.btnCopyVisits.visibility = View.VISIBLE
+        } else {
+            binding.btnCopyVisits.visibility = View.GONE
+        }
+
+        binding.btnCopyVisits.setOnClickListener {
+            if (allReps.isEmpty()) {
+                getSalesMan()
+                return@setOnClickListener
+            }
+
+            showScheduleBottomSheet()
+        }
+
         binding.swipeRefresh.setColorSchemeColors(
             ContextCompat.getColor(requireContext(), R.color.colorPrimary)
         )
 
         binding.swipeRefresh.setOnRefreshListener {
+            binding.etSearch.text?.clear()
             loadVisitPlan()
         }
 
@@ -123,6 +144,37 @@ class VisitsFragment2 : Fragment() {
         loadVisitPlan()
         fetchData()
 
+    }
+
+    private fun showScheduleBottomSheet() {
+
+        val tag = "schedule"
+
+        if (parentFragmentManager.findFragmentByTag(tag) != null)
+            return
+
+        ScheduleBottomSheet(
+            employees = allReps,
+            listener = object : ScheduleBottomSheet.Listener {
+
+                override fun onConfirm(
+                    employee: SalesMan,
+                    date: String
+                ) {
+
+                    val copyDayPlanReq = CopyDayPlanReq(
+                        date,
+                        employee.PERSON_ID.toInt()
+                    )
+
+                    lifecycleScope.launch {
+                        viewModel.visitsIntent.send(
+                            Visits2Intent.CopyDayPlan(copyDayPlanReq)
+                        )
+                    }
+                }
+            }
+        ).show(parentFragmentManager, tag)
     }
 
     private fun filterCustomers(keyword: String) {
@@ -155,6 +207,15 @@ class VisitsFragment2 : Fragment() {
         }
     }
 
+    private fun getSalesMan() {
+        binding.btnCopyVisits.isEnabled = false
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.GetSalesMan
+            )
+        }
+    }
+
     private fun fetchData() {
         lifecycleScope.launch {
             viewModel.status.collect {
@@ -178,8 +239,92 @@ class VisitsFragment2 : Fragment() {
                                 )
                             binding.tvDay.setText(data.day)
                             binding.tvDate.setText(data.date)
+                            allCustomers.clear()
                             allCustomers = data.customer_visit_plan.toMutableList()
                             setRecycler(allCustomers)
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.visitsIntent.send(
+                                    Visits2Intent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
+                    is Visits2Status.GetSalesMan -> {
+                        dialog.dismiss()
+                        binding.swipeRefresh.isRefreshing = false
+                        if (it.data.status == 200) {
+                            binding.btnCopyVisits.isEnabled = true
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.getSalesMan.Data::class.java
+                                )
+                            allReps = data.salesMan.toMutableList()
+                            showScheduleBottomSheet()
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.visitsIntent.send(
+                                    Visits2Intent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
+                    is Visits2Status.CopyDayPlan -> {
+                        dialog.dismiss()
+                        binding.swipeRefresh.isRefreshing = false
+                        if (it.data.status == 200) {
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.copyDayPlan.Data::class.java
+                                )
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = "نسخ: ${data.copied}, تخطي: ${data.skipped}",
+                                isSuccess = true,
+                                showOkButton = true,
+                                onOk = {
+                                    findNavController().popBackStack()
+                                    binding.swipeRefresh.isRefreshing = true
+//                                    findNavController().navigate(
+//                                        R.id.toHome,
+//                                        null,
+//                                        androidx.navigation.NavOptions.Builder().setPopUpTo(
+//                                            findNavController().graph.startDestinationId,
+//                                            true
+//                                        ).build()
+//                                    )
+                                }
+                            )
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.visitsIntent.send(
@@ -213,7 +358,7 @@ class VisitsFragment2 : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-//                            getData()
+                            loadVisitPlan()
                         } else {
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
@@ -274,6 +419,8 @@ class VisitsFragment2 : Fragment() {
                     putDouble("customerLatitude", item.customer_latitude)
                     putDouble("customerLongitude", item.customer_longitude)
                     putInt("validGpsRange", item.valid_gps_range)
+                    putString("visitWithUserId", item.visit_with_user_id)
+                    putString("visitWithName", item.visit_with_name)
                 }
 
                 findNavController().navigate(
@@ -299,6 +446,19 @@ class VisitsFragment2 : Fragment() {
 
         binding.rv.adapter = adapter
         binding.rv.itemAnimator = DefaultItemAnimator()
+        binding.rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            override fun onScrolled(
+                recyclerView: RecyclerView,
+                dx: Int,
+                dy: Int
+            ) {
+                val layoutManager = recyclerView.layoutManager as LinearLayoutManager
+
+                binding.swipeRefresh.isEnabled =
+                    layoutManager.findFirstCompletelyVisibleItemPosition() == 0
+            }
+        })
     }
 
     override fun onCreateView(

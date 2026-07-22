@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.data.statusValue.visits2
 
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
@@ -9,6 +10,10 @@ import com.google.gson.JsonElement
 sealed class Visits2Intent {
 
     object GetVisitPlan : Visits2Intent()
+
+    object GetSalesMan : Visits2Intent()
+
+    data class CopyDayPlan(val copyDayPlanReq: CopyDayPlanReq) : Visits2Intent()
 
     data class VisitsSelect(val orderType: String, val customerCode: String) :
         Visits2Intent()

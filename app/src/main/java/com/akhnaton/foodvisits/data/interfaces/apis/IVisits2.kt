@@ -1,12 +1,15 @@
 package com.akhnaton.foodvisits.data.interfaces.apis
 
 import com.akhnaton.foodvisits.data.model.AppSetting
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanRes
 import com.akhnaton.foodvisits.data.model.deleteOrder.DeleteOrderRes
 import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 //import com.akhnaton.foodvisits.data.model.getItems.GetItemsRes
 import com.akhnaton.foodvisits.data.model.getList.GetListRes
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
+import com.akhnaton.foodvisits.data.model.getSalesMan.GetSalesManRes
 //import com.akhnaton.foodvisits.data.model.getList.GetListRes
 import com.akhnaton.foodvisits.data.model.getStartOrderData.GetStartOrderDataRes
 import com.akhnaton.foodvisits.data.model.getVisitPlan.GetVisitPlanRes
@@ -21,6 +24,7 @@ import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsRes
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
 import com.akhnaton.foodvisits.shared.ConstantLinks.APP_SETTING
+import com.akhnaton.foodvisits.shared.ConstantLinks.COPY_DAY_PLAN
 import com.akhnaton.foodvisits.shared.ConstantLinks.DELETE_ORDER
 import com.akhnaton.foodvisits.shared.ConstantLinks.GENERATE_ORDER_NUMBER
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CATEGORIES
@@ -29,6 +33,7 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.GET_ITEMS
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_LIST
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_PRODUCT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT
+import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_MAN
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_START_ORDER_DATA_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_VISIT_PLAN
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER
@@ -50,6 +55,14 @@ interface IVisits2 {
 
     @GET(GET_VISIT_PLAN)
     suspend fun getVisitPlan(): GetVisitPlanRes
+
+    @GET(GET_SALES_MAN)
+    suspend fun getSalesMan(): GetSalesManRes
+
+    @POST(COPY_DAY_PLAN)
+    suspend fun copyDayPlan(
+        @Body copyDayPlanReq: CopyDayPlanReq
+    ): CopyDayPlanRes
 
     @POST(SAVE_VISIT_ENDPOINT)
     suspend fun saveVisitGps(

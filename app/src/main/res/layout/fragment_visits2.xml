@@ -30,6 +30,18 @@
                     android:background="@color/white"
                     android:orientation="horizontal">
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnCopyVisits"
+                        android:layout_width="wrap_content"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:layout_marginEnd="@dimen/_4sdp"
+                        android:layout_marginStart="@dimen/_8sdp"
+                        android:backgroundTint="#FF8C3A"
+                        android:text="نسخ زيارات المندوب"
+                        android:textColor="@android:color/white"
+                        app:cornerRadius="@dimen/_8sdp" />
+
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -98,7 +110,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginBottom="@dimen/_80sdp"
-                    android:layout_marginHorizontal="@dimen/_12sdp"
+                    android:layout_marginHorizontal="@dimen/_8sdp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/item_card2" />
 
@@ -126,7 +138,7 @@
                         android:alpha="0.7"
                         android:gravity="center"
                         android:text="@string/no_selected_products"
-                        android:textColor="@color/orange"
+                        android:textColor="@color/colorPrimary"
                         android:textSize="@dimen/_18ssp"
                         android:textStyle="bold" />
 

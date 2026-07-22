@@ -201,7 +201,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_48sdp"
                         android:layout_marginTop="24dp"
-                        android:backgroundTint="#F5A037"
+                        android:backgroundTint="@color/colorPrimary"
                         android:text="دخول"
                         android:textColor="#FFFFFF"
                         android:textSize="20sp"

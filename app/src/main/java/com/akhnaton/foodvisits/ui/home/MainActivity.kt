@@ -110,9 +110,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding.gooeyMenu.setOnMenuListener(this)
         binding.gooeyMenu.openCloseMenu(false)
 
-        lifecycleScope.launch {
-            viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
-        }
+//        lifecycleScope.launch {
+//            viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
+//        }
 
         if (!SharedPreferencesHelper.getInstance()
                 .getMakeOrder() && !SharedPreferencesHelper.getInstance().getProm()
@@ -142,19 +142,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                 when (it) {
                     is AppSettingStatus.Idle -> Log.d("TAG", "Idle: ")
                     is AppSettingStatus.Loading -> Log.d("TAG", "Loading: ")
-                    is AppSettingStatus.GetAppSetting -> {
-                        try {
-                            Log.d(
-                                "TAG",
-                                "GetAppSetting: ${it.data.data.food_app_add_customer} "
-                            )
-                        } catch (e: Exception) {
-                        }
-                        try {
-                            addCustomerEnable = it.data.data.food_app_add_customer
-                        } catch (e: Exception) {
-                        }
-                    }
+//                    is AppSettingStatus.GetAppSetting -> {
+//                        try {
+//                            Log.d(
+//                                "TAG",
+//                                "GetAppSetting: ${it.data.data.food_app_add_customer} "
+//                            )
+//                        } catch (e: Exception) {
+//                        }
+//                        try {
+//                            addCustomerEnable = it.data.data.food_app_add_customer
+//                        } catch (e: Exception) {
+//                        }
+//                    }
+                    is AppSettingStatus.GetAppSetting -> {}
 
                     is AppSettingStatus.Error -> Log.d("TAG", "Error: ${it.error.toString()} ")
                 }

@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.domin
 import com.akhnaton.foodvisits.data.interfaces.apis.IOrder
 import com.akhnaton.foodvisits.data.interfaces.apis.IOrder2
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits2
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
@@ -14,6 +15,10 @@ class Visits2Repository {
     private val retrofit = RetrofitClient.getInstance(IVisits2::class.java)
 
     suspend fun getVisitPlan() = retrofit.getVisitPlan()
+
+    suspend fun getSalesMan() = retrofit.getSalesMan()
+
+    suspend fun copyDayPlan(copyDayPlanReq: CopyDayPlanReq) = retrofit.copyDayPlan(copyDayPlanReq)
 
     suspend fun visitsSelect(orderType: String, customerCode: String) =
         retrofit.visitsSelect(orderType, customerCode)

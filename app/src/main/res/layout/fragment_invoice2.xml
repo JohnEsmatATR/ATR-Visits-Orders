@@ -327,7 +327,7 @@
                         android:alpha="0.7"
                         android:gravity="center"
                         android:text="@string/no_selected_products"
-                        android:textColor="@color/orange"
+                        android:textColor="@color/colorPrimary"
                         android:textSize="@dimen/_18ssp"
                         android:textStyle="bold" />
 

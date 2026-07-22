@@ -6,8 +6,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import com.akhnaton.foodvisits.R
+import com.google.android.material.button.MaterialButton
 
 object DialogUtils {
 
@@ -19,9 +21,14 @@ object DialogUtils {
         showOkButton: Boolean = false,
         showYesNoButtons: Boolean = false,
         isDismissable: Boolean = false,
+        isLocation: Boolean = false,
+        okText: String? = "تم",
         onOk: (() -> Unit)? = null,
         onYes: (() -> Unit)? = null,
         onNo: (() -> Unit)? = null,
+        onReport: (() -> Unit)? = null,
+        onCancel: (() -> Unit)? = null,
+        description: String? = null,
         onAutoDismiss: (() -> Unit)? = null
     ) {
         val dialog = Dialog(context)
@@ -33,18 +40,16 @@ object DialogUtils {
         dialog.setCanceledOnTouchOutside(isDismissable)
         dialog.setCancelable(isDismissable)
 
-        val tvMessage =
-            dialog.findViewById<TextView>(R.id.tvMessage)
-        val imgStatus =
-            dialog.findViewById<ImageView>(R.id.imgStatus)
-        val bgCircle =
-            dialog.findViewById<View>(R.id.bgCircle)
-        val btnOk =
-            dialog.findViewById<TextView>(R.id.btnOk)
-        val btnYes =
-            dialog.findViewById<TextView>(R.id.btnYes)
-        val btnNo =
-            dialog.findViewById<TextView>(R.id.btnNo)
+        val tvMessage = dialog.findViewById<TextView>(R.id.tvMessage)
+        val tvDescription = dialog.findViewById<TextView>(R.id.tvDescription)
+        val imgStatus = dialog.findViewById<ImageView>(R.id.imgStatus)
+        val bgCircle = dialog.findViewById<View>(R.id.bgCircle)
+        val btnOk = dialog.findViewById<TextView>(R.id.btnOk)
+        val btnYes = dialog.findViewById<TextView>(R.id.btnYes)
+        val btnNo = dialog.findViewById<TextView>(R.id.btnNo)
+        val llLocation = dialog.findViewById<LinearLayout>(R.id.llLocation)
+        val btnReport = dialog.findViewById<MaterialButton>(R.id.btnReport)
+        val btnCancel = dialog.findViewById<MaterialButton>(R.id.btnCancel)
 
         tvMessage.text = message
 
@@ -64,10 +69,29 @@ object DialogUtils {
         btnYes.visibility = View.GONE
         btnNo.visibility = View.GONE
 
+        if (isLocation) {
+            tvDescription.visibility = View.VISIBLE
+            tvDescription.text = description
+            llLocation.visibility = View.VISIBLE
+            btnReport.visibility = View.VISIBLE
+            btnCancel.visibility = View.VISIBLE
+            btnOk.visibility = View.GONE
+            btnYes.visibility = View.GONE
+            btnNo.visibility = View.GONE
+            btnReport.setOnClickListener {
+                dialog.dismiss()
+                onReport?.invoke()
+            }
+            btnCancel.setOnClickListener {
+                dialog.dismiss()
+                onCancel?.invoke()
+            }
+        }
+
         if (showOkButton) {
 
             btnOk.visibility = View.VISIBLE
-
+            btnOk.text = okText
             btnOk.setOnClickListener {
                 dialog.dismiss()
                 onOk?.invoke()

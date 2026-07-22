@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.visits2
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
@@ -35,6 +36,11 @@ class Visits2ViewModel : ViewModel() {
             visitsIntent.consumeAsFlow().collect {
                 when (it) {
                     is Visits2Intent.GetVisitPlan -> getVisitPlan()
+
+                    is Visits2Intent.GetSalesMan -> getSalesMan()
+
+                    is Visits2Intent.CopyDayPlan -> copyDayPlan(it.copyDayPlanReq)
+
                     is Visits2Intent.GetList -> getList(
                         it.page,
                         it.perPage,
@@ -78,6 +84,38 @@ class Visits2ViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "getVisitPlanVIEWMODEL2 ${e.message}")
+                Visits2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun getSalesMan() {
+        Log.d("WHAT", "getSalesManVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = Visits2Status.Loading
+            _status.value = try {
+                Log.d("WHAT", "getSalesManVIEWMODEL1")
+                Visits2Status.GetSalesMan(
+                    Visits2Repository().getSalesMan()
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "getSalesManVIEWMODEL2 ${e.message}")
+                Visits2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun copyDayPlan(copyDayPlanReq: CopyDayPlanReq) {
+        Log.d("WHAT", "copyDayPlanVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = Visits2Status.Loading
+            _status.value = try {
+                Log.d("WHAT", "copyDayPlanVIEWMODEL1")
+                Visits2Status.CopyDayPlan(
+                    Visits2Repository().copyDayPlan(copyDayPlanReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "copyDayPlanVIEWMODEL2 ${e.message}")
                 Visits2Status.Error(e.message)
             }
         }

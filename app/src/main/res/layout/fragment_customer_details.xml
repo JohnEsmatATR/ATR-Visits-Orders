@@ -61,7 +61,7 @@
                     android:layout_gravity="center"
                     android:layout_marginEnd="@dimen/_10sdp"
                     android:text="@string/change_work"
-                    android:textColor="@color/orange"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/_10sdp"
                     android:textStyle="bold" />
 
@@ -71,7 +71,7 @@
                     android:layout_height="@dimen/_15sdp"
                     android:layout_gravity="center"
                     android:src="@drawable/ic_arrow_right"
-                    app:tint="@color/orange" />
+                    app:tint="@color/colorPrimary" />
 
             </LinearLayout>
 
@@ -108,7 +108,7 @@
                     android:layout_gravity="center"
                     android:background="@color/main_color_gold2"
                     android:gravity="center"
-                    android:textColor="@color/orange"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/_12ssp"
                     android:textStyle="bold" />
 

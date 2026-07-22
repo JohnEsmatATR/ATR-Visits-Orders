@@ -66,7 +66,7 @@
                         android:layout_gravity="center"
                         android:layout_marginEnd="@dimen/_10sdp"
                         android:text="@string/change_type_sale"
-                        android:textColor="@color/orange"
+                        android:textColor="@color/colorPrimary"
                         android:textSize="@dimen/_10sdp"
                         android:textStyle="bold" />
 
@@ -76,7 +76,7 @@
                         android:layout_height="@dimen/_15sdp"
                         android:layout_gravity="center"
                         android:src="@drawable/ic_arrow_right"
-                        app:tint="@color/orange" />
+                        app:tint="@color/colorPrimary" />
 
                 </LinearLayout>
 
@@ -131,7 +131,7 @@
                         android:alpha="0.7"
                         android:gravity="center"
                         android:text="@string/no_selected_products"
-                        android:textColor="@color/orange"
+                        android:textColor="@color/colorPrimary"
                         android:textSize="@dimen/_18ssp"
                         android:textStyle="bold" />
 

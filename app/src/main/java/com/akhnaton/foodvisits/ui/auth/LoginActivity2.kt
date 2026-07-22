@@ -57,8 +57,7 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
 //        enableEdgeToEdge()
         binding = DataBindingUtil.setContentView(this@LoginActivity2, R.layout.activity_login2)
 
-        @SuppressLint("HardwareIds")
-        val myAndroidDeviceId = Settings.Secure.getString(
+        @SuppressLint("HardwareIds") val myAndroidDeviceId = Settings.Secure.getString(
             applicationContext.contentResolver, Settings.Secure.ANDROID_ID
         )
 
@@ -78,16 +77,14 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
 
             if (isPasswordVisible) {
                 binding.etPassword.inputType =
-                    InputType.TYPE_CLASS_TEXT or
-                            InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
 
                 binding.ivTogglePassword.setImageResource(
                     R.drawable.ic_eye_close
                 )
             } else {
                 binding.etPassword.inputType =
-                    InputType.TYPE_CLASS_TEXT or
-                            InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
 
                 binding.ivTogglePassword.setImageResource(
                     R.drawable.ic_eye_open
@@ -142,7 +139,10 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                                 true,
                                 if (data.USER_CATEGORY == "prom") true else false,
                                 true,
-                            )
+                                if (data.USER_CATEGORY == "super" || data.USER_CATEGORY == "gsuper") true else false,
+                                data.ALLOWED_TO_MAKE_ORDER,
+                                data.ALLOWED_TO_MAKE_RATE,
+                                )
                             SharedPreferencesHelper().setDebugUsername(
                                 binding.etUsername.text.toString()
                             )
@@ -191,10 +191,7 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
             PackageManager.PERMISSION_GRANTED
         }
 
-        return fineLocation == PackageManager.PERMISSION_GRANTED &&
-                coarseLocation == PackageManager.PERMISSION_GRANTED &&
-                readPhoneState == PackageManager.PERMISSION_GRANTED &&
-                notificationPermission == PackageManager.PERMISSION_GRANTED
+        return fineLocation == PackageManager.PERMISSION_GRANTED && coarseLocation == PackageManager.PERMISSION_GRANTED && readPhoneState == PackageManager.PERMISSION_GRANTED && notificationPermission == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPermission() {
@@ -209,16 +206,12 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
         }
 
         ActivityCompat.requestPermissions(
-            this,
-            permissionsList.toTypedArray(),
-            PERMISSION_REQUEST_CODE
+            this, permissionsList.toTypedArray(), PERMISSION_REQUEST_CODE
         )
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -253,8 +246,9 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                        shouldShowRequestPermissionRationale(permission.ACCESS_FINE_LOCATION)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && shouldShowRequestPermissionRationale(
+                            permission.ACCESS_FINE_LOCATION
+                        )
                     ) {
                         showMessageOKCancel("You need to allow access to all the permissions") { dialog, _ ->
                             requestPermission()
@@ -266,49 +260,43 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun loginIntent() {
-        FirebaseMessaging.getInstance().token
-            .addOnCompleteListener { task ->
-                if (!task.isSuccessful) {
-                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
-                    return@addOnCompleteListener
-                }
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
+                return@addOnCompleteListener
+            }
 
-                val firebaseToken = task.result
-                val username = binding.etUsername.text.toString().lowercase().trim()
-                val password = binding.etPassword.text.toString().trim()
+            val firebaseToken = task.result
+            val username = binding.etUsername.text.toString().lowercase().trim()
+            val password = binding.etPassword.text.toString().trim()
 
-                Log.d("FCM", ">>> Sending login data:")
-                Log.d("FCM", "Version: $versionName")
-                Log.d("FCM", "Username: $username")
-                Log.d("FCM", "Password: $password")
-                Log.d("FCM", "Firebase Token: $firebaseToken")
+            Log.d("FCM", ">>> Sending login data:")
+            Log.d("FCM", "Version: $versionName")
+            Log.d("FCM", "Username: $username")
+            Log.d("FCM", "Password: $password")
+            Log.d("FCM", "Firebase Token: $firebaseToken")
 
-                lifecycleScope.launch {
-                    viewModel.loginIntent.send(
-                        LoginIntent.Login(
-                            username,
-                            password,
-                        )
+            lifecycleScope.launch {
+                viewModel.loginIntent.send(
+                    LoginIntent.Login(
+                        username,
+                        password,
                     )
+                )
 
 //
 //                    val serviceIntent = Intent(this@LoginActivity2, RealTimeService::class.java)
 //                    ContextCompat.startForegroundService(this@LoginActivity2, serviceIntent)
-                }
             }
-            .addOnFailureListener {
-                Log.d("FCM", "Failed to get token", it)
-            }
+        }.addOnFailureListener {
+            Log.d("FCM", "Failed to get token", it)
+        }
     }
 
 
     private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
-        AlertDialog.Builder(this@LoginActivity2)
-            .setMessage(message)
-            .setPositiveButton("OK", okListener)
-            .setNegativeButton("Cancel", null)
-            .create()
-            .show()
+        AlertDialog.Builder(this@LoginActivity2).setMessage(message)
+            .setPositiveButton("OK", okListener).setNegativeButton("Cancel", null).create().show()
     }
 
 

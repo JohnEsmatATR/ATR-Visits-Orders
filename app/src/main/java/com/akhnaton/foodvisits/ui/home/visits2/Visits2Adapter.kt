@@ -1,10 +1,12 @@
 package com.akhnaton.foodvisits.ui.home.visits2
 
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getVisitPlan.CustomerVisitPlan
@@ -37,8 +39,69 @@ class Visits2Adapter(
         holder: ViewHolder,
         position: Int
     ) {
-        holder.tvCustomerName.text = mList[position].customer_name
-        holder.tvSiteAddress.text = mList[position].customer_address
+
+        val item = mList[position]
+
+        holder.tvCustomerName.text = item.customer_name
+        holder.tvSiteAddress.text = item.customer_address
+        holder.tvWith.text = "المرافق: ${item.visit_with_name}"
+
+        if (item.visit_with_name == null || item.visit_with_name == "") {
+            holder.tvWith.visibility = View.GONE
+        }
+
+        if (item.is_visited_today) {
+
+            holder.imgArrow.visibility = View.GONE
+            holder.tvVisited.visibility = View.VISIBLE
+
+            // Strike through text
+            holder.tvCustomerName.paintFlags =
+                holder.tvCustomerName.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+
+            holder.tvSiteAddress.paintFlags =
+                holder.tvSiteAddress.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+
+            // Optional: gray text
+            holder.tvCustomerName.setTextColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.grey_color)
+            )
+
+            holder.tvSiteAddress.setTextColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.grey_color)
+            )
+
+            // Green location icon background
+            holder.ivLocation.setBackgroundColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.green)
+            )
+
+        } else {
+
+            holder.imgArrow.visibility = View.VISIBLE
+            holder.tvVisited.visibility = View.GONE
+
+            // Remove strike through
+            holder.tvCustomerName.paintFlags =
+                holder.tvCustomerName.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+
+            holder.tvSiteAddress.paintFlags =
+                holder.tvSiteAddress.paintFlags and Paint.STRIKE_THRU_TEXT_FLAG.inv()
+
+            // Restore colors
+            holder.tvCustomerName.setTextColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.black)
+            )
+
+            holder.tvSiteAddress.setTextColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.grey_color)
+            )
+
+            // Restore original background
+            holder.ivLocation.setBackgroundColor(
+                ContextCompat.getColor(holder.itemView.context, R.color.colorPrimary)
+            )
+        }
     }
 
     override fun getItemCount(): Int {
@@ -60,8 +123,17 @@ class Visits2Adapter(
         val tvSiteAddress: TextView =
             itemView.findViewById(R.id.tvSiteAddress)
 
+        val tvWith: TextView =
+            itemView.findViewById(R.id.tvWith)
+
         val ivLocation: ImageView =
             itemView.findViewById(R.id.ivLocation)
+
+        val imgArrow: ImageView =
+            itemView.findViewById(R.id.imgArrow)
+
+        val tvVisited: TextView =
+            itemView.findViewById(R.id.tvVisited)
 
         init {
 

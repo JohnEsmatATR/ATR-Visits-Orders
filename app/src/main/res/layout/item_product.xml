@@ -118,7 +118,7 @@
                 android:backgroundTint="@color/background"
                 android:gravity="center"
                 android:padding="@dimen/_4sdp"
-                android:textColor="@color/orange"
+                android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/_8ssp"
                 android:textStyle="bold" />
 
@@ -168,7 +168,7 @@
                         android:backgroundTint="@color/main_color_gold2"
                         android:gravity="center"
                         android:padding="@dimen/_4sdp"
-                        android:textColor="@color/orange"
+                        android:textColor="@color/colorPrimary"
                         android:textSize="@dimen/_8ssp"
                         android:textStyle="bold" />
 

@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.visits2
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -36,6 +37,7 @@ import kotlin.getValue
 import android.location.Location
 import android.os.Build
 import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.data.model.saveVisitGps.Data
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
@@ -67,6 +69,8 @@ class GpsVisitFragment : Fragment() {
     var customerLatitude: Double? = 0.0
     var customerLongitude: Double? = 0.0
     var validGpsRange: Int? = 0
+    lateinit var visitWithUserId: String
+    lateinit var visitWithName: String
     var anotherOrderType: String = ""
 
     var promotersNotes: String = ""
@@ -85,6 +89,8 @@ class GpsVisitFragment : Fragment() {
 
     private var timerHandler = Handler(Looper.getMainLooper())
     private var startTimeMillis = 0L
+
+    private var selectedRating = 0f
 
     val timerRunnable = object : Runnable {
         override fun run() {
@@ -114,6 +120,8 @@ class GpsVisitFragment : Fragment() {
         customerLatitude = arguments?.getDouble("customerLatitude")
         customerLongitude = arguments?.getDouble("customerLongitude")
         validGpsRange = arguments?.getInt("validGpsRange")
+        visitWithUserId = arguments?.getString("visitWithUserId").toString()
+        visitWithName = arguments?.getString("visitWithName").toString()
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
 
@@ -190,6 +198,49 @@ class GpsVisitFragment : Fragment() {
         binding.tvCustomerName.setText(customerName)
         binding.tvCustomerCode.setText(customerCode)
         binding.tvSiteAddress.setText(siteAddress)
+        if (visitWithName == null || visitWithName == "null") {
+            binding.cvComp.visibility = View.GONE
+        } else {
+            binding.cvComp.visibility = View.VISIBLE
+        }
+        binding.tvQuestion.setText("هل أنت مع ${visitWithName}؟")
+
+        binding.cbCompanion.setOnCheckedChangeListener { _, isChecked ->
+
+            if (isChecked) {
+                if (SharedPreferencesHelper.getInstance().isAllowedToMakeRate()) {
+                    binding.llComp.visibility = View.VISIBLE
+                }
+
+                binding.cbCompanion.apply {
+                    text = "نعم"
+                    setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                    buttonTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(context, R.color.colorPrimary)
+                    )
+                }
+
+            } else {
+                binding.llComp.visibility = View.GONE
+
+                binding.cbCompanion.apply {
+                    text = "لا"
+                    setTextColor(ContextCompat.getColor(context, R.color.grey_color))
+                    buttonTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(context, R.color.grey_color)
+                    )
+                }
+            }
+        }
+
+        binding.ratingBar.rating = 0f // Initial minimum rating
+
+        binding.ratingBar.setOnRatingBarChangeListener { ratingBar, rating, fromUser ->
+            if (fromUser) {
+                selectedRating = rating
+                binding.tvRate.text = "${rating.toInt()} من 5"
+            }
+        }
 
 //        val positions = listOf(
 //            getString(R.string.order),
@@ -240,42 +291,65 @@ class GpsVisitFragment : Fragment() {
                 )
                 return@setOnClickListener
             }
+            Log.d("WHATdistance", currentDistanceMeters.toString())
+            Log.d("WHATdistance", validGpsRange.toString())
+            if (currentDistanceMeters > (validGpsRange ?: 0)) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "خطأ في الموقع",
+                    description = "المسافة الحالية هي: $currentDistanceMeters متر \nيجب ألا تتجاوز $validGpsRange متر  للبدء",
+                    isSuccess = false,
+                    isLocation = true,
+                    onReport = {
+                        saveVisitGPS()
+                    },
+                )
+                return@setOnClickListener
+            }
             Log.d("WHATbtnSave", "Clicked")
 //            checkInDate = getCurrentTimeTimestamp()
 //            dateVisit = getCurrentDateTimestamp()
-            actTarget = binding.etCollectToday.text.toString()
-            comment = binding.etVisitNotes.text.toString()
-            visitTarget = binding.etObjectiveVisit.text.toString()
-
-            dateVisit = endTimer()
-
-            lifecycleScope.launch {
-                viewModel.visitsIntent.send(
-                    Visits2Intent.SaveVisitGps(
-                        SaveVisitGpsReq(
-                            party_site_id = customerPartySiteId,
-                            visit_target = visitTarget.toInt(),
-                            ord_type = saleType,
-                            visibility = visibility,
-                            grade = grade,
-                            act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
-                            another_order_type = anotherOrderType,
-                            comment = comment,
-                            check_in = checkIn,
-                            phone_visit = phoneVisit,
-                            device_type = "Android",
-                            latitude = customerLatitude.toString(),
-                            longitude = customerLongitude.toString(),
-                            zone_flag = if (currentDistanceMeters <= (validGpsRange ?: 0)) "IN"
-                            else "OUT",
-                        )
-                    )
-                )
-            }
+            saveVisitGPS()
         }
 
 //        getCustomerData()
         fetchData()
+    }
+
+    private fun saveVisitGPS() {
+        actTarget = binding.etCollectToday.text.toString()
+        comment = binding.etVisitNotes.text.toString()
+        visitTarget = binding.etObjectiveVisit.text.toString()
+
+        dateVisit = endTimer()
+
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.SaveVisitGps(
+                    SaveVisitGpsReq(
+                        party_site_id = customerPartySiteId,
+                        visit_target = visitTarget.toInt(),
+                        ord_type = saleType,
+                        visibility = visibility,
+                        grade = grade,
+                        act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
+                        another_order_type = anotherOrderType,
+                        comment = comment,
+                        check_in = checkIn,
+                        phone_visit = phoneVisit,
+                        device_type = "Android",
+                        latitude = customerLatitude.toString(),
+                        longitude = customerLongitude.toString(),
+                        zone_flag = if (currentDistanceMeters <= (validGpsRange ?: 0)) "IN"
+                        else "OUT",
+                        rate = if (binding.cbCompanion.isChecked == true) selectedRating.toString() else "",
+                        rate_comment = if (binding.cbCompanion.isChecked == true) binding.etComment.text.toString() else "",
+                        visit_with_confirmed = if (binding.cbCompanion.isChecked == true) "1" else "0",
+                        visit_with_user_id = if (visitWithUserId != null && visitWithUserId != "null") visitWithUserId else null,
+                    )
+                )
+            )
+        }
     }
 
     private fun fetchData() {
@@ -294,51 +368,63 @@ class GpsVisitFragment : Fragment() {
                                     Data::class.java
                                 )
                             var message = "${it.data.message}"
-                            if (data.is_suspended == true) {
-                                message = "${data.message}"
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = message,
-                                    isSuccess = true,
-                                    showOkButton = true,
-                                    onOk = {
-                                        MainActivity.binding.navView2.visibility = View.VISIBLE
-                                        findNavController().navigate(
-                                            R.id.toHome
-                                        )
-                                    }
-                                )
-                            } else if (data.is_suspended == false) {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = message,
-                                    isSuccess = true,
-                                    seconds = 2,
-                                    onAutoDismiss = {
-                                        if (grade == "A") {
-                                            val bundle = Bundle().apply {
-                                                putString("customerName", customerName)
-                                                putString("customerCode", customerCode)
-                                                putString("siteAddress", siteAddress)
-                                                putString(
-                                                    "customerPartySiteId",
-                                                    customerPartySiteId
-                                                )
-                                                putString("saleType", saleType)
-                                                putString("fragment", "Gps")
-                                            }
-
-                                            findNavController().navigate(
-                                                R.id.toOrderCreationCycle, bundle
-                                            )
-                                        } else {
-                                            MainActivity.binding.navView2.visibility = View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    })
-                            }
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = message,
+                                isSuccess = true,
+                                showOkButton = true,
+                                onOk = {
+                                    MainActivity.binding.navView2.visibility = View.VISIBLE
+                                    findNavController().navigate(
+                                        R.id.toHome
+                                    )
+                                }
+                            )
+//                            if (data.is_suspended == true) {
+//                                message = "${data.message}"
+//                                DialogUtils.showResultDialog(
+//                                    context = requireContext(),
+//                                    message = message,
+//                                    isSuccess = true,
+//                                    showOkButton = true,
+//                                    onOk = {
+//                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                        findNavController().navigate(
+//                                            R.id.toHome
+//                                        )
+//                                    }
+//                                )
+//                            } else if (data.is_suspended == false) {
+//                                DialogUtils.showResultDialog(
+//                                    context = requireContext(),
+//                                    message = message,
+//                                    isSuccess = true,
+//                                    seconds = 2,
+//                                    onAutoDismiss = {
+//                                        if (grade == "A") {
+//                                            val bundle = Bundle().apply {
+//                                                putString("customerName", customerName)
+//                                                putString("customerCode", customerCode)
+//                                                putString("siteAddress", siteAddress)
+//                                                putString(
+//                                                    "customerPartySiteId",
+//                                                    customerPartySiteId
+//                                                )
+//                                                putString("saleType", saleType)
+//                                                putString("fragment", "Gps")
+//                                            }
+//
+//                                            findNavController().navigate(
+//                                                R.id.toOrderCreationCycle, bundle
+//                                            )
+//                                        } else {
+//                                            MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                            findNavController().navigate(
+//                                                R.id.toHome
+//                                            )
+//                                        }
+//                                    })
+//                            }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.visitsIntent.send(

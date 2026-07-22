@@ -155,7 +155,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="end"
                                 android:layout_marginEnd="@dimen/_16sdp"
-                                android:textColor="@color/orange"
+                                android:textColor="@color/colorPrimary"
                                 android:textSize="@dimen/_10ssp"
                                 android:textStyle="bold" />
 
@@ -177,7 +177,7 @@
                         android:background="@drawable/fab_golden_shadow"
                         android:padding="@dimen/_4sdp"
                         android:src="@drawable/ic_access_card"
-                        android:tint="@color/orange" />
+                        android:tint="@color/colorPrimary" />
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
