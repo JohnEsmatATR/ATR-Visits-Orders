@@ -482,7 +482,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
                         }
 
                         findNavController().navigate(
-                            R.id.toCustomers,
+                            R.id.toTelephoneVisit,
                             bundle
                         )
 //                        val intent = Intent(

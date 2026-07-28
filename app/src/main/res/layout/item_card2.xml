@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="@dimen/_4sdp"
-    app:cardCornerRadius="@dimen/_16sdp">
+    app:cardCornerRadius="@dimen/_16sdp"
+    app:strokeColor="@color/colorPrimary"
+    app:strokeWidth="0dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,17 +35,17 @@
             android:backgroundTint="@color/green"
             android:gravity="center"
             android:padding="@dimen/_4sdp"
-            android:visibility="gone"
             android:text="تمت الزيارة"
             android:textColor="@color/white"
             android:textSize="@dimen/_8ssp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="@dimen/_8sdp"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -74,11 +77,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:padding="@dimen/_2sdp"
-                android:gravity="end"
-                android:text=""
                 android:background="@drawable/bg_rounded_grey"
                 android:backgroundTint="@color/main_color_gold2"
+                android:gravity="end"
+                android:padding="@dimen/_2sdp"
+                android:text=""
                 android:textAlignment="viewEnd"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/_10ssp"
@@ -90,10 +93,10 @@
             android:id="@+id/ivLocation"
             android:layout_width="@dimen/_35sdp"
             android:layout_height="@dimen/_35sdp"
-            android:background="@color/colorPrimary"
-            app:shapeAppearanceOverlay="@style/CircleImage"
             android:layout_gravity="center"
-            android:src="@drawable/ic_location" />
+            android:background="@color/colorPrimary"
+            android:src="@drawable/ic_location"
+            app:shapeAppearanceOverlay="@style/CircleImage" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>

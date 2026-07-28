@@ -7,17 +7,21 @@
 
     </data>
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
-        android:fillViewport="true">
+        android:orientation="vertical"
+        tools:context=".ui.home.tickets.TicketsFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/header"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/background"
-            tools:context=".ui.home.tickets.TicketsFragment">
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/btnBack"
@@ -28,6 +32,7 @@
                 android:background="@drawable/bg_circle_white"
                 android:padding="12dp"
                 android:src="@drawable/ic_arrow_right"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -35,144 +40,377 @@
                 android:id="@+id/tickets"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_12sdp"
-                android:text="مركز الدعم"
+                android:text="مركز الدعم الفنى"
                 android:textColor="@android:color/black"
-                android:textSize="24sp"
+                android:textSize="@dimen/_16ssp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <TextView
-                android:id="@+id/error"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_12sdp"
-                android:layout_marginTop="@dimen/_4sdp"
-                android:textColor="@color/red"
-                android:textSize="@dimen/_12ssp"
-                android:visibility="gone"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tickets" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/background"
+            android:fillViewport="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_64sdp"
                 android:orientation="vertical"
+                app:layout_constraintBottom_toTopOf="@+id/btnSendTicket"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/error">
+                app:layout_constraintTop_toBottomOf="@id/header">
+
+                <ImageView
+                    android:layout_width="@dimen/_50sdp"
+                    android:layout_height="@dimen/_50sdp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="center"
+                    android:layout_margin="16dp"
+                    android:background="@drawable/bg_circle_white"
+                    android:backgroundTint="@color/main_color_gold2"
+                    android:padding="@dimen/_4sdp"
+                    android:src="@drawable/ic_envelop"
+                    android:tint="@color/colorPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/error"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_12sdp"
+                    android:layout_marginTop="@dimen/_4sdp"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/_12ssp"
+                    android:visibility="gone"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/header" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginHorizontal="@dimen/_16sdp"
-                    android:layout_marginEnd="@dimen/_16sdp"
-                    android:text="عنوان البلاغ"
+                    android:layout_gravity="center"
+                    android:text="إنشاء تذكرة دعم فنى"
                     android:textColor="@android:color/black"
-                    android:textSize="@dimen/_14ssp"
+                    android:textSize="@dimen/_16ssp"
+                    android:textStyle="bold"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/OutlinedRoundedBox"
+                <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_16sdp"
-                    android:layout_marginBottom="@dimen/_8sdp"
-                    android:backgroundTint="@color/white"
-                    app:boxBackgroundColor="@color/background"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/grey_color"
-                    app:boxStrokeWidth="@dimen/_1sdp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/error">
+                    android:layout_gravity="center"
+                    android:layout_marginHorizontal="@dimen/_12sdp"
+                    android:layout_marginTop="@dimen/_8sdp"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/_16sdp">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etTitle"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawablePadding="@dimen/_12sdp"
-                        android:drawableTint="@color/black"
-                        android:hint="@string/message"
-                        android:inputType="textMultiLine"
-                        android:textSize="@dimen/_12ssp" />
+                        android:layout_height="match_parent"
+                        android:orientation="vertical">
 
-                </com.google.android.material.textfield.TextInputLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_12sdp"
+                            android:gravity="end"
+                            android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="@dimen/_32sdp"
-                    android:layout_marginEnd="@dimen/_16sdp"
-                    android:text="شرح المشكلة"
-                    android:textColor="@android:color/black"
-                    android:textSize="@dimen/_14ssp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginEnd="@dimen/_8sdp"
+                                android:gravity="end"
+                                android:text="رقم الهاتف"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp"
+                                android:textStyle="bold" />
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/OutlinedRoundedBox"
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:backgroundTint="@color/white"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@color/background"
+                            app:boxStrokeWidth="@dimen/_1sdp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/error">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etPhone"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:drawableTint="@color/black"
+                                android:hint="ادخل رقم هاتفك للتواصل"
+                                android:inputType="number"
+                                android:maxLength="11"
+                                android:textAlignment="viewEnd"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginEnd="@dimen/_8sdp"
+                                android:gravity="end"
+                                android:text="CC"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:backgroundTint="@color/white"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@color/background"
+                            app:boxStrokeWidth="@dimen/_1sdp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/error">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/etCC"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/_48sdp"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:drawableTint="@color/black"
+                                android:hint="ابحث بـ إسم المستخدم او البريد الالكتروني"
+                                android:inputType="textMultiLine"
+                                android:paddingHorizontal="@dimen/_12sdp"
+                                android:textAlignment="viewEnd"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvCCs"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginEnd="@dimen/_8sdp"
+                                android:gravity="end"
+                                android:text="عنوان المشكلة"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:backgroundTint="@color/white"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@color/background"
+                            app:boxStrokeWidth="@dimen/_1sdp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/error">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etSubtitle"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:drawableTint="@color/black"
+                                android:hint="ادخل عنوانا مختصرا"
+                                android:inputType="textMultiLine"
+                                android:textAlignment="viewEnd"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginEnd="@dimen/_8sdp"
+                                android:gravity="end"
+                                android:text="شرح المشكلة بالتفصيل"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:backgroundTint="@color/white"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@color/background"
+                            app:boxStrokeWidth="@dimen/_1sdp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/error">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etDescription"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/_100sdp"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:drawableTint="@color/black"
+                                android:textAlignment="viewEnd"
+                                android:inputType="textMultiLine"
+                                android:gravity="top"
+                                android:hint="@string/visit_notes"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:gravity="end"
+                            android:text="المرفقات"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvAttachments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginHorizontal="@dimen/_12sdp"
+                            android:layout_marginTop="@dimen/_8sdp"
+                            android:layout_marginBottom="@dimen/_12sdp"
+                            android:background="@drawable/bg_rounded_grey"
+                            android:backgroundTint="@color/main_color_gold2"
+                            android:gravity="end"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:padding="@dimen/_8sdp"
+                                android:text="اضافة مرفق (صورة أو مستند)"
+                                android:textColor="@color/colorPrimary"
+                                android:textStyle="bold" />
+
+                            <ImageView
+                                android:layout_width="@dimen/_20sdp"
+                                android:layout_height="@dimen/_20sdp"
+                                android:layout_gravity="center"
+                                android:layout_marginEnd="@dimen/_8sdp"
+                                android:src="@drawable/ic_plus"
+                                android:tint="@color/colorPrimary" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <Button
+                    android:id="@+id/btnSendTicket"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_16sdp"
-                    android:layout_marginBottom="@dimen/_8sdp"
-                    android:backgroundTint="@color/background"
-                    app:boxBackgroundColor="@color/background"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/grey_color"
-                    app:boxStrokeWidth="@dimen/_1sdp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="18dp"
+                    android:layout_marginTop="22dp"
+                    android:layout_marginEnd="18dp"
+                    android:layout_marginBottom="@dimen/_16sdp"
+                    android:padding="@dimen/_8sdp"
+                    android:text="أرسل البلاغ"
+                    android:textColor="@android:color/white"
+                    android:textSize="14dp"
+                    app:cornerRadius="@dimen/_12sdp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/error">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etDescription"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/_140sdp"
-                        android:layout_gravity="top"
-                        android:drawablePadding="@dimen/_12sdp"
-                        android:drawableTint="@color/black"
-                        android:gravity="top"
-                        android:hint="@string/message"
-                        android:inputType="textMultiLine"
-                        android:textAlignment="viewEnd"
-                        android:textSize="@dimen/_12ssp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
+                    app:layout_constraintStart_toStartOf="parent" />
 
             </LinearLayout>
 
-            <Button
-                android:id="@+id/btnSendTicket"
-                android:layout_width="match_parent"
-                android:layout_height="60dp"
-                android:layout_marginStart="18dp"
-                android:layout_marginTop="22dp"
-                android:layout_marginEnd="18dp"
-                android:layout_marginBottom="@dimen/_72sdp"
-                android:padding="@dimen/_8sdp"
-                android:text="أرسل الرسالة"
-                android:textColor="@android:color/white"
-                android:textSize="14dp"
-                app:cornerRadius="@dimen/_12sdp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+        </ScrollView>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-
-    </ScrollView>
+    </LinearLayout>
 </layout>

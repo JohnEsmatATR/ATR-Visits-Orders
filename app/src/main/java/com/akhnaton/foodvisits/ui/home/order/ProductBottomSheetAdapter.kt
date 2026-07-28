@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.ui.home.order
 
 import android.graphics.PorterDuff
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Filter
 import android.widget.Filterable
@@ -33,6 +34,7 @@ class ProductBottomSheetAdapter(
     override fun onBindViewHolder(holder: Holder, position: Int) {
         val item = filtered[position]
         holder.binding.tvProductName.text = item.PRODUCT_NAME
+        if (item.QUOTA_QTY == null) holder.binding.tvQuota.visibility = View.GONE
         holder.binding.tvQuota.text = if (item.MANDATORY_QOUTA == "1") {
             holder.binding.tvQuota.setTextColor(holder.binding.root.resources.getColor(R.color.red))
             "كوتة إجبارية : ${item.QUOTA_QTY}"

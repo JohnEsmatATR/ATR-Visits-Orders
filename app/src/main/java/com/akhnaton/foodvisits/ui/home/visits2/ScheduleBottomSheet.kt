@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.data.model.getSalesMan.SalesMan
@@ -112,5 +113,13 @@ class ScheduleBottomSheet(
 
             dismiss()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        dialog?.window?.setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN
+        )
     }
 }

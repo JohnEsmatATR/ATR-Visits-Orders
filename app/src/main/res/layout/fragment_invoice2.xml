@@ -97,20 +97,21 @@
                             android:id="@+id/tvInvoice"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="@dimen/_4sdp"
                             android:layout_weight="1"
                             android:gravity="center"
                             android:textStyle="bold" />
 
-                    </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/btnBack"
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/bg_circle_white"
+                            android:padding="15dp"
+                            android:src="@drawable/ic_arrow_right" />
 
-                    <ImageButton
-                        android:id="@+id/btnBack"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/bg_circle_white"
-                        android:padding="15dp"
-                        android:src="@drawable/ic_arrow_right" />
+                    </LinearLayout>
 
                 </RelativeLayout>
 
@@ -139,50 +140,61 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                        android:orientation="horizontal"
                         android:padding="@dimen/_8sdp">
 
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:layout_marginEnd="@dimen/_8sdp"
-                            android:text="اختر الصنف"
-                            android:textColor="#666"
-                            android:textSize="@dimen/_10ssp"
-                            android:textStyle="bold" />
+                        <ImageView
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_20sdp"
+                            android:layout_gravity="center"
+                            android:src="@drawable/ic_search" />
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            style="@style/OutlinedRoundedBox"
-                            android:layout_width="match_parent"
+                        <LinearLayout
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="@dimen/_8sdp"
-                            android:layout_marginTop="@dimen/_4sdp"
-                            android:layout_marginBottom="@dimen/_8sdp"
-                            app:boxBackgroundColor="@color/background"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxStrokeColor="@android:color/transparent"
-                            app:boxStrokeWidth="0dp"
-                            app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintStart_toStartOf="parent"
-                            app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
+                            android:layout_weight="1"
+                            android:orientation="vertical">
 
                             <TextView
-                                android:id="@+id/etSearch"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:layout_marginEnd="@dimen/_8sdp"
+                                android:text="اختر الصنف"
+                                android:textColor="#666"
+                                android:textSize="@dimen/_10ssp"
+                                android:textStyle="bold" />
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/OutlinedRoundedBox"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:drawableStart="@drawable/ic_search"
-                                android:drawablePadding="@dimen/_12sdp"
-                                android:drawableTint="@color/black"
-                                android:hint="@string/search"
-                                android:inputType="textEmailAddress"
-                                android:text=""
-                                android:textAlignment="viewEnd" />
+                                android:layout_marginHorizontal="@dimen/_8sdp"
+                                android:layout_marginTop="@dimen/_4sdp"
+                                android:layout_marginBottom="@dimen/_8sdp"
+                                app:boxBackgroundColor="@color/background"
+                                app:boxCornerRadiusBottomEnd="12dp"
+                                app:boxCornerRadiusBottomStart="12dp"
+                                app:boxCornerRadiusTopEnd="12dp"
+                                app:boxCornerRadiusTopStart="12dp"
+                                app:boxStrokeColor="@android:color/transparent"
+                                app:boxStrokeWidth="0dp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
 
-                        </com.google.android.material.textfield.TextInputLayout>
+                                <TextView
+                                    android:id="@+id/etSearch"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:hint="@string/search"
+                                    android:inputType="textEmailAddress"
+                                    android:text=""
+                                    android:textAlignment="viewEnd" />
+
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                        </LinearLayout>
 
                     </LinearLayout>
 
@@ -296,12 +308,12 @@
                     android:layout_marginHorizontal="@dimen/_8sdp"
                     android:nestedScrollingEnabled="false" />
 
-<!--                <androidx.recyclerview.widget.RecyclerView-->
-<!--                    android:id="@+id/rvResults"-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_marginHorizontal="@dimen/_8sdp"-->
-<!--                    android:nestedScrollingEnabled="false" />-->
+                <!--                <androidx.recyclerview.widget.RecyclerView-->
+                <!--                    android:id="@+id/rvResults"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginHorizontal="@dimen/_8sdp"-->
+                <!--                    android:nestedScrollingEnabled="false" />-->
 
                 <!-- Empty View -->
 
@@ -318,7 +330,8 @@
                         android:layout_width="@dimen/_200sdp"
                         android:layout_height="@dimen/_200sdp"
                         android:alpha="0.7"
-                        android:src="@drawable/zs_no_products" />
+                        android:src="@drawable/zs_no_products"
+                        android:visibility="gone" />
 
                     <TextView
                         android:layout_width="wrap_content"

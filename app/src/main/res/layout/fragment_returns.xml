@@ -327,6 +327,7 @@
                         android:layout_width="@dimen/_200sdp"
                         android:layout_height="@dimen/_200sdp"
                         android:alpha="0.7"
+                        android:visibility="gone"
                         android:src="@drawable/zs_no_products" />
 
                     <TextView

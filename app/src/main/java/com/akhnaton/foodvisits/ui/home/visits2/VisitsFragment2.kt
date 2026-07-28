@@ -16,7 +16,9 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -118,12 +120,14 @@ class VisitsFragment2 : Fragment() {
         }
 
         binding.btnCopyVisits.setOnClickListener {
+
+//            binding.btnCopyVisits.isEnabled = false
+
             if (allReps.isEmpty()) {
                 getSalesMan()
-                return@setOnClickListener
+            } else {
+                showScheduleBottomSheet()
             }
-
-            showScheduleBottomSheet()
         }
 
         binding.swipeRefresh.setColorSchemeColors(
@@ -147,16 +151,18 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun showScheduleBottomSheet() {
-
         val tag = "schedule"
+
+        if (parentFragmentManager.isStateSaved) return
 
         if (parentFragmentManager.findFragmentByTag(tag) != null)
             return
 
+//        binding.btnCopyVisits.isEnabled = true
+
         ScheduleBottomSheet(
             employees = allReps,
             listener = object : ScheduleBottomSheet.Listener {
-
                 override fun onConfirm(
                     employee: SalesMan,
                     date: String
@@ -185,7 +191,8 @@ class VisitsFragment2 : Fragment() {
                 allCustomers.filter {
                     it.customer_name.contains(keyword, true) ||
                             it.customer_code.contains(keyword, true) ||
-                            it.customer_address.contains(keyword, true)
+                            it.customer_address.contains(keyword, true) ||
+                            it.visit_with_name.contains(keyword, true)
                 }.toMutableList()
             }
         if (filteredList.isEmpty()) {
@@ -208,7 +215,7 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun getSalesMan() {
-        binding.btnCopyVisits.isEnabled = false
+//        binding.btnCopyVisits.isEnabled = false
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 Visits2Intent.GetSalesMan
@@ -217,104 +224,109 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun fetchData() {
-        lifecycleScope.launch {
-            viewModel.status.collect {
-                when (it) {
-                    is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> {
-                        if (!binding.swipeRefresh.isRefreshing) {
-                            dialog.show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect {
+                    when (it) {
+                        is Visits2Status.Idle -> {}
+                        is Visits2Status.Loading -> {
+                            if (!binding.swipeRefresh.isRefreshing) {
+                                dialog.show()
+                            }
                         }
-                    }
 
-                    is Visits2Status.GetVisitPlan -> {
-                        dialog.dismiss()
-                        binding.swipeRefresh.isRefreshing = false
-                        if (it.data.status == 200) {
-                            binding.tvDate.setText(DateUtils.getTodayDate())
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.getVisitPlan.Data::class.java
-                                )
-                            binding.tvDay.setText(data.day)
-                            binding.tvDate.setText(data.date)
-                            allCustomers.clear()
-                            allCustomers = data.customer_visit_plan.toMutableList()
-                            setRecycler(allCustomers)
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                        is Visits2Status.GetVisitPlan -> {
+                            dialog.dismiss()
+                            binding.swipeRefresh.isRefreshing = false
+                            if (it.data.status == 200) {
+                                binding.tvDate.setText(DateUtils.getTodayDate())
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.getVisitPlan.Data::class.java
                                     )
+                                binding.tvDay.setText(data.day)
+                                binding.tvDate.setText(data.date)
+                                allCustomers.clear()
+                                allCustomers = data.customer_visit_plan.toMutableList()
+                                filterCustomers(
+                                    binding.etSearch.text.toString().trim()
+                                )
+//                                setRecycler(allCustomers)
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.visitsIntent.send(
+                                        Visits2Intent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
                         }
-                    }
 
-                    is Visits2Status.GetSalesMan -> {
-                        dialog.dismiss()
-                        binding.swipeRefresh.isRefreshing = false
-                        if (it.data.status == 200) {
-                            binding.btnCopyVisits.isEnabled = true
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.getSalesMan.Data::class.java
-                                )
-                            allReps = data.salesMan.toMutableList()
-                            showScheduleBottomSheet()
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                        is Visits2Status.GetSalesMan -> {
+                            dialog.dismiss()
+                            binding.swipeRefresh.isRefreshing = false
+//                            binding.btnCopyVisits.isEnabled = true
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.getSalesMan.Data::class.java
                                     )
+                                allReps = data.salesMan.toMutableList()
+                                showScheduleBottomSheet()
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.visitsIntent.send(
+                                        Visits2Intent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
                         }
-                    }
 
-                    is Visits2Status.CopyDayPlan -> {
-                        dialog.dismiss()
-                        binding.swipeRefresh.isRefreshing = false
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.copyDayPlan.Data::class.java
-                                )
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = "نسخ: ${data.copied}, تخطي: ${data.skipped}",
-                                isSuccess = true,
-                                showOkButton = true,
-                                onOk = {
-                                    findNavController().popBackStack()
-                                    binding.swipeRefresh.isRefreshing = true
+                        is Visits2Status.CopyDayPlan -> {
+                            dialog.dismiss()
+                            binding.swipeRefresh.isRefreshing = false
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.copyDayPlan.Data::class.java
+                                    )
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "نسخ: ${data.copied}, تخطي: ${data.skipped}",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        loadVisitPlan()
+//                                    findNavController().popBackStack()
+//                                        binding.swipeRefresh.isRefreshing = true
 //                                    findNavController().navigate(
 //                                        R.id.toHome,
 //                                        null,
@@ -323,74 +335,75 @@ class VisitsFragment2 : Fragment() {
 //                                            true
 //                                        ).build()
 //                                    )
-                                }
-                            )
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
+                                    }
                                 )
-                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
-                        }
-                    }
-
-                    is Visits2Status.RefreshToken -> {
-                        dialog.hide()
-                        binding.swipeRefresh.isRefreshing = false
-                        if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            loadVisitPlan()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance()
-                                        .logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(),
-                                            LoginActivity2::class.java
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.visitsIntent.send(
+                                        Visits2Intent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
                                         )
                                     )
-                                    requireActivity().finishAffinity()
                                 }
-                            )
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
                         }
+
+                        is Visits2Status.RefreshToken -> {
+                            dialog.hide()
+                            binding.swipeRefresh.isRefreshing = false
+                            if (it.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${it.data.message}")
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                    )
+                                SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                loadVisitPlan()
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance()
+                                            .logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    }
+                                )
+                            }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 
-                    }
+                        }
 
-                    is Visits2Status.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
-                        binding.swipeRefresh.isRefreshing = false
+                        is Visits2Status.Error -> {
+                            Log.d(TAG, "fetchData: ${it.error}")
+                            dialog.hide()
+                            binding.swipeRefresh.isRefreshing = false
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
-                    }
+                        }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
         }

@@ -288,12 +288,21 @@ class OrdersMenuFragment : Fragment(),
 
                     }
 
-//                    is Visits2Status.Error -> {
-//                        Log.d(TAG, "fetchData: ${it.error}")
-//                        dialog.hide()
-//
-////                        binding.tryAgainButtons.root.visibility = View.VISIBLE
-//                    }
+                    is Visits2Status.Error -> {
+                        Log.d(TAG, "fetchData: ${it.error}")
+                        dialog.hide()
+
+                        DialogUtils.showResultDialog(
+                            context = requireContext(),
+                            message = it.error.toString(),
+                            isSuccess = false,
+                            showOkButton = true,
+                            onOk = {
+//                                    findNavController().popBackStack()
+                            }
+                        )
+//                        binding.tryAgainButtons.root.visibility = View.VISIBLE
+                    }
 
                     else -> {}
                 }

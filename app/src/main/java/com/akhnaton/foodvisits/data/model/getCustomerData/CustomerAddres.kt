@@ -11,5 +11,6 @@ data class CustomerAddres(
     val PROVINCE: String,
     val SITE_ADDRESS: String,
     val TEAM_NAME: String,
-    val TEL: List<Any>
+    val TEL: List<Any>,
+    var isSelected: Boolean = false
 )

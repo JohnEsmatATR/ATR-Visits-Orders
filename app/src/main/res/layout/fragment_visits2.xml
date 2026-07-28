@@ -12,141 +12,135 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:background="@color/background"
-            android:fillViewport="true">
+            android:orientation="vertical">
 
+            <!-- Header -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:background="@color/white"
+                android:orientation="horizontal">
 
-                <!-- Header -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@color/white"
-                    android:orientation="horizontal">
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnCopyVisits"
-                        android:layout_width="wrap_content"
-                        android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:layout_marginEnd="@dimen/_4sdp"
-                        android:layout_marginStart="@dimen/_8sdp"
-                        android:backgroundTint="#FF8C3A"
-                        android:text="نسخ زيارات المندوب"
-                        android:textColor="@android:color/white"
-                        app:cornerRadius="@dimen/_8sdp" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:padding="@dimen/_8sdp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/tvDay"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:text=""
-                            android:textSize="@dimen/_18ssp"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/tvDate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:text=""
-                            android:textSize="@dimen/_12ssp"
-                            android:textColor="@color/gray" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/searchLayout"
-                    style="@style/OutlinedRoundedBox"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_8sdp"
-                    android:layout_marginTop="@dimen/_8sdp"
-                    android:layout_marginBottom="@dimen/_8sdp"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@android:color/transparent"
-                    app:boxStrokeWidth="0dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:drawableStart="@drawable/ic_search"
-                        android:drawablePadding="@dimen/_12sdp"
-                        android:textAlignment="viewEnd"
-                        android:text=""
-                        android:drawableTint="@color/black"
-                        android:hint="@string/search_customer_name_code"
-                        android:inputType="textEmailAddress" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="@dimen/_80sdp"
-                    android:layout_marginHorizontal="@dimen/_8sdp"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_card2" />
-
-                <LinearLayout
-                    android:id="@+id/ll_zero_state"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCopyVisits"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
                     android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:visibility="gone">
+                    android:layout_marginEnd="@dimen/_4sdp"
+                    android:layout_marginStart="@dimen/_8sdp"
+                    android:backgroundTint="#FF8C3A"
+                    android:text="نسخ زيارات المندوب"
+                    android:textColor="@android:color/white"
+                    app:cornerRadius="@dimen/_8sdp" />
 
-                    <ImageView
-                        android:layout_width="@dimen/_200sdp"
-                        android:layout_height="@dimen/_200sdp"
-                        android:layout_gravity="center"
-                        android:alpha="0.7"
-                        android:src="@drawable/zs_no_products" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:padding="@dimen/_8sdp"
+                    android:orientation="vertical">
 
                     <TextView
+                        android:id="@+id/tvDay"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginBottom="@dimen/_50sdp"
-                        android:alpha="0.7"
-                        android:gravity="center"
-                        android:text="@string/no_selected_products"
-                        android:textColor="@color/colorPrimary"
+                        android:layout_gravity="end"
+                        android:text=""
                         android:textSize="@dimen/_18ssp"
+                        android:textColor="@color/black"
                         android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text=""
+                        android:textSize="@dimen/_12ssp"
+                        android:textColor="@color/gray" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </ScrollView>
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/searchLayout"
+                style="@style/OutlinedRoundedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_8sdp"
+                android:layout_marginTop="@dimen/_8sdp"
+                android:layout_marginBottom="@dimen/_8sdp"
+                app:boxBackgroundColor="@color/white"
+                app:boxCornerRadiusBottomEnd="12dp"
+                app:boxCornerRadiusBottomStart="12dp"
+                app:boxCornerRadiusTopEnd="12dp"
+                app:boxCornerRadiusTopStart="12dp"
+                app:boxStrokeColor="@android:color/transparent"
+                app:boxStrokeWidth="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etSearch"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/ic_search"
+                    android:drawablePadding="@dimen/_12sdp"
+                    android:textAlignment="viewEnd"
+                    android:text=""
+                    android:drawableTint="@color/black"
+                    android:hint="@string/search_customer_name_code"
+                    android:inputType="textEmailAddress" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="@dimen/_80sdp"
+                android:layout_marginHorizontal="@dimen/_8sdp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_card2" />
+
+            <LinearLayout
+                android:id="@+id/ll_zero_state"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="@dimen/_200sdp"
+                    android:layout_height="@dimen/_200sdp"
+                    android:layout_gravity="center"
+                    android:alpha="0.7"
+                    android:visibility="gone"
+                    android:src="@drawable/zs_no_products" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="@dimen/_50sdp"
+                    android:alpha="0.7"
+                    android:gravity="center"
+                    android:text="@string/no_selected_products"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/_18ssp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

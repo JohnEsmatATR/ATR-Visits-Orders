@@ -31,6 +31,7 @@ import com.akhnaton.foodvisits.data.statusValue.login.LoginIntent
 import com.akhnaton.foodvisits.data.statusValue.login.LoginState
 import com.akhnaton.foodvisits.databinding.ActivityLogin2Binding
 import com.akhnaton.foodvisits.databinding.ActivityLoginBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
@@ -156,15 +157,27 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                             finishAffinity()
                         } else {
                             dialog.hide()
-                            binding.txtError.text = it.login.message
+//                            binding.txtError.text = it.login.message
+                            DialogUtils.showResultDialog(
+                                context = this@LoginActivity2,
+                                message = it.login.message,
+                                isSuccess = false,
+                                showOkButton = true
+                            )
                         }
                     }
 
                     is LoginState.Error -> {
                         Log.d(TAG, "makeLogin Error: $it")
                         dialog.hide()
-                        val error = "Something went wrong"
-                        binding.txtError.text = error
+//                        val error = "Something went wrong"
+//                        binding.txtError.text = error
+                        DialogUtils.showResultDialog(
+                            context = this@LoginActivity2,
+                            message = it.error.toString(),
+                            isSuccess = false,
+                            showOkButton = true
+                        )
                     }
                 }
             }

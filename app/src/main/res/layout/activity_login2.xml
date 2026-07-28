@@ -45,6 +45,7 @@
                     android:layout_height="@dimen/_50sdp"
                     android:background="@color/white"
                     android:scaleType="centerCrop"
+                    android:layout_gravity="center"
                     android:src="@drawable/ic_logo"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +61,7 @@
                 android:layout_gravity="end"
                 android:layout_marginHorizontal="@dimen/_24sdp"
                 android:layout_marginTop="@dimen/_24sdp"
-                android:text="ATR Visits"
+                android:text="@string/atr_visits"
                 android:textColor="@color/colorPrimary"
                 android:textSize="@dimen/_28ssp"
                 android:textStyle="bold"
@@ -72,7 +73,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
                 android:layout_marginHorizontal="@dimen/_24sdp"
-                android:text="إدارة الزيارات بطريقة أسهل"
+                android:text="@string/login_subtitle"
                 android:textColor="@color/grey_color"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -84,9 +85,9 @@
                 android:id="@+id/cardLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="24dp"
+                android:layout_marginHorizontal="@dimen/_24sdp"
                 android:layout_marginTop="32dp"
-                app:cardCornerRadius="24dp"
+                app:cardCornerRadius="@dimen/_20sdp"
                 app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
@@ -103,13 +104,12 @@
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp"
                         android:backgroundTint="@color/background"
                         app:boxBackgroundColor="@color/background"
-                        app:boxCornerRadiusBottomEnd="12dp"
-                        app:boxCornerRadiusBottomStart="12dp"
-                        app:boxCornerRadiusTopEnd="12dp"
-                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
+                        app:boxCornerRadiusBottomStart="@dimen/_12sdp"
+                        app:boxCornerRadiusTopEnd="@dimen/_12sdp"
+                        app:boxCornerRadiusTopStart="@dimen/_12sdp"
                         app:boxStrokeColor="@android:color/transparent"
                         app:boxStrokeWidth="0dp"
                         app:endIconDrawable="@drawable/ic_person"
@@ -124,7 +124,7 @@
                             android:layout_height="wrap_content"
                             android:drawablePadding="@dimen/_12sdp"
                             android:drawableTint="@color/black"
-                            android:hint="إسم المستخدم"
+                            android:hint="@string/username2"
                             android:inputType="text"
                             android:textAlignment="viewEnd"
                             android:textSize="@dimen/_12ssp" />
@@ -134,20 +134,20 @@
                     <!-- Password -->
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:layout_width="match_parent"
+                        android:layout_marginTop="@dimen/_6sdp"
                         android:layout_height="wrap_content">
 
                         <com.google.android.material.textfield.TextInputLayout
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="@dimen/_8sdp"
                             android:backgroundTint="@color/background"
                             android:textAlignment="viewEnd"
                             app:boxBackgroundColor="@color/background"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
+                            app:boxCornerRadiusBottomStart="@dimen/_12sdp"
+                            app:boxCornerRadiusTopEnd="@dimen/_12sdp"
+                            app:boxCornerRadiusTopStart="@dimen/_12sdp"
                             app:boxStrokeColor="@android:color/transparent"
                             app:boxStrokeWidth="0dp"
                             app:endIconDrawable="@drawable/ic_person"
@@ -162,7 +162,7 @@
                                 android:layout_height="wrap_content"
                                 android:drawablePadding="@dimen/_12sdp"
                                 android:drawableTint="@color/black"
-                                android:hint="كلمة المرور"
+                                android:hint="@string/password2"
                                 android:inputType="text"
                                 android:textAlignment="viewEnd"
                                 android:textSize="@dimen/_12ssp" />
@@ -183,30 +183,30 @@
 
                     </androidx.constraintlayout.widget.ConstraintLayout>            <!-- Login Button -->
 
-                    <TextView
-                        android:id="@+id/txtError"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="@dimen/_4sdp"
-                        android:text=""
-                        android:textColor="@color/red"
-                        android:textSize="@dimen/_10ssp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent" />
+<!--                    <TextView-->
+<!--                        android:id="@+id/txtError"-->
+<!--                        android:layout_width="wrap_content"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:layout_gravity="center"-->
+<!--                        android:layout_marginTop="@dimen/_4sdp"-->
+<!--                        android:text=""-->
+<!--                        android:textColor="@color/red"-->
+<!--                        android:textSize="@dimen/_10ssp"-->
+<!--                        android:textStyle="bold"-->
+<!--                        app:layout_constraintEnd_toEndOf="parent"-->
+<!--                        app:layout_constraintStart_toStartOf="parent" />-->
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnLogin"
                         android:layout_width="match_parent"
-                        android:layout_height="@dimen/_48sdp"
-                        android:layout_marginTop="24dp"
+                        android:layout_height="@dimen/_52sdp"
+                        android:layout_marginTop="@dimen/_36sdp"
                         android:backgroundTint="@color/colorPrimary"
-                        android:text="دخول"
+                        android:text="@string/login2"
                         android:textColor="#FFFFFF"
-                        android:textSize="20sp"
+                        android:textSize="@dimen/_16ssp"
                         android:textStyle="bold"
-                        app:cornerRadius="@dimen/_8sdp" />
+                        app:cornerRadius="@dimen/_12sdp" />
 
                 </LinearLayout>
 

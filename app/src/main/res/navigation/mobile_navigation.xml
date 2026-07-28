@@ -204,14 +204,24 @@
             app:destination="@id/customerDetailsFragment" />
     </fragment>
 
+<!--    <fragment-->
+<!--        android:id="@+id/visitPhoneFragment"-->
+<!--        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsFragment2"-->
+<!--        android:label="fragment_visit_phone"-->
+<!--        tools:layout="@layout/fragment_phone_visits2" >-->
+<!--        <action-->
+<!--            android:id="@+id/toCustomers"-->
+<!--            app:destination="@id/customersFragment" />-->
+<!--    </fragment>-->
+
     <fragment
         android:id="@+id/visitPhoneFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsFragment2"
+        android:name="com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitStepsFragment"
         android:label="fragment_visit_phone"
-        tools:layout="@layout/fragment_phone_visits2" >
+        tools:layout="@layout/fragment_phone_visit_steps" >
         <action
-            android:id="@+id/toCustomers"
-            app:destination="@id/customersFragment" />
+            android:id="@+id/toTelephoneVisit"
+            app:destination="@id/telephoneVisitFragment" />
     </fragment>
 
 </navigation>

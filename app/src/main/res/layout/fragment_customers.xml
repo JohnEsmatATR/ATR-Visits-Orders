@@ -85,13 +85,13 @@
                     style="@style/OutlinedRoundedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_8sdp"
+                    android:layout_marginHorizontal="@dimen/_12sdp"
                     android:layout_marginBottom="@dimen/_8sdp"
                     app:boxBackgroundColor="@color/white"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
+                    app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
+                    app:boxCornerRadiusBottomStart="@dimen/_12sdp"
+                    app:boxCornerRadiusTopEnd="@dimen/_12sdp"
+                    app:boxCornerRadiusTopStart="@dimen/_12sdp"
                     app:boxStrokeColor="@android:color/transparent"
                     app:boxStrokeWidth="0dp"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -121,6 +121,7 @@
                     <ImageView
                         android:layout_width="@dimen/_200sdp"
                         android:layout_height="@dimen/_200sdp"
+                        android:visibility="gone"
                         android:alpha="0.7"
                         android:src="@drawable/zs_no_products" />
 
@@ -143,7 +144,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginHorizontal="@dimen/_12sdp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_card1" />
+                    tools:listitem="@layout/item_customer_unlocked" />
 
             </LinearLayout>
 

@@ -163,7 +163,9 @@
     </string>
 
     <string name="determine_itinerary_visit">تحديد مسار الزيارة</string>
+    <string name="determine_itinerary_phone_visit">تحديد مسار الزيارة الهاتفية</string>
     <string name="choose_type_sale">اختر نوع البيع</string>
+    <string name="chosen_type_sale">نوع البيع المختار</string>
     <string name="please_specify_target_sales_type_begin_creating_visit_plan">يرجي تحديد نوع البيع المستهدف للبدء بانشاء خطة الزيارة</string>
     <string name="change_type_sale">تغيير نوع البيع</string>
     <string name="search_customer_name_code">ابحث باسم العميل أو الكود...</string>
@@ -210,5 +212,15 @@
     <string name="saved">المحفوظة</string>
     <string name="sent">المرسلة</string>
     <string name="more">More</string>
+    <string name="atr_visits">ATR Orders</string>
+    <string name="login_subtitle">إدارة الزيارات والطلبيات بطريقة أسهل</string>
+    <string name="login2">دخول</string>
+    <string name="username2">إسم المستخدم</string>
+    <string name="password2">كلمة المرور</string>
+    <string name="edit">تعديل</string>
+    <string name="choose_customer2">اختر العميل</string>
+    <string name="chosen_customer">العميل المختار</string>
+    <string name="choose_visit_address">اختر عنوان الزيارة</string>
+    <string name="start_visit">بدء الزيارة</string>
 
 </resources>
