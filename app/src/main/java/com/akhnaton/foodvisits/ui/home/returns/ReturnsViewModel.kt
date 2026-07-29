@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.returns
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.model.saveReturn.SaveReturnReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
@@ -47,6 +48,10 @@ class ReturnsViewModel : ViewModel() {
                         it.priceListId,
                     )
 
+                    is ReturnsIntent.SaveReturn -> saveReturn(
+                        it.saveReturnReq
+                    )
+
                     is ReturnsIntent.GetItemDetails -> getItemDetails(
                         it.itemId,
                         it.priceList,
@@ -86,6 +91,22 @@ class ReturnsViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "startReturnDataVIEWMODEL2 ${e.message}")
+                ReturnsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun saveReturn(saveReturnReq: SaveReturnReq) {
+        Log.d("WHAT", "saveReturnVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = ReturnsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "saveReturnVIEWMODEL1")
+                ReturnsStatus.SaveReturn(
+                    ReturnsRepository().saveReturn(saveReturnReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "saveReturnVIEWMODEL2 ${e.message}")
                 ReturnsStatus.Error(e.message)
             }
         }

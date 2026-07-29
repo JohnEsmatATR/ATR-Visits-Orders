@@ -35,11 +35,11 @@
 <!--        android:title="@string/print"-->
 <!--        app:showAsAction="ifRoom" />-->
 
-<!--    <item-->
-<!--        android:id="@+id/ordersMenuFragment"-->
-<!--        android:icon="@drawable/ic_orders_menu"-->
-<!--        android:title="طلبيات"-->
-<!--        app:showAsAction="ifRoom" />-->
+    <item
+        android:id="@+id/ordersMenuFragment"
+        android:icon="@drawable/ic_orders_menu"
+        android:title="طلبيات"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/moreFragment"

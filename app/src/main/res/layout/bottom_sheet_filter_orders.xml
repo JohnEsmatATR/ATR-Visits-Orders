@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:text="الحالة"
             android:textStyle="bold" />
 
@@ -38,26 +38,36 @@
 
             <RadioButton
                 android:id="@+id/rbAll"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:background="@drawable/bg_rounded_grey"
+                android:backgroundTint="@color/background"
                 android:layoutDirection="rtl"
+                android:paddingHorizontal="@dimen/_8sdp"
                 android:text="الكل" />
 
             <RadioButton
                 android:id="@+id/rbSaved"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:layout_marginVertical="@dimen/_4sdp"
+                android:background="@drawable/bg_rounded_grey"
+                android:backgroundTint="@color/background"
                 android:layoutDirection="rtl"
+                android:paddingHorizontal="@dimen/_8sdp"
                 android:text="محفوظة" />
 
             <RadioButton
                 android:id="@+id/rbSent"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
+                android:background="@drawable/bg_rounded_grey"
+                android:backgroundTint="@color/background"
                 android:layoutDirection="rtl"
+                android:paddingHorizontal="@dimen/_8sdp"
                 android:text="مرسلة" />
 
         </RadioGroup>
@@ -73,6 +83,7 @@
             app:boxCornerRadiusTopEnd="@dimen/_12sdp"
             app:boxCornerRadiusTopStart="@dimen/_12sdp"
             app:boxStrokeColor="@android:color/transparent"
+            android:layout_marginTop="@dimen/_16sdp"
             app:boxStrokeWidth="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -83,11 +94,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:clickable="true"
-                android:textAlignment="viewEnd"
                 android:drawablePadding="@dimen/_12sdp"
                 android:focusable="false"
                 android:hint="من تاريخ"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textAlignment="viewEnd" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,10 +124,10 @@
                 android:layout_height="wrap_content"
                 android:clickable="true"
                 android:drawablePadding="@dimen/_12sdp"
-                android:textAlignment="viewEnd"
                 android:focusable="false"
                 android:hint="إلى تاريخ"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"
+                android:textAlignment="viewEnd" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -128,8 +139,8 @@
             android:layout_height="@dimen/_50sdp"
             android:layout_marginBottom="@dimen/_8sdp"
             android:backgroundTint="@color/background"
-            app:boxBackgroundColor="@color/background"
             android:layoutDirection="rtl"
+            app:boxBackgroundColor="@color/background"
             app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
             app:boxCornerRadiusBottomStart="@dimen/_12sdp"
             app:boxCornerRadiusTopEnd="@dimen/_12sdp"
@@ -142,13 +153,13 @@
                 android:id="@+id/etOrderType"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:textAlignment="viewEnd"
-                android:paddingEnd="@dimen/_12sdp"
                 android:clickable="true"
                 android:drawablePadding="@dimen/_12sdp"
                 android:focusable="false"
                 android:hint="نوع الطلب"
                 android:inputType="none"
+                android:paddingEnd="@dimen/_12sdp"
+                android:textAlignment="viewEnd"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_12ssp" />
 
@@ -159,7 +170,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="@dimen/_24sdp"
             android:orientation="horizontal">
 
             <com.google.android.material.button.MaterialButton
@@ -167,10 +178,10 @@
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_50sdp"
                 android:layout_weight="1"
-                app:cornerRadius="@dimen/_12sdp"
                 android:backgroundTint="@color/background"
                 android:text="مسح"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                app:cornerRadius="@dimen/_12sdp" />
 
             <Space
                 android:layout_width="12dp"
@@ -180,11 +191,11 @@
                 android:id="@+id/btnApply"
                 android:layout_width="0dp"
                 android:layout_height="@dimen/_50sdp"
-                android:backgroundTint="@color/colorPrimary"
-                android:textColor="@color/white"
-                app:cornerRadius="@dimen/_12sdp"
                 android:layout_weight="1"
-                android:text="تطبيق" />
+                android:backgroundTint="@color/colorPrimary"
+                android:text="تطبيق"
+                android:textColor="@color/white"
+                app:cornerRadius="@dimen/_12sdp" />
 
         </LinearLayout>
 

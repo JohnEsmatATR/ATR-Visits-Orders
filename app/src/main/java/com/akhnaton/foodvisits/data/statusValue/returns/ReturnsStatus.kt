@@ -17,6 +17,7 @@ import com.akhnaton.foodvisits.data.model.order.Product
 import com.akhnaton.foodvisits.data.model.order.SaveOrderResponse
 import com.akhnaton.foodvisits.data.model.order.SavedOrderResponse
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
+import com.akhnaton.foodvisits.data.model.saveReturn.SaveReturnRes
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsRes
 import com.akhnaton.foodvisits.data.model.startReturnData.StartReturnDataRes
 import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
@@ -28,6 +29,7 @@ sealed class ReturnsStatus {
     object Loading : ReturnsStatus()
     data class GetPriceLists(val data: GetPriceListsRes) : ReturnsStatus()
     data class StartReturnData(val data: StartReturnDataRes) : ReturnsStatus()
+    data class SaveReturn(val data: SaveReturnRes) : ReturnsStatus()
     data class GetItemDetails(val data: GetItemDetailsRes) : ReturnsStatus()
     data class RefreshToken(val data: RefreshTokenRes) : ReturnsStatus()
     data class Error(val error: String?) : ReturnsStatus()

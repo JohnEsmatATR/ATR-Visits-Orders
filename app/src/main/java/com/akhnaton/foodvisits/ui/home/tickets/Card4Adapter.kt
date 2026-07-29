@@ -15,7 +15,7 @@ class Card4Adapter(
     private val listener: OnItemClickListener
 ) : RecyclerView.Adapter<Card4Adapter.ViewHolder>() {
 
-    private var mList: List<String> = emptyList()
+    private val mList = mutableListOf<String>()
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
@@ -44,7 +44,8 @@ class Card4Adapter(
     }
 
     fun setList(list: List<String>) {
-        mList = list
+        mList.clear()
+        mList.addAll(list)
         notifyDataSetChanged()
     }
 
@@ -52,7 +53,7 @@ class Card4Adapter(
         itemView: View
     ) : RecyclerView.ViewHolder(itemView) {
 
-        val ivName: ImageView =
+        val ivClose: ImageView =
             itemView.findViewById(R.id.ivClose)
 
         val tvName: TextView =
@@ -60,7 +61,7 @@ class Card4Adapter(
 
         init {
 
-            ivName.setOnClickListener {
+            ivClose.setOnClickListener {
 
                 val position = adapterPosition
 

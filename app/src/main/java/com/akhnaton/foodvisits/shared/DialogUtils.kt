@@ -88,6 +88,11 @@ object DialogUtils {
             }
         }
 
+        if (description != null) {
+            tvDescription.visibility = View.VISIBLE
+            tvDescription.text = description
+        }
+
         if (showOkButton) {
 
             btnOk.visibility = View.VISIBLE

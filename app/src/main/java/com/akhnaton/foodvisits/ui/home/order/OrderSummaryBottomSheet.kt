@@ -10,9 +10,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class OrderSummaryBottomSheet(
     private val selectedCount: String,
-    private val beforeTax: String,
-    private val tax: String,
-    private val afterTax: String,
+    private val beforeTax: String? = null,
+    private val tax: String? = null,
+    private val afterTax: String? = null,
+    private val total: String? = null,
     private val listener: Listener
 ) : BottomSheetDialogFragment() {
 
@@ -38,9 +39,25 @@ class OrderSummaryBottomSheet(
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         binding.tvSelectedCount.text = "${selectedCount} صنف"
-        binding.tvBeforeTax.text = "${beforeTax} ${context?.getString(R.string.currency)}"
-        binding.tvTax.text = "$tax ${context?.getString(R.string.currency)}"
-        binding.tvAfterTax.text = "$afterTax ${context?.getString(R.string.currency)}"
+        if (beforeTax == null)
+            binding.llBeforeTax.visibility = View.GONE
+        else
+            binding.tvBeforeTax.text = "${beforeTax} ${context?.getString(R.string.currency)}"
+
+        if (tax == null)
+            binding.llTax.visibility = View.GONE
+        else
+            binding.tvTax.text = "$tax ${context?.getString(R.string.currency)}"
+
+        if (afterTax == null)
+            binding.llAfterTax.visibility = View.GONE
+        else
+            binding.tvAfterTax.text = "$afterTax ${context?.getString(R.string.currency)}"
+
+        if (total == null)
+            binding.llTotal.visibility = View.GONE
+        else
+            binding.tvTotal.text = "$total ${context?.getString(R.string.currency)}"
 
         binding.btnSave.setOnClickListener {
             listener.onSave()

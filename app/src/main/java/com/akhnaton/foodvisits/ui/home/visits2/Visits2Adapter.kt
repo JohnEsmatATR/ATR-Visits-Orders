@@ -31,7 +31,6 @@ class Visits2Adapter(
                 parent,
                 false
             )
-
         return ViewHolder(view)
     }
 

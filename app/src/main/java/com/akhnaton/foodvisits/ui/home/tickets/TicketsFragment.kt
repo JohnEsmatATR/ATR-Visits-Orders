@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.tickets
 
 import android.app.AlertDialog
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -25,6 +28,8 @@ import com.akhnaton.foodvisits.databinding.FragmentTicketsBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.toMultipart
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.phoneVisit.Card3Adapter
 import com.google.android.datatransport.runtime.scheduling.persistence.EventStoreModule_PackageNameFactory.packageName
@@ -32,6 +37,7 @@ import com.google.android.gms.common.wrappers.Wrappers.packageManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
+import okhttp3.RequestBody.Companion.toRequestBody
 
 class TicketsFragment : Fragment(), View.OnClickListener {
 
@@ -44,6 +50,12 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     private lateinit var binding: FragmentTicketsBinding
     private lateinit var dialog: AlertDialog
     private var selectedUsers: String = ""
+
+    private lateinit var cardAdapter: Card4Adapter
+    private val selectedEmails = mutableListOf<String>()
+
+    private lateinit var attachmentAdapter: AttachmentAdapter
+    private val attachments = mutableListOf<Uri>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -60,7 +72,76 @@ class TicketsFragment : Fragment(), View.OnClickListener {
             findNavController().popBackStack()
         }
 
-        binding.btnSendTicket.setOnClickListener(this)
+        binding.btnSendTicket.setOnClickListener {
+            createTicket()
+        }
+//        binding.btnSendTicket.setOnClickListener(this)
+
+        cardAdapter = Card4Adapter(
+            object : Card4Adapter.OnItemClickListener {
+                override fun onClose(item: String) {
+                    selectedEmails.remove(item)
+                    selectedUsers = selectedEmails.joinToString(";")
+                    cardAdapter.setList(selectedEmails)
+                }
+            }
+        )
+
+        binding.rvCCs.layoutManager =
+            GridLayoutManager(requireContext(), 2)
+
+        binding.rvCCs.adapter = cardAdapter
+        binding.rvCCs.itemAnimator = DefaultItemAnimator()
+
+        val pickAttachments =
+            registerForActivityResult(
+                ActivityResultContracts.OpenMultipleDocuments()
+            ) { uris ->
+
+                uris.forEach {
+
+                    requireContext().contentResolver.takePersistableUriPermission(
+                        it,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+
+                    if (!attachments.contains(it))
+                        attachments.add(it)
+                }
+
+                attachmentAdapter.setList(attachments)
+            }
+
+        attachmentAdapter = AttachmentAdapter(
+
+            object : AttachmentAdapter.OnItemClickListener {
+
+                override fun onRemove(item: Uri) {
+
+                    attachments.remove(item)
+
+                    attachmentAdapter.setList(attachments)
+                }
+            }
+        )
+
+        binding.rvAttachments.layoutManager =
+            GridLayoutManager(requireContext(), 2)
+
+        binding.rvAttachments.adapter = attachmentAdapter
+
+        binding.llAddAttachment.setOnClickListener {
+
+            pickAttachments.launch(
+                arrayOf(
+                    "image/*",
+                    "application/pdf",
+                    "application/msword",
+                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                    "text/plain"
+                )
+            )
+        }
 
         getAllUsers()
         fetchData()
@@ -75,15 +156,21 @@ class TicketsFragment : Fragment(), View.OnClickListener {
         }
     }
 
-//    private fun createTicket() {
-//        lifecycleScope.launch {
-//            viewModel.ticketsIntent.send(
-//                TicketsIntent.CreateTicket(
-//
-//                )
-//            )
-//        }
-//    }
+    private fun createTicket() {
+        lifecycleScope.launch {
+            viewModel.ticketsIntent.send(
+                TicketsIntent.CreateTicket(
+                    binding.etPhone.text.toString().toRequestBody(),
+                    selectedUsers.toRequestBody(),
+                    binding.etSubtitle.text.toString().toRequestBody(),
+                    binding.etDescription.text.toString().toRequestBody(),
+                    attachments.map { uri ->
+                        uri.toMultipart(requireContext())
+                    }
+                )
+            )
+        }
+    }
 
     private fun fetchData() {
         lifecycleScope.launch {
@@ -137,13 +224,15 @@ class TicketsFragment : Fragment(), View.OnClickListener {
 
                                 Log.d("WHATcc", user.EMAIL_ADDRESS)
 
-                                if (selectedUsers.isEmpty())
-                                    selectedUsers = user.EMAIL_ADDRESS
-                                else
-                                    selectedUsers += ";${user.EMAIL_ADDRESS}"
+                                if (!selectedEmails.contains(user.EMAIL_ADDRESS)) {
+                                    selectedEmails.add(user.EMAIL_ADDRESS)
+                                }
+
+                                selectedUsers = selectedEmails.joinToString(";")
 
                                 binding.etCC.setText("")
-                                setRecycler1(selectedUsers)
+
+                                cardAdapter.setList(selectedEmails)
                             }
 
                         } else {
@@ -153,14 +242,51 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                                 isSuccess = false,
                                 showOkButton = true,
                                 onOk = {
-//                                    findNavController().popBackStack()
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity2::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
                                 }
                             )
                         }
                     }
 
                     is TicketsStatus.CreateTicket -> {
-
+                        dialog.hide()
+                        if (it.data.status == 200) {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = true,
+                                showOkButton = true,
+                                onOk = {
+                                    findNavController().popBackStack()
+                                }
+                            )
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    SharedPreferencesHelper.getInstance()
+                                        .logOut()
+                                    startActivity(
+                                        Intent(
+                                            requireContext(),
+                                            LoginActivity2::class.java
+                                        )
+                                    )
+                                    requireActivity().finishAffinity()
+                                }
+                            )
+                        }
                     }
 
                     is TicketsStatus.Error -> {
@@ -174,34 +300,34 @@ class TicketsFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    private fun setRecycler1(
-        users: String
-    ) {
-
-        var list = users.split(";")
-        val adapter =
-            Card4Adapter(
-                object : Card4Adapter.OnItemClickListener {
-
-                    override fun onClose(item: String) {
-
-                        Log.d("WHATclick", "HII CLICK")
-
-                    }
-                }
-            )
-
-        adapter.setList(list)
-
-        binding.rvCCs.layoutManager =
-            GridLayoutManager(
-                requireContext(),
-                2
-            )
-
-        binding.rvCCs.adapter = adapter
-        binding.rvCCs.itemAnimator = DefaultItemAnimator()
-    }
+//    private fun setRecycler1(
+//        users: String
+//    ) {
+//
+//        var list = users.split(";")
+//        val adapter =
+//            Card4Adapter(
+//                object : Card4Adapter.OnItemClickListener {
+//
+//                    override fun onClose(item: String) {
+//
+//                        Log.d("WHATclick", "HII CLICK")
+//
+//                    }
+//                }
+//            )
+//
+//        adapter.setList(list)
+//
+//        binding.rvCCs.layoutManager =
+//            GridLayoutManager(
+//                requireContext(),
+//                2
+//            )
+//
+//        binding.rvCCs.adapter = adapter
+//        binding.rvCCs.itemAnimator = DefaultItemAnimator()
+//    }
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onClick(p0: View?) {

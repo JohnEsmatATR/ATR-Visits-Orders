@@ -186,6 +186,7 @@
     <string name="code">كود</string>
     <string name="sale_type">نوع الطلب</string>
     <string name="invoice">الفاتورة</string>
+    <string name="_return">المرتجع</string>
     <string name="currency">ج.م</string>
     <string name="cust_price">جمهور</string>
     <string name="quantity">الكمية</string>
@@ -201,6 +202,7 @@
     <string name="total_price_before_tax">اجمالي السعر قبل الضريبة</string>
     <string name="total_tax">اجمالي الضريبة</string>
     <string name="total_price_after_tax">اجمالي السعر بعد الضريبة</string>
+    <string name="total_price">اجمالي السعر</string>
     <string name="piece">قطعة</string>
     <string name="product">صنف</string>
     <string name="search">بحث</string>

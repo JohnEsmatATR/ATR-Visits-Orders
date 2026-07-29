@@ -24,6 +24,7 @@ object ConstantLinks {
     const val GET_ITEMS_DETAILS = "Order/getItemsDetails"
     const val GET_PRICE_LISTS = "Order/getPriceLists"
     const val START_RETURN_DATA = "Return/startReturnData"
+    const val SAVE_RETURN = "Return/saveReturn"
     const val GET_SALES_MAN = "Customer/getSalesMan"
     const val COPY_DAY_PLAN = "Visit/copyDayPlan"
     const val GET_ALL_USERS = "user/getAllUsers"

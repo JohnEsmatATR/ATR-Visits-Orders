@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.data.statusValue.returns
 
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
+import com.akhnaton.foodvisits.data.model.saveReturn.SaveReturnReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
@@ -16,6 +17,10 @@ sealed class ReturnsIntent {
     data class StartReturnData(
         val orderId: String,
         val priceListId: String
+    ) : ReturnsIntent()
+
+    data class SaveReturn(
+        val saveReturnReq: SaveReturnReq,
     ) : ReturnsIntent()
 
     data class GetItemDetails(

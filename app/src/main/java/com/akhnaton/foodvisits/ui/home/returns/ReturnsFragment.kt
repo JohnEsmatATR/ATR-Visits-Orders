@@ -22,6 +22,8 @@ import com.akhnaton.foodvisits.data.model.getPriceLists.PriceId
 import com.akhnaton.foodvisits.data.model.getStartOrderData.Data
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderItemReq
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
+import com.akhnaton.foodvisits.data.model.saveReturn.SaveReturnItemReq
+import com.akhnaton.foodvisits.data.model.saveReturn.SaveReturnReq
 import com.akhnaton.foodvisits.data.model.startReturnData.Product
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Intent
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Status
@@ -215,9 +217,10 @@ class ReturnsFragment : Fragment() {
             calculateTotals()
             OrderSummaryBottomSheet(
                 selectedCount = selectedProducts.size.toString(),
-                beforeTax = beforeTax.toString(),
-                tax = tax.toString(),
-                afterTax = afterTax.toString(),
+//                beforeTax = beforeTax.toString(),
+//                tax = tax.toString(),
+//                afterTax = afterTax.toString(),
+                total = total.toString(),
                 listener = object : OrderSummaryBottomSheet.Listener {
 
                     override fun onSave() {
@@ -301,6 +304,8 @@ class ReturnsFragment : Fragment() {
         }
 
         binding.btnAdd.setOnClickListener {
+            Log.d("WHATexist", selectedProducts.size.toString())
+
             if (binding.etQty.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
                     requireContext(), "يجب اضافة كمية للمنتج", false,
@@ -313,12 +318,16 @@ class ReturnsFragment : Fragment() {
                 binding.etQty.text.toString().toIntOrNull() ?: 1
             val existing =
                 selectedProducts.firstOrNull {
+                    Log.d("WHATexist", it.ITEM_CODE)
+                    Log.d("WHATexist", product.ITEM_CODE)
+
                     it.ITEM_CODE == product.ITEM_CODE
                 }
             if (existing == null) {
                 product.selectedQty = qty
                 selectedProducts.add(product)
                 orderAdapter.notifyItemInserted(selectedProducts.lastIndex)
+                Log.d("WHATexist", selectedProducts.size.toString())
             } else {
                 DialogUtils.showResultDialog(
                     requireContext(), "المنتج موجود بالفعل", false,
@@ -346,12 +355,22 @@ class ReturnsFragment : Fragment() {
     }
 
     private fun saveOrder(send: Boolean) {
-//        Log.d("WHATmap", selectedProducts.toString())
+        Log.d("WHATmap", selectedProducts.toString())
+        val items = selectedProducts.mapIndexed { index, product ->
+            (index + 1).toString() to SaveReturnItemReq(
+                inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
+                quantity = product.selectedQty,
+                price = product.price.toDouble(),
+                customerPrice = product.cust_price.toDouble()
+            )
+        }.toMap()
 //        val items = if (isSavedBefore == false) {
 //            selectedProducts.mapIndexed { index, product ->
-//                (index + 1).toString() to SaveOrderItemReq(
+//                (index + 1).toString() to SaveReturnItemReq(
 //                    inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
-//                    quantity = product.selectedQty
+//                    quantity = product.selectedQty,
+//                    price = product.price.toInt(),
+//                    customerPrice = product.cust_price.toInt()
 //                )
 //            }.toMap()
 //        } else {
@@ -360,23 +379,23 @@ class ReturnsFragment : Fragment() {
 //                selectedProducts
 //            )
 //        }
-//
-//        val request = SaveOrderReq(
-//            orderId = orderId,
-//            partySiteId = customerPartySiteId,
-//            orderType = saleType,
-//            deviceType = "android",
-//            send = if (send) "1" else "0",
-//            warehouseType = warehouseId ?: "",
-//            paymentId = paymentId?.toIntOrNull() ?: 106014,
-//            items = items
-//        )
-//
-//        lifecycleScope.launch {
-//            viewModel.orderIntent.send(
-//                Order2Intent.SaveOrder(request)
-//            )
-//        }
+
+        val request = SaveReturnReq(
+            returnId = returnId,
+            orderId = orderId,
+            orderType = saleType,
+            comment = "",
+            partySiteId = customerPartySiteId,
+            send = if (send) "1" else "0",
+            priceListId = selectedPriceList.PRICE_LIST_ID.toInt(),
+            items = items,
+        )
+
+        lifecycleScope.launch {
+            viewModel.returnsIntent.send(
+                ReturnsIntent.SaveReturn(request)
+            )
+        }
     }
 
     private fun updateEmptyView() {
@@ -391,10 +410,18 @@ class ReturnsFragment : Fragment() {
 
     private fun updateTotal() {
         total = 0.0
+        Log.d("WHATsaveditems", selectedProducts.toString())
         selectedProducts.forEach {
-            it.SAVED_ITEMS.forEach {
-                total += it.TOTAL_VALUE.toDouble()
+            if (it.selectedQty != null && it.price != null) {
+                total += it.selectedQty * it.price.toDouble()
             }
+//            Log.d("WHATsaveditems", it.SAVED_ITEMS.size.toString())
+//            Log.d("WHATsaveditems", it.SAVED_ITEMS.toString())
+//            it.SAVED_ITEMS.forEach {
+//                total += it.TOTAL_VALUE.toDouble()
+//                Log.d("WHATsaveditems", it.TOTAL_VALUE)
+//                Log.d("WHATsaveditems", total.toString())
+//            }
 //            total += it.selectedQty * (it.SAVED_ITEMS[0].UNIT_PRICE.toDouble() ?: 0)
         }
         binding.tvProductsCount.text =
@@ -406,19 +433,23 @@ class ReturnsFragment : Fragment() {
     private fun calculateTotals() {
         totalQty = 0
         beforeTax = 0.0
-        tax = 0.0
+//        tax = 0.0
         selectedProducts.forEach {
             totalQty += it.selectedQty
-            beforeTax += if (it.SAVED_ITEMS.size > 0 && it.SAVED_ITEMS != null) {
-                it.selectedQty * it.SAVED_ITEMS[0].UNIT_PRICE.toDouble()
-            } else {
-                0.0
-            }
-            tax += if (it.SAVED_ITEMS.size > 0 && it.SAVED_ITEMS != null) {
-                it.selectedQty * it.SAVED_ITEMS[0].TAX.toDouble()
-            } else {
-                0.0
-            }
+            beforeTax +=
+                it.selectedQty * it.price.toDouble()
+//            tax +=
+//                it.selectedQty * it.TAX_AMOUNT.toDouble()
+//            beforeTax += if (it.SAVED_ITEMS.size > 0 && it.SAVED_ITEMS != null) {
+//                it.selectedQty * it.SAVED_ITEMS[0].UNIT_PRICE.toDouble()
+//            } else {
+//                0.0
+//            }
+//            tax += if (it.SAVED_ITEMS.size > 0 && it.SAVED_ITEMS != null) {
+//                it.selectedQty * it.SAVED_ITEMS[0].TAX.toDouble()
+//            } else {
+//                0.0
+//            }
             afterTax = beforeTax + tax
         }
 //        tax = (beforeTax * .14).toInt()
@@ -501,7 +532,7 @@ class ReturnsFragment : Fragment() {
                             binding.tvInvoice.text = returnId
 
                             val ltrNumber = "\u200E${returnId}\u200E"
-                            binding.tvInvoice.text = "${getString(R.string.invoice)}: $ltrNumber"
+                            binding.tvInvoice.text = "${getString(R.string._return)}: $ltrNumber"
 
                             allProducts = data.products.toMutableList()
 
@@ -549,12 +580,17 @@ class ReturnsFragment : Fragment() {
                                 object : PricesAdapter.OnPriceSelected {
                                     override fun onPriceSelected(price: PRICES) {
                                         selectedPrice = price
+                                        product?.cust_price = selectedPrice?.CUST_PRICE!!
+                                        product?.price = selectedPrice?.OPERAND!!
                                     }
                                 })
-                            binding.rvProducts.apply {
+                            binding.rvPrices.apply {
                                 layoutManager = LinearLayoutManager(requireContext())
-                                adapter = orderAdapter
                             }
+//                            binding.rvProducts.apply {
+//                                layoutManager = LinearLayoutManager(requireContext())
+//                                adapter = orderAdapter
+//                            }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.returnsIntent.send(
@@ -572,61 +608,69 @@ class ReturnsFragment : Fragment() {
                         }
                     }
 
-//                    is ReturnsStatus.SaveOrder -> {
-//                        dialog.dismiss()
-//                        if (it.saveOrderRes.status == 200) {
-//                            val data = Gson().fromJson(
-//                                it.saveOrderRes.data,
-//                                com.akhnaton.foodvisits.data.model.saveOrder.Data::class.java
-//                            )
-//                            if (isSend == false) {
-//                                isSavedBefore = true
-//                                DialogUtils.showResultDialog(
-//                                    context = requireContext(),
-//                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
-//                                    isSuccess = true,
-//                                    showOkButton = true,
-//                                    onOk = {
-//                                    })
+                    is ReturnsStatus.SaveReturn -> {
+                        dialog.dismiss()
+                        val data = Gson().fromJson(
+                            it.data.data,
+                            com.akhnaton.foodvisits.data.model.saveReturn.Data::class.java
+                        )
+                        if (it.data.status == 200) {
+                            if (isSend == false) {
+                                isSavedBefore = true
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                    })
 //                                itemsSummaryList = data.items_summary.toMutableList()
 //                                Log.d("WHATitemsSummaryList", itemsSummaryList.toString())
 //                                setRecycler(itemsSummaryList)
-//                            } else if (isSend == true) {
-//                                MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                DialogUtils.showResultDialog(
-//                                    context = requireContext(),
-//                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
-//                                    isSuccess = true,
-//                                    showOkButton = true,
-//                                    onOk = {
-//                                        findNavController().navigate(
-//                                            R.id.toHome,
-//                                            null,
-//                                            androidx.navigation.NavOptions.Builder().setPopUpTo(
-//                                                findNavController().graph.startDestinationId, true
-//                                            ).build()
-//                                        )
-//                                    })
-//                            }
-//
-//                        } else if (it.saveOrderRes.status == 401) {
-//                            lifecycleScope.launch {
-//                                viewModel.orderIntent.send(
-//                                    Order2Intent.RefreshToken(
-//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-//                                        SharedPreferencesHelper.getInstance().getUserToken()
-//                                    )
-//                                )
-//                            }
-//                        } else {
-//                            DialogUtils.showResultDialog(
-//                                requireContext(),
-//                                it.saveOrderRes.message.firstOrNull().orEmpty(),
-//                                false,
-//                                showOkButton = true,
-//                            )
-//                        }
-//                    }
+                            } else if (isSend == true) {
+                                MainActivity.binding.navView2.visibility = View.VISIBLE
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        findNavController().navigate(
+                                            R.id.toHome,
+                                            null,
+                                            androidx.navigation.NavOptions.Builder().setPopUpTo(
+                                                findNavController().graph.startDestinationId, true
+                                            ).build()
+                                        )
+                                    })
+                            }
+
+                        } else if (it.data.status == 400) {
+                            DialogUtils.showResultDialog(
+                                requireContext(),
+                                it.data.message,
+                                description = "نسبة المرتجع حاليا ${data.return_percentage}%",
+                                isSuccess = false,
+                                showOkButton = true,
+                            )
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.returnsIntent.send(
+                                    ReturnsIntent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                requireContext(),
+                                it.data.message,
+                                false,
+                                showOkButton = true,
+                            )
+                        }
+                    }
 
                     is ReturnsStatus.RefreshToken -> {
                         dialog.hide()

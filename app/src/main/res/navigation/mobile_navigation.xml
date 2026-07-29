@@ -141,6 +141,9 @@
         <action
             android:id="@+id/toInvoice"
             app:destination="@id/invoiceFragment" />
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
     </fragment>
 
     <fragment

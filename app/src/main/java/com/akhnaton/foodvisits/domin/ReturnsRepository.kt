@@ -5,6 +5,7 @@ import com.akhnaton.foodvisits.data.interfaces.apis.IOrder2
 import com.akhnaton.foodvisits.data.interfaces.apis.IReturn
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits2
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
+import com.akhnaton.foodvisits.data.model.saveReturn.SaveReturnReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
@@ -28,6 +29,12 @@ class ReturnsRepository {
     ) = retrofit.startReturnData(
         orderId,
         priceListId,
+    )
+
+    suspend fun saveReturn(
+        saveReturnReq: SaveReturnReq
+    ) = retrofit.saveReturn(
+        saveReturnReq
     )
 
     suspend fun getItemDetails(

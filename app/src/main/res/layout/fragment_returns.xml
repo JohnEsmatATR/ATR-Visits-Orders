@@ -105,17 +105,17 @@
                             android:gravity="center"
                             android:textStyle="bold" />
 
-                    </LinearLayout>
+                        <ImageButton
+                            android:id="@+id/btnBack"
+                            android:layout_width="55dp"
+                            android:layout_height="55dp"
+                            android:layout_alignParentEnd="true"
+                            android:background="@drawable/bg_circle_white"
+                            android:padding="15dp"
+                            app:tint="@color/red"
+                            android:src="@drawable/ic_arrow_right" />
 
-                    <ImageButton
-                        android:id="@+id/btnBack"
-                        android:layout_width="55dp"
-                        android:layout_height="55dp"
-                        android:layout_alignParentEnd="true"
-                        android:background="@drawable/bg_circle_white"
-                        android:padding="15dp"
-                        app:tint="@color/red"
-                        android:src="@drawable/ic_arrow_right" />
+                    </LinearLayout>
 
                 </RelativeLayout>
 
@@ -205,6 +205,9 @@
                         android:id="@+id/rvPrices"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        tools:listitem="@layout/item_price"
+                        tools:itemCount="2"
+                        android:visibility="visible"
                         android:nestedScrollingEnabled="false" />
 
                     <LinearLayout

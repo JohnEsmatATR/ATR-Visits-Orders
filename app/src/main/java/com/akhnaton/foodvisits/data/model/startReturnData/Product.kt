@@ -15,4 +15,6 @@ data class Product(
     var CHECKED: Boolean = false,
     var IS_BACK_ORDER: Boolean? = false,
     var clicked: Boolean = false,
+    var cust_price: String = "",
+    var price: String = "",
 )
