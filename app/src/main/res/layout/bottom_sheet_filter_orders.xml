@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -158,8 +157,9 @@
                 android:focusable="false"
                 android:hint="نوع الطلب"
                 android:inputType="none"
+                android:text=""
                 android:paddingEnd="@dimen/_12sdp"
-                android:textAlignment="viewEnd"
+                android:textAlignment="viewStart"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_12ssp" />
 
@@ -176,7 +176,8 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnClear"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/_50sdp"
+                android:layout_height="@dimen/_52sdp"
+                android:textSize="@dimen/_16ssp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/background"
                 android:text="مسح"
@@ -190,9 +191,10 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnApply"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/_50sdp"
+                android:layout_height="@dimen/_52sdp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/colorPrimary"
+                android:textSize="@dimen/_16ssp"
                 android:text="تطبيق"
                 android:textColor="@color/white"
                 app:cornerRadius="@dimen/_12sdp" />

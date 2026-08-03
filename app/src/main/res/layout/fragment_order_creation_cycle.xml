@@ -107,6 +107,7 @@
                         android:text="1"
                         android:textColor="@android:color/white"
                         android:textSize="10sp" />
+
                 </LinearLayout>
 
             </LinearLayout>
@@ -209,11 +210,12 @@
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnContinue"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                app:cornerRadius="@dimen/_8sdp"
+                android:layout_height="@dimen/_52sdp"
+                app:cornerRadius="@dimen/_12sdp"
                 android:layout_marginTop="16dp"
+                android:textSize="@dimen/_16ssp"
                 android:layout_marginHorizontal="16dp"
-                android:backgroundTint="#FF8C3A"
+                android:backgroundTint="@color/colorPrimary"
                 android:text="المتابعة لكتالوج المنتجات"
                 android:textColor="@android:color/white" />
 

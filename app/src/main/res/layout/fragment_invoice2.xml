@@ -16,11 +16,11 @@
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardBottom"
             android:layout_width="0dp"
-            android:layout_height="@dimen/_50sdp"
+            android:layout_height="@dimen/_52sdp"
             android:layout_marginHorizontal="@dimen/_8sdp"
             android:layout_marginBottom="@dimen/_16sdp"
             app:cardBackgroundColor="@color/colorPrimary"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="@dimen/_12sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -37,7 +37,7 @@
                     android:layout_marginStart="24dp"
                     android:text="0.00 ج.م"
                     android:textColor="@android:color/white"
-                    android:textSize="@dimen/_12ssp"
+                    android:textSize="@dimen/_16ssp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -87,8 +87,9 @@
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnAddReturn"
                             android:layout_width="wrap_content"
-                            android:layout_height="48dp"
-                            android:backgroundTint="#FF8C3A"
+                            android:layout_height="@dimen/_42sdp"
+                            android:backgroundTint="@color/colorPrimary"
+                            android:textSize="@dimen/_12ssp"
                             android:text="اضافة مرتجع"
                             android:textColor="@android:color/white"
                             app:cornerRadius="@dimen/_8sdp" />
@@ -122,7 +123,7 @@
                     android:layout_marginHorizontal="@dimen/_8sdp"
                     android:layout_marginTop="@dimen/_8sdp"
                     android:text="طلبية جديدة"
-                    android:textColor="#F68A1F"
+                    android:textColor="@color/colorPrimary"
                     android:textSize="@dimen/_12ssp"
                     android:textStyle="bold" />
 

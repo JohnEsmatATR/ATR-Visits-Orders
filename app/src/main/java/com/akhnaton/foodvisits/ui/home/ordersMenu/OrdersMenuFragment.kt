@@ -151,12 +151,21 @@ class OrdersMenuFragment : Fragment(),
 //                                    com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
 //                                )
 
+                            if (it.data.data.isEmpty()) {
+                                binding.llZeroState.visibility = View.VISIBLE
+                                binding.rv.visibility = View.GONE
+                            } else {
+                                binding.llZeroState.visibility = View.GONE
+                                binding.rv.visibility = View.VISIBLE
+                            }
+
                             val newItems = it.data.data
                             if (newItems.isEmpty()) {
                                 isLastPage = true
                             } else {
                                 val startPosition = ordersList.size
                                 ordersList.addAll(newItems)
+                                Log.d("WHATordersList", ordersList.toString())
                                 adapter.notifyItemRangeInserted(
                                     startPosition,
                                     newItems.size
@@ -201,14 +210,14 @@ class OrdersMenuFragment : Fragment(),
                             getData()
 
                         } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
-                            }
+//                            lifecycleScope.launch {
+//                                viewModel.visitsIntent.send(
+//                                    Visits2Intent.RefreshToken(
+//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+//                                        SharedPreferencesHelper.getInstance().getUserToken()
+//                                    )
+//                                )
+//                            }
                         } else {
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
@@ -233,14 +242,14 @@ class OrdersMenuFragment : Fragment(),
                             orderTypesList = data.sales_types
 
                         } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
-                            }
+//                            lifecycleScope.launch {
+//                                viewModel.visitsIntent.send(
+//                                    Visits2Intent.RefreshToken(
+//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+//                                        SharedPreferencesHelper.getInstance().getUserToken()
+//                                    )
+//                                )
+//                            }
                         } else {
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
@@ -311,6 +320,8 @@ class OrdersMenuFragment : Fragment(),
     }
 
     private fun setupRecycler() {
+        Log.d("WHATordersList", ordersList.toString())
+
         adapter = OrderMenuAdapter(ordersList, this)
         val layoutManager =
             LinearLayoutManager(requireContext())
