@@ -22,12 +22,14 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.getStartOrderData.Data
 import com.akhnaton.foodvisits.data.statusValue.tickets.TicketsIntent
 import com.akhnaton.foodvisits.data.statusValue.tickets.TicketsStatus
 import com.akhnaton.foodvisits.databinding.FragmentTicketsBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.getMessage
 import com.akhnaton.foodvisits.shared.toMultipart
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -36,6 +38,7 @@ import com.google.android.datatransport.runtime.scheduling.persistence.EventStor
 import com.google.android.gms.common.wrappers.Wrappers.packageManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.RequestBody.Companion.toRequestBody
 
@@ -259,19 +262,29 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                     is TicketsStatus.CreateTicket -> {
                         dialog.hide()
                         if (it.data.status == 200) {
+                            val data = Gson().fromJson(
+                                it.data.data, Data::class.java
+                            )
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
-                                message = it.data.message,
+                                message = it.data.message.getMessage(),
                                 isSuccess = true,
                                 showOkButton = true,
                                 onOk = {
                                     findNavController().popBackStack()
                                 }
                             )
+                        } else if (it.data.status == 400) {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message.getMessage(),
+                                isSuccess = false,
+                                showOkButton = true,
+                            )
                         } else {
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
-                                message = it.data.message,
+                                message = it.data.message.getMessage(),
                                 isSuccess = false,
                                 showOkButton = true,
                                 onOk = {

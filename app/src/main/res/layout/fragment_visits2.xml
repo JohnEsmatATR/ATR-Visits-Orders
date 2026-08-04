@@ -64,9 +64,54 @@
                         android:textSize="@dimen/_12ssp"
                         android:textColor="@color/gray" />
 
+                    <TextView
+                        android:id="@+id/tvVisitsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="end"
+                        android:text=""
+                        android:textSize="@dimen/_12ssp"
+                        android:textColor="@color/gray" />
+
                 </LinearLayout>
 
             </LinearLayout>
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_8sdp"
+                android:background="@color/white"
+                app:tabGravity="fill"
+                app:tabIndicatorColor="@color/colorPrimary"
+                app:tabIndicatorHeight="3dp"
+                app:tabMode="fixed"
+                app:tabRippleColor="@null"
+                android:layoutDirection="rtl"
+                app:tabSelectedTextColor="@color/colorPrimary"
+                app:tabTextColor="@color/gray">
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tabAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="الكل"/>
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tabDone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="تمت"/>
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tabPending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="معلقة"/>
+
+            </com.google.android.material.tabs.TabLayout>
+
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/searchLayout"

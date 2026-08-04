@@ -111,21 +111,21 @@ class OrderMenuAdapter(
         if (list[position].ORDER_STATUS == "saved") {
             holder.btnEdit.visibility = View.VISIBLE
             holder.btnDelete.visibility = View.VISIBLE
-            holder.btnDetails.visibility = View.GONE
+//            holder.btnDetails.visibility = View.GONE
         } else {
             holder.btnEdit.visibility = View.GONE
             holder.btnDelete.visibility = View.GONE
         }
 
-        holder.btnDetails.visibility =
-            if (
-                list[position].ORDER_STATUS == "sent" &&
-                list[position].ITEMS_PREVIEW.size >= 3
-            ) {
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+//        holder.btnDetails.visibility =
+//            if (
+//                list[position].ORDER_STATUS == "sent" &&
+//                list[position].ITEMS_PREVIEW.size >= 3
+//            ) {
+//                View.VISIBLE
+//            } else {
+//                View.GONE
+//            }
 
         holder.btnEdit.setOnClickListener {
             listener.onEdit(list[position])

@@ -77,7 +77,6 @@
                 style="@style/OutlinedRoundedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="@dimen/_8sdp"
                 android:layout_weight="1"
                 app:boxBackgroundColor="@color/white"
                 app:boxCornerRadiusBottomEnd="12dp"
@@ -109,6 +108,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
                 android:padding="@dimen/_8sdp"
+                android:visibility="gone"
                 android:src="@drawable/ic_filter"
                 android:tint="@color/grey_color" />
 

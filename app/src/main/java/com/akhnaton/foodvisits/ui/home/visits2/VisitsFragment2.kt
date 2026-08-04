@@ -49,6 +49,7 @@ import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomersAdapter
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -145,9 +146,49 @@ class VisitsFragment2 : Fragment() {
             )
         }
 
+        setupTabs()
         loadVisitPlan()
         fetchData()
 
+    }
+
+    private fun setupTabs() {
+        binding.tabLayout.addOnTabSelectedListener(
+            object : TabLayout.OnTabSelectedListener {
+
+                override fun onTabSelected(tab: TabLayout.Tab) {
+
+                    when (tab.position) {
+
+                        0 -> {
+                            setRecycler(allCustomers)
+                            binding.tabLayout.getTabAt(0)?.text = "الكل (${allCustomers.size})"
+                        }
+
+                        1 -> {
+                            setRecycler(allCustomers.filter { it.is_visited_today }.toMutableList())
+                            binding.tabLayout.getTabAt(1)?.text = "تمت (${
+                                allCustomers.filter { it.is_visited_today }.toMutableList().size
+                            })"
+
+                        }
+
+                        2 -> {
+                            setRecycler(allCustomers.filter { !it.is_visited_today }
+                                .toMutableList())
+                            binding.tabLayout.getTabAt(2)?.text = "معلقة (${
+                                allCustomers.filter { !it.is_visited_today }
+                                    .toMutableList().size
+                            })"
+                        }
+                    }
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            }
+        )
     }
 
     private fun showScheduleBottomSheet() {
@@ -245,6 +286,7 @@ class VisitsFragment2 : Fragment() {
                                         it.data.data,
                                         com.akhnaton.foodvisits.data.model.getVisitPlan.Data::class.java
                                     )
+                                binding.tvVisitsCount.setText("عدد الزيارات: ${data.customer_visit_plan.size} زيارة")
                                 binding.tvDay.setText(data.day)
                                 binding.tvDate.setText(data.date)
                                 allCustomers.clear()
@@ -253,6 +295,7 @@ class VisitsFragment2 : Fragment() {
                                     binding.etSearch.text.toString().trim()
                                 )
 //                                setRecycler(allCustomers)
+                                setupTabs()
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
                                     viewModel.visitsIntent.send(

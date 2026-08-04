@@ -205,31 +205,59 @@ class GpsVisitFragment : Fragment() {
         }
         binding.tvQuestion.setText("هل أنت مع ${visitWithName}؟")
 
-        binding.cbCompanion.setOnCheckedChangeListener { _, isChecked ->
+        binding.cbCompanionYes.setOnCheckedChangeListener { _, isChecked ->
 
             if (isChecked) {
                 if (SharedPreferencesHelper.getInstance().isAllowedToMakeRate()) {
                     binding.llComp.visibility = View.VISIBLE
                 }
 
-                binding.cbCompanion.apply {
-                    text = "نعم"
+                binding.cbCompanionYes.apply {
                     setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
                     buttonTintList = ColorStateList.valueOf(
                         ContextCompat.getColor(context, R.color.colorPrimary)
                     )
                 }
 
-            } else {
-                binding.llComp.visibility = View.GONE
+                if (binding.cbCompanionNo.isChecked == true) binding.cbCompanionNo.isChecked = false
 
-                binding.cbCompanion.apply {
-                    text = "لا"
+                binding.cbCompanionNo.apply {
                     setTextColor(ContextCompat.getColor(context, R.color.grey_color))
                     buttonTintList = ColorStateList.valueOf(
                         ContextCompat.getColor(context, R.color.grey_color)
                     )
                 }
+
+            } else {
+                binding.llComp.visibility = View.GONE
+            }
+        }
+
+        binding.cbCompanionNo.setOnCheckedChangeListener { _, isChecked ->
+
+            if (isChecked) {
+                if (SharedPreferencesHelper.getInstance().isAllowedToMakeRate()) {
+                    binding.llComp.visibility = View.VISIBLE
+                }
+
+                binding.cbCompanionNo.apply {
+                    setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
+                    buttonTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(context, R.color.colorPrimary)
+                    )
+                }
+
+                if (binding.cbCompanionYes.isChecked == true) binding.cbCompanionYes.isChecked = false
+
+                binding.cbCompanionYes.apply {
+                    setTextColor(ContextCompat.getColor(context, R.color.grey_color))
+                    buttonTintList = ColorStateList.valueOf(
+                        ContextCompat.getColor(context, R.color.grey_color)
+                    )
+                }
+
+            } else {
+                binding.llComp.visibility = View.GONE
             }
         }
 
@@ -342,9 +370,9 @@ class GpsVisitFragment : Fragment() {
                         longitude = customerLongitude.toString(),
                         zone_flag = if (currentDistanceMeters <= (validGpsRange ?: 0)) "IN"
                         else "OUT",
-                        rate = if (binding.cbCompanion.isChecked == true) selectedRating.toString() else "",
-                        rate_comment = if (binding.cbCompanion.isChecked == true) binding.etComment.text.toString() else "",
-                        visit_with_confirmed = if (binding.cbCompanion.isChecked == true) "1" else "0",
+                        rate = if (binding.cbCompanionYes.isChecked == true) selectedRating.toString() else "",
+                        rate_comment = if (binding.cbCompanionYes.isChecked == true) binding.etComment.text.toString() else "",
+                        visit_with_confirmed = if (binding.cbCompanionYes.isChecked == true) "1" else "0",
                         visit_with_user_id = if (visitWithUserId != null && visitWithUserId != "null") visitWithUserId else null,
                     )
                 )
