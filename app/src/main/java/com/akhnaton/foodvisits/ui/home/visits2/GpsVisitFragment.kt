@@ -36,6 +36,7 @@ import java.util.Calendar
 import kotlin.getValue
 import android.location.Location
 import android.os.Build
+import android.provider.Settings
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import com.akhnaton.foodvisits.BuildConfig
@@ -107,6 +108,8 @@ class GpsVisitFragment : Fragment() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentDistanceMeters: Float = 0f
+
+    private var isDeveloperModeEnable = 0
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -236,9 +239,7 @@ class GpsVisitFragment : Fragment() {
         binding.cbCompanionNo.setOnCheckedChangeListener { _, isChecked ->
 
             if (isChecked) {
-                if (SharedPreferencesHelper.getInstance().isAllowedToMakeRate()) {
-                    binding.llComp.visibility = View.VISIBLE
-                }
+                binding.llComp.visibility = View.GONE
 
                 binding.cbCompanionNo.apply {
                     setTextColor(ContextCompat.getColor(context, R.color.colorPrimary))
@@ -247,7 +248,8 @@ class GpsVisitFragment : Fragment() {
                     )
                 }
 
-                if (binding.cbCompanionYes.isChecked == true) binding.cbCompanionYes.isChecked = false
+                if (binding.cbCompanionYes.isChecked == true) binding.cbCompanionYes.isChecked =
+                    false
 
                 binding.cbCompanionYes.apply {
                     setTextColor(ContextCompat.getColor(context, R.color.grey_color))
@@ -257,7 +259,9 @@ class GpsVisitFragment : Fragment() {
                 }
 
             } else {
-                binding.llComp.visibility = View.GONE
+                if (SharedPreferencesHelper.getInstance().isAllowedToMakeRate()) {
+                    binding.llComp.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -292,6 +296,16 @@ class GpsVisitFragment : Fragment() {
 //        }
 
         binding.btnSave.setOnClickListener {
+            if (convertDeveloperModeCheckToInt() == 1) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
+
             if (binding.etObjectiveVisit.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
                     context = requireContext(),
@@ -658,6 +672,21 @@ class GpsVisitFragment : Fragment() {
         dateVisit = System.currentTimeMillis() / 1000
         timerHandler.removeCallbacks(timerRunnable)
         return dateVisit
+    }
+
+    private fun isDeveloperModeEnabled(): Boolean {
+        return Settings.Secure.getInt(
+            requireContext().contentResolver, Settings.Global.DEVELOPMENT_SETTINGS_ENABLED, 0
+        ) == 1
+    }
+
+    private fun convertDeveloperModeCheckToInt(): Int {
+        isDeveloperModeEnable = if (isDeveloperModeEnabled()) {
+            1
+        } else {
+            0
+        }
+        return isDeveloperModeEnable
     }
 
     override fun onCreateView(

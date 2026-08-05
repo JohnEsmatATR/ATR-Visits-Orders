@@ -153,6 +153,15 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun setupTabs() {
+        binding.tabLayout.getTabAt(0)?.text = "الكل (${allCustomers.size})"
+        binding.tabLayout.getTabAt(1)?.text = "تمت (${
+            allCustomers.filter { it.is_visited_today }.toMutableList().size
+        })"
+        binding.tabLayout.getTabAt(2)?.text = "معلقة (${
+            allCustomers.filter { !it.is_visited_today }
+                .toMutableList().size
+        })"
+
         binding.tabLayout.addOnTabSelectedListener(
             object : TabLayout.OnTabSelectedListener {
 
@@ -162,24 +171,15 @@ class VisitsFragment2 : Fragment() {
 
                         0 -> {
                             setRecycler(allCustomers)
-                            binding.tabLayout.getTabAt(0)?.text = "الكل (${allCustomers.size})"
                         }
 
                         1 -> {
                             setRecycler(allCustomers.filter { it.is_visited_today }.toMutableList())
-                            binding.tabLayout.getTabAt(1)?.text = "تمت (${
-                                allCustomers.filter { it.is_visited_today }.toMutableList().size
-                            })"
-
                         }
 
                         2 -> {
                             setRecycler(allCustomers.filter { !it.is_visited_today }
                                 .toMutableList())
-                            binding.tabLayout.getTabAt(2)?.text = "معلقة (${
-                                allCustomers.filter { !it.is_visited_today }
-                                    .toMutableList().size
-                            })"
                         }
                     }
                 }
@@ -211,7 +211,8 @@ class VisitsFragment2 : Fragment() {
 
                     val copyDayPlanReq = CopyDayPlanReq(
                         date,
-                        employee.PERSON_ID.toInt()
+                        date,
+                        employee.PERSON_ID.toInt(),
                     )
 
                     lifecycleScope.launch {

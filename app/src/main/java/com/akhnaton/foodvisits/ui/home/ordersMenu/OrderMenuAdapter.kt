@@ -175,7 +175,7 @@ class OrderMenuAdapter(
             itemView.findViewById<Button>(R.id.btnDelete)
 
         val btnDetails =
-            itemView.findViewById<Button>(R.id.btnDetails)
+            itemView.findViewById<TextView>(R.id.btnDetails)
     }
 
     interface OrderActionListener {

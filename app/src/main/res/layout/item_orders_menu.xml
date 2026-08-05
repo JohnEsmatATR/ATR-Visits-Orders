@@ -17,12 +17,15 @@
         <TextView
             android:id="@+id/tvStatus"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
-            android:background="@color/main_color_gold2"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginEnd="@dimen/_4sdp"
+            android:background="@drawable/bg_rounded_grey"
+            android:backgroundTint="@color/green"
             android:gravity="center"
-            android:paddingHorizontal="16dp"
-            android:text="محفوظة"
-            android:textColor="@color/colorPrimary"
+            android:paddingHorizontal="@dimen/_8sdp"
+            android:paddingVertical="@dimen/_4sdp"
+            android:textColor="@color/white"
             android:textSize="@dimen/_8ssp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -60,7 +63,7 @@
             android:id="@+id/divider"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:background="#EEEEEE"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -72,7 +75,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_8sdp"
-            android:text="1"
+            android:text=""
             android:textColor="@color/colorPrimary"
             android:textDirection="rtl"
             android:textSize="@dimen/_12ssp"
@@ -110,7 +113,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_8sdp"
-            android:text=""
+            android:text="إجمالى القيمة:"
             android:textColor="#6D6D6D"
             android:textDirection="rtl"
             android:textSize="@dimen/_12ssp"
@@ -133,7 +136,7 @@
             android:id="@+id/bottomAnchor"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_marginTop="@dimen/_4sdp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTotalLabel" />
 
@@ -141,9 +144,8 @@
             android:id="@+id/layoutExpanded"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_marginTop="@dimen/_4sdp"
             android:orientation="vertical"
-            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/bottomAnchor">
@@ -153,13 +155,35 @@
                 android:layout_height="1dp"
                 android:background="#EEEEEE" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_8sdp"
-                android:text="أصناف الطلب"
-                android:textSize="@dimen/_12ssp"
-                android:textStyle="bold" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btnDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="عرض التفاصيل كاملة"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="أصناف الطلب:"
+                    android:textAlignment="viewEnd"
+                    android:textSize="@dimen/_12ssp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layoutItemsContainer"
@@ -198,18 +222,7 @@
                     android:textColor="@android:color/white"
                     android:visibility="gone"
                     app:cornerRadius="@dimen/_8sdp" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnDetails"
-                    android:layout_width="0dp"
-                    android:layout_height="@dimen/_42sdp"
-                    android:layout_marginEnd="@dimen/_8sdp"
-                    android:layout_weight="1"
-                    android:backgroundTint="@color/colorPrimary"
-                    android:text="عرض التفاصيل"
-                    android:textColor="@android:color/white"
-                    app:cornerRadius="@dimen/_8sdp" />
-
+                
             </LinearLayout>
 
         </LinearLayout>
