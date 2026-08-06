@@ -57,7 +57,7 @@ class OrderMenuAdapter(
                 "${holder.itemView.context.getString(R.string.piece)})"
         holder.tvAmount.text =
             "${list[position].TOTAL_VALUE} ${holder.itemView.context.getString(R.string.currency)}"
-
+        holder.tvMoreProducts.text = "+${list[position].ITEMS_COUNT.toInt() - 3}"
         val expanded =
             expandedItems.contains(position)
 
@@ -88,7 +88,7 @@ class OrderMenuAdapter(
                 product.NAME
 
             itemView.findViewById<TextView>(R.id.tvQty).text =
-                "${product.QUANTITY}"
+                "الكمية: ${product.QUANTITY}"
 
             holder.layoutItemsContainer.addView(itemView)
         }
@@ -117,15 +117,15 @@ class OrderMenuAdapter(
             holder.btnDelete.visibility = View.GONE
         }
 
-//        holder.btnDetails.visibility =
-//            if (
-//                list[position].ORDER_STATUS == "sent" &&
-//                list[position].ITEMS_PREVIEW.size >= 3
-//            ) {
-//                View.VISIBLE
-//            } else {
-//                View.GONE
-//            }
+        holder.layoutMoreDetails.visibility =
+            if (
+                list[position].ORDER_STATUS == "sent" &&
+                list[position].ITEMS_COUNT.toInt() > 3
+            ) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
 
         holder.btnEdit.setOnClickListener {
             listener.onEdit(list[position])
@@ -136,6 +136,10 @@ class OrderMenuAdapter(
         }
 
         holder.btnDetails.setOnClickListener {
+            listener.onShowDetails(list[position])
+        }
+
+        holder.layoutMoreDetails.setOnClickListener {
             listener.onShowDetails(list[position])
         }
     }
@@ -162,6 +166,9 @@ class OrderMenuAdapter(
         val tvAmount: TextView =
             itemView.findViewById(R.id.tvAmount)
 
+        val tvMoreProducts: TextView =
+            itemView.findViewById(R.id.tvMoreProducts)
+
         val layoutExpanded =
             itemView.findViewById<LinearLayout>(R.id.layoutExpanded)
 
@@ -176,6 +183,9 @@ class OrderMenuAdapter(
 
         val btnDetails =
             itemView.findViewById<TextView>(R.id.btnDetails)
+
+        val layoutMoreDetails =
+            itemView.findViewById<LinearLayout>(R.id.layoutMoreDetails)
     }
 
     interface OrderActionListener {

@@ -99,8 +99,8 @@
         <!-- Calendar Icon -->
         <ImageView
             android:id="@+id/ivCalendar"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="@dimen/_14sdp"
+            android:layout_height="@dimen/_14sdp"
             android:src="@android:drawable/ic_menu_my_calendar"
             android:tint="#9E9E9E"
             app:layout_constraintBottom_toBottomOf="@id/tvDate"
@@ -116,7 +116,7 @@
             android:text="إجمالى القيمة:"
             android:textColor="#6D6D6D"
             android:textDirection="rtl"
-            android:textSize="@dimen/_12ssp"
+            android:textSize="@dimen/_10ssp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvDate" />
 
@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:text="أصناف الطلب:"
                     android:textAlignment="viewEnd"
-                    android:textSize="@dimen/_12ssp"
+                    android:textSize="@dimen/_10ssp"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -190,6 +190,59 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
+
+            <LinearLayout
+                android:id="@+id/layoutMoreDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_12sdp"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/_14sdp"
+                    android:layout_height="@dimen/_14sdp"
+                    android:src="@drawable/ic_arrow_left"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="عرض التفاصيل الكاملة"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_1sdp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="أصناف أخري"
+                    android:layout_marginEnd="@dimen/_4sdp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/grey_color"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tvMoreProducts"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="+9"
+                    android:background="@drawable/bg_rounded_grey"
+                    android:backgroundTint="@color/main_color_gold2"
+                    android:paddingVertical="@dimen/_2sdp"
+                    android:paddingHorizontal="@dimen/_4sdp"
+                    android:textAlignment="viewEnd"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="@dimen/_10ssp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/layoutActions"
@@ -222,7 +275,7 @@
                     android:textColor="@android:color/white"
                     android:visibility="gone"
                     app:cornerRadius="@dimen/_8sdp" />
-                
+
             </LinearLayout>
 
         </LinearLayout>
