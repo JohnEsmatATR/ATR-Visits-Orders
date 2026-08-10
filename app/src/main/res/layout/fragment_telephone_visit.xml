@@ -349,11 +349,45 @@
                         android:orientation="horizontal">
 
                         <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/tilSendOrderNote"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="0dp"
+                            android:layout_height="@dimen/_50sdp"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_weight="1"
+                            android:backgroundTint="@color/background"
+                            android:layoutDirection="rtl"
+                            app:boxBackgroundColor="@color/background"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@android:color/transparent"
+                            app:boxStrokeWidth="0dp"
+                            app:endIconMode="dropdown_menu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/etSendOrderNote"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:clickable="true"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:focusable="false"
+                                android:hint="@string/send_order_note"
+                                android:inputType="none"
+                                android:paddingEnd="@dimen/_12sdp"
+                                android:textAlignment="viewStart"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp" />
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/tilVisibility"
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="0dp"
                             android:layout_height="@dimen/_50sdp"
-                            android:layout_marginStart="@dimen/_8sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_weight="1"
                             android:backgroundTint="@color/background"
@@ -383,39 +417,6 @@
 
                         </com.google.android.material.textfield.TextInputLayout>
 
-                        <com.google.android.material.textfield.TextInputLayout
-                            android:id="@+id/tilSendOrderNote"
-                            style="@style/OutlinedRoundedBox"
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_50sdp"
-                            android:layout_marginBottom="@dimen/_8sdp"
-                            android:layout_weight="1"
-                            android:backgroundTint="@color/background"
-                            android:layoutDirection="rtl"
-                            app:boxBackgroundColor="@color/background"
-                            app:boxCornerRadiusBottomEnd="12dp"
-                            app:boxCornerRadiusBottomStart="12dp"
-                            app:boxCornerRadiusTopEnd="12dp"
-                            app:boxCornerRadiusTopStart="12dp"
-                            app:boxStrokeColor="@android:color/transparent"
-                            app:boxStrokeWidth="0dp"
-                            app:endIconMode="dropdown_menu">
-
-                            <AutoCompleteTextView
-                                android:id="@+id/etSendOrderNote"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:clickable="true"
-                                android:drawablePadding="@dimen/_12sdp"
-                                android:focusable="false"
-                                android:hint="@string/send_order_note"
-                                android:inputType="none"
-                                android:paddingEnd="@dimen/_12sdp"
-                                android:textAlignment="viewStart"
-                                android:textColor="@color/black"
-                                android:textSize="@dimen/_12ssp" />
-
-                        </com.google.android.material.textfield.TextInputLayout>
                     </LinearLayout>
 
                     <com.google.android.material.textfield.TextInputLayout

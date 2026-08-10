@@ -258,6 +258,7 @@ class TelephoneVisitFragment : Fragment() {
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
                                 )
+                            //VISITS_APK
                             var message = "${it.data.message}"
 //                            DialogUtils.showResultDialog(
 //                                context = requireContext(),
@@ -271,6 +272,13 @@ class TelephoneVisitFragment : Fragment() {
 //                                    )
 //                                }
 //                            )
+                            if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
+                                MainActivity.binding.navView2.visibility = View.VISIBLE
+                                findNavController().navigate(
+                                    R.id.toHome
+                                )
+                                return@collect
+                            }
                             if (data.is_suspended == true) {
                                 message = "${data.message}"
                                 DialogUtils.showResultDialog(

@@ -4,8 +4,8 @@
 
     <item
         android:id="@+id/mainFragment"
-        android:title="الرئيسية"
         android:icon="@drawable/icon_home"
+        android:title="الرئيسية"
         android:visible="true"
         app:showAsAction="ifRoom" />
 
@@ -22,24 +22,26 @@
         android:visible="true"
         app:showAsAction="ifRoom" />
 
-<!--    <item-->
-<!--        android:id="@+id/ticketsFragment"-->
-<!--        android:icon="@drawable/ticket64"-->
-<!--        android:iconTint="@color/colorPrimary"-->
-<!--        android:title="@string/tickets"-->
-<!--        app:showAsAction="always" />-->
+    <!--    <item-->
+    <!--        android:id="@+id/ticketsFragment"-->
+    <!--        android:icon="@drawable/ticket64"-->
+    <!--        android:iconTint="@color/colorPrimary"-->
+    <!--        android:title="@string/tickets"-->
+    <!--        app:showAsAction="always" />-->
 
+    <!--    <item-->
+    <!--        android:id="@+id/foodFragment"-->
+    <!--        android:icon="@drawable/ic_print"-->
+    <!--        android:title="@string/print"-->
+    <!--        app:showAsAction="ifRoom" />-->
+
+
+    <!--VISITS_APK-->
 <!--    <item-->
-<!--        android:id="@+id/foodFragment"-->
-<!--        android:icon="@drawable/ic_print"-->
-<!--        android:title="@string/print"-->
+<!--        android:id="@+id/ordersMenuFragment"-->
+<!--        android:icon="@drawable/ic_orders_menu"-->
+<!--        android:title="طلبيات"-->
 <!--        app:showAsAction="ifRoom" />-->
-
-    <item
-        android:id="@+id/ordersMenuFragment"
-        android:icon="@drawable/ic_orders_menu"
-        android:title="طلبيات"
-        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/moreFragment"

@@ -6,10 +6,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.getItems.Data
 import com.akhnaton.foodvisits.data.model.getList.ITEMSPREVIEW
 
 class ProductPreviewAdapter(
-    private val list: List<ITEMSPREVIEW>
+    private val list: List<Data>
 ) : RecyclerView.Adapter<ProductPreviewAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(
@@ -35,7 +36,7 @@ class ProductPreviewAdapter(
     ) {
 
         holder.tvName.text =
-            list[position].NAME
+            list[position].ITEM_NAME
 
         holder.tvQty.text =
             list[position].QUANTITY.toString()

@@ -263,6 +263,37 @@ class OrdersMenuFragment : Fragment(),
                         }
                     }
 
+                    is Visits2Status.GetItems -> {
+                        dialog.dismiss()
+                        if (it.data.status == 200) {
+                            OrderDetailsBottomSheet(
+                                it.data.data
+                            ).show(
+                                childFragmentManager,
+                                "details"
+                            )
+                        } else if (it.data.status == 401) {
+//                            lifecycleScope.launch {
+//                                viewModel.visitsIntent.send(
+//                                    Visits2Intent.RefreshToken(
+//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+//                                        SharedPreferencesHelper.getInstance().getUserToken()
+//                                    )
+//                                )
+//                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
                     is Visits2Status.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
@@ -435,12 +466,13 @@ class OrdersMenuFragment : Fragment(),
     }
 
     override fun onShowDetails(order: Data) {
-        OrderDetailsBottomSheet(
-            order.ITEMS_PREVIEW
-        ).show(
-            childFragmentManager,
-            "details"
-        )
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.GetItems(
+                    order.ORIG_SYS_DOCUMENT_REF
+                )
+            )
+        }
     }
 
     private fun TextView.afterTextChangedDelayed(afterTextChanged: (String) -> Unit) {

@@ -7,11 +7,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.getItems.Data
 import com.akhnaton.foodvisits.data.model.getList.ITEMSPREVIEW
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class OrderDetailsBottomSheet(
-    private val products: List<ITEMSPREVIEW>
+    private val products: List<Data>
 ) : BottomSheetDialogFragment() {
 
     override fun onCreateView(

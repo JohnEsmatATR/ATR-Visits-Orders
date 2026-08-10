@@ -409,64 +409,72 @@ class GpsVisitFragment : Fragment() {
                                     it.data.data,
                                     Data::class.java
                                 )
+                            //VISITS_APK
                             var message = "${it.data.message}"
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = message,
-                                isSuccess = true,
-                                showOkButton = true,
-                                onOk = {
-                                    MainActivity.binding.navView2.visibility = View.VISIBLE
-                                    findNavController().navigate(
-                                        R.id.toHome
-                                    )
-                                }
-                            )
-//                            if (data.is_suspended == true) {
-//                                message = "${data.message}"
-//                                DialogUtils.showResultDialog(
-//                                    context = requireContext(),
-//                                    message = message,
-//                                    isSuccess = true,
-//                                    showOkButton = true,
-//                                    onOk = {
-//                                        MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                        findNavController().navigate(
-//                                            R.id.toHome
-//                                        )
-//                                    }
-//                                )
-//                            } else if (data.is_suspended == false) {
-//                                DialogUtils.showResultDialog(
-//                                    context = requireContext(),
-//                                    message = message,
-//                                    isSuccess = true,
-//                                    seconds = 2,
-//                                    onAutoDismiss = {
-//                                        if (grade == "A") {
-//                                            val bundle = Bundle().apply {
-//                                                putString("customerName", customerName)
-//                                                putString("customerCode", customerCode)
-//                                                putString("siteAddress", siteAddress)
-//                                                putString(
-//                                                    "customerPartySiteId",
-//                                                    customerPartySiteId
-//                                                )
-//                                                putString("saleType", saleType)
-//                                                putString("fragment", "Gps")
-//                                            }
-//
-//                                            findNavController().navigate(
-//                                                R.id.toOrderCreationCycle, bundle
-//                                            )
-//                                        } else {
-//                                            MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                            findNavController().navigate(
-//                                                R.id.toHome
-//                                            )
-//                                        }
-//                                    })
-//                            }
+//                            DialogUtils.showResultDialog(
+//                                context = requireContext(),
+//                                message = message,
+//                                isSuccess = true,
+//                                showOkButton = true,
+//                                onOk = {
+//                                    MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                    findNavController().navigate(
+//                                        R.id.toHome
+//                                    )
+//                                }
+//                            )
+                            if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
+                                MainActivity.binding.navView2.visibility = View.VISIBLE
+                                findNavController().navigate(
+                                    R.id.toHome
+                                )
+                                return@collect
+                            }
+                            if (data.is_suspended == true) {
+                                message = "${data.message}"
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome
+                                        )
+                                    }
+                                )
+                            } else if (data.is_suspended == false) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = message,
+                                    isSuccess = true,
+                                    seconds = 2,
+                                    onAutoDismiss = {
+                                        if (grade == "A") {
+                                            val bundle = Bundle().apply {
+                                                putString("customerName", customerName)
+                                                putString("customerCode", customerCode)
+                                                putString("siteAddress", siteAddress)
+                                                putString(
+                                                    "customerPartySiteId",
+                                                    customerPartySiteId
+                                                )
+                                                putString("saleType", saleType)
+                                                putString("fragment", "Gps")
+                                            }
+
+                                            findNavController().navigate(
+                                                R.id.toOrderCreationCycle, bundle
+                                            )
+                                        } else {
+                                            MainActivity.binding.navView2.visibility = View.VISIBLE
+                                            findNavController().navigate(
+                                                R.id.toHome
+                                            )
+                                        }
+                                    })
+                            }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.visitsIntent.send(

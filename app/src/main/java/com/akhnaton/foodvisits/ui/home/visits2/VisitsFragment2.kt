@@ -38,6 +38,7 @@ import com.akhnaton.foodvisits.shared.DateUtils
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.convertDateToApiFormat
 import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
 import com.akhnaton.foodvisits.shared.openLocationInMap
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
@@ -74,6 +75,8 @@ class VisitsFragment2 : Fragment() {
 
     private var allCustomers = mutableListOf<CustomerVisitPlan>()
     private var allReps = mutableListOf<SalesMan>()
+
+    private var selectedTab = 0
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -167,26 +170,27 @@ class VisitsFragment2 : Fragment() {
 
                 override fun onTabSelected(tab: TabLayout.Tab) {
 
-                    when (tab.position) {
+                    selectedTab = tab.position
 
-                        0 -> {
-                            setRecycler(allCustomers)
-                        }
-
-                        1 -> {
-                            setRecycler(allCustomers.filter { it.is_visited_today }.toMutableList())
-                        }
-
-                        2 -> {
-                            setRecycler(allCustomers.filter { !it.is_visited_today }
-                                .toMutableList())
-                        }
-                    }
+                    filterCustomers(
+                        binding.etSearch.text
+                            .toString()
+                            .trim()
+                    )
                 }
 
                 override fun onTabUnselected(tab: TabLayout.Tab) {}
 
-                override fun onTabReselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {
+
+                    selectedTab = tab.position
+
+                    filterCustomers(
+                        binding.etSearch.text
+                            .toString()
+                            .trim()
+                    )
+                }
             }
         )
     }
@@ -206,12 +210,13 @@ class VisitsFragment2 : Fragment() {
             listener = object : ScheduleBottomSheet.Listener {
                 override fun onConfirm(
                     employee: SalesMan,
-                    date: String
+                    date: String,
+                    targetDate: String,
                 ) {
 
                     val copyDayPlanReq = CopyDayPlanReq(
-                        date,
-                        date,
+                        convertDateToApiFormat(date),
+                        convertDateToApiFormat(targetDate),
                         employee.PERSON_ID.toInt(),
                     )
 
@@ -226,17 +231,33 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun filterCustomers(keyword: String) {
-        val filteredList =
-            if (keyword.isBlank()) {
-                allCustomers
-            } else {
-                allCustomers.filter {
-                    it.customer_name.contains(keyword, true) ||
-                            it.customer_code.contains(keyword, true) ||
-                            it.customer_address.contains(keyword, true) ||
-                            it.visit_with_name.contains(keyword, true)
-                }.toMutableList()
+
+        val filteredList = allCustomers.filter { customer ->
+
+            // Tab filter
+            val matchesTab = when (selectedTab) {
+
+                0 -> true
+
+                1 -> customer.is_visited_today
+
+                2 -> !customer.is_visited_today
+
+                else -> true
             }
+
+            // Search filter
+            val matchesSearch =
+                keyword.isBlank() ||
+                        customer.customer_name.contains(keyword, true) ||
+                        customer.customer_code.contains(keyword, true) ||
+                        customer.customer_address.contains(keyword, true) ||
+                        (customer.visit_with_name ?: "").contains(keyword, true)
+
+            // Customer must match BOTH filters
+            matchesTab && matchesSearch
+        }.toMutableList()
+
         if (filteredList.isEmpty()) {
             binding.rv.visibility = View.GONE
             binding.llZeroState.visibility = View.VISIBLE
