@@ -2,10 +2,14 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-//    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
-       const val BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
+    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
+//       const val BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
 //   const val BASE_URL = "http://10.42.151.27/" // Old Test
 //    const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
+
+    fun isProd(): Boolean {
+        return BASE_URL.contains("sales.atr-eg.com/sales_backend")
+    }
 
     //ENDPOINTS
     const val LOGIN_ENDPOINT = "Auth/login"

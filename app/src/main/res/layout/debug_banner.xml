@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/ribbonText"
+        android:layout_width="160dp"
+        android:layout_height="28dp"
+        android:background="@color/colorPrimary"
+        android:layoutDirection="ltr"
+        android:gravity="center"
+        android:text="TEST BUILD"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:textSize="10sp"
+        android:rotation="-45"
+        android:translationX="-40dp"
+        android:translationY="30dp"/>
+
+</FrameLayout>

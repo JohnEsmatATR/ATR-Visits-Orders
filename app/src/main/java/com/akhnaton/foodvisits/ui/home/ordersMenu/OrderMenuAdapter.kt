@@ -46,10 +46,11 @@ class OrderMenuAdapter(
         } else {
             ""
         }
+        val ltrNumber = "\u200E${list[position].ORIG_SYS_DOCUMENT_REF}\u200E"
         holder.tvInfo.text = "${holder.itemView.context.getString(R.string.code)}: " +
                 "${list[position].CUSTOMER_CODE} • " +
                 "${holder.itemView.context.getString(R.string.invoice)}: " +
-                "${list[position].ORIG_SYS_DOCUMENT_REF}"
+                "${ltrNumber}"
         holder.tvDate.text = list[position].ORDER_DATE
         holder.tvItems.text = "${list[position].ITEMS_COUNT} " +
                 "${holder.itemView.context.getString(R.string.product)} " +

@@ -1,14 +1,17 @@
 package com.akhnaton.foodvisits.shared
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.core.content.edit
+import com.akhnaton.foodvisits.shared.debugBanner.DebugBannerManager
 
 class SharedPreferencesHelper : Application() {
 
@@ -32,6 +35,48 @@ class SharedPreferencesHelper : Application() {
     override fun onCreate() {
         super.onCreate()
         context = applicationContext
+
+        registerActivityLifecycleCallbacks(
+            object : ActivityLifecycleCallbacks {
+                override fun onActivityCreated(
+                    activity: Activity,
+                    savedInstanceState: Bundle?
+                ) {
+                }
+
+                override fun onActivityDestroyed(
+                    activity: Activity
+                ) {
+                }
+
+                override fun onActivityPaused(
+                    activity: Activity
+                ) {
+                }
+
+                override fun onActivityResumed(
+                    activity: Activity
+                ) {
+                }
+
+                override fun onActivitySaveInstanceState(
+                    activity: Activity,
+                    outState: Bundle
+                ) {
+                }
+
+                override fun onActivityStarted(
+                    activity: Activity
+                ) {
+                    DebugBannerManager.show(activity)
+                }
+
+                override fun onActivityStopped(
+                    activity: Activity
+                ) {
+                }
+            }
+        )
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(

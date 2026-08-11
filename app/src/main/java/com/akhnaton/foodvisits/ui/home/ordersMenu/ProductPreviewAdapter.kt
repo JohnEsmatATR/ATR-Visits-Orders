@@ -21,7 +21,7 @@ class ProductPreviewAdapter(
         return ViewHolder(
             LayoutInflater.from(parent.context)
                 .inflate(
-                    R.layout.item_product_preview,
+                    R.layout.item_product_preview2,
                     parent,
                     false
                 )
@@ -35,21 +35,48 @@ class ProductPreviewAdapter(
         position: Int
     ) {
 
-        holder.tvName.text =
+        holder.tvItemName.text =
             list[position].ITEM_NAME
 
-        holder.tvQty.text =
+        holder.tvQuantity.text =
             list[position].QUANTITY.toString()
+
+        holder.tvTax.text =
+            list[position].TAX.toString()
+
+        holder.tvUnitPrice.text =
+            list[position].UNIT_PRICE.toString()
+
+        holder.tvTotalValue.text =
+            list[position].TOTAL_VALUE.toString()
+
+        if (list[position].IS_BACK_ORDER) {
+            holder.tvBackOrder.visibility = View.VISIBLE
+        } else {
+            holder.tvBackOrder.visibility = View.GONE
+        }
     }
 
     class ViewHolder(
         view: View
     ) : RecyclerView.ViewHolder(view) {
 
-        val tvName =
-            view.findViewById<TextView>(R.id.tvName)
+        val tvItemName =
+            view.findViewById<TextView>(R.id.tvItemName)
 
-        val tvQty =
-            view.findViewById<TextView>(R.id.tvQty)
+        val tvQuantity =
+            view.findViewById<TextView>(R.id.tvQuantity)
+
+        val tvTax =
+            view.findViewById<TextView>(R.id.tvTax)
+
+        val tvUnitPrice =
+            view.findViewById<TextView>(R.id.tvUnitPrice)
+
+        val tvTotalValue =
+            view.findViewById<TextView>(R.id.tvTotalValue)
+
+        val tvBackOrder =
+            view.findViewById<TextView>(R.id.tvBackOrder)
     }
 }
