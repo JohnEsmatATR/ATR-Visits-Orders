@@ -35,4 +35,8 @@
     <color name="unselected_tab_text_color">#8A8A8A</color>
     <color name="grey_color">#8A8A8A</color>
 
+    <color name="red_bg">#FDECEC</color>
+    <color name="orange_bg">#FFF3E6</color>
+    <color name="green_bg">#EAF7EE</color>
+
 </resources>
