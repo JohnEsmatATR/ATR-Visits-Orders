@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.IPhoneVisits
+import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
@@ -18,6 +19,9 @@ class PhoneVisitsRepository {
 
     suspend fun visitsSelect(orderType: String, customerCode: String) =
         retrofit.visitsSelect(orderType, customerCode)
+
+    suspend fun checkInPhone(checkInPhoneReq: CheckInPhoneReq) =
+        retrofit.checkInPhone(checkInPhoneReq)
 
     suspend fun saveVisitPhone(saveVisitPhoneReq: SaveVisitPhoneReq) =
         retrofit.saveVisitPhone(saveVisitPhoneReq)

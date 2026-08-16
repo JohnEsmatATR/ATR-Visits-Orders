@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
@@ -24,15 +23,13 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
 import com.akhnaton.foodvisits.data.model.getSalesMan.SalesMan
-import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
 import com.akhnaton.foodvisits.data.model.getVisitPlan.CustomerVisitPlan
-import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
-import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
+import com.akhnaton.foodvisits.data.model.getVisitPlan.Data
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
-import com.akhnaton.foodvisits.databinding.FragmentTelephoneVisitBinding
 import com.akhnaton.foodvisits.databinding.FragmentVisits2Binding
 import com.akhnaton.foodvisits.shared.DateUtils
 import com.akhnaton.foodvisits.shared.DialogUtils
@@ -41,21 +38,13 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.convertDateToApiFormat
 import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
 import com.akhnaton.foodvisits.shared.openLocationInMap
-import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
-import com.akhnaton.foodvisits.ui.home.order.OrderCreationCycleAdapter
-import com.akhnaton.foodvisits.ui.home.order.OrderSummaryBottomSheet
-import com.akhnaton.foodvisits.ui.home.phoneVisit.CustomersAdapter
-import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import kotlin.getValue
 
 class VisitsFragment2 : Fragment() {
@@ -77,6 +66,7 @@ class VisitsFragment2 : Fragment() {
     private var allReps = mutableListOf<SalesMan>()
 
     private var selectedTab = 0
+    private lateinit var clickedVisit: CustomerVisitPlan
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -306,7 +296,7 @@ class VisitsFragment2 : Fragment() {
                                 val data =
                                     Gson().fromJson(
                                         it.data.data,
-                                        com.akhnaton.foodvisits.data.model.getVisitPlan.Data::class.java
+                                        Data::class.java
                                     )
                                 binding.tvVisitsCount.setText("عدد الزيارات: ${data.customer_visit_plan.size} زيارة")
                                 binding.tvDay.setText(data.day)
@@ -424,6 +414,53 @@ class VisitsFragment2 : Fragment() {
                             }
                         }
 
+                        is Visits2Status.CheckIn -> {
+                            dialog.dismiss()
+                            binding.swipeRefresh.isRefreshing = false
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
+                                Log.d("WHAT", "onClick: $clickedVisit")
+
+                                if (data.already_started == true) {
+                                    navigateToGpsVisit(clickedVisit)
+                                } else {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = "هل تريد بدء الزيارة ؟",
+                                        description = "سيبدأ حساب مدة المكالمة الآن مع ${clickedVisit.customer_name} ",
+                                        isSuccess = true,
+                                        isStartVisit = true,
+                                        onStartVisit = {
+                                            checkIn(1, clickedVisit)
+                                        },
+                                    )
+                                }
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.visitsIntent.send(
+                                        Visits2Intent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
                         is Visits2Status.RefreshToken -> {
                             dialog.hide()
                             binding.swipeRefresh.isRefreshing = false
@@ -474,6 +511,48 @@ class VisitsFragment2 : Fragment() {
         }
     }
 
+    private fun checkIn(insert: Int, item: CustomerVisitPlan) {
+        val checkIn = CheckInGPSReq(
+            insert = insert,
+            latitude = item.customer_latitude.toString(),
+            longitude = item.customer_longitude.toString(),
+            ord_type = item.customer_order_type,
+            party_site_id = item.customer_party_site_id,
+            phone_visit = "0"
+        )
+        Log.d("WHATcheckIn", checkIn.toString())
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.CheckIn(
+                    checkIn
+                )
+            )
+        }
+    }
+
+    private fun navigateToGpsVisit(item: CustomerVisitPlan) {
+        val bundle = Bundle().apply {
+            putString("customerName", item.customer_name)
+            putString("customerCode", item.customer_code)
+            putString("siteAddress", item.customer_address)
+            putString(
+                "customerPartySiteId",
+                item.customer_party_site_id
+            )
+            putString("saleType", item.customer_order_type)
+            putDouble("customerLatitude", item.customer_latitude)
+            putDouble("customerLongitude", item.customer_longitude)
+            putInt("validGpsRange", item.valid_gps_range)
+            putString("visitWithUserId", item.visit_with_user_id)
+            putString("visitWithName", item.visit_with_name)
+        }
+
+        findNavController().navigate(
+            R.id.toGpsVisit,
+            bundle
+        )
+    }
+
     private fun setRecycler(
         list: MutableList<CustomerVisitPlan>
     ) {
@@ -486,25 +565,8 @@ class VisitsFragment2 : Fragment() {
         }
         val adapter = Visits2Adapter(object : Visits2Adapter.OnItemClickListener {
             override fun onClick(item: CustomerVisitPlan) {
-                Log.d("WHAT", "onClick: $item")
-
-                val bundle = Bundle().apply {
-                    putString("customerName", item.customer_name)
-                    putString("customerCode", item.customer_code)
-                    putString("siteAddress", item.customer_address)
-                    putString("customerPartySiteId", item.customer_party_site_id)
-                    putString("saleType", item.customer_order_type)
-                    putDouble("customerLatitude", item.customer_latitude)
-                    putDouble("customerLongitude", item.customer_longitude)
-                    putInt("validGpsRange", item.valid_gps_range)
-                    putString("visitWithUserId", item.visit_with_user_id)
-                    putString("visitWithName", item.visit_with_name)
-                }
-
-                findNavController().navigate(
-                    R.id.toGpsVisit,
-                    bundle
-                )
+//                clickedVisit = item
+                checkIn(0, item)
             }
 
             override fun onLocationClick(item: CustomerVisitPlan) {

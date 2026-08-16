@@ -17,6 +17,7 @@ object ConstantLinks {
     const val GET_CUSTOMERS_ENDPOINT = "Customer/getCustomers"
     const val GET_CUSTOMER_DATA_ENDPOINT = "Customer/getCustomerData"
     const val VISITS_SELECT_ENDPOINT = "Visit/visitsSelect"
+    const val CHECK_IN_ENDPOINT = "Visit/checkIn"
     const val SAVE_VISIT_ENDPOINT = "visit/saveVisit"
     const val GET_START_ORDER_DATA_ENDPOINT = "Order/getStartOrderData"
     const val SAVED_ORDER_ENDPOINT = "Order/saveOrder"

@@ -3,11 +3,9 @@ package com.akhnaton.foodvisits.ui.home.visits2
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
-import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
-import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
-import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
 import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
@@ -15,7 +13,6 @@ import com.akhnaton.foodvisits.domin.Visits2Repository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
@@ -49,6 +46,10 @@ class Visits2ViewModel : ViewModel() {
                         it.dateTo,
                         it.search,
                         it.orderType
+                    )
+
+                    is Visits2Intent.CheckIn -> checkInGPS(
+                        it.checkInGPSReq,
                     )
 
                     is Visits2Intent.SaveVisitGps -> saveVisitGps(
@@ -116,6 +117,22 @@ class Visits2ViewModel : ViewModel() {
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "copyDayPlanVIEWMODEL2 ${e.message}")
+                Visits2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun checkInGPS(checkInGPSReq: CheckInGPSReq) {
+        Log.d("WHAT", "checkInGPSReqVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = Visits2Status.Loading
+            _status.value = try {
+                Log.d("WHAT", "checkInGPSReqVIEWMODEL1")
+                Visits2Status.CheckIn(
+                    Visits2Repository().checkInGPS(checkInGPSReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "saveVisitGpsVIEWMODEL2 ${e.message}")
                 Visits2Status.Error(e.message)
             }
         }

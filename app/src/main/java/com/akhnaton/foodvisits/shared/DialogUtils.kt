@@ -22,12 +22,15 @@ object DialogUtils {
         showYesNoButtons: Boolean = false,
         isDismissable: Boolean = false,
         isLocation: Boolean = false,
+        isStartVisit: Boolean = false,
         okText: String? = "تم",
         onOk: (() -> Unit)? = null,
         onYes: (() -> Unit)? = null,
         onNo: (() -> Unit)? = null,
         onReport: (() -> Unit)? = null,
         onCancel: (() -> Unit)? = null,
+        onStartVisit: (() -> Unit)? = null,
+        onCancel2: (() -> Unit)? = null,
         description: String? = null,
         onAutoDismiss: (() -> Unit)? = null
     ) {
@@ -50,6 +53,9 @@ object DialogUtils {
         val llLocation = dialog.findViewById<LinearLayout>(R.id.llLocation)
         val btnReport = dialog.findViewById<MaterialButton>(R.id.btnReport)
         val btnCancel = dialog.findViewById<MaterialButton>(R.id.btnCancel)
+        val llStartVisit = dialog.findViewById<LinearLayout>(R.id.llStartVisit)
+        val btnStartVisit = dialog.findViewById<MaterialButton>(R.id.btnStartVisit)
+        val btnCancel2 = dialog.findViewById<MaterialButton>(R.id.btnCancel2)
 
         tvMessage.text = message
 
@@ -78,11 +84,34 @@ object DialogUtils {
             btnOk.visibility = View.GONE
             btnYes.visibility = View.GONE
             btnNo.visibility = View.GONE
+            btnReport.visibility = View.VISIBLE
+            btnCancel.visibility = View.VISIBLE
             btnReport.setOnClickListener {
                 dialog.dismiss()
                 onReport?.invoke()
             }
             btnCancel.setOnClickListener {
+                dialog.dismiss()
+                onCancel?.invoke()
+            }
+        }
+
+        if (isStartVisit) {
+            tvDescription.visibility = View.VISIBLE
+            tvDescription.text = description
+            llStartVisit.visibility = View.VISIBLE
+            btnStartVisit.visibility = View.VISIBLE
+            btnCancel2.visibility = View.VISIBLE
+            btnOk.visibility = View.GONE
+            btnYes.visibility = View.GONE
+            btnNo.visibility = View.GONE
+            btnStartVisit.visibility = View.VISIBLE
+            btnCancel2.visibility = View.VISIBLE
+            btnStartVisit.setOnClickListener {
+                dialog.dismiss()
+                onStartVisit?.invoke()
+            }
+            btnCancel2.setOnClickListener {
                 dialog.dismiss()
                 onCancel?.invoke()
             }

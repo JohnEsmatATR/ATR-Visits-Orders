@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.phoneVisit
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
@@ -44,6 +45,10 @@ class PhoneVisitsViewModel : ViewModel() {
 
                     is PhoneVisitsIntent.SaveVisitPhone -> saveVisitPhone(
                         it.saveVisitPhoneReq,
+                    )
+
+                    is PhoneVisitsIntent.CheckIn -> checkIn(
+                        it.checkInPhoneReq,
                     )
 
                     is PhoneVisitsIntent.RefreshToken -> refreshToken(it.userId, it.token)
@@ -164,12 +169,28 @@ class PhoneVisitsViewModel : ViewModel() {
         }
     }
 
-    private fun saveVisitPhone(saveVisitPhoneReq: SaveVisitPhoneReq) {
-        Log.d("WHAT", "getCustomersVIEWMODEL")
+    private fun checkIn(checkInPhoneReq: CheckInPhoneReq) {
+        Log.d("WHAT", "checkInVIEWMODEL")
         viewModelScope.launch {
             _status.value = PhoneVisitsStatus.Loading
             _status.value = try {
-                Log.d("WHAT", "getCustomersVIEWMODEL1")
+                Log.d("WHAT", "checkInVIEWMODEL1")
+                PhoneVisitsStatus.CheckIn(
+                    PhoneVisitsRepository().checkInPhone(checkInPhoneReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "saveVisitGpsVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun saveVisitPhone(saveVisitPhoneReq: SaveVisitPhoneReq) {
+        Log.d("WHAT", "saveVisitPhoneVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "saveVisitPhoneVIEWMODEL1")
                 PhoneVisitsStatus.SaveVisitPhone(
                     PhoneVisitsRepository().saveVisitPhone(saveVisitPhoneReq)
                 )

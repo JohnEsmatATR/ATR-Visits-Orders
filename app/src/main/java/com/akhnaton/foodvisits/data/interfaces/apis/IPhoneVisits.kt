@@ -3,6 +3,8 @@ package com.akhnaton.foodvisits.data.interfaces.apis
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.VisitsPlaneDataDumy
 import com.akhnaton.foodvisits.data.model.VisitsCustomerType
+import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
+import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneRes
 import com.akhnaton.foodvisits.data.model.customers.GetCustomersRes
 import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
@@ -15,6 +17,7 @@ import com.akhnaton.foodvisits.data.model.visits.CustomerSite
 import com.akhnaton.foodvisits.data.model.visits.Lines
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
 import com.akhnaton.foodvisits.shared.ConstantLinks
+import com.akhnaton.foodvisits.shared.ConstantLinks.CHECK_IN_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMERS_SITE
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_LINE
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_TYPE
@@ -56,6 +59,11 @@ interface IPhoneVisits {
         @Query("order_type") orderType: String,
         @Query("customer_code") customerCode: String
     ): VisitsSelectRes
+
+    @POST(CHECK_IN_ENDPOINT)
+    suspend fun checkInPhone(
+        @Body checkInReq: CheckInPhoneReq
+    ): CheckInPhoneRes
 
     @POST(SAVE_VISIT_ENDPOINT)
     suspend fun saveVisitPhone(

@@ -1,15 +1,10 @@
 package com.akhnaton.foodvisits.domin
 
-import com.akhnaton.foodvisits.data.interfaces.apis.IOrder
-import com.akhnaton.foodvisits.data.interfaces.apis.IOrder2
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits2
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
-import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
-import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
-import com.google.gson.JsonElement
-
 class Visits2Repository {
 
     private val retrofit = RetrofitClient.getInstance(IVisits2::class.java)
@@ -22,6 +17,9 @@ class Visits2Repository {
 
     suspend fun visitsSelect(orderType: String, customerCode: String) =
         retrofit.visitsSelect(orderType, customerCode)
+
+    suspend fun checkInGPS(checkInGPSReq: CheckInGPSReq) =
+        retrofit.checkInGPS(checkInGPSReq)
 
     suspend fun saveVisitGps(saveVisitGpsReq: SaveVisitGpsReq) =
         retrofit.saveVisitGps(saveVisitGpsReq)

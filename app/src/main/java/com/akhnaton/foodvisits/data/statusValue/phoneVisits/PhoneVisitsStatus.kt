@@ -3,6 +3,9 @@ package com.akhnaton.foodvisits.data.statusValue.phoneVisits
 import com.akhnaton.foodvisits.data.model.AppSetting
 import com.akhnaton.foodvisits.data.model.VisitsPlaneDataDumy
 import com.akhnaton.foodvisits.data.model.VisitsCustomerType
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSRes
+import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneRes
 import com.akhnaton.foodvisits.data.model.customers.GetCustomersRes
 import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
@@ -13,7 +16,6 @@ import com.akhnaton.foodvisits.data.model.visits.CustomerLines
 import com.akhnaton.foodvisits.data.model.visits.CustomerSite
 import com.akhnaton.foodvisits.data.model.visits.Lines
 import com.akhnaton.foodvisits.data.model.visits.saveVisit.SaveVisit
-import com.akhnaton.foodvisits.data.statusValue.order.OrderStatus
 
 
 sealed class PhoneVisitsStatus {
@@ -24,6 +26,7 @@ sealed class PhoneVisitsStatus {
     data class GetCustomers(val data: GetCustomersRes) : PhoneVisitsStatus()
     data class GetCustomerData(val data: GetCustomerDataRes) : PhoneVisitsStatus()
     data class VisitsSelect(val data: VisitsSelectRes) : PhoneVisitsStatus()
+    data class CheckIn(val data: CheckInPhoneRes) : PhoneVisitsStatus()
     data class SaveVisitPhone(val data: SaveVisitPhoneRes) : PhoneVisitsStatus()
     data class RefreshToken(val data: RefreshTokenRes) : PhoneVisitsStatus()
 

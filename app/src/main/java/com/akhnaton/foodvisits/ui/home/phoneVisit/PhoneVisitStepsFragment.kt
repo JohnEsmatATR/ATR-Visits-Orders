@@ -1,17 +1,13 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
-import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -20,10 +16,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import cn.pedant.SweetAlert.SweetAlertDialog
+import calculateTimeDifference
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.CustomerType
+import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.Data
 import com.akhnaton.foodvisits.data.model.visits.LinesUsers
@@ -32,7 +29,6 @@ import com.akhnaton.foodvisits.data.model.visits.SitesData
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentPhoneVisitStepsBinding
-import com.akhnaton.foodvisits.databinding.FragmentPhoneVisits2Binding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
@@ -107,29 +103,93 @@ class PhoneVisitStepsFragment : Fragment() {
         }
 
         binding.btnStartVisit.setOnClickListener {
-            val bundle = Bundle().apply {
-                putString("customerName", customerName)
-                putString("customerCode", customerCode)
-                putString("siteAddress", siteAddress)
-                putString("customerPartySiteId", customerPartySiteId)
-                putString("saleType", saleType)
-            }
-
-            Log.d("WHATbtnStartVisit", customerName)
-            Log.d("WHATbtnStartVisit", customerCode)
-            Log.d("WHATbtnStartVisit", siteAddress)
-            Log.d("WHATbtnStartVisit", customerPartySiteId)
-            Log.d("WHATbtnStartVisit", saleType)
-
-            findNavController().navigate(
-                R.id.toTelephoneVisit,
-                bundle
-            )
+            Log.d("WHAT", "Triggered0")
+            checkInZero(customerPartySiteId, saleType)
         }
 
         getData()
         fetchData()
 
+    }
+
+    private fun checkInZero(
+        customerPartySiteId: String,
+        saleType: String
+    ) {
+        val checkIn = CheckInPhoneReq(
+            insert = 0,
+            ord_type = saleType,
+            party_site_id = customerPartySiteId,
+            phone_visit = "1"
+        )
+        Log.d("WHATcheckIn", checkIn.toString())
+        Log.d("WHAT", "Triggered1")
+        lifecycleScope.launch {
+            viewModel.phoneVisitsIntent.send(
+                PhoneVisitsIntent.CheckIn(
+                    checkIn
+                )
+            )
+        }
+    }
+
+    private fun checkInOne(
+        customerPartySiteId: String,
+        saleType: String
+    ) {
+        val checkIn = CheckInPhoneReq(
+            insert = 1,
+            ord_type = saleType,
+            party_site_id = customerPartySiteId,
+            phone_visit = "1"
+        )
+        Log.d("WHATcheckIn", checkIn.toString())
+        Log.d("WHAT", "Triggered1")
+        lifecycleScope.launch {
+            viewModel.phoneVisitsIntent.send(
+                PhoneVisitsIntent.CheckIn(
+                    checkIn
+                )
+            )
+        }
+    }
+
+    private fun navigateToPhoneVisit(
+        customerName: String,
+        customerCode: String,
+        siteAddress: String,
+        customerPartySiteId: String,
+        saleType: String,
+        checkIn: String,
+        currentTime: String
+    ) {
+        val result = calculateTimeDifference(
+            checkIn,
+            currentTime
+        )
+
+        val bundle = Bundle().apply {
+            putString("customerName", customerName)
+            putString("customerCode", customerCode)
+            putString("siteAddress", siteAddress)
+            putString("customerPartySiteId", customerPartySiteId)
+            putString("saleType", saleType)
+            putString("checkIn", checkIn)
+            putLong("hours", result.hours)
+            putLong("minutes", result.minutes)
+            putLong("seconds", result.seconds)
+        }
+
+        Log.d("WHATbtnStartVisit", customerName)
+        Log.d("WHATbtnStartVisit", customerCode)
+        Log.d("WHATbtnStartVisit", siteAddress)
+        Log.d("WHATbtnStartVisit", customerPartySiteId)
+        Log.d("WHATbtnStartVisit", saleType)
+
+        findNavController().navigate(
+            R.id.toTelephoneVisit,
+            bundle
+        )
     }
 
     private fun getCustomers() {
@@ -166,26 +226,26 @@ class PhoneVisitStepsFragment : Fragment() {
                         keyword,
                         true
                     ) ||
-                    it.DISPLAY_NAME.contains(
-                        keyword,
-                        true
-                    ) ||
-                    it.CUSTOMER_CODE.contains(
-                        keyword,
-                        true
-                    ) ||
-                    it.CATEGORY_MEANING.contains(
-                        keyword,
-                        true
-                    ) ||
-                    it.TEAM_NAME.contains(
-                        keyword,
-                        true
-                    ) ||
-                    it.CUSTOMER_PROFILE_DESC.contains(
-                        keyword,
-                        true
-                    )
+                            it.DISPLAY_NAME.contains(
+                                keyword,
+                                true
+                            ) ||
+                            it.CUSTOMER_CODE.contains(
+                                keyword,
+                                true
+                            ) ||
+                            it.CATEGORY_MEANING.contains(
+                                keyword,
+                                true
+                            ) ||
+                            it.TEAM_NAME.contains(
+                                keyword,
+                                true
+                            ) ||
+                            it.CUSTOMER_PROFILE_DESC.contains(
+                                keyword,
+                                true
+                            )
                 }.toMutableList()
             }
         if (displayedCustomers.isEmpty()) {
@@ -490,6 +550,70 @@ class PhoneVisitStepsFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.getCustomerData.Data::class.java
                                 )
                             setRecycler3(data.customer_address.toMutableList())
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.phoneVisitsIntent.send(
+                                    PhoneVisitsIntent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
+                    is PhoneVisitsStatus.CheckIn -> {
+                        dialog.dismiss()
+                        if (it.data.status == 200) {
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.checkInPhone.Data::class.java
+                                )
+//                            Log.d("WHAT", "onClick: $clickedVisit")
+
+
+                            if (data.visit_id != null) {
+                                navigateToPhoneVisit(
+                                    customerName,
+                                    customerCode,
+                                    siteAddress,
+                                    customerPartySiteId,
+                                    saleType,
+                                    data.check_in.toString(),
+                                    data.current_time
+                                )
+                            } else {
+                                Log.d("WHATbtnStartVisit", customerName)
+                                Log.d("WHATbtnStartVisit", customerCode)
+                                Log.d("WHATbtnStartVisit", siteAddress)
+                                Log.d("WHATbtnStartVisit", customerPartySiteId)
+                                Log.d("WHATbtnStartVisit", saleType)
+                                Log.d("WHAT", "${data.already_started}")
+                                Log.d("WHAT", "${data.visit_id}")
+                                Log.d("WHAT", "Triggered2")
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "هل تريد بدء الزيارة ؟",
+                                    description = "سيبدأ حساب مدة المكالمة الآن مع ${customerName} ${siteAddress}",
+                                    isSuccess = true,
+                                    isStartVisit = true,
+                                    onStartVisit = {
+                                        checkInOne(customerPartySiteId, saleType)
+                                    },
+                                )
+                            }
+
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.phoneVisitsIntent.send(

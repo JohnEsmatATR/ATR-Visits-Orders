@@ -57,6 +57,9 @@ class TelephoneVisitFragment : Fragment() {
     lateinit var siteAddress: String
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
+    var hours: Long = 0
+    var minutes: Long = 0
+    var seconds: Long = 0
 
     var anotherOrderType: String = ""
     var grade: String = ""
@@ -75,7 +78,7 @@ class TelephoneVisitFragment : Fragment() {
     private var timerHandler = Handler(Looper.getMainLooper())
     private var startTimeMillis = 0L
 
-    val timerRunnable = object : Runnable {
+    var timerRunnable = object : Runnable {
         override fun run() {
             val elapsed =
                 System.currentTimeMillis() - startTimeMillis
@@ -109,6 +112,27 @@ class TelephoneVisitFragment : Fragment() {
             arguments?.getString("customerPartySiteId").toString()
         saleType =
             arguments?.getString("saleType").toString()
+        checkIn =
+            arguments?.getString("checkIn").toString()
+        hours =
+            arguments?.getLong("hours")!!
+        minutes =
+            arguments?.getLong("minutes")!!
+        seconds =
+            arguments?.getLong("seconds")!!
+
+        timerRunnable = object : Runnable {
+            override fun run() {
+                binding.tvTimer.text =
+                    String.format(
+                        "%02d:%02d:%02d",
+                        hours,
+                        minutes,
+                        seconds
+                    )
+                timerHandler.postDelayed(this, 1000)
+            }
+        }
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
 
@@ -351,7 +375,6 @@ class TelephoneVisitFragment : Fragment() {
                     is PhoneVisitsStatus.VisitsSelect -> {
                         dialog.dismiss()
                         binding.tvTimer.visibility = View.VISIBLE
-                        checkIn = startTimer()
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -517,21 +540,21 @@ class TelephoneVisitFragment : Fragment() {
         return calendar.timeInMillis / 1000
     }
 
-    fun startTimer(): String {
-
-        val currentMillis = System.currentTimeMillis()
-
-        checkIn = SimpleDateFormat(
-            "dd-MM-yyyy HH:mm:ss",
-            Locale.ENGLISH
-        ).format(Date(currentMillis))
-
-        startTimeMillis = currentMillis
-
-        timerHandler.post(timerRunnable)
-
-        return checkIn
-    }
+//    fun startTimer(): String {
+//
+//        val currentMillis = System.currentTimeMillis()
+//
+//        checkIn = SimpleDateFormat(
+//            "dd-MM-yyyy HH:mm:ss",
+//            Locale.ENGLISH
+//        ).format(Date(currentMillis))
+//
+//        startTimeMillis = currentMillis
+//
+//        timerHandler.post(timerRunnable)
+//
+//        return checkIn
+//    }
 
     fun endTimer(): Long {
         dateVisit =
