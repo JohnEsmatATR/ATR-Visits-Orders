@@ -83,6 +83,8 @@ class GpsVisitFragment : Fragment() {
     var visitTarget: String = ""
     var actTarget: String = ""
     var checkIn: String = ""
+    var currentTime: String = ""
+
     var orderType: String = "SALE"
     var customerType: String = "RETAIL"
 
@@ -93,23 +95,38 @@ class GpsVisitFragment : Fragment() {
 
     private var selectedRating = 0f
 
-    val timerRunnable = object : Runnable {
+    var timerRunnable = object : Runnable {
         override fun run() {
-            val elapsed = System.currentTimeMillis() - startTimeMillis
-            val hours = elapsed / (1000 * 60 * 60)
-            val minutes = (elapsed / (1000 * 60)) % 60
-            val seconds = (elapsed / 1000) % 60
-            binding.tvTimer.text = String.format(
-                "%02d:%02d:%02d", hours, minutes, seconds
-            )
+            val elapsed =
+                System.currentTimeMillis() - startTimeMillis
+            val hours =
+                elapsed / (1000 * 60 * 60)
+            val minutes =
+                (elapsed / (1000 * 60)) % 60
+            val seconds =
+                (elapsed / 1000) % 60
+            binding.tvTimer.text =
+                String.format(
+                    "%02d:%02d:%02d",
+                    hours,
+                    minutes,
+                    seconds
+                )
             timerHandler.postDelayed(this, 1000)
         }
     }
+
+    private var checkInTimeMillis = 0L
+    private var apiCurrentTimeMillis = 0L
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var currentDistanceMeters: Float = 0f
 
     private var isDeveloperModeEnable = 0
+
+    var hours: Long = 0
+    var minutes: Long = 0
+    var seconds: Long = 0
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -125,6 +142,31 @@ class GpsVisitFragment : Fragment() {
         validGpsRange = arguments?.getInt("validGpsRange")
         visitWithUserId = arguments?.getString("visitWithUserId").toString()
         visitWithName = arguments?.getString("visitWithName").toString()
+        checkIn =
+            arguments?.getString("checkIn").toString()
+        currentTime =
+            arguments?.getString("currentTime").toString()
+
+        if (!checkIn.isNullOrBlank() && !currentTime.isNullOrBlank()) {
+
+            checkInTimeMillis = parseApiDate(checkIn)
+            apiCurrentTimeMillis = parseApiDate(currentTime)
+
+            startTimer()
+        }
+
+        timerRunnable = object : Runnable {
+            override fun run() {
+                binding.tvTimer.text =
+                    String.format(
+                        "%02d:%02d:%02d",
+                        hours,
+                        minutes,
+                        seconds
+                    )
+                timerHandler.postDelayed(this, 1000)
+            }
+        }
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
 
@@ -424,9 +466,17 @@ class GpsVisitFragment : Fragment() {
 //                                }
 //                            )
                             if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
-                                MainActivity.binding.navView2.visibility = View.VISIBLE
-                                findNavController().navigate(
-                                    R.id.toHome
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "غير مسموح لك بعمل طلبيات , الرجاء التواصل مع الإدارة المالية",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome
+                                        )
+                                    }
                                 )
                                 return@collect
                             }
@@ -500,7 +550,6 @@ class GpsVisitFragment : Fragment() {
                     is Visits2Status.VisitsSelect -> {
                         dialog.dismiss()
                         binding.tvTimer.visibility = View.VISIBLE
-                        checkIn = startTimer()
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -660,20 +709,35 @@ class GpsVisitFragment : Fragment() {
         return calendar.timeInMillis / 1000
     }
 
-    fun startTimer(): String {
+    private fun startTimer() {
 
-        val currentMillis = System.currentTimeMillis()
+        // Initial difference calculated from the API
+        var elapsed = apiCurrentTimeMillis - checkInTimeMillis
 
-        checkIn = SimpleDateFormat(
-            "dd-MM-yyyy HH:mm:ss",
-            Locale.ENGLISH
-        ).format(Date(currentMillis))
+        timerRunnable = object : Runnable {
 
-        startTimeMillis = currentMillis
+            override fun run() {
+
+                val hours = elapsed / (1000 * 60 * 60)
+                val minutes = (elapsed / (1000 * 60)) % 60
+                val seconds = (elapsed / 1000) % 60
+
+                binding.tvTimer.text = String.format(
+                    Locale.getDefault(),
+                    "%02d:%02d:%02d",
+                    hours,
+                    minutes,
+                    seconds
+                )
+
+                // Add exactly 1 second for the next update
+                elapsed += 1000
+
+                timerHandler.postDelayed(this, 1000)
+            }
+        }
 
         timerHandler.post(timerRunnable)
-
-        return checkIn
     }
 
     fun endTimer(): Long {
@@ -695,6 +759,15 @@ class GpsVisitFragment : Fragment() {
             0
         }
         return isDeveloperModeEnable
+    }
+
+    private fun parseApiDate(date: String): Long {
+        val format = SimpleDateFormat(
+            "dd-MM-yyyy HH:mm:ss",
+            Locale.getDefault()
+        )
+
+        return format.parse(date)?.time ?: 0L
     }
 
     override fun onCreateView(

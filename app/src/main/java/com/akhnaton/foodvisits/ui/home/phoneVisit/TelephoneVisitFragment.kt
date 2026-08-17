@@ -70,6 +70,8 @@ class TelephoneVisitFragment : Fragment() {
     var visitTarget: String = ""
     var actTarget: String = ""
     var checkIn: String = ""
+    var currentTime: String = ""
+
     var orderType: String = "SALE"
     var customerType: String = "RETAIL"
 
@@ -99,6 +101,9 @@ class TelephoneVisitFragment : Fragment() {
         }
     }
 
+    private var checkInTimeMillis = 0L
+    private var apiCurrentTimeMillis = 0L
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -114,12 +119,23 @@ class TelephoneVisitFragment : Fragment() {
             arguments?.getString("saleType").toString()
         checkIn =
             arguments?.getString("checkIn").toString()
-        hours =
-            arguments?.getLong("hours")!!
-        minutes =
-            arguments?.getLong("minutes")!!
-        seconds =
-            arguments?.getLong("seconds")!!
+        currentTime =
+            arguments?.getString("currentTime").toString()
+
+        if (!checkIn.isNullOrBlank() && !currentTime.isNullOrBlank()) {
+
+            checkInTimeMillis = parseApiDate(checkIn)
+            apiCurrentTimeMillis = parseApiDate(currentTime)
+
+            startTimer()
+        }
+
+//        hours =
+//            arguments?.getLong("hours")!!
+//        minutes =
+//            arguments?.getLong("minutes")!!
+//        seconds =
+//            arguments?.getLong("seconds")!!
 
         timerRunnable = object : Runnable {
             override fun run() {
@@ -267,6 +283,46 @@ class TelephoneVisitFragment : Fragment() {
 //        }
 //    }
 
+    private fun parseApiDate(date: String): Long {
+        val format = SimpleDateFormat(
+            "dd-MM-yyyy HH:mm:ss",
+            Locale.getDefault()
+        )
+
+        return format.parse(date)?.time ?: 0L
+    }
+
+    private fun startTimer() {
+
+        // Initial difference calculated from the API
+        var elapsed = apiCurrentTimeMillis - checkInTimeMillis
+
+        timerRunnable = object : Runnable {
+
+            override fun run() {
+
+                val hours = elapsed / (1000 * 60 * 60)
+                val minutes = (elapsed / (1000 * 60)) % 60
+                val seconds = (elapsed / 1000) % 60
+
+                binding.tvTimer.text = String.format(
+                    Locale.getDefault(),
+                    "%02d:%02d:%02d",
+                    hours,
+                    minutes,
+                    seconds
+                )
+
+                // Add exactly 1 second for the next update
+                elapsed += 1000
+
+                timerHandler.postDelayed(this, 1000)
+            }
+        }
+
+        timerHandler.post(timerRunnable)
+    }
+
     private fun fetchData() {
         lifecycleScope.launch {
             viewModel.status.collect {
@@ -297,9 +353,17 @@ class TelephoneVisitFragment : Fragment() {
 //                                }
 //                            )
                             if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
-                                MainActivity.binding.navView2.visibility = View.VISIBLE
-                                findNavController().navigate(
-                                    R.id.toHome
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "غير مسموح لك بعمل طلبيات , الرجاء التواصل مع الإدارة المالية",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome
+                                        )
+                                    }
                                 )
                                 return@collect
                             }
@@ -561,6 +625,12 @@ class TelephoneVisitFragment : Fragment() {
             System.currentTimeMillis() / 1000
         timerHandler.removeCallbacks(timerRunnable)
         return dateVisit
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        timerHandler.removeCallbacks(timerRunnable)
     }
 
     override fun onCreateView(

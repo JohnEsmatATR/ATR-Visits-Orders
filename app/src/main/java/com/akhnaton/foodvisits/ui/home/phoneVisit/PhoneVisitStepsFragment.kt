@@ -11,7 +11,9 @@ import android.view.ViewGroup
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.GridLayoutManager
@@ -163,6 +165,18 @@ class PhoneVisitStepsFragment : Fragment() {
         checkIn: String,
         currentTime: String
     ) {
+        val navController = findNavController()
+
+        // Prevent navigating from TelephoneVisitFragment
+        if (navController.currentDestination?.id != R.id.visitPhoneFragment) {
+            Log.e(
+                "NAVIGATION",
+                "Navigation ignored. Current destination = " +
+                        "${navController.currentDestination?.label}"
+            )
+            return
+        }
+
         val result = calculateTimeDifference(
             checkIn,
             currentTime
@@ -175,18 +189,20 @@ class PhoneVisitStepsFragment : Fragment() {
             putString("customerPartySiteId", customerPartySiteId)
             putString("saleType", saleType)
             putString("checkIn", checkIn)
+            putString("currentTime", currentTime)
+
+            // Keep these if you still need them
             putLong("hours", result.hours)
             putLong("minutes", result.minutes)
             putLong("seconds", result.seconds)
         }
 
-        Log.d("WHATbtnStartVisit", customerName)
-        Log.d("WHATbtnStartVisit", customerCode)
-        Log.d("WHATbtnStartVisit", siteAddress)
-        Log.d("WHATbtnStartVisit", customerPartySiteId)
-        Log.d("WHATbtnStartVisit", saleType)
+        Log.d(
+            "NAVIGATION",
+            "Navigating to TelephoneVisitFragment"
+        )
 
-        findNavController().navigate(
+        navController.navigate(
             R.id.toTelephoneVisit,
             bundle
         )
@@ -456,264 +472,271 @@ class PhoneVisitStepsFragment : Fragment() {
 //    }
 
     private fun fetchData() {
-        lifecycleScope.launch {
-            viewModel.status.collect {
-                when (it) {
-                    is PhoneVisitsStatus.Idle -> dialog.show()
-                    is PhoneVisitsStatus.Loading -> dialog.show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+                viewModel.status.collect {
+                    when (it) {
+                        is PhoneVisitsStatus.Idle -> dialog.show()
+                        is PhoneVisitsStatus.Loading -> dialog.show()
 
-                    is PhoneVisitsStatus.GetSalesAndCustomerTypes -> {
-                        dialog.hide()
-                        Log.d("WHAT", "${it.data.status}")
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    Data::class.java
-                                )
-                            setRecycler1(data.sales_types.toMutableList())
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.phoneVisitsIntent.send(
-                                    PhoneVisitsIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                        is PhoneVisitsStatus.GetSalesAndCustomerTypes -> {
+                            dialog.hide()
+                            Log.d("WHAT", "${it.data.status}")
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        Data::class.java
                                     )
+                                setRecycler1(data.sales_types.toMutableList())
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.phoneVisitsIntent.send(
+                                        PhoneVisitsIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                    }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                }
-                            )
                         }
-                    }
 
-                    is PhoneVisitsStatus.GetCustomers -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
+                        is PhoneVisitsStatus.GetCustomers -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
 //                            val data =
 //                                Gson().fromJson(
 //                                    it.data.data,
 //                                    Data::class.java
 //                                )
-                            allCustomers.clear()
-                            allCustomers =
-                                it.data.data.toMutableList()
-                            displayedCustomers =
-                                allCustomers.toMutableList()
-                            if (displayedCustomers.isEmpty()) {
-                                binding.llZeroState.visibility =
-                                    View.VISIBLE
-                                binding.rv2.visibility =
-                                    View.GONE
+                                allCustomers.clear()
+                                allCustomers =
+                                    it.data.data.toMutableList()
+                                displayedCustomers =
+                                    allCustomers.toMutableList()
+                                if (displayedCustomers.isEmpty()) {
+                                    binding.llZeroState.visibility =
+                                        View.VISIBLE
+                                    binding.rv2.visibility =
+                                        View.GONE
+                                } else {
+                                    binding.llZeroState.visibility =
+                                        View.GONE
+                                    binding.rv2.visibility =
+                                        View.VISIBLE
+                                    setRecycler2(displayedCustomers)
+                                }
+
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.phoneVisitsIntent.send(
+                                        PhoneVisitsIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
                             } else {
-                                binding.llZeroState.visibility =
-                                    View.GONE
-                                binding.rv2.visibility =
-                                    View.VISIBLE
-                                setRecycler2(displayedCustomers)
-                            }
-
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.phoneVisitsIntent.send(
-                                    PhoneVisitsIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
-                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
 //                                    findNavController().popBackStack()
-                                }
-                            )
-                        }
-                    }
-
-                    is PhoneVisitsStatus.GetCustomerData -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.getCustomerData.Data::class.java
-                                )
-                            setRecycler3(data.customer_address.toMutableList())
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.phoneVisitsIntent.send(
-                                    PhoneVisitsIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
+                                    }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
                         }
-                    }
 
-                    is PhoneVisitsStatus.CheckIn -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.checkInPhone.Data::class.java
+                        is PhoneVisitsStatus.GetCustomerData -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.getCustomerData.Data::class.java
+                                    )
+                                setRecycler3(data.customer_address.toMutableList())
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.phoneVisitsIntent.send(
+                                        PhoneVisitsIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
+                            }
+                        }
+
+                        is PhoneVisitsStatus.CheckIn -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInPhone.Data::class.java
+                                    )
 //                            Log.d("WHAT", "onClick: $clickedVisit")
 
 
-                            if (data.visit_id != null) {
-                                navigateToPhoneVisit(
-                                    customerName,
-                                    customerCode,
-                                    siteAddress,
-                                    customerPartySiteId,
-                                    saleType,
-                                    data.check_in.toString(),
-                                    data.current_time
-                                )
-                            } else {
-                                Log.d("WHATbtnStartVisit", customerName)
-                                Log.d("WHATbtnStartVisit", customerCode)
-                                Log.d("WHATbtnStartVisit", siteAddress)
-                                Log.d("WHATbtnStartVisit", customerPartySiteId)
-                                Log.d("WHATbtnStartVisit", saleType)
-                                Log.d("WHAT", "${data.already_started}")
-                                Log.d("WHAT", "${data.visit_id}")
-                                Log.d("WHAT", "Triggered2")
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = "هل تريد بدء الزيارة ؟",
-                                    description = "سيبدأ حساب مدة المكالمة الآن مع ${customerName} ${siteAddress}",
-                                    isSuccess = true,
-                                    isStartVisit = true,
-                                    onStartVisit = {
-                                        checkInOne(customerPartySiteId, saleType)
-                                    },
-                                )
-                            }
-
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.phoneVisitsIntent.send(
-                                    PhoneVisitsIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                if (data.visit_id != null) {
+                                    navigateToPhoneVisit(
+                                        customerName,
+                                        customerCode,
+                                        siteAddress,
+                                        customerPartySiteId,
+                                        saleType,
+                                        data.check_in.toString(),
+                                        data.current_time
                                     )
-                                )
-                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
+                                } else {
+                                    Log.d("WHATbtnStartVisit", customerName)
+                                    Log.d("WHATbtnStartVisit", customerCode)
+                                    Log.d("WHATbtnStartVisit", siteAddress)
+                                    Log.d("WHATbtnStartVisit", customerPartySiteId)
+                                    Log.d("WHATbtnStartVisit", saleType)
+                                    Log.d("WHAT", "${data.already_started}")
+                                    Log.d("WHAT", "${data.visit_id}")
+                                    Log.d("WHAT", "Triggered2")
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = "هل تريد بدء الزيارة ؟",
+                                        description = "سيبدأ حساب مدة المكالمة الآن مع ${customerName} ${siteAddress}",
+                                        isSuccess = true,
+                                        isStartVisit = true,
+                                        onStartVisit = {
+                                            checkInOne(customerPartySiteId, saleType)
+                                        },
+                                    )
                                 }
-                            )
-                        }
-                    }
 
-                    is PhoneVisitsStatus.RefreshToken -> {
-                        dialog.hide()
-                        if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            getData()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance()
-                                        .logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(),
-                                            LoginActivity2::class.java
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.phoneVisitsIntent.send(
+                                        PhoneVisitsIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
                                         )
                                     )
-                                    requireActivity().finishAffinity()
                                 }
-                            )
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
                         }
 
-                    }
+                        is PhoneVisitsStatus.RefreshToken -> {
+                            dialog.hide()
+                            if (it.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${it.data.message}")
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                    )
+                                SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                getData()
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance()
+                                            .logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    }
+                                )
+                            }
 
-                    is PhoneVisitsStatus.GetCustomerType -> {
-                        dialog.hide()
-                        customerType.clear()
-                        (customerTypeList as ArrayList).clear()
-                        val mCustomerList = it.data.data.user_customer_type
-                        customerTypeList = mCustomerList
-                        mCustomerList.forEach { customer ->
-                            customerType.add(customer.customer_name)
                         }
+
+                        is PhoneVisitsStatus.GetCustomerType -> {
+                            dialog.hide()
+                            customerType.clear()
+                            (customerTypeList as ArrayList).clear()
+                            val mCustomerList = it.data.data.user_customer_type
+                            customerTypeList = mCustomerList
+                            mCustomerList.forEach { customer ->
+                                customerType.add(customer.customer_name)
+                            }
+                        }
+
+
+                        is PhoneVisitsStatus.GetLines -> {
+                            dialog.hide()
+                            linesName.clear()
+                            linesList = it.data.data.user_lines
+                            linesList.forEach { line -> linesName.add(line.line_name) }
+                        }
+
+
+                        is PhoneVisitsStatus.GetCustomerLines -> {
+                            dialog.hide()
+                            mainList = it.data.data.main_customer_line
+
+                            mainLineAdapter = MainLineAdapter(requireContext(), mainList)
+                        }
+
+
+                        is PhoneVisitsStatus.GetCustomersSite -> {
+                            dialog.hide()
+                            val mSitesList: MutableList<String> = ArrayList()
+                            customerSiteList = it.data.data.customer_site
+
+                            it.data.data.customer_site.forEach { sites -> mSitesList.add(sites.customer_name) }
+                        }
+
+                        is PhoneVisitsStatus.Error -> {
+                            Log.d(TAG, "fetchData: ${it.error}")
+                            dialog.hide()
+                        }
+
+                        else -> {}
                     }
-
-
-                    is PhoneVisitsStatus.GetLines -> {
-                        dialog.hide()
-                        linesName.clear()
-                        linesList = it.data.data.user_lines
-                        linesList.forEach { line -> linesName.add(line.line_name) }
-                    }
-
-
-                    is PhoneVisitsStatus.GetCustomerLines -> {
-                        dialog.hide()
-                        mainList = it.data.data.main_customer_line
-
-                        mainLineAdapter = MainLineAdapter(requireContext(), mainList)
-                    }
-
-
-                    is PhoneVisitsStatus.GetCustomersSite -> {
-                        dialog.hide()
-                        val mSitesList: MutableList<String> = ArrayList()
-                        customerSiteList = it.data.data.customer_site
-
-                        it.data.data.customer_site.forEach { sites -> mSitesList.add(sites.customer_name) }
-                    }
-
-                    is PhoneVisitsStatus.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
-                    }
-
-                    else -> {}
                 }
             }
         }
+//        lifecycleScope.launch {
+//
+//        }
     }
 
     override fun onCreateView(

@@ -22,6 +22,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import calculateTimeDifference
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
@@ -46,6 +47,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
+import kotlin.toString
 
 class VisitsFragment2 : Fragment() {
 
@@ -106,6 +108,24 @@ class VisitsFragment2 : Fragment() {
                 )
             }
         }
+
+        clickedVisit = CustomerVisitPlan(
+            customer_address = "",
+            customer_code = "",
+            customer_latitude = 0.0,
+            customer_line_id = "",
+            customer_longitude = 0.0,
+            customer_name = "",
+            customer_order_type = "",
+            customer_party_site_id = "",
+            customer_type = "",
+            date_of_visit = "",
+            valid_gps_range = 0,
+            visit_detail_id = "",
+            visit_with_user_id = "",
+            visit_with_name = "",
+            is_visited_today = false
+        )
 
         if (SharedPreferencesHelper.getInstance().isSuper()) {
             binding.btnCopyVisits.visibility = View.VISIBLE
@@ -425,8 +445,11 @@ class VisitsFragment2 : Fragment() {
                                     )
                                 Log.d("WHAT", "onClick: $clickedVisit")
 
-                                if (data.already_started == true) {
-                                    navigateToGpsVisit(clickedVisit)
+                                if (data.visit_id != null) {
+                                    navigateToGpsVisit(
+                                        clickedVisit, data.check_in.toString(),
+                                        data.current_time
+                                    )
                                 } else {
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
@@ -530,8 +553,32 @@ class VisitsFragment2 : Fragment() {
         }
     }
 
-    private fun navigateToGpsVisit(item: CustomerVisitPlan) {
+    private fun navigateToGpsVisit(
+        item: CustomerVisitPlan,
+        checkIn: String,
+        currentTime: String
+    ) {
+        val navController = findNavController()
+
+        // Prevent navigating from TelephoneVisitFragment
+        if (navController.currentDestination?.id != R.id.visitsFragment) {
+            Log.e(
+                "NAVIGATION",
+                "Navigation ignored. Current destination = " +
+                        "${navController.currentDestination?.label}"
+            )
+            return
+        }
+
+        val result = calculateTimeDifference(
+            checkIn,
+            currentTime
+        )
+
         val bundle = Bundle().apply {
+            Log.d("WHAT", "${item.customer_code}")
+            Log.d("WHAT", "${item.customer_order_type}")
+
             putString("customerName", item.customer_name)
             putString("customerCode", item.customer_code)
             putString("siteAddress", item.customer_address)
@@ -545,9 +592,15 @@ class VisitsFragment2 : Fragment() {
             putInt("validGpsRange", item.valid_gps_range)
             putString("visitWithUserId", item.visit_with_user_id)
             putString("visitWithName", item.visit_with_name)
+            putString("checkIn", checkIn)
+            putString("currentTime", currentTime)
+
+            putLong("hours", result.hours)
+            putLong("minutes", result.minutes)
+            putLong("seconds", result.seconds)
         }
 
-        findNavController().navigate(
+        navController.navigate(
             R.id.toGpsVisit,
             bundle
         )
@@ -565,7 +618,7 @@ class VisitsFragment2 : Fragment() {
         }
         val adapter = Visits2Adapter(object : Visits2Adapter.OnItemClickListener {
             override fun onClick(item: CustomerVisitPlan) {
-//                clickedVisit = item
+                clickedVisit = item
                 checkIn(0, item)
             }
 
