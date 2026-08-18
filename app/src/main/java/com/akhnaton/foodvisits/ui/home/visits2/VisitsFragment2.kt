@@ -445,7 +445,7 @@ class VisitsFragment2 : Fragment() {
                                     )
                                 Log.d("WHAT", "onClick: $clickedVisit")
 
-                                if (data.visit_id != null) {
+                                if (data.check_in != null) {
                                     navigateToGpsVisit(
                                         clickedVisit, data.check_in.toString(),
                                         data.current_time

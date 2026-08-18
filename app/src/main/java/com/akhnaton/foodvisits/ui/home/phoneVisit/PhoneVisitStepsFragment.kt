@@ -602,7 +602,7 @@ class PhoneVisitStepsFragment : Fragment() {
 //                            Log.d("WHAT", "onClick: $clickedVisit")
 
 
-                                if (data.visit_id != null) {
+                                if (data.check_in != null) {
                                     navigateToPhoneVisit(
                                         customerName,
                                         customerCode,
@@ -619,7 +619,7 @@ class PhoneVisitStepsFragment : Fragment() {
                                     Log.d("WHATbtnStartVisit", customerPartySiteId)
                                     Log.d("WHATbtnStartVisit", saleType)
                                     Log.d("WHAT", "${data.already_started}")
-                                    Log.d("WHAT", "${data.visit_id}")
+                                    Log.d("WHAT", "${data.check_in}")
                                     Log.d("WHAT", "Triggered2")
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
