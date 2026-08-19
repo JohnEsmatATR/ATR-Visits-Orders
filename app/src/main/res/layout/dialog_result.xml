@@ -4,6 +4,7 @@
     android:layout_width="@dimen/_240sdp"
     android:layout_height="wrap_content"
     app:cardCornerRadius="24dp"
+    android:layoutDirection="ltr"
     app:cardElevation="8dp">
 
     <LinearLayout

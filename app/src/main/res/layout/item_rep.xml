@@ -5,6 +5,7 @@
     android:background="@drawable/bg_rounded_grey"
     android:backgroundTint="@color/background"
     android:padding="@dimen/_4sdp"
+    android:layoutDirection="ltr"
     android:layout_marginTop="@dimen/_4sdp"
     android:orientation="horizontal">
 

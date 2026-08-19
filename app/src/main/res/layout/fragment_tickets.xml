@@ -12,6 +12,7 @@
         android:layout_height="match_parent"
         android:background="@color/background"
         android:orientation="vertical"
+        android:layoutDirection="ltr"
         tools:context=".ui.home.tickets.TicketsFragment">
 
         <androidx.constraintlayout.widget.ConstraintLayout

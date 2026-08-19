@@ -390,6 +390,17 @@ class GpsVisitFragment : Fragment() {
                 )
                 return@setOnClickListener
             }
+            if (visitWithName != null && visitWithName != "null") {
+                if (binding.cbCompanionYes.isChecked == false && binding.cbCompanionNo.isChecked == false) {
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "برجاء الإجابة علي السؤال الخاص بالمرافق",
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                    return@setOnClickListener
+                }
+            }
             Log.d("WHATbtnSave", "Clicked")
 //            checkInDate = getCurrentTimeTimestamp()
 //            dateVisit = getCurrentDateTimestamp()
@@ -465,21 +476,21 @@ class GpsVisitFragment : Fragment() {
 //                                    )
 //                                }
 //                            )
-                            if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = "غير مسموح لك بعمل طلبيات , الرجاء التواصل مع الإدارة المالية",
-                                    isSuccess = true,
-                                    showOkButton = true,
-                                    onOk = {
-                                        MainActivity.binding.navView2.visibility = View.VISIBLE
-                                        findNavController().navigate(
-                                            R.id.toHome
-                                        )
-                                    }
-                                )
-                                return@collect
-                            }
+//                            if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
+//                                DialogUtils.showResultDialog(
+//                                    context = requireContext(),
+//                                    message = "غير مسموح لك بعمل طلبيات , الرجاء التواصل مع الإدارة المالية",
+//                                    isSuccess = true,
+//                                    showOkButton = true,
+//                                    onOk = {
+//                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                        findNavController().navigate(
+//                                            R.id.toHome
+//                                        )
+//                                    }
+//                                )
+//                                return@collect
+//                            }
                             if (data.is_suspended == true) {
                                 message = "${data.message}"
                                 DialogUtils.showResultDialog(
@@ -494,36 +505,52 @@ class GpsVisitFragment : Fragment() {
                                         )
                                     }
                                 )
-                            } else if (data.is_suspended == false) {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = message,
-                                    isSuccess = true,
-                                    seconds = 2,
-                                    onAutoDismiss = {
-                                        if (grade == "A") {
-                                            val bundle = Bundle().apply {
-                                                putString("customerName", customerName)
-                                                putString("customerCode", customerCode)
-                                                putString("siteAddress", siteAddress)
-                                                putString(
-                                                    "customerPartySiteId",
-                                                    customerPartySiteId
-                                                )
-                                                putString("saleType", saleType)
-                                                putString("fragment", "Gps")
-                                            }
-
-                                            findNavController().navigate(
-                                                R.id.toOrderCreationCycle, bundle
-                                            )
-                                        } else {
+                            } else {
+                                if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = message,
+                                        isSuccess = true,
+                                        showOkButton = true,
+                                        onOk = {
                                             MainActivity.binding.navView2.visibility = View.VISIBLE
                                             findNavController().navigate(
                                                 R.id.toHome
                                             )
                                         }
-                                    })
+                                    )
+                                } else {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = message,
+                                        isSuccess = true,
+                                        seconds = 2,
+                                        onAutoDismiss = {
+                                            if (grade == "A") {
+                                                val bundle = Bundle().apply {
+                                                    putString("customerName", customerName)
+                                                    putString("customerCode", customerCode)
+                                                    putString("siteAddress", siteAddress)
+                                                    putString(
+                                                        "customerPartySiteId",
+                                                        customerPartySiteId
+                                                    )
+                                                    putString("saleType", saleType)
+                                                    putString("fragment", "Gps")
+                                                }
+
+                                                findNavController().navigate(
+                                                    R.id.toOrderCreationCycle, bundle
+                                                )
+                                            } else {
+                                                MainActivity.binding.navView2.visibility =
+                                                    View.VISIBLE
+                                                findNavController().navigate(
+                                                    R.id.toHome
+                                                )
+                                            }
+                                        })
+                                }
                             }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {

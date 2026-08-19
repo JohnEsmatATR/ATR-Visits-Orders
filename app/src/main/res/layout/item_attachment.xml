@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="end"
     android:layout_marginEnd="@dimen/_4sdp"
+    android:layoutDirection="ltr"
     android:layout_marginTop="@dimen/_4sdp"
     android:background="@drawable/bg_rounded_grey"
     android:backgroundTint="@color/background"
