@@ -338,15 +338,15 @@ class GpsVisitFragment : Fragment() {
 //        }
 
         binding.btnSave.setOnClickListener {
-            if (convertDeveloperModeCheckToInt() == 1) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
+//            if (convertDeveloperModeCheckToInt() == 1) {
+//                DialogUtils.showResultDialog(
+//                    context = requireContext(),
+//                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
+//                    isSuccess = false,
+//                    showOkButton = true
+//                )
+//                return@setOnClickListener
+//            }
 
             if (binding.etObjectiveVisit.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
@@ -390,17 +390,6 @@ class GpsVisitFragment : Fragment() {
                 )
                 return@setOnClickListener
             }
-            if (visitWithName != null && visitWithName != "null") {
-                if (binding.cbCompanionYes.isChecked == false && binding.cbCompanionNo.isChecked == false) {
-                    DialogUtils.showResultDialog(
-                        context = requireContext(),
-                        message = "برجاء الإجابة علي السؤال الخاص بالمرافق",
-                        isSuccess = false,
-                        showOkButton = true
-                    )
-                    return@setOnClickListener
-                }
-            }
             Log.d("WHATbtnSave", "Clicked")
 //            checkInDate = getCurrentTimeTimestamp()
 //            dateVisit = getCurrentDateTimestamp()
@@ -412,6 +401,17 @@ class GpsVisitFragment : Fragment() {
     }
 
     private fun saveVisitGPS() {
+        if (visitWithName != null && visitWithName != "null") {
+            if (binding.cbCompanionYes.isChecked == false && binding.cbCompanionNo.isChecked == false) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "برجاء الإجابة عن سؤال هل أنت مع $visitWithName ؟ ",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return
+            }
+        }
         actTarget = binding.etCollectToday.text.toString()
         comment = binding.etVisitNotes.text.toString()
         visitTarget = binding.etObjectiveVisit.text.toString()

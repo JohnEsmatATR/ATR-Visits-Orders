@@ -62,6 +62,8 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
             applicationContext.contentResolver, Settings.Secure.ANDROID_ID
         )
 
+        binding.tvVersionName.setText("Version - ${BuildConfig.VERSION_NAME}")
+
         deviceid1 = myAndroidDeviceId
         deviceid2 = myAndroidDeviceId
         handleBackPress()

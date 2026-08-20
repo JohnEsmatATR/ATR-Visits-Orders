@@ -12,16 +12,26 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.databinding.DataBindingUtil
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.databinding.ActivityLogin2Binding
+import com.akhnaton.foodvisits.databinding.ActivitySplash2Binding
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class SplashActivity2 : AppCompatActivity() {
+
+    private lateinit var binding: ActivitySplash2Binding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_splash2)
+//        enableEdgeToEdge()
+        binding = ActivitySplash2Binding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        binding.tvVersionName.setText("Version - ${BuildConfig.VERSION_NAME}")
         Handler(Looper.getMainLooper()).postDelayed({
             val manufacturer = Build.MANUFACTURER.lowercase()
             val model = Build.MODEL.lowercase()

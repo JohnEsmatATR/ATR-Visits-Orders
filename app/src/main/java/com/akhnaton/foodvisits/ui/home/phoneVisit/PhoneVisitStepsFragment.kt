@@ -75,12 +75,16 @@ class PhoneVisitStepsFragment : Fragment() {
     private var displayedCustomers =
         mutableListOf<com.akhnaton.foodvisits.data.model.customers.Data>()
 
+    private var isStartVisitDialogShowsUp = false
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
         MainActivity.binding.navView2.visibility = View.VISIBLE
+
+        isStartVisitDialogShowsUp = false
 
         binding.tvEdit1.setOnClickListener {
             binding.card1Selected.visibility = View.GONE
@@ -613,24 +617,31 @@ class PhoneVisitStepsFragment : Fragment() {
                                         data.current_time
                                     )
                                 } else {
-                                    Log.d("WHATbtnStartVisit", customerName)
-                                    Log.d("WHATbtnStartVisit", customerCode)
-                                    Log.d("WHATbtnStartVisit", siteAddress)
-                                    Log.d("WHATbtnStartVisit", customerPartySiteId)
-                                    Log.d("WHATbtnStartVisit", saleType)
-                                    Log.d("WHAT", "${data.already_started}")
-                                    Log.d("WHAT", "${data.check_in}")
-                                    Log.d("WHAT", "Triggered2")
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = "هل تريد بدء الزيارة ؟",
-                                        description = "سيبدأ حساب مدة المكالمة الآن مع ${customerName} ${siteAddress}",
-                                        isSuccess = true,
-                                        isStartVisit = true,
-                                        onStartVisit = {
-                                            checkInOne(customerPartySiteId, saleType)
-                                        },
-                                    )
+                                    if (!isStartVisitDialogShowsUp) {
+                                        isStartVisitDialogShowsUp = true
+                                        Log.d(
+                                            "StartVisitDialogShowsUp",
+                                            isStartVisitDialogShowsUp.toString()
+                                        )
+                                        Log.d("WHATbtnStartVisit", customerName)
+                                        Log.d("WHATbtnStartVisit", customerCode)
+                                        Log.d("WHATbtnStartVisit", siteAddress)
+                                        Log.d("WHATbtnStartVisit", customerPartySiteId)
+                                        Log.d("WHATbtnStartVisit", saleType)
+                                        Log.d("WHAT", "${data.already_started}")
+                                        Log.d("WHAT", "${data.check_in}")
+                                        Log.d("WHAT", "Triggered2")
+                                        DialogUtils.showResultDialog(
+                                            context = requireContext(),
+                                            message = "هل تريد بدء الزيارة ؟",
+                                            description = "سيبدأ حساب مدة المكالمة الآن مع ${customerName} ${siteAddress}",
+                                            isSuccess = true,
+                                            isStartVisit = true,
+                                            onStartVisit = {
+                                                checkInOne(customerPartySiteId, saleType)
+                                            },
+                                        )
+                                    }
                                 }
 
                             } else if (it.data.status == 401) {

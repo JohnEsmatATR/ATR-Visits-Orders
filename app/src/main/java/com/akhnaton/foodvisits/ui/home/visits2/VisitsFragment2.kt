@@ -69,6 +69,7 @@ class VisitsFragment2 : Fragment() {
 
     private var selectedTab = 0
     private lateinit var clickedVisit: CustomerVisitPlan
+    private var isStartVisitDialogShowsUp = false
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -78,6 +79,8 @@ class VisitsFragment2 : Fragment() {
         dialog.hide()
 
         MainActivity.binding.navView2.visibility = View.VISIBLE
+
+        isStartVisitDialogShowsUp = false
 
 //        binding.tvDay.setText(DateUtils.getTodayDayName())
 //        binding.tvDate.setText(DateUtils.getTodayDate())
@@ -170,7 +173,7 @@ class VisitsFragment2 : Fragment() {
         binding.tabLayout.getTabAt(1)?.text = "تمت (${
             allCustomers.filter { it.is_visited_today }.toMutableList().size
         })"
-        binding.tabLayout.getTabAt(2)?.text = "معلقة (${
+        binding.tabLayout.getTabAt(2)?.text = "بإنتظار الزيارة (${
             allCustomers.filter { !it.is_visited_today }
                 .toMutableList().size
         })"
@@ -451,16 +454,30 @@ class VisitsFragment2 : Fragment() {
                                         data.current_time
                                     )
                                 } else {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = "هل تريد بدء الزيارة ؟",
-                                        description = "سيبدأ حساب مدة المكالمة الآن مع ${clickedVisit.customer_name} ",
-                                        isSuccess = true,
-                                        isStartVisit = true,
-                                        onStartVisit = {
-                                            checkIn(1, clickedVisit)
-                                        },
-                                    )
+                                    if (!isStartVisitDialogShowsUp) {
+                                        isStartVisitDialogShowsUp = true
+                                        Log.d(
+                                            "StartVisitDialogShowsUp",
+                                            isStartVisitDialogShowsUp.toString()
+                                        )
+                                        DialogUtils.showResultDialog(
+                                            context = requireContext(),
+                                            message = "هل تريد بدء الزيارة ؟",
+                                            description = "سيبدأ حساب مدة الزيارة الآن مع ${clickedVisit.customer_name} ",
+                                            isSuccess = true,
+                                            isStartVisit = true,
+                                            onStartVisit = {
+                                                checkIn(1, clickedVisit)
+                                            },
+                                            onCancel = {
+                                                isStartVisitDialogShowsUp = false
+                                                Log.d(
+                                                    "StartVisitDialogShowsUp",
+                                                    isStartVisitDialogShowsUp.toString()
+                                                )
+                                            }
+                                        )
+                                    }
                                 }
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
@@ -652,6 +669,33 @@ class VisitsFragment2 : Fragment() {
                     layoutManager.findFirstCompletelyVisibleItemPosition() == 0
             }
         })
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isStartVisitDialogShowsUp = false
+        Log.d(
+            "StartVisitDialogShowsUpR",
+            isStartVisitDialogShowsUp.toString()
+        )
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        isStartVisitDialogShowsUp = false
+        Log.d(
+            "StartVisitDialogShowsUpDV",
+            isStartVisitDialogShowsUp.toString()
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        isStartVisitDialogShowsUp = false
+        Log.d(
+            "StartVisitDialogShowsUpD",
+            isStartVisitDialogShowsUp.toString()
+        )
     }
 
     override fun onCreateView(

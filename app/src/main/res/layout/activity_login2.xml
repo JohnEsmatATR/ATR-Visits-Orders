@@ -164,7 +164,7 @@
                                 android:drawablePadding="@dimen/_12sdp"
                                 android:drawableTint="@color/black"
                                 android:hint="@string/password2"
-                                android:inputType="text"
+                                android:inputType="textPassword"
                                 android:textAlignment="viewEnd"
                                 android:textSize="@dimen/_12ssp" />
 
@@ -213,8 +213,27 @@
 
             </androidx.cardview.widget.CardView>
 
-        </LinearLayout>
+            <View
+                android:layout_width="@dimen/_1sdp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
+            <TextView
+                android:id="@+id/tvVersionName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginHorizontal="@dimen/_24sdp"
+                android:text=""
+                android:textColor="@color/grey_color"
+                android:textSize="@dimen/_14ssp"
+                android:layout_marginBottom="@dimen/_16sdp"
+                android:gravity="center"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+        </LinearLayout>
 
     </ScrollView>
 

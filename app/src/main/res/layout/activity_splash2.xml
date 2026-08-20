@@ -78,4 +78,20 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tvVersionName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="@dimen/_24sdp"
+        android:text=""
+        android:textColor="@color/grey_color"
+        android:textSize="@dimen/_14ssp"
+        android:layout_marginBottom="@dimen/_16sdp"
+        android:gravity="center"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
