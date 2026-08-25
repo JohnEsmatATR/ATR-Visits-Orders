@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -66,6 +68,8 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     ): View {
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_tickets, container, false)
+
+        setupKeyboardInsets()
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
@@ -399,5 +403,25 @@ class TicketsFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
+    }
 
 }

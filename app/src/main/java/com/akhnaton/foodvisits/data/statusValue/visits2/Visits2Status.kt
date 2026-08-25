@@ -11,6 +11,8 @@ import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCu
 import com.akhnaton.foodvisits.data.model.getSalesMan.GetSalesManRes
 //import com.akhnaton.foodvisits.data.model.getList.GetListRes
 import com.akhnaton.foodvisits.data.model.getVisitPlan.GetVisitPlanRes
+import com.akhnaton.foodvisits.data.model.promoterGetItemData.PromoterGetItemDataRes
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockRes
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsRes
 import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
@@ -30,6 +32,8 @@ sealed class Visits2Status {
     data class SaveVisitGps(val data: SaveVisitGpsRes) : Visits2Status()
     data class VisitsSelect(val data: VisitsSelectRes) : Visits2Status()
     data class GetSalesAndCustomerTypes(val data: GetSalesAndCustomerTypesRes) : Visits2Status()
+    data class PromoterGetItemData(val data: PromoterGetItemDataRes) : Visits2Status()
+    data class PromoterSaveStock(val data: PromoterSaveStockRes) : Visits2Status()
     data class RefreshToken(val data: RefreshTokenRes) : Visits2Status()
     data class Error(val error: String?) : Visits2Status()
 }

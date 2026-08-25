@@ -101,6 +101,16 @@ class CustomersAdapter(
         position: Int
     ) {
 
+        val params = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+
+        params.bottomMargin =
+            if (position == list.lastIndex) {
+                holder.itemView.context.resources
+                    .getDimensionPixelSize(com.intuit.sdp.R.dimen._86sdp)
+            } else {
+                0
+            }
+
         val item = list[position]
 
         when (holder) {

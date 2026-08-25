@@ -7,11 +7,12 @@
     </data>
 
     <ScrollView
+        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
-        android:layoutDirection="ltr"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:layoutDirection="ltr">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -21,7 +22,7 @@
             <!-- Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/_60sdp"
                 android:layout_gravity="center"
                 android:gravity="center">
 
@@ -35,7 +36,6 @@
                     android:layout_alignParentBottom="true"
                     android:layout_marginStart="0dp"
                     android:layout_marginEnd="0dp"
-                    android:layout_weight="1"
                     android:gravity="center"
                     android:text="زيارة هاتفية"
                     android:textColor="#000"
@@ -220,7 +220,8 @@
                 android:id="@+id/cardReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginHorizontal="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_16sdp"
                 app:cardCornerRadius="24dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -354,8 +355,8 @@
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="0dp"
                             android:layout_height="@dimen/_50sdp"
-                            android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_marginStart="@dimen/_8sdp"
+                            android:layout_marginBottom="@dimen/_8sdp"
                             android:layout_weight="1"
                             android:backgroundTint="@color/background"
                             android:layoutDirection="rtl"
@@ -445,9 +446,9 @@
                             android:drawablePadding="@dimen/_12sdp"
                             android:drawableTint="@color/black"
                             android:gravity="top"
-                            android:textAlignment="viewEnd"
                             android:hint="@string/visit_notes"
                             android:inputType="textMultiLine"
+                            android:textAlignment="viewEnd"
                             android:textSize="@dimen/_12ssp" />
 
                     </com.google.android.material.textfield.TextInputLayout>
@@ -456,10 +457,14 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <!-- Save Button -->
+
             <LinearLayout
                 android:id="@+id/llPromoterProcedures"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_16sdp"
                 android:orientation="vertical">
 
                 <TextView
@@ -478,49 +483,12 @@
                     android:orientation="horizontal">
 
                     <com.google.android.material.card.MaterialCardView
-                        android:id="@+id/cardVisitReport"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
-                        android:layout_weight="1"
-                        app:cardCornerRadius="24dp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/cardCustomer">
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="vertical"
-                            android:padding="20dp">
-
-                            <ImageView
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:layout_alignParentEnd="true"
-                                android:layout_gravity="center"
-                                android:src="@drawable/ic_competitors" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="center"
-                                android:text="تقرير الزيارة"
-                                android:textColor="@color/black"
-                                android:textSize="@dimen/_12ssp"
-                                android:textStyle="bold" />
-
-                        </LinearLayout>
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardCalls"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
+                        android:layout_marginHorizontal="@dimen/_8sdp"
                         android:layout_weight="1"
+                        android:visibility="gone"
                         app:cardCornerRadius="24dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -553,20 +521,11 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
-                    android:orientation="horizontal">
-
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/cardImages"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginEnd="16dp"
+                        android:layout_gravity="center"
                         android:layout_weight="1"
                         app:cardCornerRadius="24dp"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -576,6 +535,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:orientation="vertical"
                             android:padding="20dp">
 
@@ -603,7 +563,8 @@
                         android:id="@+id/cardInventory"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
+                        android:layout_gravity="center"
+                        android:layout_marginHorizontal="@dimen/_8sdp"
                         android:layout_weight="1"
                         app:cardCornerRadius="24dp"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -613,6 +574,7 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="center"
                             android:orientation="vertical"
                             android:padding="20dp">
 
@@ -636,18 +598,54 @@
 
                     </com.google.android.material.card.MaterialCardView>
 
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/cardVisitReport"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_weight="1"
+                        app:cardCornerRadius="24dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@id/cardCustomer">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:orientation="vertical"
+                            android:padding="20dp">
+
+                            <ImageView
+                                android:layout_width="48dp"
+                                android:layout_height="48dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_gravity="center"
+                                android:src="@drawable/ic_competitors" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:text="تقرير الزيارة"
+                                android:textColor="@color/black"
+                                android:textSize="@dimen/_12ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
+
+                    </com.google.android.material.card.MaterialCardView>
+
                 </LinearLayout>
 
             </LinearLayout>
-
-            <!-- Save Button -->
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSave"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_52sdp"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginHorizontal="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_16sdp"
                 android:backgroundTint="@color/colorPrimary"
                 android:text="@string/save_visit"
                 android:textColor="@color/white"
@@ -656,8 +654,7 @@
                 app:cornerRadius="@dimen/_12sdp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/cardReport" />
+                app:layout_constraintStart_toStartOf="parent" />
 
         </LinearLayout>
 

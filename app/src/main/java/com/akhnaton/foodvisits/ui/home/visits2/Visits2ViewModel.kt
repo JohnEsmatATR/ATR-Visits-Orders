@@ -1,28 +1,55 @@
 package com.akhnaton.foodvisits.ui.home.visits2
 
+import android.Manifest
+import android.content.Context
+import android.location.Location
+import android.os.Looper
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
+import com.akhnaton.foodvisits.domin.CheckConnection
 import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import com.akhnaton.foodvisits.domin.Visits2Repository
+import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
-class Visits2ViewModel : ViewModel() {
+class Visits2ViewModel(val context: Context) : ViewModel() {
 
     val visitsIntent = Channel<Visits2Intent>(Channel.UNLIMITED)
 
     private val _status = MutableStateFlow<Visits2Status>(Visits2Status.Idle)
 
     val status: StateFlow<Visits2Status> get() = _status
+
+    private val _locationState = MutableStateFlow<Location?>(null)
+    val locationState: StateFlow<Location?> = _locationState.asStateFlow()
+
+    private val fusedLocationProviderClient =
+        LocationServices.getFusedLocationProviderClient(context)
+    private var locationCallback: LocationCallback? = null
+
+    private val _distanceMeters = MutableStateFlow<Double?>(null)
+    val distanceMeters = _distanceMeters.asStateFlow()
+
+    private val _distanceKm = MutableStateFlow<Double?>(null)
+    val distanceKm = _distanceKm.asStateFlow()
 
     init {
         getVisits()
@@ -66,6 +93,15 @@ class Visits2ViewModel : ViewModel() {
 
                     is Visits2Intent.VisitsSelect -> visitsSelect(it.orderType, it.customerCode)
                     is Visits2Intent.GetSalesAndCustomerTypes -> getSalesAndCustomerTypes()
+                    is Visits2Intent.PromoterGetItemData -> promoterGetItemData(
+                        it.customerCode,
+                        it.partySiteId
+                    )
+
+                    is Visits2Intent.PromoterSaveStock -> promoterSaveStock(
+                        it.promoterSaveStockReq
+                    )
+
                     is Visits2Intent.RefreshToken -> refreshToken(it.userId, it.token)
 
                     else -> {}
@@ -241,10 +277,42 @@ class Visits2ViewModel : ViewModel() {
             _status.value = try {
                 Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL1")
                 Visits2Status.GetSalesAndCustomerTypes(
-                    PhoneVisitsRepository().getSalesAndCustomerTypes()
+                    Visits2Repository().getSalesAndCustomerTypes()
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "getSalesAndCustomerTypesVIEWMODEL2 ${e.message}")
+                Visits2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun promoterGetItemData(customerCode: String, partySiteId: String) {
+        Log.d("WHAT", "promoterGetItemDataVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = Visits2Status.Loading
+            _status.value = try {
+                Log.d("WHAT", "promoterGetItemDataVIEWMODEL1")
+                Visits2Status.PromoterGetItemData(
+                    Visits2Repository().promoterGetItemData(customerCode, partySiteId)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "promoterGetItemDataVIEWMODEL2 ${e.message}")
+                Visits2Status.Error(e.message)
+            }
+        }
+    }
+
+    private fun promoterSaveStock(promoterSaveStockReq: PromoterSaveStockReq) {
+        Log.d("WHAT", "promoterSaveStockVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = Visits2Status.Loading
+            _status.value = try {
+                Log.d("WHAT", "promoterSaveStockVIEWMODEL1")
+                Visits2Status.PromoterSaveStock(
+                    Visits2Repository().promoterSaveStock(promoterSaveStockReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "promoterSaveStockVIEWMODEL2 ${e.message}")
                 Visits2Status.Error(e.message)
             }
         }
@@ -264,6 +332,92 @@ class Visits2ViewModel : ViewModel() {
                 Visits2Status.Error(e.message)
             }
         }
+    }
+
+    @RequiresPermission(
+        allOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ]
+    )
+    fun getCurrentLocation(
+        customerLatitude: Double?,
+        customerLongitude: Double?
+    ) {
+        if (customerLatitude == null || customerLongitude == null) {
+            Log.e("Location", "Customer coordinates are null")
+            return
+        }
+
+        // Prevent multiple callbacks from being registered
+        stopLocationUpdates()
+
+        val locationRequest = LocationRequest.Builder(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            5_000L
+        )
+            .setMinUpdateIntervalMillis(3_000L)
+            .setMaxUpdateDelayMillis(5_000L)
+            .build()
+
+        locationCallback = object : LocationCallback() {
+
+            override fun onLocationResult(locationResult: LocationResult) {
+
+                val currentLocation = locationResult.lastLocation
+                    ?: return
+
+                Log.d(
+                    "Location",
+                    "Lat: ${currentLocation.latitude}, " +
+                            "Lon: ${currentLocation.longitude}, " +
+                            "Accuracy: ${currentLocation.accuracy}"
+                )
+
+                _locationState.value = currentLocation
+
+                val distanceKm = getDistanceFromCurrentLocation(
+                    currentLocation = currentLocation,
+                    targetLat = customerLatitude,
+                    targetLng = customerLongitude
+                )
+
+                _distanceKm.value = distanceKm
+                _distanceMeters.value = distanceKm * 1000.0
+
+                Log.d(
+                    "Distance",
+                    "Distance: %.2f KM / %.2f meters"
+                        .format(
+                            distanceKm,
+                            distanceKm * 1000.0
+                        )
+                )
+            }
+        }
+
+        fusedLocationProviderClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback!!,
+            Looper.getMainLooper()
+        )
+    }
+
+    fun stopLocationUpdates() {
+
+        locationCallback?.let {
+            fusedLocationProviderClient.removeLocationUpdates(it)
+            locationCallback = null
+        }
+
+        _locationState.value = null
+        _distanceMeters.value = null
+        _distanceKm.value = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        stopLocationUpdates()
     }
 
 }

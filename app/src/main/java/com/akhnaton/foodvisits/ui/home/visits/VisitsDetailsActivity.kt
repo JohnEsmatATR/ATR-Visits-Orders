@@ -291,11 +291,11 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
                             val formattedDistance = String.format("%.1f", distanceInMeters)
                             binding.distanceBetweenCustomer.text = "$formattedDistance متر"
                         } else {
-                            binding.distanceBetweenCustomer.text = "الموقع غير متاح"
+                            binding.distanceBetweenCustomer.text = "جارى تحديد الموقع"
                             Log.w("observeLocation", "Failed to parse latitude or longitude")
                         }
                     } else {
-                        binding.distanceBetweenCustomer.text = "الموقع غير متاح"
+                        binding.distanceBetweenCustomer.text = "جارى تحديد الموقع"
                         Log.w("observeLocation", "Latitude or longitude is blank")
                     }
 

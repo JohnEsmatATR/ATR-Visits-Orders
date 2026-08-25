@@ -8,6 +8,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -81,6 +83,8 @@ class PhoneVisitStepsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+
+        setupKeyboardInsets()
 
         MainActivity.binding.navView2.visibility = View.VISIBLE
 
@@ -640,6 +644,9 @@ class PhoneVisitStepsFragment : Fragment() {
                                             onStartVisit = {
                                                 checkInOne(customerPartySiteId, saleType)
                                             },
+                                            onCancel = {
+                                                isStartVisitDialogShowsUp = false
+                                            }
                                         )
                                     }
                                 }
@@ -748,6 +755,27 @@ class PhoneVisitStepsFragment : Fragment() {
 //        lifecycleScope.launch {
 //
 //        }
+    }
+
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
     }
 
     override fun onCreateView(

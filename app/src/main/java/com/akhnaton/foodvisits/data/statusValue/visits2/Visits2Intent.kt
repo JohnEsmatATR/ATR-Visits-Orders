@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.data.statusValue.visits2
 
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 
 sealed class Visits2Intent {
@@ -38,6 +39,15 @@ sealed class Visits2Intent {
     ) : Visits2Intent()
 
     object GetSalesAndCustomerTypes : Visits2Intent()
+
+    data class PromoterGetItemData(
+        val customerCode: String,
+        val partySiteId: String
+    ) : Visits2Intent()
+
+    data class PromoterSaveStock(
+        val promoterSaveStockReq: PromoterSaveStockReq
+    ) : Visits2Intent()
 
     data class RefreshToken(val userId: String, val token: String) : Visits2Intent()
 

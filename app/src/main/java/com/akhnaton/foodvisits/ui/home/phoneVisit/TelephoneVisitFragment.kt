@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -107,6 +109,8 @@ class TelephoneVisitFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupKeyboardInsets()
+
         customerName =
             arguments?.getString("customerName").toString()
         customerCode =
@@ -157,8 +161,14 @@ class TelephoneVisitFragment : Fragment() {
 
         MainActivity.binding.navView2.visibility = View.GONE
 
-        if (isProm) binding.llPromoterProcedures.visibility = View.VISIBLE
-        else binding.llPromoterProcedures.visibility = View.GONE
+        if (isProm) {
+            binding.llPromoterProcedures.visibility = View.VISIBLE
+            binding.cardReport.visibility = View.GONE
+        }
+        else {
+            binding.llPromoterProcedures.visibility = View.GONE
+            binding.cardReport.visibility = View.VISIBLE
+        }
 
         lifecycleScope.launch {
             viewModel.phoneVisitsIntent.send(
@@ -169,19 +179,43 @@ class TelephoneVisitFragment : Fragment() {
         }
 
         binding.cardVisitReport.setOnClickListener {
-
+            findNavController().navigate(
+                R.id.toCompetitors
+            )
         }
 
         binding.cardCalls.setOnClickListener {
-
+            findNavController().navigate(
+                R.id.toCalls
+            )
         }
 
         binding.cardImages.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+            }
 
+            findNavController().navigate(
+                R.id.toImages, bundle
+            )
         }
 
         binding.cardInventory.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+            }
 
+            findNavController().navigate(
+                R.id.toInventory, bundle
+            )
         }
 
         binding.btnBack.setOnClickListener {
@@ -647,6 +681,27 @@ class TelephoneVisitFragment : Fragment() {
         super.onDestroyView()
 
         timerHandler.removeCallbacks(timerRunnable)
+    }
+
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
     }
 
     override fun onCreateView(

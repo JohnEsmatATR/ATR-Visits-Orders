@@ -1,6 +1,9 @@
 package com.akhnaton.foodvisits.ui.home.visits2
 
 import android.Manifest
+import android.annotation.SuppressLint
+import android.app.Activity.RESULT_CANCELED
+import android.app.Activity.RESULT_OK
 import android.app.AlertDialog
 import android.content.Intent
 import android.content.res.ColorStateList
@@ -37,20 +40,46 @@ import kotlin.getValue
 import android.location.Location
 import android.os.Build
 import android.provider.Settings
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.repeatOnLifecycle
 import com.akhnaton.foodvisits.BuildConfig
+import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.saveVisitGps.Data
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
+import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
+import com.akhnaton.foodvisits.domin.CheckConnection
+import com.akhnaton.foodvisits.shared.LocationService.Companion.startService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
+import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
+import com.akhnaton.foodvisits.shared.location.GetLocationService
+import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
+import com.akhnaton.foodvisits.ui.home.visits.VisitsDetailsActivity
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModel
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
+import com.github.dhaval2404.imagepicker.ImagePicker.Companion.REQUEST_CODE
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import org.greenrobot.eventbus.EventBus
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.text.toDoubleOrNull
 
 class GpsVisitFragment : Fragment() {
 
@@ -58,7 +87,7 @@ class GpsVisitFragment : Fragment() {
         private const val TAG = "GpsVisitFragment"
     }
 
-    private val viewModel: Visits2ViewModel by viewModels()
+    //    private val viewModel: Visits2ViewModel by viewModels()
     private lateinit var binding: FragmentGpsVisitBinding
     private lateinit var dialog: AlertDialog
 
@@ -119,8 +148,8 @@ class GpsVisitFragment : Fragment() {
     private var checkInTimeMillis = 0L
     private var apiCurrentTimeMillis = 0L
 
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var currentDistanceMeters: Float = 0f
+//    private lateinit var fusedLocationClient: FusedLocationProviderClient
+//    private var currentDistanceMeters: Float = 0f
 
     private var isDeveloperModeEnable = 0
 
@@ -128,9 +157,20 @@ class GpsVisitFragment : Fragment() {
     var minutes: Long = 0
     var seconds: Long = 0
 
+    private val locationPermissionCode = 199
+    private var requestPermission = RequestPermission()
+    private lateinit var checkConnection: CheckConnection
+    private lateinit var viewModel: Visits2ViewModel
+
+    //    val customerLocation = Location("")
+    private lateinit var locationClient: ILocationClient
+//    val myLocation = Location("")
+
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        setupKeyboardInsets()
 
         customerName = arguments?.getString("customerName").toString()
         customerCode = arguments?.getString("customerCode").toString()
@@ -146,6 +186,49 @@ class GpsVisitFragment : Fragment() {
             arguments?.getString("checkIn").toString()
         currentTime =
             arguments?.getString("currentTime").toString()
+
+        viewModel = ViewModelProvider(
+            this,
+            Visits2ViewModelFactory(requireContext())
+        )[Visits2ViewModel::class.java]
+        checkConnection = CheckConnection(requireContext())
+
+        askPermission()
+        observeDistance()
+
+//        val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+//
+//        locationClient = DefaultLocationClient(
+//            requireContext(),
+//            LocationServices.getFusedLocationProviderClient(requireActivity())
+//        )
+//
+//        locationClient
+//            .getLocationUpdates(10000L)
+//            .catch { e -> e.printStackTrace() }
+//            .onEach { location ->
+//                val lat = location.latitude.toString().takeLast(3)
+//                val long = location.longitude.toString().takeLast(3)
+//
+//                calculateDistance(
+//                    lat.toDouble(),
+//                    long.toDouble(),
+//                    customerLatitude,
+//                    customerLongitude
+//                )
+//            }
+//            .launchIn(serviceScope)
+
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                when (result.resultCode) {
+                    locationPermissionCode -> when (result.resultCode) {
+                        RESULT_OK -> Log.d("abc", "OK")
+                        RESULT_CANCELED -> RequestPermission().enableLocation(requireActivity())
+                    }
+                }
+            }
+        }
 
         if (!checkIn.isNullOrBlank() && !currentTime.isNullOrBlank()) {
 
@@ -175,10 +258,16 @@ class GpsVisitFragment : Fragment() {
 
         MainActivity.binding.navView2.visibility = View.GONE
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        if (isProm) binding.llPromoterProcedures.visibility = View.VISIBLE
-        else binding.llPromoterProcedures.visibility = View.GONE
+        if (isProm) {
+            binding.llPromoterProcedures.visibility = View.VISIBLE
+            binding.cardReport.visibility = View.GONE
+        }
+        else {
+            binding.llPromoterProcedures.visibility = View.GONE
+            binding.cardReport.visibility = View.VISIBLE
+        }
 
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
@@ -194,46 +283,47 @@ class GpsVisitFragment : Fragment() {
             )
         }
 
-        fusedLocationClient.lastLocation.addOnSuccessListener { currentLocation: Location? ->
-            if (currentLocation != null && customerLatitude != null && customerLongitude != null) {
-                val distanceKm = getDistanceFromCurrentLocation(
-                    currentLocation = currentLocation,
-                    targetLat = customerLatitude!!,
-                    targetLng = customerLongitude!!
-                )
-
-                val results = FloatArray(1)
-
-                Location.distanceBetween(
-                    currentLocation.latitude,
-                    currentLocation.longitude,
-                    customerLatitude!!,
-                    customerLongitude!!,
-                    results
-                )
-
-                currentDistanceMeters = results[0]
-                binding.tvDistance.text = "%.2f KM".format(currentDistanceMeters / 1000)
-                Log.d(
-                    "Distance", "%.2f KM".format(distanceKm)
-                )
-            }
-        }
+//        getCurrentLocation()
+//        observeDistance()
 
         binding.cardVisitReport.setOnClickListener {
-
+            findNavController().navigate(
+                R.id.toCompetitors
+            )
         }
 
         binding.cardCalls.setOnClickListener {
-
+            findNavController().navigate(
+                R.id.toCalls
+            )
         }
 
         binding.cardImages.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+            }
 
+            findNavController().navigate(
+                R.id.toImages, bundle
+            )
         }
 
         binding.cardInventory.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+            }
 
+            findNavController().navigate(
+                R.id.toInventory, bundle
+            )
         }
 
         binding.btnBack.setOnClickListener {
@@ -375,13 +465,33 @@ class GpsVisitFragment : Fragment() {
                 )
                 return@setOnClickListener
             }
+//            getCurrentLocation()
+            val currentDistanceMeters = getCurrentDistanceMeters()
+
             Log.d("WHATdistance", currentDistanceMeters.toString())
             Log.d("WHATdistance", validGpsRange.toString())
+
+            if (currentDistanceMeters == null) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "لم يتم تحديد موقعك الحالي",
+                    description = "برجاء الانتظار حتى يتم تحديد موقع GPS ثم المحاولة مرة أخرى",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
+
             if (currentDistanceMeters > (validGpsRange ?: 0)) {
                 DialogUtils.showResultDialog(
                     context = requireContext(),
                     message = "خطأ في الموقع",
-                    description = "المسافة الحالية هي: $currentDistanceMeters متر \nيجب ألا تتجاوز $validGpsRange متر  للبدء",
+                    description =
+                        "المسافة الحالية هي: %.1f متر\nيجب ألا تتجاوز %d متر للبدء"
+                            .format(
+                                currentDistanceMeters,
+                                validGpsRange ?: 0
+                            ),
                     isSuccess = false,
                     isLocation = true,
                     onReport = {
@@ -400,18 +510,148 @@ class GpsVisitFragment : Fragment() {
         fetchData()
     }
 
+    private fun calculateDistance(
+        currentLatitude: Double,
+        currentLongitude: Double,
+        customerLatitude: Double?,
+        customerLongitude: Double?
+    ): Double? {
+
+        if (customerLatitude == null || customerLongitude == null) {
+            Log.e("LocationService", "Customer location is null")
+            return null
+        }
+
+        val currentLocation = Location("current").apply {
+            latitude = currentLatitude
+            longitude = currentLongitude
+        }
+
+        val customerLocation = Location("customer").apply {
+            latitude = customerLatitude
+            longitude = customerLongitude
+        }
+
+        val distanceMeters = currentLocation.distanceTo(customerLocation)
+
+        val distanceKm = distanceMeters / 1000.0
+
+        Log.d(
+            "LocationService",
+            "Distance = %.2f KM".format(distanceKm)
+        )
+
+        return distanceKm
+    }
+
+    private fun askPermission() {
+
+        val requestPermissionLauncher = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (!isGranted) {
+                // PERMISSION NOT GRANTED
+                ActivityCompat.requestPermissions(
+                    requireActivity(),
+                    arrayOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                    ),
+                    REQUEST_CODE
+                )
+                ProgressDialogHelper().errorMessage(
+                    requireContext(),
+                    "This app needs you to allow Location permission" +
+                            "you Should allow it"
+                )
+            } else {
+                try {
+                    EventBus.getDefault().register(this)
+                } catch (e: Exception) {
+                    Log.d(TAG, "askPermissionError ${e.message.toString()}")
+                }
+            }
+
+        }
+        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+
+        ActivityCompat.requestPermissions(
+            requireActivity(),
+            arrayOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+            REQUEST_CODE
+        )
+    }
+
+//    @SuppressLint("SetTextI18n")
+//    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+//    private fun observeLocation() {
+//        viewModel.stopLocationUpdates()
+//        viewModel.getCurrentLocation(customerLatitude, customerLongitude)
+//        lifecycleScope.launch {
+//            viewModel.locationState.collect { location ->
+//                location?.let {
+//
+//                    if (customerLatitude != null && customerLongitude != null) {
+//                        val distanceInMeters = myLocation.distanceTo(customerLocation)
+//                        val formattedDistance = String.format("%.1f", distanceInMeters)
+//                        binding.tvDistance.text = "$formattedDistance متر"
+//                    } else {
+//                        binding.tvDistance.text = "جارى تحديد الموقع"
+//                        Log.w("observeLocation", "Failed to parse latitude or longitude")
+//                    }
+//
+//                    Log.d(
+//                        "Locationnnnnnnnnnnnnnnn",
+//                        "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"
+//                    )
+//                }
+//            }
+//        }
+//    }
+
     private fun saveVisitGPS() {
+
         if (visitWithName != null && visitWithName != "null") {
-            if (binding.cbCompanionYes.isChecked == false && binding.cbCompanionNo.isChecked == false) {
+            if (!binding.cbCompanionYes.isChecked &&
+                !binding.cbCompanionNo.isChecked
+            ) {
                 DialogUtils.showResultDialog(
                     context = requireContext(),
-                    message = "برجاء الإجابة عن سؤال هل أنت مع $visitWithName ؟ ",
+                    message = "برجاء الإجابة عن سؤال هل أنت مع $visitWithName ؟",
                     isSuccess = false,
                     showOkButton = true
                 )
                 return
             }
         }
+
+        val currentDistanceMeters = viewModel.distanceMeters.value
+        val currentLocation = getCurrentLocationValue()
+
+        if (currentLocation == null) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "الموقع الحالي غير متاح",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
+
+        if (currentDistanceMeters == null) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "الموقع الحالي غير متاح",
+                description = "برجاء الانتظار حتى يتم تحديد الموقع الحالي",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
+
         actTarget = binding.etCollectToday.text.toString()
         comment = binding.etVisitNotes.text.toString()
         visitTarget = binding.etObjectiveVisit.text.toString()
@@ -427,20 +667,51 @@ class GpsVisitFragment : Fragment() {
                         ord_type = saleType,
                         visibility = visibility,
                         grade = grade,
-                        act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
+                        act_target = if (actTarget.isNotEmpty()) {
+                            actTarget.toInt()
+                        } else {
+                            0
+                        },
                         another_order_type = anotherOrderType,
                         comment = comment,
                         check_in = checkIn,
                         phone_visit = phoneVisit,
                         device_type = "Android",
-                        latitude = customerLatitude.toString(),
-                        longitude = customerLongitude.toString(),
-                        zone_flag = if (currentDistanceMeters <= (validGpsRange ?: 0)) "IN"
-                        else "OUT",
-                        rate = if (binding.cbCompanionYes.isChecked == true) selectedRating.toString() else "",
-                        rate_comment = if (binding.cbCompanionYes.isChecked == true) binding.etComment.text.toString() else "",
-                        visit_with_confirmed = if (binding.cbCompanionYes.isChecked == true) "1" else "0",
-                        visit_with_user_id = if (visitWithUserId != null && visitWithUserId != "null") visitWithUserId else null,
+                        latitude = currentLocation.latitude.toString(),
+                        longitude = currentLocation.longitude.toString(),
+
+                        zone_flag =
+                            if (currentDistanceMeters <= (validGpsRange ?: 0))
+                                "IN"
+                            else
+                                "ERROR",
+
+                        rate =
+                            if (binding.cbCompanionYes.isChecked)
+                                selectedRating.toString()
+                            else
+                                "",
+
+                        rate_comment =
+                            if (binding.cbCompanionYes.isChecked)
+                                binding.etComment.text.toString()
+                            else
+                                "",
+
+                        visit_with_confirmed =
+                            if (binding.cbCompanionYes.isChecked)
+                                "1"
+                            else
+                                "0",
+
+                        visit_with_user_id =
+                            if (visitWithUserId != null &&
+                                visitWithUserId != "null"
+                            ) {
+                                visitWithUserId
+                            } else {
+                                null
+                            },
                     )
                 )
             )
@@ -795,6 +1066,100 @@ class GpsVisitFragment : Fragment() {
         )
 
         return format.parse(date)?.time ?: 0L
+    }
+
+//    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
+//    private fun getCurrentLocation() {
+//        viewModel.getCurrentLocation(
+//            customerLatitude = customerLatitude,
+//            customerLongitude = customerLongitude
+//        )
+//    }
+
+    private fun observeDistance() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                viewModel.distanceKm.collect { distanceKm ->
+
+                    if (distanceKm == null) {
+                        binding.tvDistance.text = "جارى تحديد الموقع"
+                        return@collect
+                    }
+
+                    binding.tvDistance.text =
+                        "%.2f KM".format(distanceKm)
+
+                    Log.d(
+                        "GpsVisitFragment",
+                        "Current distance: %.2f meters"
+                            .format(distanceKm * 1000.0)
+                    )
+                }
+            }
+        }
+    }
+    @RequiresPermission(
+        allOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ]
+    )
+    override fun onResume() {
+        super.onResume()
+
+        RequestPermission().enableLocation(requireActivity())
+        requestPermission.permissionCheck(requireActivity())
+
+        viewModel.getCurrentLocation(
+            customerLatitude = customerLatitude,
+            customerLongitude = customerLongitude
+        )
+
+        DefaultLocationClient(
+            requireContext(),
+            null
+        ).checkGpsOpened(requireActivity())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.stopLocationUpdates()
+        binding.tvDistance.text = ""
+        // Stop Service And Stop EventBus From Fetch Location in onUpdateLocation Function
+        Intent(requireContext(), GetLocationService::class.java).apply {
+            action = GetLocationService.ACTION_STOP
+            requireActivity().startService(this)
+        }
+    }
+
+    private fun getCurrentDistanceMeters(): Double? {
+        return viewModel.distanceMeters.value
+    }
+
+    private fun getCurrentLocationValue(): Location? {
+        return viewModel.locationState.value
+    }
+
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
     }
 
     override fun onCreateView(

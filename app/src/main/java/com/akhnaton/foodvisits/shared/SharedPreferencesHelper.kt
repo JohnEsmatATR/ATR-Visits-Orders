@@ -153,7 +153,7 @@ class SharedPreferencesHelper : Application() {
 
     fun getProm(): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean("prom", false)
+            .getBoolean("is_prom", false)
     }
 
     fun getTelephone(): Boolean {

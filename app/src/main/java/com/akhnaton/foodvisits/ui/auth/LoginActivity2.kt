@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -35,6 +36,7 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.isNetworkConnected
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 import com.google.firebase.messaging.FirebaseMessaging
@@ -56,7 +58,14 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        enableEdgeToEdge()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            WindowCompat.setDecorFitsSystemWindows(
+                window, false
+            )
+        }
         binding = DataBindingUtil.setContentView(this@LoginActivity2, R.layout.activity_login2)
+
+        setupKeyboardInsets()
 
         @SuppressLint("HardwareIds") val myAndroidDeviceId = Settings.Secure.getString(
             applicationContext.contentResolver, Settings.Secure.ANDROID_ID
@@ -145,7 +154,7 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                                 if (data.USER_CATEGORY == "super" || data.USER_CATEGORY == "gsuper") true else false,
                                 data.ALLOWED_TO_MAKE_ORDER,
                                 data.ALLOWED_TO_MAKE_RATE,
-                                )
+                            )
                             SharedPreferencesHelper().setDebugUsername(
                                 binding.etUsername.text.toString()
                             )
@@ -187,6 +196,15 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
+        if (!isNetworkConnected(this)) {
+            DialogUtils.showResultDialog(
+                context = this@LoginActivity2,
+                message = "يرجى التأكد من الإتصال بالإنترنت",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
         if (setWarningUserName() && setWarningPassword()) {
             loginIntent()
         }
@@ -322,6 +340,27 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
     private fun handleBackPress() {
         onBackPressedDispatcher.addCallback(this@LoginActivity2) {
             finishAffinity()
+        }
+    }
+
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
         }
     }
 

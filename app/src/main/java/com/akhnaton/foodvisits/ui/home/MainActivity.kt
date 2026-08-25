@@ -11,10 +11,14 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.work.Constraints
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -85,6 +89,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            WindowCompat.setDecorFitsSystemWindows(
+                window, false
+            )
+        }
+
         setupBinding()
         startSendVisitsWorker(this@MainActivity)
     }
@@ -95,14 +106,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         binding.lifecycleOwner = this
         binding.executePendingBindings()
         visitViewModel = ViewModelProvider(
-            this,
-            VisitsViewModelFactory(baseContext)
+            this, VisitsViewModelFactory(baseContext)
         )[VisitsViewModel::class.java]
         checkConnection = CheckConnection(baseContext)
         navHostFragment =
             supportFragmentManager.findFragmentById(R.id.main_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         setupWithNavController(binding.navView2, navController)
+        setupBottomNavigationInsets()
 
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
@@ -126,6 +137,24 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         getProfileImage(binding)
     }
 
+    private fun setupBottomNavigationInsets() {
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.navView2) { view, insets ->
+
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+
+            val layoutParams = view.layoutParams as ViewGroup.MarginLayoutParams
+
+            layoutParams.bottomMargin =
+                resources.getDimensionPixelSize(com.intuit.sdp.R.dimen._32sdp) + systemBars.bottom
+
+            view.layoutParams = layoutParams
+
+            insets
+        }
+    }
 
     override fun onStart() {
         super.onStart()
@@ -186,8 +215,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
             val db = Firebase.firestore
             db.collection("Users").document(SharedPreferencesHelper.getInstance().getUserToken())
-                .get()
-                .addOnCompleteListener { task: Task<DocumentSnapshot> ->
+                .get().addOnCompleteListener { task: Task<DocumentSnapshot> ->
                     if (task.isSuccessful) {
                         if (task.result.exists()) {
                             val image = task.result.getString("image")
@@ -260,24 +288,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     }
 
     private fun enableLocation() {
-        googleApiClient = GoogleApiClient.Builder(this)
-            .addApi(LocationServices.API)
+        googleApiClient = GoogleApiClient.Builder(this).addApi(LocationServices.API)
             .addConnectionCallbacks(object : GoogleApiClient.ConnectionCallbacks {
                 override fun onConnected(bundle: Bundle?) {}
                 override fun onConnectionSuspended(i: Int) {
                     googleApiClient?.connect()
                 }
-            })
-            .addOnConnectionFailedListener {
-            }.build()
+            }).addOnConnectionFailedListener {}.build()
 
         googleApiClient?.connect()
         val locationRequest = LocationRequest.create()
         locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         locationRequest.interval = 30 * 1000.toLong()
         locationRequest.fastestInterval = 5 * 1000.toLong()
-        val builder = LocationSettingsRequest.Builder()
-            .addLocationRequest(locationRequest)
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
         builder.setAlwaysShow(true)
         val result: PendingResult<LocationSettingsResult> =
             LocationServices.SettingsApi.checkLocationSettings(googleApiClient!!, builder.build())
@@ -286,8 +310,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             when (status.statusCode) {
                 LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
                     status.startResolutionForResult(
-                        this@MainActivity,
-                        REQUESTLOCATION
+                        this@MainActivity, REQUESTLOCATION
                     )
                 } catch (e: IntentSender.SendIntentException) {
                 }
@@ -297,9 +320,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(
-        requestCode: Int,
-        resultCode: Int,
-        data: Intent?
+        requestCode: Int, resultCode: Int, data: Intent?
     ) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
@@ -312,20 +333,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 
     private fun startSendVisitsWorker(context: Context) {
 
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
 
 
-        val workRequest = OneTimeWorkRequestBuilder<SendVisitsWorker>()
-            .setConstraints(constraints)
-            .build()
+        val workRequest =
+            OneTimeWorkRequestBuilder<SendVisitsWorker>().setConstraints(constraints).build()
 
 
         WorkManager.getInstance(context).enqueueUniqueWork(
-            "SendVisitsWorker",
-            ExistingWorkPolicy.KEEP,
-            workRequest
+            "SendVisitsWorker", ExistingWorkPolicy.KEEP, workRequest
         )
     }
 

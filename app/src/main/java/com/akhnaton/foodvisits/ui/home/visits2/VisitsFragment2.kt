@@ -12,10 +12,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -41,6 +44,7 @@ import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
 import com.akhnaton.foodvisits.shared.openLocationInMap
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
+import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.tabs.TabLayout
@@ -55,7 +59,8 @@ class VisitsFragment2 : Fragment() {
         private const val TAG = "VisitsFragment2"
     }
 
-    private val viewModel: Visits2ViewModel by viewModels()
+//    private val viewModel: Visits2ViewModel by viewModels()
+private lateinit var viewModel: Visits2ViewModel
     private lateinit var binding: FragmentVisits2Binding
     private lateinit var dialog: AlertDialog
 
@@ -75,8 +80,15 @@ class VisitsFragment2 : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupKeyboardInsets()
+
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
+
+        viewModel = ViewModelProvider(
+            this,
+            Visits2ViewModelFactory(requireContext())
+        )[Visits2ViewModel::class.java]
 
         MainActivity.binding.navView2.visibility = View.VISIBLE
 
@@ -696,6 +708,27 @@ class VisitsFragment2 : Fragment() {
             "StartVisitDialogShowsUpD",
             isStartVisitDialogShowsUp.toString()
         )
+    }
+
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.swipeRefresh) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
     }
 
     override fun onCreateView(

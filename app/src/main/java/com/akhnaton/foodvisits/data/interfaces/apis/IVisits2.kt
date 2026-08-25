@@ -12,6 +12,9 @@ import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCu
 import com.akhnaton.foodvisits.data.model.getSalesMan.GetSalesManRes
 //import com.akhnaton.foodvisits.data.model.getList.GetListRes
 import com.akhnaton.foodvisits.data.model.getVisitPlan.GetVisitPlanRes
+import com.akhnaton.foodvisits.data.model.promoterGetItemData.PromoterGetItemDataRes
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockRes
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsRes
 import com.akhnaton.foodvisits.data.model.visitesSelect.VisitsSelectRes
@@ -23,10 +26,14 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.GET_LIST
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_MAN
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_VISIT_PLAN
+import com.akhnaton.foodvisits.shared.ConstantLinks.PROMOTER_GET_ITEM_DATA
+import com.akhnaton.foodvisits.shared.ConstantLinks.PROMOTER_SAVE_STOCK
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_VISIT_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.VISITS_SELECT_ENDPOINT
 import retrofit2.http.Body
 import retrofit2.http.DELETE
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -84,5 +91,16 @@ interface IVisits2 {
 
     @GET(GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT)
     suspend fun getSalesAndCustomerTypes(): GetSalesAndCustomerTypesRes
+
+    @GET(PROMOTER_GET_ITEM_DATA)
+    suspend fun promoterGetItemData(
+        @Query("customer_code") customerCode: String,
+        @Query("party_site_id") partySiteId: String
+    ): PromoterGetItemDataRes
+
+    @POST(PROMOTER_SAVE_STOCK)
+    suspend fun promoterSaveStock(
+        @Body promoterSaveStockReq: PromoterSaveStockReq
+    ): PromoterSaveStockRes
 
 }

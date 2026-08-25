@@ -9,6 +9,7 @@
     </data>
 
     <ScrollView
+        android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
@@ -49,7 +50,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginBottom="@dimen/_80sdp"
+                android:layout_marginBottom="@dimen/_8sdp"
                 android:background="@color/background"
                 android:orientation="vertical">
 
@@ -151,14 +152,9 @@
                             android:textSize="@dimen/_8ssp"
                             android:textStyle="bold" />
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_1sdp"
-                            android:layout_gravity="center"
-                            android:layout_weight="1" />
-
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
@@ -354,14 +350,9 @@
                             android:textSize="@dimen/_8ssp"
                             android:textStyle="bold" />
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_1sdp"
-                            android:layout_gravity="center"
-                            android:layout_weight="1" />
-
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
 
@@ -381,6 +372,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="end"
+                                android:textAlignment="viewEnd"
                                 android:layout_marginEnd="@dimen/_8sdp"
                                 android:gravity="end"
                                 android:text=""
@@ -478,13 +470,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/_52sdp"
                     android:layout_marginHorizontal="16dp"
+                    android:layout_marginBottom="@dimen/_90sdp"
                     android:layout_marginTop="16dp"
                     android:backgroundTint="@color/colorPrimary"
                     android:text="@string/start_visit"
                     android:textColor="@color/white"
+                    android:visibility="gone"
                     android:textSize="@dimen/_14ssp"
                     android:textStyle="bold"
-                    android:visibility="gone"
                     app:cornerRadius="@dimen/_16sdp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

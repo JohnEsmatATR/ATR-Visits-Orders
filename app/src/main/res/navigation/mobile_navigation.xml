@@ -74,10 +74,34 @@
             app:destination="@id/OrderCreationCycleFragment" />
         <action
             android:id="@+id/toImages"
-            app:destination="@id/OrderCreationCycleFragment" />
+            app:destination="@id/uploadPhotosFragment" />
         <action
             android:id="@+id/toInventory"
-            app:destination="@id/OrderCreationCycleFragment" />
+            app:destination="@id/inventoryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/inventoryFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoterProcedures.InventoryFragment"
+        android:label="fragment_inventory"
+        tools:layout="@layout/fragment_inventory">
+
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/uploadPhotosFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoterProcedures.UploadPhotosFragment"
+        android:label="fragment_upload_photos"
+        tools:layout="@layout/fragment_upload_photos">
+
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
+
     </fragment>
 
     <fragment
@@ -181,10 +205,10 @@
             app:destination="@id/OrderCreationCycleFragment" />
         <action
             android:id="@+id/toImages"
-            app:destination="@id/OrderCreationCycleFragment" />
+            app:destination="@id/uploadPhotosFragment" />
         <action
             android:id="@+id/toInventory"
-            app:destination="@id/OrderCreationCycleFragment" />
+            app:destination="@id/inventoryFragment" />
     </fragment>
 
     <fragment

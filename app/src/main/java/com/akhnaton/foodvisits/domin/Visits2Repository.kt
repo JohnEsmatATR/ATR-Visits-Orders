@@ -3,8 +3,10 @@ package com.akhnaton.foodvisits.domin
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisits2
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
+
 class Visits2Repository {
 
     private val retrofit = RetrofitClient.getInstance(IVisits2::class.java)
@@ -54,6 +56,24 @@ class Visits2Repository {
         orderId
     )
 
-    suspend fun getSalesAndCustomerTypes() =
-        retrofit.getSalesAndCustomerTypes()
+    suspend fun getSalesAndCustomerTypes(
+    ) =
+        retrofit.getSalesAndCustomerTypes(
+        )
+
+    suspend fun promoterGetItemData(
+        customerCode: String,
+        partySiteId: String
+    ) =
+        retrofit.promoterGetItemData(
+            customerCode,
+            partySiteId
+        )
+
+    suspend fun promoterSaveStock(
+        promoterSaveStockReq: PromoterSaveStockReq
+    ) =
+        retrofit.promoterSaveStock(
+            promoterSaveStockReq
+        )
 }

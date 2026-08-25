@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.visits2
 
 import android.graphics.Paint
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,14 +40,30 @@ class Visits2Adapter(
         position: Int
     ) {
 
+        val params = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+
+        params.bottomMargin =
+            if (position == mList.lastIndex) {
+                holder.itemView.context.resources
+                    .getDimensionPixelSize(com.intuit.sdp.R.dimen._86sdp)
+            } else {
+                0
+            }
+
+        holder.itemView.layoutParams = params
+
         val item = mList[position]
 
         holder.tvCustomerName.text = item.customer_name
         holder.tvSiteAddress.text = item.customer_address
         holder.tvWith.text = "المرافق: ${item.visit_with_name}"
 
+        Log.d("WHATvisit_with_name", "${item.customer_name}")
+        Log.d("WHATvisit_with_name", "${item.visit_with_name}")
         if (item.visit_with_name == null || item.visit_with_name == "") {
             holder.tvWith.visibility = View.GONE
+        } else {
+            holder.tvWith.visibility = View.VISIBLE
         }
 
         if (item.is_visited_today) {

@@ -30,6 +30,7 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.saveUserCredentials
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.isNetworkConnected
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.devhoony.lottieproegressdialog.LottieProgressDialog
 import com.google.firebase.messaging.FirebaseMessaging
@@ -149,6 +150,15 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(p0: View?) {
+        if (!isNetworkConnected(this)) {
+            DialogUtils.showResultDialog(
+                context = this@LoginActivity,
+                message = "يرجى التأكد من الإتصال بالإنترنت",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
         if (setWarningUserName() && setWarningPassword()) {
             loginIntent()
         }
