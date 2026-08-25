@@ -17,7 +17,7 @@
         android:scaleType="centerCrop"
         android:src="@drawable/ic_logo" />
 
-    <!-- ================= CLOSE BUTTON ================= -->
+    <!-- ================= CLOSE BUTTON ================ -->
 
     <ImageView
         android:id="@+id/ivClose"
