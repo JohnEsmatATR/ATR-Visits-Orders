@@ -86,6 +86,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     private val REQUESTLOCATION = 199
     private var requestPermission = RequestPermission()
     private var addCustomerEnable = false
+    private var isProm = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -96,12 +97,16 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             )
         }
 
+        isProm = SharedPreferencesHelper.getInstance().getProm()
+
+        if (isProm) {
+
+        }
         setupBinding()
         startSendVisitsWorker(this@MainActivity)
     }
 
     private fun setupBinding() {
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding.lifecycleOwner = this
         binding.executePendingBindings()

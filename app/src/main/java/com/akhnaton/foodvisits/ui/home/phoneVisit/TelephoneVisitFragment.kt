@@ -164,8 +164,7 @@ class TelephoneVisitFragment : Fragment() {
         if (isProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE
             binding.cardReport.visibility = View.GONE
-        }
-        else {
+        } else {
             binding.llPromoterProcedures.visibility = View.GONE
             binding.cardReport.visibility = View.VISIBLE
         }
@@ -253,56 +252,74 @@ class TelephoneVisitFragment : Fragment() {
 //        }
 
         binding.btnSave.setOnClickListener {
-            if (!isProm && binding.etObjectiveVisit.text.toString().isEmpty()) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "هدف الزيارة مطلوب",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
-            if (binding.etVisitingPosition.text.toString().isEmpty()) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "موقف الزيارة مطلوب",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
-            Log.d("WHATbtnSave", "Clicked")
+            if (isProm) {
+                dateVisit = endTimer()
+
+                lifecycleScope.launch {
+                    viewModel.phoneVisitsIntent.send(
+                        PhoneVisitsIntent.SaveVisitPhone(
+                            SaveVisitPhoneReq(
+                                party_site_id = customerPartySiteId,
+                                ord_type = saleType,
+                                check_in = checkIn,
+                                phone_visit = phoneVisit,
+                                device_type = "Android"
+                            )
+                        )
+                    )
+                }
+            } else {
+                if (binding.etObjectiveVisit.text.toString().isEmpty()) {
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "هدف الزيارة مطلوب",
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                    return@setOnClickListener
+                }
+                if (binding.etVisitingPosition.text.toString().isEmpty()) {
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "موقف الزيارة مطلوب",
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                    return@setOnClickListener
+                }
+                Log.d("WHATbtnSave", "Clicked")
 //            checkIn = getCurrentTimeTimestamp().toString()
 //            dateVisit = getCurrentDateTimestamp()
-            actTarget = binding.etCollectToday.text.toString()
-            comment = binding.etVisitNotes.text.toString()
-            visitTarget = binding.etObjectiveVisit.text.toString()
+                actTarget = binding.etCollectToday.text.toString()
+                comment = binding.etVisitNotes.text.toString()
+                visitTarget = binding.etObjectiveVisit.text.toString()
 
-            dateVisit = endTimer()
+                dateVisit = endTimer()
 
-            lifecycleScope.launch {
-                viewModel.phoneVisitsIntent.send(
-                    PhoneVisitsIntent.SaveVisitPhone(
-                        SaveVisitPhoneReq(
-                            party_site_id = customerPartySiteId,
-                            visit_target = if (visitTarget.isNotEmpty()) visitTarget.toInt() else 0,
-                            ord_type = saleType,
-                            visibility = visibility,
-                            grade = grade,
-                            act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
+                lifecycleScope.launch {
+                    viewModel.phoneVisitsIntent.send(
+                        PhoneVisitsIntent.SaveVisitPhone(
+                            SaveVisitPhoneReq(
+                                party_site_id = customerPartySiteId,
+                                visit_target = if (visitTarget.isNotEmpty()) visitTarget.toInt() else 0,
+                                ord_type = saleType,
+                                visibility = visibility,
+                                grade = grade,
+                                act_target = if (actTarget.isNotEmpty()) actTarget.toInt() else 0,
 //                            act_target = if (actTarget.isEmpty()),
-                            another_order_type = anotherOrderType,
-                            comment = comment,
-                            check_in = checkIn,
-                            phone_visit = phoneVisit,
-                            device_type = "Android"
+                                another_order_type = anotherOrderType,
+                                comment = comment,
+                                check_in = checkIn,
+                                phone_visit = phoneVisit,
+                                device_type = "Android"
 
 //                            date_visit = dateVisit,
 //                            promoters_notes = promotersNotes,
 //                            visit_notes = visitNotes,
+                            )
                         )
                     )
-                )
+                }
             }
         }
 

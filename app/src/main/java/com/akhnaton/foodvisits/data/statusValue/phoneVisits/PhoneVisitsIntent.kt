@@ -10,11 +10,16 @@ sealed class PhoneVisitsIntent {
     data class GetCustomers(val saleType: String) : PhoneVisitsIntent()
     data class GetCustomerData(val saleType: String, val customerCode: String, val line: String) :
         PhoneVisitsIntent()
+
     data class VisitsSelect(val orderType: String, val customerCode: String) :
         PhoneVisitsIntent()
 
     data class CheckIn(val checkInPhoneReq: CheckInPhoneReq) :
         PhoneVisitsIntent()
+
+    data class DialOutbound(val outbound: String, val caller: String? = null) :
+        PhoneVisitsIntent()
+
     data class SaveVisitPhone(val saveVisitPhoneReq: SaveVisitPhoneReq) :
         PhoneVisitsIntent()
 

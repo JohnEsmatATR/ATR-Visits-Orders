@@ -5,6 +5,7 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -45,6 +46,7 @@ class CustomerDataAdapter(
 
         holder.tvCustomerName.text = item.CUSTOMER_NAME
         holder.tvSiteAddress.text = item.SITE_ADDRESS
+        holder.tvPhoneNumber.text = item.TEL.toString()
         holder.tvWith.visibility = View.GONE
 
         if (item.isSelected) {
@@ -77,24 +79,28 @@ class CustomerDataAdapter(
         val tvWith: TextView =
             itemView.findViewById(R.id.tvWith)
 
+        val tvPhoneNumber: TextView =
+            itemView.findViewById(R.id.tvPhoneNumber)
+
+        val imgCall: ImageView =
+            itemView.findViewById(R.id.imgCall)
+
         val cardRoot: MaterialCardView =
             itemView.findViewById(R.id.cardRoot)
 
         init {
-
             itemView.setOnClickListener {
-
                 val position = position
-
                 if (position == RecyclerView.NO_POSITION) return@setOnClickListener
-
                 mList.forEach { it.isSelected = false }
-
                 mList[position].isSelected = true
-
                 notifyDataSetChanged()
-
                 listener.onClick(mList[position])
+            }
+            imgCall.setOnClickListener {
+                val position = position
+                if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+                listener.onCallClick(mList[position])
             }
         }
     }
@@ -108,5 +114,6 @@ class CustomerDataAdapter(
 
     interface OnItemClickListener {
         fun onClick(item: CustomerAddres)
+        fun onCallClick(item: CustomerAddres)
     }
 }

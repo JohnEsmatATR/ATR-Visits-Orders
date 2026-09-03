@@ -7,6 +7,7 @@ import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSRes
 import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneRes
 import com.akhnaton.foodvisits.data.model.customers.GetCustomersRes
+import com.akhnaton.foodvisits.data.model.dialOutbound.DialOutboundRes
 import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
@@ -27,6 +28,7 @@ sealed class PhoneVisitsStatus {
     data class GetCustomerData(val data: GetCustomerDataRes) : PhoneVisitsStatus()
     data class VisitsSelect(val data: VisitsSelectRes) : PhoneVisitsStatus()
     data class CheckIn(val data: CheckInPhoneRes) : PhoneVisitsStatus()
+    data class DialOutbound(val data: DialOutboundRes) : PhoneVisitsStatus()
     data class SaveVisitPhone(val data: SaveVisitPhoneRes) : PhoneVisitsStatus()
     data class RefreshToken(val data: RefreshTokenRes) : PhoneVisitsStatus()
 

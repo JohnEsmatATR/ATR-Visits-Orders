@@ -7,6 +7,8 @@ object ConstantLinks {
 //   const val BASE_URL = "http://10.42.151.27/" // Old Test
 //    const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
 
+       const val PROD_BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
+
     fun isProd(): Boolean {
         return BASE_URL.contains("sales.atr-eg.com/sales_backend")
     }
@@ -18,6 +20,7 @@ object ConstantLinks {
     const val GET_CUSTOMER_DATA_ENDPOINT = "Customer/getCustomerData"
     const val VISITS_SELECT_ENDPOINT = "Visit/visitsSelect"
     const val CHECK_IN_ENDPOINT = "Visit/checkIn"
+    const val DIAL_OUTBOUND_ENDPOINT = "ucm/dialOutbound"
     const val SAVE_VISIT_ENDPOINT = "visit/saveVisit"
     const val GET_START_ORDER_DATA_ENDPOINT = "Order/getStartOrderData"
     const val SAVED_ORDER_ENDPOINT = "Order/saveOrder"

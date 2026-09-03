@@ -18,14 +18,14 @@
         android:padding="@dimen/_12sdp">
 
         <ImageView
-            android:id="@+id/imgArrow"
-            android:layout_width="@dimen/_16sdp"
-            android:layout_height="@dimen/_16sdp"
+            android:id="@+id/imgCall"
+            android:layout_width="@dimen/_24sdp"
+            android:layout_height="@dimen/_24sdp"
             android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
-            android:src="@drawable/ic_arrow_left"
-            android:tint="@color/grey_color" />
+            android:src="@drawable/ic_call"
+            android:tint="@color/green" />
 
         <TextView
             android:id="@+id/tvVisited"
@@ -76,6 +76,21 @@
 
             <TextView
                 android:id="@+id/tvWith"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:background="@drawable/bg_rounded_grey"
+                android:backgroundTint="@color/main_color_gold2"
+                android:gravity="end"
+                android:padding="@dimen/_2sdp"
+                android:text=""
+                android:textAlignment="viewEnd"
+                android:textColor="@color/colorPrimary"
+                android:textSize="@dimen/_10ssp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvPhoneNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"

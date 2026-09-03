@@ -38,6 +38,7 @@ class PhoneVisitsViewModel : ViewModel() {
                         it.customerCode,
                         it.line
                     )
+
                     is PhoneVisitsIntent.VisitsSelect -> visitsSelect(
                         it.orderType,
                         it.customerCode
@@ -49,6 +50,11 @@ class PhoneVisitsViewModel : ViewModel() {
 
                     is PhoneVisitsIntent.CheckIn -> checkIn(
                         it.checkInPhoneReq,
+                    )
+
+                    is PhoneVisitsIntent.DialOutbound -> dialOutbound(
+                        it.outbound,
+                        it.caller,
                     )
 
                     is PhoneVisitsIntent.RefreshToken -> refreshToken(it.userId, it.token)
@@ -177,6 +183,22 @@ class PhoneVisitsViewModel : ViewModel() {
                 Log.d("WHAT", "checkInVIEWMODEL1")
                 PhoneVisitsStatus.CheckIn(
                     PhoneVisitsRepository().checkInPhone(checkInPhoneReq)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "saveVisitGpsVIEWMODEL2 ${e.message}")
+                PhoneVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun dialOutbound(outbound: String, caller: String? = null) {
+        Log.d("WHAT", "callWaveVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = PhoneVisitsStatus.Loading
+            _status.value = try {
+                Log.d("WHAT", "callWaveVIEWMODEL1")
+                PhoneVisitsStatus.DialOutbound(
+                    PhoneVisitsRepository().dialOutbound(outbound, caller)
                 )
             } catch (e: Exception) {
                 Log.d("WHAT", "saveVisitGpsVIEWMODEL2 ${e.message}")

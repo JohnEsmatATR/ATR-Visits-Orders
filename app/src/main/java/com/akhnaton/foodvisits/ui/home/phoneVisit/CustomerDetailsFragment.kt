@@ -212,6 +212,10 @@ class CustomerDetailsFragment : Fragment() {
 //
 //                        startActivity(intent)
                     }
+
+                    override fun onCallClick(item: CustomerAddres) {
+
+                    }
                 }
             )
 

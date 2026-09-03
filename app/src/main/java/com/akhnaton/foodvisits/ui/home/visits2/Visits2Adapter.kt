@@ -68,7 +68,7 @@ class Visits2Adapter(
 
         if (item.is_visited_today) {
 
-            holder.imgArrow.visibility = View.GONE
+//            holder.imgArrow.visibility = View.GONE
             holder.tvVisited.visibility = View.VISIBLE
 
             // Strike through text
@@ -94,7 +94,7 @@ class Visits2Adapter(
 
         } else {
 
-            holder.imgArrow.visibility = View.VISIBLE
+//            holder.imgArrow.visibility = View.VISIBLE
             holder.tvVisited.visibility = View.GONE
 
             // Remove strike through
@@ -145,8 +145,8 @@ class Visits2Adapter(
         val ivLocation: ImageView =
             itemView.findViewById(R.id.ivLocation)
 
-        val imgArrow: ImageView =
-            itemView.findViewById(R.id.imgArrow)
+//        val imgArrow: ImageView =
+//            itemView.findViewById(R.id.imgArrow)
 
         val tvVisited: TextView =
             itemView.findViewById(R.id.tvVisited)

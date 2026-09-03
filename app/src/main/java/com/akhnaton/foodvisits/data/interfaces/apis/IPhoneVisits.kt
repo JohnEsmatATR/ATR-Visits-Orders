@@ -6,6 +6,7 @@ import com.akhnaton.foodvisits.data.model.VisitsCustomerType
 import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
 import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneRes
 import com.akhnaton.foodvisits.data.model.customers.GetCustomersRes
+import com.akhnaton.foodvisits.data.model.dialOutbound.DialOutboundRes
 import com.akhnaton.foodvisits.data.model.getCustomerData.GetCustomerDataRes
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.GetSalesAndCustomerTypesRes
 import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
@@ -21,6 +22,7 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.CHECK_IN_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMERS_SITE
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_LINE
 import com.akhnaton.foodvisits.shared.ConstantLinks.CUSTOMER_TYPE
+import com.akhnaton.foodvisits.shared.ConstantLinks.DIAL_OUTBOUND_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CUSTOMERS_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_CUSTOMER_DATA_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.GET_SALES_AND_CUSTOMER_TYPES_ENDPOINT
@@ -64,6 +66,13 @@ interface IPhoneVisits {
     suspend fun checkInPhone(
         @Body checkInReq: CheckInPhoneReq
     ): CheckInPhoneRes
+
+    @FormUrlEncoded
+    @POST(DIAL_OUTBOUND_ENDPOINT)
+    suspend fun dialOutbound(
+        @Field("outbound") outbound: String,
+        @Field("caller") caller: String?,
+    ): DialOutboundRes
 
     @POST(SAVE_VISIT_ENDPOINT)
     suspend fun saveVisitPhone(

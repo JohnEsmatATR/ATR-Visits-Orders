@@ -4,9 +4,11 @@ import com.akhnaton.foodvisits.data.interfaces.apis.IPhoneVisits
 import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
+import com.akhnaton.foodvisits.shared.RetrofitWaveClient
 
 class PhoneVisitsRepository {
     private val retrofit = RetrofitClient.getInstance(IPhoneVisits::class.java)
+    private val waveRetrofit = RetrofitWaveClient.getInstance(IPhoneVisits::class.java)
 
     suspend fun getSalesAndCustomerTypes() =
         retrofit.getSalesAndCustomerTypes()
@@ -22,6 +24,9 @@ class PhoneVisitsRepository {
 
     suspend fun checkInPhone(checkInPhoneReq: CheckInPhoneReq) =
         retrofit.checkInPhone(checkInPhoneReq)
+
+    suspend fun dialOutbound(outbound: String, caller: String?) =
+        waveRetrofit.dialOutbound(outbound, caller)
 
     suspend fun saveVisitPhone(saveVisitPhoneReq: SaveVisitPhoneReq) =
         retrofit.saveVisitPhone(saveVisitPhoneReq)

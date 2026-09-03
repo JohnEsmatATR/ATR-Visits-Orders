@@ -1,7 +1,10 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -409,6 +412,18 @@ class PhoneVisitStepsFragment : Fragment() {
 //
 //                        startActivity(intent)
                     }
+
+                    override fun onCallClick(item: CustomerAddres) {
+                        lifecycleScope.launch {
+                            viewModel.phoneVisitsIntent.send(
+                                PhoneVisitsIntent.DialOutbound(
+                                    "01270331812",
+//                                    item.TEL.toString(),
+                                    "1010"
+                                )
+                            )
+                        }
+                    }
                 }
             )
 
@@ -609,7 +624,6 @@ class PhoneVisitStepsFragment : Fragment() {
                                     )
 //                            Log.d("WHAT", "onClick: $clickedVisit")
 
-
                                 if (data.check_in != null) {
                                     navigateToPhoneVisit(
                                         customerName,
@@ -651,6 +665,32 @@ class PhoneVisitStepsFragment : Fragment() {
                                     }
                                 }
 
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.phoneVisitsIntent.send(
+                                        PhoneVisitsIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
+                        is PhoneVisitsStatus.DialOutbound -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
+                                launchGrandstreamWave(requireContext())
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
                                     viewModel.phoneVisitsIntent.send(
@@ -775,6 +815,29 @@ class PhoneVisitStepsFragment : Fragment() {
                 )
             )
             insets
+        }
+    }
+
+    fun launchGrandstreamWave(context: Context) {
+        val packageName = "com.grandstream.wave"
+        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
+
+        if (launchIntent != null) {
+            context.startActivity(launchIntent)
+        } else {
+            // App not installed - redirect to Play Store
+            try {
+                context.startActivity(
+                    Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+                )
+            } catch (e: ActivityNotFoundException) {
+                context.startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+                    )
+                )
+            }
         }
     }
 
