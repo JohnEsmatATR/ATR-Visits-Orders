@@ -68,7 +68,7 @@
             app:destination="@id/mainFragment" />
         <action
             android:id="@+id/toCompetitors"
-            app:destination="@id/OrderCreationCycleFragment" />
+            app:destination="@id/competitorFragment" />
         <action
             android:id="@+id/toCalls"
             app:destination="@id/OrderCreationCycleFragment" />
@@ -199,7 +199,7 @@
             app:destination="@id/mainFragment" />
         <action
             android:id="@+id/toCompetitors"
-            app:destination="@id/OrderCreationCycleFragment" />
+            app:destination="@id/competitorFragment" />
         <action
             android:id="@+id/toCalls"
             app:destination="@id/OrderCreationCycleFragment" />
@@ -249,6 +249,18 @@
         <action
             android:id="@+id/toTelephoneVisit"
             app:destination="@id/telephoneVisitFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/competitorFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoterProcedures.CompetitorFragment"
+        android:label="fragment_competitor"
+        tools:layout="@layout/fragment_competitors">
+
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
+
     </fragment>
 
 </navigation>

@@ -79,9 +79,9 @@ object ConstantLinks {
     const val PROMOTER_GET_ITEMS = "$ROUTS_API?path=get_item_data"
     const val PROMOTER_SUBMIT_ITEMS = "$ROUTS_API?path=stock_item"
     const val PROMOTER_INSERT_DETAILS = "$ROUTS_API?path=insertDayDetailsPerClient"
-    const val PROMOTER_SEND_COMPETITORS = "$ROUTS_API?path=send_competitors"
-    const val PROMOTER_UPLOAD_IMAGE = "$ROUTS_API?path=upload_image"
-    const val PROMOTER_COMPETITOR_LIST = "$ROUTS_API?path=get_competitor_list"
+    const val PROMOTER_SEND_COMPETITORS = "Promoter/sendCompetitors"
+    const val PROMOTER_UPLOAD_IMAGE = "Promoter/uploadImage"
+    const val PROMOTER_COMPETITOR_LIST = "Promoter/getCompetitorList"
     const val ROUTE_KEY =
         "eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjQ2NzU1NjY3NjYxZjQ5MjliMzlhNmU3N2RhNTQwYmYyIiwiaCI6Im11cm11cjY0In0="
     const val ROUTE_KEY2 =

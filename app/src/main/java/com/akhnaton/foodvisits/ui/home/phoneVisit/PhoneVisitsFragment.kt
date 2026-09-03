@@ -246,6 +246,16 @@ class PhoneVisitsFragment : Fragment(), View.OnClickListener {
 
 
         mainCustomerLinePosition = selectedItem.customer_code
+
+        Log.d(
+            "CUSTOMER_DEBUG",
+            "selectedItem.customer_code = '${selectedItem.customer_code}'"
+        )
+
+        Log.d(
+            "CUSTOMER_DEBUG",
+            "mainCustomerLinePosition = '$mainCustomerLinePosition'"
+        )
         customerName = selectedItem.customer_name
 
         lifecycleScope.launch {

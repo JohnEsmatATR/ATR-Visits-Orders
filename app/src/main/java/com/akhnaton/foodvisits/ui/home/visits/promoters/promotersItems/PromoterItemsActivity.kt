@@ -100,7 +100,7 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
                         }
                     }
                     initAdapter(newListItems)
-                }
+                    }
                 return false
             }
         })
@@ -147,9 +147,16 @@ class PromoterItemsActivity : AppCompatActivity(), PromotersDataAdapter.OnSubmit
                     }
                     is PromoterStatus.Error -> {
                         Log.d(TAG, "fetchData1: ${it.error}")
+                        val friendlyMessage = when {
+                            it.error?.contains("BEGIN_OBJECT") == true ||
+                                    it.error?.contains("JsonSyntax") == true -> "حصل خطأ في السيرفر، برجاء المحاولة لاحقًا"
+                            it.error?.contains("timeout", ignoreCase = true) == true -> "تأكد من اتصال الإنترنت وحاول مرة أخرى"
+                            it.error?.contains("Unable to resolve host") == true -> "لا يوجد اتصال بالإنترنت"
+                            else -> "حصل خطأ غير متوقع، برجاء المحاولة مرة أخرى"
+                        }
                         Toast.makeText(
                             this@PromoterItemsActivity,
-                            "Error: ${it.error}",
+                            friendlyMessage,
                             Toast.LENGTH_LONG
                         ).show()
                         pDialog!!.dismiss()

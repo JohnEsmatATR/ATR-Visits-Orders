@@ -76,6 +76,12 @@ class PhoneVisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Log.d(
+            "CUSTOMER_DEBUG",
+            "Activity customer_code = '${intent.getStringExtra("customer_code")}'"
+        )
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_visits_details)
 
 

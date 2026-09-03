@@ -99,7 +99,7 @@ interface IPromoter {
     suspend fun sendCompetitors(
         @Part("app_version") appVersion: RequestBody?,
         @Part("api_token") apiToken: RequestBody?,
-        @Part image: Array<MultipartBody.Part?>,
+        @Part image: MultipartBody.Part,
         @Part("created_by") created_by: RequestBody?,
         @Part("creation_date") creation_date: RequestBody?,
         @Part("party_site_id") party_site_id: RequestBody?,
@@ -114,9 +114,7 @@ interface IPromoter {
         @Part("prom_date") prom_date: RequestBody?,
         @Part("user_type") user_type: RequestBody?,
         @Part("PromoterCompetitorCompress") PromoterCompetitorCompress: RequestBody?,
-        @Part("competitor_name") competitor_name: RequestBody?,
-        @Part("type_name") type_name: RequestBody?,
+        @Part("competitor_id") competitor_id: RequestBody?,
+        @Part("type_id") type_id: RequestBody?,
     ): BaseResponse<String>
-
-
 }

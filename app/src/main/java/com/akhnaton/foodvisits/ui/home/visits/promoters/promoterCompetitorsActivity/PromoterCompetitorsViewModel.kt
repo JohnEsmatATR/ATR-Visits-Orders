@@ -21,45 +21,42 @@ class PromoterCompetitorsViewModel : ViewModel() {
     val status: StateFlow<PromoterStatus> get() = _status
 
     init {
-        getCompetitorList()
-        sendCompetitors()
+        observeIntents()
     }
 
-    private fun sendCompetitors() {
+    fun resetStatus() {
+        _status.value = PromoterStatus.Idle
+    }
+
+    private fun observeIntents() {
         viewModelScope.launch {
             promoterIntent.consumeAsFlow().collect {
                 when (it) {
                     is PromoterIntent.SendCompetitors -> fetchSendCompetitors(
-                        it.appVersion,
-                        it.apiToken,
-                        it.image,
-                        it.created_by,
-                        it.creation_date,
-                        it.party_site_id,
-                        it.customer_code,
-                        it.product_id,
-                        it.price,
-                        it.price_after_disc,
-                        it.product_name,
-                        it.weight,
-                        it.discount_rate,
-                        it.prom_type,
-                        it.prom_date,
-                        it.user_type,
-                        it.PromoterCompetitorCompress,
-                        it.competitor_name,
-                        it.type_name,
+                        it.appVersion, it.apiToken, it.image, it.created_by,
+                        it.creation_date, it.party_site_id, it.customer_code,
+                        it.product_id, it.price, it.price_after_disc,
+                        it.product_name, it.weight, it.discount_rate,
+                        it.prom_type, it.prom_date, it.user_type,
+                        it.PromoterCompetitorCompress, it.competitor_id, it.type_id,
                     )
-
+                    is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(it.appVersion)
+                    is PromoterIntent.UploadImages -> fetchUploadImages(
+                        it.appVersion, it.apiToken, it.image, it.created_by,
+                        it.creation_date, it.customer_code, it.party_site_id,
+                        it.user_type, it.funNum
+                    )
                     else -> {}
                 }
             }
         }
+
     }
-    private fun fetchSendCompetitors(
+
+    private fun     fetchSendCompetitors(
         appVersion: RequestBody,
         apiToken: RequestBody,
-        image: Array<MultipartBody.Part?>,
+        image: MultipartBody.Part,
         created_by: RequestBody,
         creation_date: RequestBody,
         party_site_id: RequestBody,
@@ -74,8 +71,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
         prom_date: RequestBody,
         user_type: RequestBody,
         PromoterCompetitorCompress: RequestBody,
-        competitor_name: RequestBody,
-        type_name: RequestBody,
+        competitor_id: RequestBody,
+        type_id: RequestBody,
     ) {
         viewModelScope.launch {
             _status.value = PromoterStatus.Loading
@@ -99,8 +96,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         prom_date,
                         user_type,
                         PromoterCompetitorCompress,
-                        competitor_name,
-                        type_name,
+                        competitor_id,
+                        type_id,
                     )
                 )
             } catch (e: Exception) {
@@ -110,19 +107,7 @@ class PromoterCompetitorsViewModel : ViewModel() {
     }
 
 
-    private fun getCompetitorList() {
-        viewModelScope.launch {
-            promoterIntent.consumeAsFlow().collect {
-                when (it) {
-                    is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(
-                        it.appVersion,
-                    )
 
-                    else -> {}
-                }
-            }
-        }
-    }
 
     private fun fetchGetCompetitorList(
         appVersion: Double,
@@ -141,5 +126,36 @@ class PromoterCompetitorsViewModel : ViewModel() {
         }
     }
 
-
+    private fun fetchUploadImages(
+        appVersion: RequestBody?,
+        apiToken: RequestBody?,
+        image: Array<MultipartBody.Part?>,
+        created_by: RequestBody?,
+        creation_date: RequestBody?,
+        customer_code: RequestBody?,
+        party_site_id: RequestBody?,
+        user_type: RequestBody?,
+        funNum: RequestBody?,
+    ) {
+        viewModelScope.launch {
+            _status.value = PromoterStatus.Loading
+            _status.value = try {
+                PromoterStatus.UploadImages(
+                    PromoterRepository().uploadImages(
+                        appVersion,
+                        apiToken,
+                        image,
+                        created_by,
+                        creation_date,
+                        customer_code,
+                        party_site_id,
+                        user_type,
+                        funNum
+                    )
+                )
+            } catch (e: Exception) {
+                PromoterStatus.Error(e.message)
+            }
+        }
+    }
 }

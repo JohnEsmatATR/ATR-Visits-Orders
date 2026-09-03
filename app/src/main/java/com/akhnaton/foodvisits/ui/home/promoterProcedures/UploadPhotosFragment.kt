@@ -4,22 +4,39 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentUploadPhotosBinding
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
+import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -29,6 +46,8 @@ class UploadPhotosFragment : Fragment() {
     private lateinit var binding: FragmentUploadPhotosBinding
     private val selectedImages = mutableListOf<Uri>()
     private lateinit var selectedImagesAdapter: SelectedImagesAdapter
+
+    private val viewModel: PromoterCompetitorsViewModel by viewModels()
 
     private val galleryPicker =
         registerForActivityResult(
@@ -95,7 +114,29 @@ class UploadPhotosFragment : Fragment() {
         }
 
         setupViews()
+        observeStatus()
 
+    }
+
+    private fun observeStatus() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect { status ->
+                    when (status) {
+                        is PromoterStatus.UploadImages -> {
+                            Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
+                            findNavController().popBackStack()
+                        }
+
+                        is PromoterStatus.Error -> {
+                            Toast.makeText(requireContext(), status.error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+        }
     }
 
     private fun setupViews() {
@@ -117,6 +158,7 @@ class UploadPhotosFragment : Fragment() {
         }
 
         binding.btnUpload.setOnClickListener {
+            Log.d("UPLOAD_DEBUG", "uploadImages called, images count = ${selectedImages.size}")
             uploadImages()
         }
 
@@ -164,11 +206,9 @@ class UploadPhotosFragment : Fragment() {
         val count = selectedImages.size
         val hasImages = count > 0
 
-        // Show/hide upload area
         binding.cardUpload.visibility =
             if (hasImages) View.GONE else View.VISIBLE
 
-        // Show/hide RecyclerView
         binding.recyclerImages.visibility =
             if (hasImages) View.VISIBLE else View.GONE
 
@@ -189,9 +229,9 @@ class UploadPhotosFragment : Fragment() {
 
         binding.btnUpload.backgroundTintList =
             if (hasImages) {
-                requireContext().getColorStateList(R.color.orange)
+                ContextCompat.getColorStateList(requireContext(), R.color.orange)
             } else {
-                requireContext().getColorStateList(R.color.gray)
+                ContextCompat.getColorStateList(requireContext(), R.color.gray)
             }
 
         // Update adapter
@@ -205,7 +245,60 @@ class UploadPhotosFragment : Fragment() {
     }
 
     private fun uploadImages() {
-        // We will add the API upload here.
+
+        fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        if (selectedImages.isEmpty()) {
+            Toast.makeText(requireContext(), "من فضلك اختر صور أولاً", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val apiToken = SharedPreferencesHelper.getInstance().getUserToken()
+            ?: requireActivity().intent?.getStringExtra("token") ?: ""
+
+        val employeeId = SharedPreferencesHelper.getInstance().getEmployeeId()
+            ?: requireActivity().intent?.getStringExtra("employee_id") ?: ""
+
+        val customerCode = arguments?.getString("customerCode")
+            ?: requireActivity().intent?.getStringExtra("customer_code") ?: ""
+
+        val partySiteId = arguments?.getString("customerPartySiteId")
+            ?: requireActivity().intent?.getStringExtra("party_site") ?: ""
+
+        val creationDate = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ENGLISH).format(Date())
+
+        val imageParts: Array<MultipartBody.Part?> = arrayOfNulls(selectedImages.size)
+
+        for (i in selectedImages.indices) {
+            imageParts[i] = uriToMultipart(selectedImages[i], i)
+        }
+
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.UploadImages(
+                    appVersion = "1.0".toBody(),
+                    apiToken = apiToken.toBody(),
+                    image = imageParts,
+                    created_by = employeeId.toBody(),
+                    creation_date = creationDate.toBody(),
+                    customer_code = customerCode.toBody(),
+                    party_site_id = partySiteId.toBody(),
+                    user_type = "prom".toBody(),
+                    funNum = "1".toBody()
+                )
+            )
+        }
+    }
+
+    private fun uriToMultipart(uri: Uri, index: Int): MultipartBody.Part? {
+        val contentResolver = requireContext().contentResolver
+        val inputStream = contentResolver.openInputStream(uri) ?: return null
+        val tempFile = File.createTempFile("upload_img_", ".jpg", requireContext().cacheDir)
+        FileOutputStream(tempFile).use { output ->
+            inputStream.copyTo(output)
+        }
+        val requestFile = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
+        return MultipartBody.Part.createFormData("image[$index]", tempFile.name, requestFile)
     }
 
     private fun updateUploadButton() {
@@ -216,9 +309,9 @@ class UploadPhotosFragment : Fragment() {
 
         binding.btnUpload.backgroundTintList =
             if (hasImages) {
-                requireContext().getColorStateList(R.color.orange)
+                ContextCompat.getColorStateList(requireContext(), R.color.orange)
             } else {
-                requireContext().getColorStateList(R.color.gray)
+                ContextCompat.getColorStateList(requireContext(), R.color.gray)
             }
     }
 

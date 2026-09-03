@@ -18,7 +18,6 @@ abstract class RetrofitClient {
             .setLenient()
             .create()
 
-
         fun <T> getInstance(service: Class<T>): T {
             val retrofit = Retrofit.Builder()
                 .baseUrl(ConstantLinks.BASE_URL)
@@ -27,7 +26,5 @@ abstract class RetrofitClient {
                 .build()
             return retrofit.create(service)
         }
-
     }
-
 }

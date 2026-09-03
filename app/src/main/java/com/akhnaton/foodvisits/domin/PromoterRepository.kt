@@ -129,7 +129,7 @@ class PromoterRepository {
     suspend fun sendCompetitors(
         appVersion: RequestBody,
         apiToken: RequestBody,
-        image: Array<MultipartBody.Part?>,
+        image: MultipartBody.Part,
         created_by: RequestBody,
         creation_date: RequestBody,
         party_site_id: RequestBody,

@@ -615,6 +615,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             intent.putExtra("party_site", customerData.customer_party_site_id)
             intent.putExtra("token", SharedPreferencesHelper.getInstance().getUserToken())
             intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
+            Log.d("DEBUG_CUSTOMER", "CUSTOMER_CODE = ${customerData.CUSTOMER_CODE}")
             intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
             startActivity(intent)
             Log.d(
@@ -659,6 +660,7 @@ class VisitsDetailsActivity : AppCompatActivity(), View.OnClickListener {
             intent.putExtra("token", SharedPreferencesHelper.getInstance().getUserToken())
             intent.putExtra("employee_id", SharedPreferencesHelper.getInstance().getEmployeeId())
             intent.putExtra("customer_code", customerData.CUSTOMER_CODE)
+            Log.d("CUSTOMER_DEBUG", "CUSTOMER_CODE = '${customerData.CUSTOMER_CODE}'")
             startActivity(intent)
         })
     }

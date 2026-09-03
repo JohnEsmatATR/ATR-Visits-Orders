@@ -38,5 +38,6 @@
     <color name="red_bg">#FDECEC</color>
     <color name="orange_bg">#FFF3E6</color>
     <color name="green_bg">#EAF7EE</color>
-
+    <color name="input_box_bg">#FAFAFA</color>
+    <color name="input_box_stroke">#E0E0E0</color>
 </resources>

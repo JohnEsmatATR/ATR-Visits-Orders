@@ -225,4 +225,40 @@
     <string name="choose_visit_address">اختر عنوان الزيارة</string>
     <string name="start_visit">بدء الزيارة</string>
 
+
+
+    <string name="competitors_title">المنافسين</string>
+
+    <string name="product_info_title">معلومات المنتج</string>
+    <string name="product_name_label">اسم المنتج</string>
+    <string name="product_name_hint">أدخل اسم المنتج</string>
+    <string name="category_label">الفئة</string>
+    <string name="category_hint">SKIN CARE</string>
+    <string name="competing_company_label">الشركة المنافسة</string>
+    <string name="competing_company_hint">L\'OREAL</string>
+
+    <string name="sizes_prices_title">القياسات والأسعار</string>
+    <string name="product_size_label">حجم المنتج</string>
+    <string name="product_size_hint">أدخل حجم المنتج</string>
+    <string name="unit_size_label">حجم الصنف</string>
+    <string name="unit_size_hint">أدخل حجم الصنف</string>
+    <string name="price_before_label">السعر قبل الخصم</string>
+    <string name="price_before_hint">أدخل السعر قبل الخصم</string>
+    <string name="price_after_label">السعر بعد الخصم</string>
+    <string name="price_after_hint">أدخل السعر بعد الخصم</string>
+    <string name="discount_label">نسبة الخصم</string>
+    <string name="discount_hint">أدخل نسبة الخصم</string>
+    <string name="offer_date_label">تاريخ العرض</string>
+    <string name="offer_date_hint">اختر تاريخ العرض</string>
+
+    <string name="offer_area_title">منطقة العروض</string>
+    <string name="offer_area_flor_decile">فلور دسيلي</string>
+    <string name="offer_area_gandola">جندولة</string>
+    <string name="offer_area_flabeer">فلابير</string>
+    <string name="offer_area_raf">رف</string>
+
+    <string name="competitor_images_title">صور المنافس</string>
+    <string name="add_images_label">أضف صورا للمنتج</string>
+    <string name="save_competitor">حفظ المنافس</string>
+
 </resources>

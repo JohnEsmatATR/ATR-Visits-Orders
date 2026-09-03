@@ -17,6 +17,7 @@ import retrofit2.http.Part
 
 interface IAddCustomer {
 
+
     @FormUrlEncoded
     @POST(ConstantLinks.CUSTOMER_TYPE)
     suspend fun getCustomerType(
@@ -81,4 +82,5 @@ interface IAddCustomer {
         @Part id_1: MultipartBody.Part,
         @Part id_2: MultipartBody.Part,
     ): CreateNewCustomer
+
 }

@@ -99,7 +99,7 @@ sealed class PromoterIntent {
     data class SendCompetitors(
         val appVersion: RequestBody,
         val apiToken: RequestBody,
-        val image: Array<MultipartBody.Part?>,
+        val image: MultipartBody.Part,
         val created_by: RequestBody,
         val creation_date: RequestBody,
         val party_site_id: RequestBody,
@@ -114,8 +114,8 @@ sealed class PromoterIntent {
         val prom_date: RequestBody,
         val user_type: RequestBody,
         val PromoterCompetitorCompress: RequestBody,
-        val competitor_name: RequestBody,
-        val type_name: RequestBody,
+        val competitor_id: RequestBody,
+        val type_id: RequestBody,
     ) : PromoterIntent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
@@ -125,7 +125,7 @@ sealed class PromoterIntent {
 
             if (appVersion != other.appVersion) return false
             if (apiToken != other.apiToken) return false
-            if (!image.contentEquals(other.image)) return false
+            if (image != other.image) return false
             if (created_by != other.created_by) return false
             if (creation_date != other.creation_date) return false
             if (party_site_id != other.party_site_id) return false
@@ -140,8 +140,8 @@ sealed class PromoterIntent {
             if (prom_date != other.prom_date) return false
             if (user_type != other.user_type) return false
             if (PromoterCompetitorCompress != other.PromoterCompetitorCompress) return false
-            if (competitor_name != other.competitor_name) return false
-            if (type_name != other.type_name) return false
+            if (competitor_id != other.competitor_id) return false
+            if (type_id != other.type_id) return false
 
             return true
         }
@@ -149,7 +149,7 @@ sealed class PromoterIntent {
         override fun hashCode(): Int {
             var result = appVersion.hashCode()
             result = 31 * result + apiToken.hashCode()
-            result = 31 * result + image.contentHashCode()
+            result = 31 * result + image.hashCode()
             result = 31 * result + created_by.hashCode()
             result = 31 * result + creation_date.hashCode()
             result = 31 * result + party_site_id.hashCode()
@@ -164,8 +164,8 @@ sealed class PromoterIntent {
             result = 31 * result + prom_date.hashCode()
             result = 31 * result + user_type.hashCode()
             result = 31 * result + PromoterCompetitorCompress.hashCode()
-            result = 31 * result + competitor_name.hashCode()
-            result = 31 * result + type_name.hashCode()
+            result = 31 * result + competitor_id.hashCode()
+            result = 31 * result + type_id.hashCode()
             return result
         }
     }

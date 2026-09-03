@@ -179,8 +179,13 @@ class TelephoneVisitFragment : Fragment() {
         }
 
         binding.cardVisitReport.setOnClickListener {
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString("customerPartySiteId", customerPartySiteId)
+            }
             findNavController().navigate(
-                R.id.toCompetitors
+                R.id.toCompetitors,
+                bundle
             )
         }
 
@@ -248,7 +253,7 @@ class TelephoneVisitFragment : Fragment() {
 //        }
 
         binding.btnSave.setOnClickListener {
-            if (binding.etObjectiveVisit.text.toString().isEmpty()) {
+            if (!isProm && binding.etObjectiveVisit.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
                     context = requireContext(),
                     message = "هدف الزيارة مطلوب",
@@ -280,7 +285,7 @@ class TelephoneVisitFragment : Fragment() {
                     PhoneVisitsIntent.SaveVisitPhone(
                         SaveVisitPhoneReq(
                             party_site_id = customerPartySiteId,
-                            visit_target = visitTarget.toInt(),
+                            visit_target = if (visitTarget.isNotEmpty()) visitTarget.toInt() else 0,
                             ord_type = saleType,
                             visibility = visibility,
                             grade = grade,

@@ -14,8 +14,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
+import cn.pedant.SweetAlert.BuildConfig
 import cn.pedant.SweetAlert.SweetAlertDialog
-import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
@@ -169,7 +169,12 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
             val mDay = c[Calendar.DAY_OF_MONTH]
             val datePickerDialog = DatePickerDialog(
                 this@PromoterCompetitorsActivity,
-                { view, year, monthOfYear, dayOfMonth -> binding.etPromotionDate.setText(dayOfMonth.toString() + "-" + (monthOfYear + 1) + "-" + year) },
+                { view, year, monthOfYear, dayOfMonth ->
+                    // فورمات dd/MM/yyyy زي ما بيتوقعه السيرفر (نفس اللي نجح في Postman)
+                    val day = String.format(Locale.US, "%02d", dayOfMonth)
+                    val month = String.format(Locale.US, "%02d", monthOfYear + 1)
+                    binding.etPromotionDate.setText("$day/$month/$year")
+                },
                 mYear,
                 mMonth,
                 mDay
@@ -189,7 +194,20 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
 
         val apiVersion = versionName.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val token = token!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val image: Array<MultipartBody.Part?> = arrayOfNulls<MultipartBody.Part>(imagePathList.size)
+        val imageFile = File(imagePathList.firstOrNull() ?: "")
+
+        if (!imageFile.exists()) {
+            Toast.makeText(this, "من فضلك اختر صورة", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val requestFile = imageFile.asRequestBody("image/*".toMediaTypeOrNull())
+
+        val image = MultipartBody.Part.createFormData(
+            "image",
+            imageFile.name,
+            requestFile
+        )
         val employee = employee_id!!.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val date = binding.etPromotionDate.text.toString().trim()
             .toRequestBody("multipart/form-data".toMediaTypeOrNull())
@@ -208,21 +226,25 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
         val discountRate = binding.etProductDiscountRate.text.toString().trim().trim()
             .toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val promType = json.toRequestBody("multipart/form-data".toMediaTypeOrNull())
-        val promDate = binding.etPromotionDate.getText().toString().trim()
-            .toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        val promDateValue = binding.etPromotionDate.text.toString().trim()
+
+        Log.e("TEST_DATE", "BUTTON CLICKED")
+        val promDate = promDateValue
+            .toRequestBody("text/plain".toMediaTypeOrNull())
         val user_Type = userType.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val function = "1".toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val competitor_name = competitorsNameId.toRequestBody("multipart/form-data".toMediaTypeOrNull())
         val type_name = competitorsTypeId.toRequestBody("multipart/form-data".toMediaTypeOrNull())
 
 
-        for (i in imagePathList.indices) {
-            val mSaveBit = File(imagePathList[i])
-            val requestBody = mSaveBit.asRequestBody("image/jpeg".toMediaTypeOrNull())
-            image[i] = MultipartBody.Part.createFormData("image[$i]", mSaveBit.name, requestBody)
-
-        }
-
+        Log.d(
+            "PromoterCompetitors",
+            "promDate = '${binding.etPromotionDate.text.toString().trim()}'"
+        )
+        Log.d(
+            "PromoterCompetitors",
+            "date = '${binding.etPromotionDate.text.toString().trim()}'"
+        )
         lifecycleScope.launch {
             viewModel.promoterIntent.send(
                 PromoterIntent.SendCompetitors(
@@ -311,9 +333,16 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                     is PromoterStatus.Error -> {
                         hideDialog()
                         Log.d(TAG, "fetchData: ${status.error}")
+                        val friendlyMessage = when {
+                            status.error?.contains("BEGIN_OBJECT") == true ||
+                                    status.error?.contains("JsonSyntax") == true -> "حصل خطأ في السيرفر، برجاء المحاولة لاحقًا"
+                            status.error?.contains("timeout", ignoreCase = true) == true -> "تأكد من اتصال الإنترنت وحاول مرة أخرى"
+                            status.error?.contains("Unable to resolve host") == true -> "لا يوجد اتصال بالإنترنت"
+                            else -> "حصل خطأ غير متوقع، برجاء المحاولة مرة أخرى"
+                        }
                         Toast.makeText(
                             this@PromoterCompetitorsActivity,
-                            "Error: ${status.error}",
+                            friendlyMessage,
                             Toast.LENGTH_LONG
                         ).show()
                     }
