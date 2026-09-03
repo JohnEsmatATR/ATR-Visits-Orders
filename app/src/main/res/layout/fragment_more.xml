@@ -238,7 +238,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
                 android:layout_marginTop="@dimen/_8sdp"
-                android:visibility="gone"
                 app:cardCornerRadius="20dp">
 
                 <LinearLayout

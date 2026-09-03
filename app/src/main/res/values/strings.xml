@@ -260,5 +260,7 @@
     <string name="competitor_images_title">صور المنافس</string>
     <string name="add_images_label">أضف صورا للمنتج</string>
     <string name="save_competitor">حفظ المنافس</string>
+    <string name="food_list_title">قائمة الفواتير</string>
+    <string name="food_list_section_title">الفواتير المتاحة</string>
 
 </resources>
