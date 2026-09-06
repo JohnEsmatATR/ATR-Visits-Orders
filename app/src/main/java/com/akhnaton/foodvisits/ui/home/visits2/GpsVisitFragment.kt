@@ -119,43 +119,12 @@ class GpsVisitFragment : Fragment() {
 
     var isProm: Boolean = false
 
-    private var timerHandler = Handler(Looper.getMainLooper())
-    private var startTimeMillis = 0L
-
     private var selectedRating = 0f
-
-    var timerRunnable = object : Runnable {
-        override fun run() {
-            val elapsed =
-                System.currentTimeMillis() - startTimeMillis
-            val hours =
-                elapsed / (1000 * 60 * 60)
-            val minutes =
-                (elapsed / (1000 * 60)) % 60
-            val seconds =
-                (elapsed / 1000) % 60
-            binding.tvTimer.text =
-                String.format(
-                    "%02d:%02d:%02d",
-                    hours,
-                    minutes,
-                    seconds
-                )
-            timerHandler.postDelayed(this, 1000)
-        }
-    }
-
-    private var checkInTimeMillis = 0L
-    private var apiCurrentTimeMillis = 0L
 
 //    private lateinit var fusedLocationClient: FusedLocationProviderClient
 //    private var currentDistanceMeters: Float = 0f
 
     private var isDeveloperModeEnable = 0
-
-    var hours: Long = 0
-    var minutes: Long = 0
-    var seconds: Long = 0
 
     private val locationPermissionCode = 199
     private var requestPermission = RequestPermission()
@@ -165,6 +134,13 @@ class GpsVisitFragment : Fragment() {
     //    val customerLocation = Location("")
     private lateinit var locationClient: ILocationClient
 //    val myLocation = Location("")
+
+    private val timerHandler = Handler(Looper.getMainLooper())
+
+    private var timerRunnable: Runnable? = null
+
+    private var checkInTimeMillis = 0L
+    private var serverTimeOffsetMillis = 0L
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -182,10 +158,9 @@ class GpsVisitFragment : Fragment() {
         validGpsRange = arguments?.getInt("validGpsRange")
         visitWithUserId = arguments?.getString("visitWithUserId").toString()
         visitWithName = arguments?.getString("visitWithName").toString()
-        checkIn =
-            arguments?.getString("checkIn").toString()
-        currentTime =
-            arguments?.getString("currentTime").toString()
+        checkIn = arguments?.getString("checkIn").orEmpty()
+
+        currentTime = arguments?.getString("currentTime").orEmpty()
 
         viewModel = ViewModelProvider(
             this,
@@ -230,25 +205,50 @@ class GpsVisitFragment : Fragment() {
             }
         }
 
-        if (!checkIn.isNullOrBlank() && !currentTime.isNullOrBlank()) {
+        if (
+            checkIn.isNotBlank() &&
+            currentTime.isNotBlank() &&
+            !checkIn.equals("null", ignoreCase = true) &&
+            !currentTime.equals("null", ignoreCase = true)
+        ) {
 
             checkInTimeMillis = parseApiDate(checkIn)
-            apiCurrentTimeMillis = parseApiDate(currentTime)
 
-            startTimer()
-        }
+            val apiCurrentTimeMillis = parseApiDate(currentTime)
 
-        timerRunnable = object : Runnable {
-            override fun run() {
-                binding.tvTimer.text =
-                    String.format(
-                        "%02d:%02d:%02d",
-                        hours,
-                        minutes,
-                        seconds
-                    )
-                timerHandler.postDelayed(this, 1000)
+            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
+
+                serverTimeOffsetMillis =
+                    apiCurrentTimeMillis - System.currentTimeMillis()
+
+                binding.tvTimer.visibility = View.VISIBLE
+
+                startTimer()
+
+                Log.d(
+                    TAG,
+                    "Timer initialized: checkIn=$checkIn, " +
+                            "currentTime=$currentTime, " +
+                            "checkInMillis=$checkInTimeMillis, " +
+                            "serverOffset=$serverTimeOffsetMillis"
+                )
+
+            } else {
+
+                Log.e(
+                    TAG,
+                    "Timer NOT started. Invalid dates: " +
+                            "checkIn=$checkIn, currentTime=$currentTime"
+                )
             }
+
+        } else {
+
+            Log.e(
+                TAG,
+                "Timer NOT started. Missing checkIn/currentTime: " +
+                        "checkIn=$checkIn, currentTime=$currentTime"
+            )
         }
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
@@ -263,8 +263,7 @@ class GpsVisitFragment : Fragment() {
         if (isProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE
             binding.cardReport.visibility = View.GONE
-        }
-        else {
+        } else {
             binding.llPromoterProcedures.visibility = View.GONE
             binding.cardReport.visibility = View.VISIBLE
         }
@@ -438,34 +437,6 @@ class GpsVisitFragment : Fragment() {
 //                return@setOnClickListener
 //            }
 
-            if (binding.etObjectiveVisit.text.toString().isEmpty()) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "هدف الزيارة مطلوب",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
-            if (binding.etVisitingPosition.text.toString().isEmpty()) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "موقف الزيارة مطلوب",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
-            if (binding.etVisibility.text.toString().isEmpty()) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "تقييم عرض الصنف مطلوب",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
-//            getCurrentLocation()
             val currentDistanceMeters = getCurrentDistanceMeters()
 
             Log.d("WHATdistance", currentDistanceMeters.toString())
@@ -501,9 +472,45 @@ class GpsVisitFragment : Fragment() {
                 return@setOnClickListener
             }
             Log.d("WHATbtnSave", "Clicked")
+
+            if (isProm) {
+                dateVisit = endTimer()
+
+                saveVisitGPSForPromoters()
+            } else {
+                if (binding.etObjectiveVisit.text.toString().isEmpty()) {
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "هدف الزيارة مطلوب",
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                    return@setOnClickListener
+                }
+                if (binding.etVisitingPosition.text.toString().isEmpty()) {
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "موقف الزيارة مطلوب",
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                    return@setOnClickListener
+                }
+                if (binding.etVisibility.text.toString().isEmpty()) {
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "تقييم عرض الصنف مطلوب",
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                    return@setOnClickListener
+                }
+//            getCurrentLocation()
+
 //            checkInDate = getCurrentTimeTimestamp()
 //            dateVisit = getCurrentDateTimestamp()
-            saveVisitGPS()
+                saveVisitGPS()
+            }
         }
 
 //        getCustomerData()
@@ -712,6 +719,67 @@ class GpsVisitFragment : Fragment() {
                             } else {
                                 null
                             },
+                    )
+                )
+            )
+        }
+    }
+
+    private fun saveVisitGPSForPromoters() {
+
+        if (visitWithName != null && visitWithName != "null") {
+            if (!binding.cbCompanionYes.isChecked &&
+                !binding.cbCompanionNo.isChecked
+            ) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "برجاء الإجابة عن سؤال هل أنت مع $visitWithName ؟",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return
+            }
+        }
+
+        val currentDistanceMeters = viewModel.distanceMeters.value
+        val currentLocation = getCurrentLocationValue()
+
+        if (currentLocation == null) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "الموقع الحالي غير متاح",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
+
+        if (currentDistanceMeters == null) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "الموقع الحالي غير متاح",
+                description = "برجاء الانتظار حتى يتم تحديد الموقع الحالي",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
+
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.SaveVisitGps(
+                    SaveVisitGpsReq(
+                        party_site_id = customerPartySiteId,
+                        ord_type = saleType,
+                        phone_visit = phoneVisit,
+                        latitude = currentLocation.latitude.toString(),
+                        longitude = currentLocation.longitude.toString(),
+
+                        zone_flag =
+                            if (currentDistanceMeters <= (validGpsRange ?: 0))
+                                "IN"
+                            else
+                                "ERROR",
                     )
                 )
             )
@@ -1009,38 +1077,100 @@ class GpsVisitFragment : Fragment() {
 
     private fun startTimer() {
 
-        // Initial difference calculated from the API
-        var elapsed = apiCurrentTimeMillis - checkInTimeMillis
+        stopTimer()
+
+        if (checkInTimeMillis <= 0L) {
+            Log.e(
+                TAG,
+                "startTimer(): checkInTimeMillis is invalid: $checkInTimeMillis"
+            )
+            return
+        }
 
         timerRunnable = object : Runnable {
 
             override fun run() {
 
-                val hours = elapsed / (1000 * 60 * 60)
-                val minutes = (elapsed / (1000 * 60)) % 60
-                val seconds = (elapsed / 1000) % 60
+                // Don't update a destroyed view.
+                if (!isAdded || view == null) {
+                    return
+                }
 
-                binding.tvTimer.text = String.format(
-                    Locale.getDefault(),
-                    "%02d:%02d:%02d",
-                    hours,
-                    minutes,
-                    seconds
-                )
+                /*
+                 * Current server-equivalent time.
+                 *
+                 * serverTimeOffsetMillis =
+                 * server time - device time
+                 */
+                val currentTimeMillis =
+                    System.currentTimeMillis() + serverTimeOffsetMillis
 
-                // Add exactly 1 second for the next update
-                elapsed += 1000
+                /*
+                 * Always calculate the elapsed time from timestamps.
+                 *
+                 * NEVER do elapsed += 1000.
+                 */
+                val elapsedMillis =
+                    currentTimeMillis - checkInTimeMillis
 
-                timerHandler.postDelayed(this, 1000)
+                updateTimerText(elapsedMillis)
+
+                /*
+                 * Schedule the SAME Runnable again.
+                 */
+                timerRunnable?.let { runnable ->
+                    timerHandler.postDelayed(runnable, 1000L)
+                }
             }
         }
 
-        timerHandler.post(timerRunnable)
+        // Run immediately.
+        timerRunnable?.let { runnable ->
+            timerHandler.post(runnable)
+        }
+
+        Log.d(
+            TAG,
+            "Timer started. checkInTimeMillis=$checkInTimeMillis"
+        )
+    }
+
+    private fun updateTimerText(elapsedMillis: Long) {
+
+        val safeElapsedMillis = elapsedMillis.coerceAtLeast(0L)
+
+        val totalSeconds = safeElapsedMillis / 1000L
+
+        val hours = totalSeconds / 3600L
+        val minutes = (totalSeconds / 60L) % 60L
+        val seconds = totalSeconds % 60L
+
+        binding.tvTimer.text = String.format(
+            Locale.getDefault(),
+            "%02d:%02d:%02d",
+            hours,
+            minutes,
+            seconds
+        )
+    }
+
+    private fun stopTimer() {
+
+        timerRunnable?.let { runnable ->
+            timerHandler.removeCallbacks(runnable)
+        }
+
+        timerRunnable = null
+
+        Log.d(TAG, "Timer stopped")
     }
 
     fun endTimer(): Long {
+
         dateVisit = System.currentTimeMillis() / 1000
-        timerHandler.removeCallbacks(timerRunnable)
+
+        stopTimer()
+
         return dateVisit
     }
 
@@ -1099,6 +1229,7 @@ class GpsVisitFragment : Fragment() {
             }
         }
     }
+
     @RequiresPermission(
         allOf = [
             Manifest.permission.ACCESS_FINE_LOCATION,
@@ -1160,6 +1291,26 @@ class GpsVisitFragment : Fragment() {
             )
             insets
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if (checkInTimeMillis > 0L) {
+            startTimer()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        stopTimer()
+    }
+
+    override fun onDestroyView() {
+        stopTimer()
+
+        super.onDestroyView()
     }
 
     override fun onCreateView(

@@ -97,11 +97,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             )
         }
 
-        isProm = SharedPreferencesHelper.getInstance().getProm()
-
-        if (isProm) {
-
-        }
         setupBinding()
         startSendVisitsWorker(this@MainActivity)
     }
@@ -137,6 +132,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         } else {
             binding.approvalBtn.visibility = View.GONE
         }
+
+        isProm = SharedPreferencesHelper.getInstance().getProm()
+
+        val phoneItem = binding.navView2.menu.findItem(R.id.visitPhoneFragment)
+        phoneItem.isVisible = !isProm
 
         fetchData()
         getProfileImage(binding)

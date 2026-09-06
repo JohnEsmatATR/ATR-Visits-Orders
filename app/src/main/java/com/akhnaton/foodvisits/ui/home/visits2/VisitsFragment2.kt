@@ -566,11 +566,11 @@ private lateinit var viewModel: Visits2ViewModel
     private fun checkIn(insert: Int, item: CustomerVisitPlan) {
         val checkIn = CheckInGPSReq(
             insert = insert,
-            latitude = item.customer_latitude.toString(),
-            longitude = item.customer_longitude.toString(),
+            start_latitude = item.customer_latitude.toString(),
+            start_longitude = item.customer_longitude.toString(),
             ord_type = item.customer_order_type,
             party_site_id = item.customer_party_site_id,
-            phone_visit = "0"
+            phone_visit = "0",
         )
         Log.d("WHATcheckIn", checkIn.toString())
         lifecycleScope.launch {

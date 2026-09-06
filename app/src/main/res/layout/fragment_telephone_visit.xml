@@ -550,7 +550,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="الصور"
+                                android:text="@string/images_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
@@ -589,7 +589,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="المخزون"
+                                android:text="@string/inventory_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
@@ -627,7 +627,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="تقرير الزيارة"
+                                android:text="@string/competitors_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />

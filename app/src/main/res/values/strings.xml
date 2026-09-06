@@ -227,6 +227,8 @@
 
 
 
+    <string name="images_title">الصور</string>
+    <string name="inventory_title">المخزون</string>
     <string name="competitors_title">المنافسين</string>
 
     <string name="product_info_title">معلومات المنتج</string>

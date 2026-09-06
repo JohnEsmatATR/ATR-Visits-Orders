@@ -10,9 +10,9 @@
         android:id="@+id/root"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layoutDirection="ltr"
         android:background="@color/background"
-        android:fillViewport="true">
+        android:fillViewport="true"
+        android:layoutDirection="ltr">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             <!-- Header -->
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/_60sdp"
                 android:layout_gravity="center"
                 android:gravity="center">
 
@@ -264,7 +264,8 @@
                 android:id="@+id/cardReport"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
+                android:layout_marginHorizontal="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_16sdp"
                 app:cardCornerRadius="24dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -505,6 +506,8 @@
                 android:id="@+id/llPromoterProcedures"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="@dimen/_16sdp"
+                android:layout_marginTop="@dimen/_16sdp"
                 android:orientation="vertical">
 
                 <TextView
@@ -520,7 +523,6 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_16sdp"
                     android:orientation="horizontal">
 
                     <com.google.android.material.card.MaterialCardView
@@ -529,8 +531,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginHorizontal="@dimen/_8sdp"
                         android:layout_weight="1"
-                        app:cardCornerRadius="24dp"
                         android:visibility="gone"
+                        app:cardCornerRadius="24dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/cardCustomer">
@@ -589,7 +591,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="الصور"
+                                android:text="@string/images_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
@@ -602,8 +604,8 @@
                         android:id="@+id/cardInventory"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:layout_marginHorizontal="@dimen/_8sdp"
+                        android:layout_weight="1"
                         app:cardCornerRadius="24dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -626,7 +628,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="المخزون"
+                                android:text="@string/inventory_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
@@ -662,7 +664,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="center"
-                                android:text="تقرير الزيارة"
+                                android:text="@string/competitors_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_12ssp"
                                 android:textStyle="bold" />
@@ -792,8 +794,8 @@
                         android:id="@+id/llComp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:visibility="gone"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:visibility="gone">
 
                         <TextView
                             android:layout_width="wrap_content"

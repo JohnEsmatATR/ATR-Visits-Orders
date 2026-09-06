@@ -261,9 +261,6 @@ class TelephoneVisitFragment : Fragment() {
                             SaveVisitPhoneReq(
                                 party_site_id = customerPartySiteId,
                                 ord_type = saleType,
-                                check_in = checkIn,
-                                phone_visit = phoneVisit,
-                                device_type = "Android"
                             )
                         )
                     )
