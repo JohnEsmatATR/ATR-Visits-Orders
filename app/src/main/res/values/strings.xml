@@ -10,7 +10,7 @@
     <string name="learn_more">Learn More</string>
     <string name="welcome_visits">now you can enter visits with an android mobile application very easy to use Choose customer ,order type and Go on..</string>
     <string name="home">Home</string>
-    <string name="order_type">Order Type:</string>
+    <string name="order_type2">Order Type:</string>
     <string name="tickets">Tickets</string>
     <string name="message">الرسالة</string>
     <string name="something_went_wrong">Somthing went wrong</string>
@@ -262,5 +262,7 @@
     <string name="save_competitor">حفظ المنافس</string>
     <string name="food_list_title">قائمة الفواتير</string>
     <string name="food_list_section_title">الفواتير المتاحة</string>
+    <string name="order_type">نوع الطلب:</string>
+    <string name="search_hint">ابحث...</string>
 
 </resources>

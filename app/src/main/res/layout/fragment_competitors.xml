@@ -277,20 +277,22 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="@dimen/_4sdp"
-                                    app:boxBackgroundColor="@color/input_box_bg"
-                                    app:boxStrokeColor="@color/input_box_stroke"
-                                    app:boxStrokeWidth="1dp"
-                                    app:boxStrokeWidthFocused="1.5dp"
+                                    app:boxBackgroundColor="@color/white"
+                                    app:boxStrokeColor="@color/colorPrimary"
+                                    app:boxStrokeWidth="1.5dp"
+                                    app:endIconMode="dropdown_menu"
+                                    app:endIconTint="@color/colorPrimary"
                                     app:hintEnabled="false">
 
-                                    <com.google.android.material.textfield.TextInputEditText
-                                        android:id="@+id/etUnitSize"
+                                    <AutoCompleteTextView
+                                        android:id="@+id/actvUnitSize"
                                         android:layout_width="match_parent"
                                         android:layout_height="wrap_content"
                                         android:gravity="right|center_vertical"
                                         android:hint="@string/unit_size_hint"
-                                        android:inputType="number"
-                                        android:maxLines="1" />
+                                        android:inputType="none"
+                                        android:textColor="@color/black"
+                                        android:textStyle="bold" />
 
                                 </com.google.android.material.textfield.TextInputLayout>
 

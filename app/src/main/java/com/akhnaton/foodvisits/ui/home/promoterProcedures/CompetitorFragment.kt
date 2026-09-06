@@ -48,6 +48,7 @@ class CompetitorFragment : Fragment() {
     private var promotionTypesList: List<GetPromotionTypes> = emptyList()
     private var competitorsList: List<GetCompetitor> = emptyList()
     private var competitorTypesList: List<GetCompetitorTypes> = emptyList()
+    private var itemSizesList: List<PromoterIntent.GetItemSizes> = emptyList()
 
     private val promotionCheckBoxes = mutableListOf<Pair<CheckBox, GetPromotionTypes>>()
 
@@ -173,6 +174,13 @@ class CompetitorFragment : Fragment() {
         }
     }
 
+    private fun setupItemSizesDropdown(items: List<PromoterIntent.GetItemSizes>) {
+        val sizeNames = items.map { it.size_name }
+        binding.actvUnitSize.setAdapter(
+            ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, sizeNames)
+        )
+    }
+
     private fun observeStatus() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -182,8 +190,10 @@ class CompetitorFragment : Fragment() {
                             competitorTypesList = status.response.data.get_competitor_types
                             competitorsList = status.response.data.get_competitor
                             promotionTypesList = status.response.data.get_promotion_types
+                            itemSizesList = status.response.data.get_item_sizes
 
                             setupPromotionTypeCheckboxes(promotionTypesList)
+                            setupItemSizesDropdown(itemSizesList)
 
                             val types = competitorTypesList.map { it.type_name }
                             val companies = competitorsList.map { it.competitor_name }
@@ -269,6 +279,8 @@ class CompetitorFragment : Fragment() {
 
         val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
+        val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
+
         viewModel.promoterIntent.trySend(
             PromoterIntent.SendCompetitors(
                 appVersion = "1.0".toBody(),
@@ -282,7 +294,7 @@ class CompetitorFragment : Fragment() {
                 price = binding.etPriceBefore.text.toString().toBody(),
                 price_after_disc = binding.etPriceAfter.text.toString().toBody(),
                 product_name = binding.etProductName.text.toString().toBody(),
-                weight = binding.etUnitSize.text.toString().toBody(),
+                weight = combinedWeight.toBody(),
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),

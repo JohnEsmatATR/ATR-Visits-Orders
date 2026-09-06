@@ -13,39 +13,52 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_8sdp"
-        android:layout_marginEnd="@dimen/_8sdp"
-        android:layout_marginTop="@dimen/_6sdp"
-        android:layout_marginBottom="@dimen/_4sdp"
+        android:layout_marginStart="@dimen/_6sdp"
+        android:layout_marginEnd="@dimen/_6sdp"
+        android:layout_marginTop="@dimen/_3sdp"
+        android:layout_marginBottom="@dimen/_3sdp"
         app:cardBackgroundColor="@color/testing"
-        app:cardCornerRadius="@dimen/_12sdp"
-        app:cardElevation="@dimen/_12sdp">
+        app:cardCornerRadius="@dimen/_10sdp"
+        app:cardElevation="@dimen/_6sdp"
+        app:strokeColor="@color/colorPrimary"
+        app:strokeWidth="1.5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:padding="@dimen/_12sdp"
-            android:layout_margin="@dimen/_6sdp">
+            android:padding="@dimen/_8sdp">
+
+            <ImageView
+                android:id="@+id/ivInvoice"
+                android:layout_width="@dimen/_22sdp"
+                android:layout_height="@dimen/_22sdp"
+                android:contentDescription="@null"
+                android:src="@drawable/invoice"
+                app:tint="@color/colorPrimary"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
 
             <TextView
                 android:id="@+id/customerNameText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/_6sdp"
                 android:text="@string/employee_name"
                 android:textColor="@android:color/black"
-                android:textSize="20sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/ivInvoice"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                 android:id="@+id/customerName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_6sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:text="@{food.customerName}"
                 android:textColor="@android:color/black"
-                android:textSize="@dimen/_16ssp"
+                android:textSize="@dimen/_13ssp"
                 app:layout_constraintEnd_toStartOf="@+id/customerNameText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -55,28 +68,56 @@
                 android:id="@+id/orderCodeText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_12sdp"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:layout_marginRight="@dimen/_6sdp"
                 android:text="@string/invoice_number"
                 android:textColor="@color/black"
-                android:textSize="20sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/customerName" />
+                app:layout_constraintTop_toBottomOf="@+id/customerName"
+                app:layout_constraintRight_toLeftOf="@id/ivInvoice" />
 
 
             <TextView
                 android:id="@+id/orderCode"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_6sdp"
+                android:layout_marginEnd="@dimen/_4sdp"
                 android:text="@{food.orderSalesNumber}"
                 android:textColor="@android:color/black"
-                android:textSize="@dimen/_16ssp"
+                android:textSize="@dimen/_13ssp"
                 android:textAlignment="viewEnd"
                 app:layout_constraintEnd_toStartOf="@+id/orderCodeText"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/orderCodeText" />
+
+            <TextView
+                android:id="@+id/orderTypeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_6sdp"
+                android:layout_marginRight="@dimen/_6sdp"
+                android:text="@string/order_type"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/orderCodeText"
+                app:layout_constraintRight_toLeftOf="@id/ivInvoice" />
+
+            <TextView
+                android:id="@+id/orderType"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/_4sdp"
+                android:text="@{food.orderType}"
+                android:textColor="@android:color/black"
+                android:textSize="@dimen/_13ssp"
+                android:textAlignment="viewEnd"
+                app:layout_constraintEnd_toStartOf="@+id/orderTypeText"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/orderTypeText" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>

@@ -15,7 +15,10 @@
             app:destination="@id/ticketsFragment" />
         <action
             android:id="@+id/toPrint"
-            app:destination="@id/foodFragment" />
+            app:destination="@id/cardPrintFragment" />
+        <action
+            android:id="@+id/toPersonCoding"
+            app:destination="@id/personCodingFragment" />
     </fragment>
 
     <fragment
@@ -36,6 +39,7 @@
         android:name="com.akhnaton.foodvisits.ui.home.printFood.FoodFragment"
         android:label="fragment_food"
         tools:layout="@layout/fragment_food" />
+
 
     <fragment
         android:id="@+id/ordersMenuFragment"
@@ -263,6 +267,16 @@
 
     </fragment>
 
+    <fragment
+        android:id="@+id/cardPrintFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintFragment"
+        android:label="fragment_card_print"
+        tools:layout="@layout/fragment_card_print" />
 
+    <fragment
+        android:id="@+id/personCodingFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.personCoding.PersonCodingFragment"
+        android:label="fragment_person_coding"
+        tools:layout="@layout/fragment_person_coding" />
 
 </navigation>

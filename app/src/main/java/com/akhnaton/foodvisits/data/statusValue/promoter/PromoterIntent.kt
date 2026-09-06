@@ -56,6 +56,10 @@ sealed class PromoterIntent {
         val StockDayDetails: Int,
     ) : PromoterIntent()
 
+    data class GetItemSizes(
+        val size_name: String
+    )
+
     data class UploadImages(
         val appVersion: RequestBody?,
         val apiToken: RequestBody?,
