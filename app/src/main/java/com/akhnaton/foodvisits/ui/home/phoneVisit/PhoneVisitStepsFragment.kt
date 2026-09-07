@@ -29,6 +29,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.CustomerType
 import com.akhnaton.foodvisits.data.model.checkInPhone.CheckInPhoneReq
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
+import com.akhnaton.foodvisits.data.model.getCustomerData.TEL
 import com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.Data
 import com.akhnaton.foodvisits.data.model.visits.LinesUsers
 import com.akhnaton.foodvisits.data.model.visits.MainCustomerLine
@@ -39,6 +40,7 @@ import com.akhnaton.foodvisits.databinding.FragmentPhoneVisitStepsBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.WaveHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.google.gson.Gson
@@ -73,6 +75,7 @@ class PhoneVisitStepsFragment : Fragment() {
     private var customerName: String = ""
     private var siteAddress: String = ""
     private var customerPartySiteId: String = ""
+    private var customerPhoneNumbers: List<TEL>? = null
 
     private var allCustomers =
         mutableListOf<com.akhnaton.foodvisits.data.model.customers.Data>()
@@ -193,6 +196,7 @@ class PhoneVisitStepsFragment : Fragment() {
             currentTime
         )
 
+        val jsonCustomerPhoneNumbers = Gson().toJson(customerPhoneNumbers)
         val bundle = Bundle().apply {
             putString("customerName", customerName)
             putString("customerCode", customerCode)
@@ -201,6 +205,7 @@ class PhoneVisitStepsFragment : Fragment() {
             putString("saleType", saleType)
             putString("checkIn", checkIn)
             putString("currentTime", currentTime)
+            putString("customerPhoneNumbers", jsonCustomerPhoneNumbers)
 
             // Keep these if you still need them
             putLong("hours", result.hours)
@@ -591,6 +596,10 @@ class PhoneVisitStepsFragment : Fragment() {
                                         it.data.data,
                                         com.akhnaton.foodvisits.data.model.getCustomerData.Data::class.java
                                     )
+
+                                customerPhoneNumbers =
+                                    data.customer_address.get(0).TEL
+
                                 setRecycler3(data.customer_address.toMutableList())
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
@@ -819,26 +828,10 @@ class PhoneVisitStepsFragment : Fragment() {
     }
 
     fun launchGrandstreamWave(context: Context) {
-        val packageName = "com.grandstream.wave"
-        val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
-
-        if (launchIntent != null) {
-            context.startActivity(launchIntent)
-        } else {
-            // App not installed - redirect to Play Store
-            try {
-                context.startActivity(
-                    Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
-                )
-            } catch (e: ActivityNotFoundException) {
-                context.startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-                    )
-                )
-            }
-        }
+        WaveHelper.goToApp(
+            context,
+            "com.grandstream.ucm"
+        )
     }
 
     override fun onCreateView(

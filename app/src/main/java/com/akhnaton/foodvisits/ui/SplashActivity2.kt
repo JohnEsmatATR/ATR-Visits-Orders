@@ -19,6 +19,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.databinding.ActivityLogin2Binding
 import com.akhnaton.foodvisits.databinding.ActivitySplash2Binding
 import com.akhnaton.foodvisits.shared.EncryptedPrefsHelper.getUserCredentials
+import com.akhnaton.foodvisits.shared.WaveHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 
@@ -34,6 +35,7 @@ class SplashActivity2 : AppCompatActivity() {
                 window, false
             )
         }
+
         binding = ActivitySplash2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 

@@ -264,5 +264,12 @@
     <string name="save_competitor">حفظ المنافس</string>
     <string name="food_list_title">قائمة الفواتير</string>
     <string name="food_list_section_title">الفواتير المتاحة</string>
+    <string name="show_phone_numbers">عرض الأرقام</string>
+
+    <string name="found">يوجد</string>
+    <string name="numbers">أرقام </string>
+    <string name="customer_phone_numbers">اختر الرقم للاتصال</string>
+    <string name="call">اتصال</string>
+    <string name="phone_number">رقم الهاتف</string>
 
 </resources>

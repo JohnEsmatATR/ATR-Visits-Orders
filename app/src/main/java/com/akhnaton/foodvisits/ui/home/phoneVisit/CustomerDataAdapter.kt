@@ -11,6 +11,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
+import com.akhnaton.foodvisits.data.model.getCustomerData.TEL
 import com.akhnaton.foodvisits.data.model.order.CardItem
 import com.akhnaton.foodvisits.data.model.supervisor.orderDetails.SuperOrderDetails
 import com.akhnaton.foodvisits.ui.home.visits.order.OrderViewHolder
@@ -46,7 +47,7 @@ class CustomerDataAdapter(
 
         holder.tvCustomerName.text = item.CUSTOMER_NAME
         holder.tvSiteAddress.text = item.SITE_ADDRESS
-        holder.tvPhoneNumber.text = item.TEL.toString()
+        holder.tvPhoneNumber.text = item.TEL.get(0).TEL
         holder.tvWith.visibility = View.GONE
 
         if (item.isSelected) {

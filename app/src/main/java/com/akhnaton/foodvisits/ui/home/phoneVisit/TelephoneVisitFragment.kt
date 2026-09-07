@@ -1,7 +1,10 @@
 package com.akhnaton.foodvisits.ui.home.phoneVisit
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,23 +23,29 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.atrDistribution.ui.collectorAndAccountant.distributionPlan.CustomerPhoneNumbersAdapter
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getCustomerData.CustomerAddres
 import com.akhnaton.foodvisits.data.model.getCustomerData.Data
+import com.akhnaton.foodvisits.data.model.getCustomerData.TEL
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsStatus
+import com.akhnaton.foodvisits.databinding.BottomSheetCustomerPhoneNumbersBinding
 import com.akhnaton.foodvisits.databinding.FragmentCustomerDetailsBinding
 import com.akhnaton.foodvisits.databinding.FragmentTelephoneVisitBinding
 import com.akhnaton.foodvisits.shared.BaseActivity
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.WaveHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -73,6 +82,7 @@ class TelephoneVisitFragment : Fragment() {
     var actTarget: String = ""
     var checkIn: String = ""
     var currentTime: String = ""
+    var jsonCustomerPhoneNumbers: String = ""
 
     var orderType: String = "SALE"
     var customerType: String = "RETAIL"
@@ -105,6 +115,7 @@ class TelephoneVisitFragment : Fragment() {
 
     private var checkInTimeMillis = 0L
     private var apiCurrentTimeMillis = 0L
+    private var customerPhoneNumbers: List<TEL>? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -125,6 +136,34 @@ class TelephoneVisitFragment : Fragment() {
             arguments?.getString("checkIn").toString()
         currentTime =
             arguments?.getString("currentTime").toString()
+        jsonCustomerPhoneNumbers =
+            arguments?.getString("customerPhoneNumbers") ?: ""
+
+        if (jsonCustomerPhoneNumbers.isNotEmpty()) {
+            val type = object : TypeToken<List<TEL>>() {}.type
+            customerPhoneNumbers =
+                Gson().fromJson(
+                    jsonCustomerPhoneNumbers,
+                    type
+                )
+        }
+
+        binding.tvNumberPhoneCount.text =
+            "${requireActivity().getString(R.string.found)} ${customerPhoneNumbers?.size} ${
+                requireActivity().getString(
+                    R.string.numbers
+                )
+            }"
+
+        binding.tvShowPhoneNumbers.setOnClickListener {
+            showCustomerPhoneNumbersBottomSheet(
+                customerPhoneNumbers.orEmpty()
+            )
+        }
+
+        Log.d("WHAT", customerCode)
+        Log.d("WHAT", customerPartySiteId)
+        Log.d("WHAT", jsonCustomerPhoneNumbers)
 
         if (!checkIn.isNullOrBlank() && !currentTime.isNullOrBlank()) {
 
@@ -602,6 +641,32 @@ class TelephoneVisitFragment : Fragment() {
 //                        }
 //                    }
 
+                    is PhoneVisitsStatus.DialOutbound -> {
+                        dialog.dismiss()
+                        if (it.data.status == 200) {
+                            launchGrandstreamWave(requireContext())
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.phoneVisitsIntent.send(
+                                    PhoneVisitsIntent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
                     is PhoneVisitsStatus.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
@@ -694,6 +759,68 @@ class TelephoneVisitFragment : Fragment() {
             System.currentTimeMillis() / 1000
         timerHandler.removeCallbacks(timerRunnable)
         return dateVisit
+    }
+
+    private fun showCustomerPhoneNumbersBottomSheet(
+        phoneNumbers: List<TEL>
+    ) {
+
+        val bottomSheet =
+            BottomSheetDialog(requireContext())
+
+        val bottomBinding =
+            BottomSheetCustomerPhoneNumbersBinding.inflate(
+                layoutInflater
+            )
+
+        bottomSheet.setContentView(
+            bottomBinding.root
+        )
+
+        // Close button
+        bottomBinding.ivClose.setOnClickListener {
+            bottomSheet.dismiss()
+        }
+
+        // RecyclerView
+        val adapter =
+            CustomerPhoneNumbersAdapter(
+                phoneNumbers,
+                object : CustomerPhoneNumbersAdapter.OnItemClickListener {
+                    override fun onCallClick(phone: TEL) {
+                        lifecycleScope.launch {
+                            viewModel.phoneVisitsIntent.send(
+                                PhoneVisitsIntent.DialOutbound(
+                                    "01270331812",
+//                                    item.TEL.toString(),
+                                    "1010"
+                                )
+                            )
+                        }
+                    }
+                }
+            )
+
+        bottomBinding.rvPhoneNumbers.apply {
+
+            layoutManager =
+                LinearLayoutManager(
+                    requireContext()
+                )
+
+            this.adapter = adapter
+
+            setHasFixedSize(true)
+        }
+
+        bottomSheet.show()
+    }
+
+    fun launchGrandstreamWave(context: Context) {
+        WaveHelper.goToApp(
+            context,
+            "com.grandstream.ucm"
+        )
     }
 
     override fun onDestroyView() {
