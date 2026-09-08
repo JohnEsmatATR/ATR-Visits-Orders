@@ -47,7 +47,7 @@ class CustomerDataAdapter(
 
         holder.tvCustomerName.text = item.CUSTOMER_NAME
         holder.tvSiteAddress.text = item.SITE_ADDRESS
-        holder.tvPhoneNumber.text = item.TEL.get(0).TEL
+//        holder.tvPhoneNumber.text = item.TEL.get(0).TEL
         holder.tvWith.visibility = View.GONE
 
         if (item.isSelected) {
@@ -80,11 +80,11 @@ class CustomerDataAdapter(
         val tvWith: TextView =
             itemView.findViewById(R.id.tvWith)
 
-        val tvPhoneNumber: TextView =
-            itemView.findViewById(R.id.tvPhoneNumber)
+//        val tvPhoneNumber: TextView =
+//            itemView.findViewById(R.id.tvPhoneNumber)
 
-        val imgCall: ImageView =
-            itemView.findViewById(R.id.imgCall)
+//        val imgCall: ImageView =
+//            itemView.findViewById(R.id.imgCall)
 
         val cardRoot: MaterialCardView =
             itemView.findViewById(R.id.cardRoot)
@@ -98,11 +98,11 @@ class CustomerDataAdapter(
                 notifyDataSetChanged()
                 listener.onClick(mList[position])
             }
-            imgCall.setOnClickListener {
-                val position = position
-                if (position == RecyclerView.NO_POSITION) return@setOnClickListener
-                listener.onCallClick(mList[position])
-            }
+//            imgCall.setOnClickListener {
+//                val position = position
+//                if (position == RecyclerView.NO_POSITION) return@setOnClickListener
+//                listener.onCallClick(mList[position])
+//            }
         }
     }
 

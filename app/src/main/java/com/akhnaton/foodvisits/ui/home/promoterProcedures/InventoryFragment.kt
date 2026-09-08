@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -104,6 +105,11 @@ class InventoryFragment : Fragment() {
         binding.btnSendInventory.setOnClickListener {
             prepareRequest(true)
         }
+        binding.etSearch.addTextChangedListener { editable ->
+            val query = editable?.toString().orEmpty()
+            adapter.filter(query)
+            updateSearchEmptyState()
+        }
     }
 
     fun callGetItemData() {
@@ -117,20 +123,136 @@ class InventoryFragment : Fragment() {
         }
     }
 
-    fun prepareRequest(isAll: Boolean) {
+    fun prepareRequest(
+        isAll: Boolean
+    ) {
+        Log.d(
+            TAG,
+            "prepareRequest() called"
+        )
+        Log.d(
+            TAG,
+            "isAll = $isAll"
+        )
         when (isAll) {
             true -> {
-                val items = adapter.getData()
-                val requestedItems = convertAdapterDataToRequestItems(items)
-                callSaveStockAPI(requestedItems)
+                Log.d(
+                    TAG,
+                    "Preparing request for ALL items"
+                )
+                val items =
+                    adapter.getData()
+                Log.d(
+                    TAG,
+                    "Total adapter items count = ${items.size}"
+                )
+                Log.d(
+                    TAG,
+                    "Adapter items = $items"
+                )
+                val requestedItems =
+                    convertAdapterDataToRequestItems(
+                        items
+                    )
+                Log.d(
+                    TAG,
+                    "Converted requested items count = ${requestedItems.size}"
+                )
+                Log.d(
+                    TAG,
+                    "Requested items = $requestedItems"
+                )
+                Log.d(
+                    TAG,
+                    "Calling Save Stock API for ALL items"
+                )
+                callSaveStockAPI(
+                    requestedItems
+                )
             }
 
             false -> {
-                val items = adapter.getData().filter { it.hasChanges == true }
-                val requestedItems = convertAdapterDataToRequestItems(items)
-                callSaveStockAPI(requestedItems)
+
+                Log.d(
+                    TAG,
+                    "Preparing request for CHANGED items only"
+                )
+
+                val allItems =
+                    adapter.getData()
+
+                Log.d(
+                    TAG,
+                    "Total adapter items count = ${allItems.size}"
+                )
+
+                val items =
+                    adapter.getChangedData()
+
+                Log.d(
+                    TAG,
+                    "Changed items count = ${items.size}"
+                )
+
+                Log.d(
+                    TAG,
+                    "Changed item IDs = ${
+                        items.map {
+                            it.inventory_item_id
+                        }
+                    }"
+                )
+
+                Log.d(
+                    TAG,
+                    "Changed items = $items"
+                )
+
+                val requestedItems =
+                    convertAdapterDataToRequestItems(
+                        items
+                    )
+
+                Log.d(
+                    TAG,
+                    "Converted requested items count = ${requestedItems.size}"
+                )
+
+                Log.d(
+                    TAG,
+                    "Requested items = $requestedItems"
+                )
+
+                Log.d(
+                    TAG,
+                    "Calling Save Stock API for CHANGED items"
+                )
+
+                callSaveStockAPI(
+                    requestedItems
+                )
             }
         }
+    }
+
+    private fun updateSearchEmptyState() {
+
+        val isEmpty =
+            adapter.getFilteredItemCount() == 0
+
+        binding.llZeroState.visibility =
+            if (isEmpty) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+        binding.recyclerProducts.visibility =
+            if (isEmpty) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
     }
 
     fun convertAdapterDataToRequestItems(items: List<com.akhnaton.foodvisits.data.model.promoterGetItemData.Data>): ArrayList<Item> {
@@ -175,6 +297,8 @@ class InventoryFragment : Fragment() {
                     is Visits2Status.PromoterGetItemData -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
+                            binding.tvTotalCount.text =
+                                "${requireActivity().getString(R.string.item_totals)} : ${it.data.data.size}"
                             setupRecyclerView(it.data.data)
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
