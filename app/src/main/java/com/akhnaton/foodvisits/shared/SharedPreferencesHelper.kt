@@ -156,6 +156,11 @@ class SharedPreferencesHelper : Application() {
             .getBoolean("is_prom", false)
     }
 
+    fun getSuperProm(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("is_super_prom", false)
+    }
+
     fun getTelephone(): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean("telephone", false)
@@ -190,6 +195,7 @@ class SharedPreferencesHelper : Application() {
         isSuper: Boolean,
         allowedToMakeOrder: Boolean,
         allowedToMakeRate: Boolean,
+        isSuperProm: Boolean,
     ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -202,6 +208,7 @@ class SharedPreferencesHelper : Application() {
             .putBoolean("is_super", isSuper)
             .putBoolean("allowed_to_make_order", allowedToMakeOrder)
             .putBoolean("allowed_to_make_rate", allowedToMakeRate)
+            .putBoolean("is_super_prom", isSuperProm)
             .apply()
     }
 

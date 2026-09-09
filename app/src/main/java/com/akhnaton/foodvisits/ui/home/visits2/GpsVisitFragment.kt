@@ -118,6 +118,7 @@ class GpsVisitFragment : Fragment() {
     var customerType: String = "RETAIL"
 
     var isProm: Boolean = false
+    var isSuperProm: Boolean = false
 
     private var selectedRating = 0f
 
@@ -217,14 +218,10 @@ class GpsVisitFragment : Fragment() {
             val apiCurrentTimeMillis = parseApiDate(currentTime)
 
             if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
-
                 serverTimeOffsetMillis =
                     apiCurrentTimeMillis - System.currentTimeMillis()
-
                 binding.tvTimer.visibility = View.VISIBLE
-
                 startTimer()
-
                 Log.d(
                     TAG,
                     "Timer initialized: checkIn=$checkIn, " +
@@ -232,18 +229,14 @@ class GpsVisitFragment : Fragment() {
                             "checkInMillis=$checkInTimeMillis, " +
                             "serverOffset=$serverTimeOffsetMillis"
                 )
-
             } else {
-
                 Log.e(
                     TAG,
                     "Timer NOT started. Invalid dates: " +
                             "checkIn=$checkIn, currentTime=$currentTime"
                 )
             }
-
         } else {
-
             Log.e(
                 TAG,
                 "Timer NOT started. Missing checkIn/currentTime: " +
@@ -252,6 +245,9 @@ class GpsVisitFragment : Fragment() {
         }
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
+        isSuperProm = SharedPreferencesHelper.getInstance().getSuperProm()
+        Log.d("WHATPROM", isProm.toString())
+        Log.d("WHATPROM", isSuperProm.toString())
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
@@ -260,7 +256,7 @@ class GpsVisitFragment : Fragment() {
 
 //        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        if (isProm) {
+        if (isProm || isSuperProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE
             binding.cardReport.visibility = View.GONE
         } else {
@@ -466,45 +462,25 @@ class GpsVisitFragment : Fragment() {
                     isSuccess = false,
                     isLocation = true,
                     onReport = {
-                        saveVisitGPS()
+                        if (isProm || isSuperProm) {
+                            dateVisit = endTimer()
+
+                            saveVisitGPSForPromoters()
+                        } else {
+                            saveVisitGPS()
+                        }
                     },
                 )
                 return@setOnClickListener
             }
             Log.d("WHATbtnSave", "Clicked")
 
-            if (isProm) {
+            if (isProm || isSuperProm) {
                 dateVisit = endTimer()
 
                 saveVisitGPSForPromoters()
             } else {
-                if (binding.etObjectiveVisit.text.toString().isEmpty()) {
-                    DialogUtils.showResultDialog(
-                        context = requireContext(),
-                        message = "هدف الزيارة مطلوب",
-                        isSuccess = false,
-                        showOkButton = true
-                    )
-                    return@setOnClickListener
-                }
-                if (binding.etVisitingPosition.text.toString().isEmpty()) {
-                    DialogUtils.showResultDialog(
-                        context = requireContext(),
-                        message = "موقف الزيارة مطلوب",
-                        isSuccess = false,
-                        showOkButton = true
-                    )
-                    return@setOnClickListener
-                }
-                if (binding.etVisibility.text.toString().isEmpty()) {
-                    DialogUtils.showResultDialog(
-                        context = requireContext(),
-                        message = "تقييم عرض الصنف مطلوب",
-                        isSuccess = false,
-                        showOkButton = true
-                    )
-                    return@setOnClickListener
-                }
+
 //            getCurrentLocation()
 
 //            checkInDate = getCurrentTimeTimestamp()
@@ -620,7 +596,33 @@ class GpsVisitFragment : Fragment() {
 //    }
 
     private fun saveVisitGPS() {
-
+        if (binding.etObjectiveVisit.text.toString().isEmpty()) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "هدف الزيارة مطلوب",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
+        if (binding.etVisitingPosition.text.toString().isEmpty()) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "موقف الزيارة مطلوب",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
+        if (binding.etVisibility.text.toString().isEmpty()) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "تقييم عرض الصنف مطلوب",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
+        }
         if (visitWithName != null && visitWithName != "null") {
             if (!binding.cbCompanionYes.isChecked &&
                 !binding.cbCompanionNo.isChecked
@@ -791,7 +793,7 @@ class GpsVisitFragment : Fragment() {
             viewModel.status.collect {
                 when (it) {
                     is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> dialog.show()
+//                    is Visits2Status.Loading -> dialog.show()
 
                     is Visits2Status.SaveVisitGps -> {
                         dialog.dismiss()

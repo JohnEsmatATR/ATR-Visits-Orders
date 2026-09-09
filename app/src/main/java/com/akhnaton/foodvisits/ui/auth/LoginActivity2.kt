@@ -151,9 +151,10 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                                 true,
                                 if (data.USER_CATEGORY == "prom") true else false,
                                 true,
-                                if (data.USER_CATEGORY == "super" || data.USER_CATEGORY == "gsuper") true else false,
+                                if (data.USER_CATEGORY == "super" || data.USER_CATEGORY == "gsuper" || data.USER_CATEGORY == "sprPrmt") true else false,
                                 data.ALLOWED_TO_MAKE_ORDER,
                                 data.ALLOWED_TO_MAKE_RATE,
+                                if (data.USER_CATEGORY == "sprPrmt") true else false,
                             )
                             SharedPreferencesHelper().setDebugUsername(
                                 binding.etUsername.text.toString()
