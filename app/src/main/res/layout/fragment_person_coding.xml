@@ -12,9 +12,10 @@
         android:layout_height="match_parent"
         android:background="@color/background"
         android:orientation="vertical"
+        android:layoutDirection="rtl"
         tools:context=".ui.home.addCustomer.AddCustomerActivity">
 
-        <RelativeLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintToolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,12 +30,14 @@
                 android:id="@+id/btnBackContainer"
                 android:layout_width="@dimen/_32sdp"
                 android:layout_height="@dimen/_32sdp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
                 app:cardBackgroundColor="@color/white"
                 app:cardCornerRadius="@dimen/_16sdp"
                 app:cardElevation="2dp"
-                app:strokeWidth="0dp">
+                app:cardPreventCornerOverlap="false"
+                app:strokeWidth="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                     android:id="@+id/ivBack"
@@ -42,6 +45,7 @@
                     android:layout_height="@dimen/_16sdp"
                     android:layout_gravity="center"
                     android:contentDescription="@null"
+                    android:rotation="180"
                     android:src="@drawable/ic_arrow_right"
                     app:tint="@color/colorPrimary" />
 
@@ -51,19 +55,24 @@
                 android:id="@+id/toolbarText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="تكويد عميل"
+                android:text="@string/title_add_customer"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_16ssp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:visibility="gone" />
+                android:visibility="gone"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
@@ -82,25 +91,52 @@
                     android:orientation="vertical"
                     android:padding="@dimen/_14sdp">
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_customer_type"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/customerLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        android:hint="نوع العميل"
+                        android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
                         app:endIconMode="dropdown_menu"
-                        app:endIconTint="@color/colorPrimary">
+                        app:endIconTint="@color/colorPrimary"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_customer_type"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/customerType"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="@string/hint_select_customer_type"
                             android:inputType="none"
                             android:textAlignment="viewStart"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_order_type"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/orderTypeLayout"
@@ -108,19 +144,36 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        android:hint="نوع لطلب"
+                        android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
                         app:endIconMode="dropdown_menu"
-                        app:endIconTint="@color/colorPrimary">
+                        app:endIconTint="@color/colorPrimary"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_order_type"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/orderType"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="@string/hint_select_order_type"
                             android:inputType="none"
                             android:textAlignment="viewStart"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_customer_line"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/linesLayout"
@@ -128,19 +181,36 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        android:hint="خط العميل"
+                        android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
                         app:endIconMode="dropdown_menu"
-                        app:endIconTint="@color/colorPrimary">
+                        app:endIconTint="@color/colorPrimary"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_bus"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/lines"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:hint="@string/hint_select_customer_line"
                             android:inputType="none"
                             android:textAlignment="viewStart"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_governorate"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_select_governorate"
@@ -148,18 +218,36 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        android:hint="اختر المحافظه"
+                        android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
                         app:endIconMode="dropdown_menu"
-                        app:endIconTint="@color/colorPrimary">
+                        app:endIconTint="@color/colorPrimary"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_governorate"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/sp_select_governorate"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_14ssp" />
+                            android:hint="@string/hint_select_governorate"
+                            android:inputType="none"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/select_area"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_select_area"
@@ -167,52 +255,108 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        android:hint="@string/select_area"
+                        android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
                         app:endIconMode="dropdown_menu"
-                        app:endIconTint="@color/colorPrimary">
+                        app:endIconTint="@color/colorPrimary"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_area"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/sp_select_area"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_14ssp" />
+                            android:hint="@string/hint_select_area"
+                            android:inputType="none"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_customer_name"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/customerNameLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp">
+                        android:layout_marginBottom="@dimen/_8sdp"
+                        android:elevation="3dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_person2"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/customerName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="اسم العميل"
+                            android:hint="@string/hint_enter_customer_name"
                             android:inputType="text"
                             android:maxLines="1"
+                            android:textAlignment="viewStart"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_customer_address"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/customerAddressLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp">
+                        android:layout_marginBottom="@dimen/_8sdp"
+                        android:elevation="3dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_address"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/customerAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="عنوان العميل"
+                            android:hint="@string/hint_enter_customer_address"
                             android:inputType="text"
                             android:maxLines="1"
+                            android:textAlignment="viewStart"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_phone"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
 
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_write_customer_phone"
@@ -220,12 +364,20 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        app:boxBackgroundColor="@color/white">
+                        android:elevation="3dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_line"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/sp_write_customer_phone"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="right|center_vertical"
                             android:hint="@string/write_customer_phone"
                             android:inputType="phone"
                             android:maxLength="11"
@@ -233,18 +385,36 @@
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_mobile"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/layout_write_customer_mobile"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/_8sdp"
-                        app:boxBackgroundColor="@color/white">
+                        android:elevation="3dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_mobile2"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/sp_write_customer_mobile"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="right|center_vertical"
                             android:hint="@string/write_customer_mobile"
                             android:maxLength="11"
                             android:maxLines="1"
@@ -252,37 +422,75 @@
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_national_id"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/customerNationalLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp">
+                        android:layout_marginBottom="@dimen/_8sdp"
+                        android:elevation="3dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_number"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/customerNational"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="الرقم القومي"
+                            android:gravity="right|center_vertical"
+                            android:hint="@string/hint_enter_national_id"
                             android:inputType="number"
                             android:maxLength="14"
                             android:maxLines="1"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/_4sdp"
+                        android:text="@string/label_suggested_address"
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12ssp"
+                        android:textStyle="bold" />
+
                     <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/suggestedAddressLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp">
+                        android:layout_marginBottom="@dimen/_8sdp"
+                        android:elevation="3dp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxStrokeColor="@color/input_box_stroke"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:hintEnabled="false"
+                        app:startIconDrawable="@drawable/ic_customer_visited"
+                        app:startIconTint="@color/colorPrimary">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/suggestedAddress"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:enabled="false"
-                            android:hint="لعنوان المقترح"
+                            android:gravity="right|center_vertical"
+                            android:hint="@string/hint_no_suggested_address"
                             android:inputType="number"
                             android:maxLines="1"
                             android:textColor="@color/black" />
@@ -300,7 +508,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="بيانات الخريطة:"
+                            android:text="@string/label_longitude"
                             android:textAlignment="viewStart"
                             android:textColor="@color/black" />
 
@@ -326,7 +534,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="بيانات الخريطة:"
+                            android:text="@string/label_latitude"
                             android:textAlignment="viewStart"
                             android:textColor="@color/black" />
 
@@ -372,7 +580,7 @@
                         android:layout_margin="@dimen/_12sdp"
                         android:backgroundTint="@color/colorPrimary"
                         android:padding="@dimen/_8sdp"
-                        android:text="اضف عميل"
+                        android:text="@string/btn_add_customer"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
                         app:cornerRadius="@dimen/_8sdp" />

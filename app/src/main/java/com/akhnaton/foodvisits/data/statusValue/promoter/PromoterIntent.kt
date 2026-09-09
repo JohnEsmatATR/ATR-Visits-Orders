@@ -173,4 +173,5 @@ sealed class PromoterIntent {
             return result
         }
     }
+    data class RefreshToken(val userId: String, val token: String) : PromoterIntent()
 }

@@ -24,10 +24,8 @@ class PrinterManager(context: Context) {
     private lateinit var service: SunmiPrinterService
     private var result: Boolean = false
 
-
     private val innerPrinterCallback = object : InnerPrinterCallback() {
         override fun onConnected(service: SunmiPrinterService?) {
-
             this@PrinterManager.service = service!!
             Log.d("Printer Connected", "onConnected")
         }
@@ -35,7 +33,6 @@ class PrinterManager(context: Context) {
         override fun onDisconnected() {
             Log.d("Printer Disconnected", "onDisconnected")
         }
-
     }
 
     init {
@@ -51,6 +48,10 @@ class PrinterManager(context: Context) {
             result = false
             Log.d("PrinterManager", "Service Unbound")
         }
+    }
+
+    fun isPrinterAvailable(): Boolean {
+        return result && ::service.isInitialized
     }
 
     suspend fun printBitmapSuspend(bitmap: Bitmap): Pair<Int, String?> {
@@ -91,8 +92,60 @@ class PrinterManager(context: Context) {
         }
     }
 
+    suspend fun printBitmapChunksSuspend(chunks: List<Bitmap>): Pair<Int, String?> {
+        return suspendCoroutine { coroutine ->
+            try {
+                service.clearBuffer()
+                service.enterPrinterBuffer(true)
 
+                for (chunk in chunks) {
+                    service.printBitmapCustom(chunk, 1, null)
+                }
+                service.printText("        ", null)
 
+                service.commitPrinterBufferWithCallback(object : InnerResultCallback() {
+                    override fun onRunResult(isSuccess: Boolean) {}
+                    override fun onReturnString(result: String?) {}
+                    override fun onRaiseException(code: Int, msg: String?) {
+                        coroutine.resumeWithException(Exception(msg))
+                    }
+                    override fun onPrintResult(p0: Int, p1: String?) {
+                        if (p0 == 1) {
+                            coroutine.resume(Pair(p0, "Failed"))
+                        } else {
+                            coroutine.resume(Pair(p0, p1))
+                        }
+                    }
+                })
 
+                service.exitPrinterBufferWithCallback(true, object : InnerResultCallback() {
+                    override fun onRunResult(isSuccess: Boolean) {}
+                    override fun onReturnString(result: String?) {}
+                    override fun onRaiseException(code: Int, msg: String?) {
+                        coroutine.resumeWithException(Exception(msg))
+                    }
+                    override fun onPrintResult(p0: Int, p1: String?) {}
+                })
+            } catch (e: Exception) {
+                coroutine.resumeWithException(e)
+            }
+        }
+    }
 
+    suspend fun feedPaperSuspend(lines: Int = 4): Unit = suspendCoroutine { coroutine ->
+        try {
+            service.lineWrap(lines, object : InnerResultCallback() {
+                override fun onRunResult(isSuccess: Boolean) {
+                    coroutine.resume(Unit)
+                }
+                override fun onReturnString(result: String?) {}
+                override fun onRaiseException(code: Int, msg: String?) {
+                    coroutine.resumeWithException(Exception(msg))
+                }
+                override fun onPrintResult(p0: Int, p1: String?) {}
+            })
+        } catch (e: Exception) {
+            coroutine.resumeWithException(e)
+        }
+    }
 }

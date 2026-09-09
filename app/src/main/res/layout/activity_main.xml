@@ -153,23 +153,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu" />
 
-        <com.akhnaton.foodvisits.shared.GooeyMenu
-            android:id="@+id/gooeyMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="30dp"
-            android:contentDescription="@string/home"
-            android:visibility="gone"
-            app:gap_between_menu_fab="@dimen/min_gap"
-            app:layout_anchor="@+id/nav_view"
-            app:layout_anchorGravity="top|center"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:menu_drawable="@array/drawable_array"
-            app:menu_radius="@dimen/small_circle_radius"
-            app:no_of_menu="4"
-            app:tint="@color/white" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

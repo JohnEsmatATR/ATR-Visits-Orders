@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.cardPrint
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,14 +12,20 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.cardPrint.CardPrintItem
 import com.akhnaton.foodvisits.data.statusValue.cardPrint.CardPrintIntent
 import com.akhnaton.foodvisits.data.statusValue.cardPrint.CardPrintStatus
 import com.akhnaton.foodvisits.databinding.FragmentCardPrintBinding
-import com.akhnaton.foodvisits.ui.home.CardPrint.CardPrintAdapter
-import com.akhnaton.foodvisits.ui.home.CardPrint.CardPrintViewModel
+import com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintAdapter
+import com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintViewModel
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class CardPrintFragment : Fragment() {
@@ -101,7 +109,14 @@ class CardPrintFragment : Fragment() {
     }
 
     private fun setupRecycler() {
-        adapter = CardPrintAdapter(emptyList())
+        adapter = CardPrintAdapter(emptyList()) { item ->
+            findNavController().navigate(
+                R.id.toCardPrintDetails,
+                Bundle().apply {
+                    putString("orderSalesNumber", item.order_sales_number.toString())
+                }
+            )
+        }
         binding.cardPrintRecycler.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@CardPrintFragment.adapter
@@ -118,8 +133,33 @@ class CardPrintFragment : Fragment() {
                             binding.imNoData.visibility = View.GONE
                         }
                         is CardPrintStatus.GetPrintInvoicesList -> {
-                            fullList = status.response.data
-                            renderList(fullList)
+                            Log.d("WHATstatus", status.response.status.toString())
+                            if (status.response.status == 401) {
+                                sendRefreshToken()
+                            } else {
+                                fullList = status.response.data
+                                renderList(fullList)
+                            }
+                        }
+                        is CardPrintStatus.RefreshToken -> {
+                            if (status.data.status == 200) {
+                                val tokenData = com.google.gson.Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                                        requireActivity().finishAffinity()
+                                    })
+                            }
                         }
                         is CardPrintStatus.Error -> {
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
@@ -128,6 +168,17 @@ class CardPrintFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.cardPrintIntent.send(
+                CardPrintIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
         }
     }
 

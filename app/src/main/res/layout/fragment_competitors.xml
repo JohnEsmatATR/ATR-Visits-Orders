@@ -17,12 +17,16 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:paddingHorizontal="@dimen/_16sdp"
             android:paddingTop="@dimen/_16sdp"
             android:paddingBottom="@dimen/_8sdp">
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/btnBackContainer"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:layout_width="@dimen/_32sdp"
                 android:layout_height="@dimen/_32sdp"
                 android:layout_alignParentEnd="true"
@@ -39,7 +43,7 @@
                     android:layout_gravity="center"
                     android:contentDescription="@null"
                     android:src="@drawable/ic_arrow_right"
-                    app:tint="@color/black" />
+                    app:tint="@color/colorPrimary" />
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -155,9 +159,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_4sdp"
                             android:layout_marginBottom="@dimen/_12sdp"
-                            app:boxBackgroundColor="@color/white"
-                            app:boxStrokeColor="@color/colorPrimary"
-                            app:boxStrokeWidth="1.5dp"
+                            app:boxBackgroundColor="@color/input_box_bg"
+                            app:boxStrokeColor="@color/input_box_stroke"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1.5dp"
                             app:endIconMode="dropdown_menu"
                             app:endIconTint="@color/colorPrimary"
                             app:hintEnabled="false">
@@ -188,9 +193,10 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_4sdp"
-                            app:boxBackgroundColor="@color/white"
-                            app:boxStrokeColor="@color/colorPrimary"
-                            app:boxStrokeWidth="1.5dp"
+                            app:boxBackgroundColor="@color/input_box_bg"
+                            app:boxStrokeColor="@color/input_box_stroke"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="1.5dp"
                             app:endIconMode="dropdown_menu"
                             app:endIconTint="@color/colorPrimary"
                             app:hintEnabled="false">
@@ -277,9 +283,10 @@
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginTop="@dimen/_4sdp"
-                                    app:boxBackgroundColor="@color/white"
-                                    app:boxStrokeColor="@color/colorPrimary"
-                                    app:boxStrokeWidth="1.5dp"
+                                    app:boxBackgroundColor="@color/input_box_bg"
+                                    app:boxStrokeColor="@color/input_box_stroke"
+                                    app:boxStrokeWidth="1dp"
+                                    app:boxStrokeWidthFocused="1.5dp"
                                     app:endIconMode="dropdown_menu"
                                     app:endIconTint="@color/colorPrimary"
                                     app:hintEnabled="false">

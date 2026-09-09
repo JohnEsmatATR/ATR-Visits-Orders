@@ -5,6 +5,7 @@ import com.akhnaton.foodvisits.data.model.promoter.CompetitorListModel
 import com.akhnaton.foodvisits.data.model.promoter.PromoterItem
 import com.akhnaton.foodvisits.data.model.promoter.PromoterTargetNotes
 import com.akhnaton.foodvisits.data.model.promoter.SubmitStock
+import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
 
 sealed class PromoterStatus {
 
@@ -18,4 +19,5 @@ sealed class PromoterStatus {
     data class SendDetails(val response: BaseResponse<SubmitStock>) : PromoterStatus()
     data class UploadImages(val response: BaseResponse<SubmitStock>) : PromoterStatus()
     data class Error(val error: String?) : PromoterStatus()
+    data class RefreshToken(val data: RefreshTokenRes) : PromoterStatus()
 }

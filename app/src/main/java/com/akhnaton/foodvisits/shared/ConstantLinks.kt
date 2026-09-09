@@ -38,6 +38,8 @@ object ConstantLinks {
     const val PROMOTER_SAVE_STOCK = "Promoter/saveStock"
     const val REFRESH_TOKEN = "Auth/refresh_token"
     const val GET_CARD = "invoice/getPrintInvoicesList"
+    const val GET_CARDDETAILS = "invoice/getPrintInvoiceDetails"
+
     //----------------------------------------------------------------------------------------------
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod

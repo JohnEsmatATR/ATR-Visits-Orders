@@ -271,8 +271,25 @@
         android:id="@+id/cardPrintFragment"
         android:name="com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintFragment"
         android:label="fragment_card_print"
-        tools:layout="@layout/fragment_card_print" />
+        tools:layout="@layout/fragment_card_print">
 
+        <action
+            android:id="@+id/toCardPrintDetails"
+            app:destination="@id/cardPrintDetailsFragment" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/cardPrintDetailsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintDetailsFragment"
+        android:label="fragment_card_print_details"
+        tools:layout="@layout/fragment_card_print_details">
+
+        <argument
+            android:name="orderSalesNumber"
+            app:argType="string" />
+
+    </fragment>
     <fragment
         android:id="@+id/personCodingFragment"
         android:name="com.akhnaton.foodvisits.ui.home.personCoding.PersonCodingFragment"

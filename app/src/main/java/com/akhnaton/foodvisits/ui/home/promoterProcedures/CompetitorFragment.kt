@@ -42,6 +42,10 @@ import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.datepicker.CalendarConstraints
 import java.util.TimeZone
+import android.content.Intent
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.google.gson.Gson
 
 class CompetitorFragment : Fragment() {
 
@@ -187,38 +191,64 @@ class CompetitorFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.GetCompetitorList -> {
-                            competitorTypesList = status.response.data.get_competitor_types
-                            competitorsList = status.response.data.get_competitor
-                            promotionTypesList = status.response.data.get_promotion_types
-                            itemSizesList = status.response.data.get_item_sizes
+                            if (status.response.status == 401) {
+                                sendRefreshToken()
+                            } else {
+                                competitorTypesList = status.response.data.get_competitor_types
+                                competitorsList = status.response.data.get_competitor
+                                promotionTypesList = status.response.data.get_promotion_types
+                                itemSizesList = status.response.data.get_item_sizes
 
-                            setupPromotionTypeCheckboxes(promotionTypesList)
-                            setupItemSizesDropdown(itemSizesList)
+                                setupPromotionTypeCheckboxes(promotionTypesList)
+                                setupItemSizesDropdown(itemSizesList)
 
-                            val types = competitorTypesList.map { it.type_name }
-                            val companies = competitorsList.map { it.competitor_name }
+                                val types = competitorTypesList.map { it.type_name }
+                                val companies = competitorsList.map { it.competitor_name }
 
-                            binding.actvCategory.setAdapter(
-                                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
-                            )
-                            binding.actvCategory.setOnItemClickListener { _, _, position, _ ->
-                                selectedTypeId = competitorTypesList[position].id
+                                binding.actvCategory.setAdapter(
+                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
+                                )
+                                binding.actvCategory.setOnItemClickListener { _, _, position, _ ->
+                                    selectedTypeId = competitorTypesList[position].id
+                                }
+
+                                binding.actvCompany.setAdapter(
+                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, companies)
+                                )
+                                binding.actvCompany.setOnItemClickListener { _, _, position, _ ->
+                                    selectedCompetitorId = competitorsList[position].id
+                                }
+
+                                viewModel.resetStatus()
                             }
-
-                            binding.actvCompany.setAdapter(
-                                ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, companies)
-                            )
-                            binding.actvCompany.setOnItemClickListener { _, _, position, _ ->
-                                selectedCompetitorId = competitorsList[position].id
-                            }
-
-                            viewModel.resetStatus()
                         }
 
                         is PromoterStatus.SendCompetitors -> {
                             Toast.makeText(requireContext(), "تم حفظ المنافس بنجاح", Toast.LENGTH_SHORT).show()
                             viewModel.resetStatus()
                             findNavController().popBackStack()
+                        }
+
+                        is PromoterStatus.RefreshToken -> {
+                            if (status.data.status == 200) {
+                                val tokenData = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                                        requireActivity().finishAffinity()
+                                    })
+                            }
+                            viewModel.resetStatus()
                         }
 
                         is PromoterStatus.Error -> {
@@ -230,6 +260,17 @@ class CompetitorFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
         }
     }
 

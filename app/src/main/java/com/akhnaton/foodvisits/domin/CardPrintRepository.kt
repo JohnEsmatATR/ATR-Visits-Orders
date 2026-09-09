@@ -9,4 +9,7 @@ class CardPrintRepository {
 
     suspend fun getPrintInvoicesList() = retrofit.getPrintInvoicesList()
 
+    suspend fun getPrintInvoiceDetails(orderSalesNumber: String) =
+        retrofit.getPrintInvoiceDetails(orderSalesNumber)
+
 }

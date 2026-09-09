@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.CardPrint
+package com.akhnaton.foodvisits.ui.home.cardPrint
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 
 class CardPrintViewModel : ViewModel() {
 
@@ -26,6 +27,8 @@ class CardPrintViewModel : ViewModel() {
             cardPrintIntent.consumeAsFlow().collect {
                 when (it) {
                     is CardPrintIntent.GetPrintInvoicesList -> getPrintInvoicesList()
+                    is CardPrintIntent.GetPrintInvoiceDetails -> getPrintInvoiceDetails(it.orderSalesNumber)
+                    is CardPrintIntent.RefreshToken -> refreshToken(it.userId, it.token)
                 }
             }
         }
@@ -37,6 +40,32 @@ class CardPrintViewModel : ViewModel() {
             _status.value = try {
                 CardPrintStatus.GetPrintInvoicesList(
                     CardPrintRepository().getPrintInvoicesList()
+                )
+            } catch (e: Exception) {
+                CardPrintStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun getPrintInvoiceDetails(orderSalesNumber: String) {
+        viewModelScope.launch {
+            _status.value = CardPrintStatus.Loading
+            _status.value = try {
+                CardPrintStatus.GetPrintInvoiceDetails(
+                    CardPrintRepository().getPrintInvoiceDetails(orderSalesNumber)
+                )
+            } catch (e: Exception) {
+                CardPrintStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun refreshToken(userId: String, token: String) {
+        viewModelScope.launch {
+            _status.value = CardPrintStatus.Loading
+            _status.value = try {
+                CardPrintStatus.RefreshToken(
+                    PhoneVisitsRepository().refreshToken(userId, token)
                 )
             } catch (e: Exception) {
                 CardPrintStatus.Error(e.message)

@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.CardPrint
+package com.akhnaton.foodvisits.ui.home.cardPrint
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,7 +7,8 @@ import com.akhnaton.foodvisits.data.model.cardPrint.CardPrintItem
 import com.akhnaton.foodvisits.databinding.CardPrintListBinding
 
 class CardPrintAdapter(
-    private var list: List<CardPrintItem>
+    private var list: List<CardPrintItem>,
+    private val onItemClick: (CardPrintItem) -> Unit
 ) : RecyclerView.Adapter<CardPrintAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: CardPrintListBinding) :
@@ -23,6 +24,9 @@ class CardPrintAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.binding.cardPrint = list[position]
         holder.binding.executePendingBindings()
+        holder.itemView.setOnClickListener {
+            onItemClick(list[position])
+        }
     }
 
     override fun getItemCount(): Int = list.size

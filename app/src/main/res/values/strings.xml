@@ -145,10 +145,8 @@
     <string name="select_area">تحديد المنطقة</string>
     <string name="write_customer_name">ادخل اسم العميل</string>
     <string name="write_customer_address">ادخل عنوان العميل</string>
-    <string name="write_customer_phone">ادخل رقم الهاتف المحمول</string>
 
-    <string name="write_customer_mobile">ادخل رقم الهاتف الارضى</string>
-    <string name="write_nationality_id">ادخل الرقم القومى</string>
+
     <string name="write_nationality_name">ادخل اسم العميل فى البطاقة</string>
     <string name="write_nationality_address">ادخل عنوان العميل فى البطاقة</string>
     <string name="cutsomer_coding">تكويد عميل</string>
@@ -264,5 +262,46 @@
     <string name="food_list_section_title">الفواتير المتاحة</string>
     <string name="order_type">نوع الطلب:</string>
     <string name="search_hint">ابحث...</string>
+    <string name="print_button">اطبع</string>
 
+
+
+    <string name="title_add_customer">تكويد عميل</string>
+
+    <string name="label_customer_type">نوع العميل</string>
+    <string name="hint_select_customer_type">اختر نوع العميل</string>
+
+    <string name="label_order_type">نوع الطلب</string>
+    <string name="hint_select_order_type">اختر نوع الطلب</string>
+
+    <string name="label_customer_line">خط العميل</string>
+    <string name="hint_select_customer_line">اختر خط العميل</string>
+
+    <string name="label_governorate">المحافظة</string>
+    <string name="hint_select_governorate">اختر المحافظة</string>
+
+    <string name="hint_select_area">اختر المنطقة</string>
+
+    <string name="label_customer_name">اسم العميل</string>
+    <string name="hint_enter_customer_name">أدخل اسم العميل</string>
+
+    <string name="label_customer_address">عنوان العميل</string>
+    <string name="hint_enter_customer_address">أدخل عنوان العميل</string>
+
+    <string name="label_phone">رقم الهاتف</string>
+    <string name="label_mobile">رقم الموبايل</string>
+
+    <string name="label_national_id">الرقم القومي</string>
+    <string name="hint_enter_national_id">أدخل الرقم القومي</string>
+
+    <string name="label_suggested_address">العنوان المقترح</string>
+    <string name="hint_no_suggested_address">لا يوجد عنوان مقترح بعد</string>
+
+    <string name="label_longitude">خطوط الطول</string>
+    <string name="label_latitude">خطوط العرض</string>
+
+    <string name="btn_add_customer">اضف عميل</string>
+    <string name="write_customer_phone">ادخل رقم الهاتف الأرضي</string>
+    <string name="write_customer_mobile">ادخل رقم الموبايل</string>
+    <string name="write_nationality_id">ادخل الرقم القومي</string>
 </resources>

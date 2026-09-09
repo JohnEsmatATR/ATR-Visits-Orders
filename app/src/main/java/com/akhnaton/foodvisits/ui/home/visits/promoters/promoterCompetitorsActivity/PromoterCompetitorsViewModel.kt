@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 
 class PromoterCompetitorsViewModel : ViewModel() {
     val promoterIntent = Channel<PromoterIntent>(Channel.UNLIMITED)
@@ -46,11 +47,11 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         it.creation_date, it.customer_code, it.party_site_id,
                         it.user_type, it.funNum
                     )
+                    is PromoterIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     else -> {}
                 }
             }
         }
-
     }
 
     private fun     fetchSendCompetitors(
@@ -152,6 +153,18 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         user_type,
                         funNum
                     )
+                )
+            } catch (e: Exception) {
+                PromoterStatus.Error(e.message)
+            }
+        }
+    }
+    private fun refreshToken(userId: String, token: String) {
+        viewModelScope.launch {
+            _status.value = PromoterStatus.Loading
+            _status.value = try {
+                PromoterStatus.RefreshToken(
+                    PhoneVisitsRepository().refreshToken(userId, token)
                 )
             } catch (e: Exception) {
                 PromoterStatus.Error(e.message)
