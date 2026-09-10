@@ -59,8 +59,8 @@ class VisitsFragment2 : Fragment() {
         private const val TAG = "VisitsFragment2"
     }
 
-//    private val viewModel: Visits2ViewModel by viewModels()
-private lateinit var viewModel: Visits2ViewModel
+    //    private val viewModel: Visits2ViewModel by viewModels()
+    private lateinit var viewModel: Visits2ViewModel
     private lateinit var binding: FragmentVisits2Binding
     private lateinit var dialog: AlertDialog
 
@@ -75,6 +75,7 @@ private lateinit var viewModel: Visits2ViewModel
     private var selectedTab = 0
     private lateinit var clickedVisit: CustomerVisitPlan
     private var isStartVisitDialogShowsUp = false
+    private lateinit var checkInReq: CheckInGPSReq
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,6 +98,14 @@ private lateinit var viewModel: Visits2ViewModel
 //        binding.tvDay.setText(DateUtils.getTodayDayName())
 //        binding.tvDate.setText(DateUtils.getTodayDate())
 
+        checkInReq = CheckInGPSReq(
+            insert = 0,
+            start_latitude = "",
+            start_longitude = "",
+            ord_type = "",
+            party_site_id = "",
+            phone_visit = "0",
+        )
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         fusedLocationClient.lastLocation.addOnSuccessListener { currentLocation: Location? ->
@@ -142,7 +151,7 @@ private lateinit var viewModel: Visits2ViewModel
             is_visited_today = false
         )
 
-        if (SharedPreferencesHelper.getInstance().isSuper()) {
+        if (SharedPreferencesHelper.getInstance().isAllowedToApproveVisit()) {
             binding.btnCopyVisits.visibility = View.VISIBLE
         } else {
             binding.btnCopyVisits.visibility = View.GONE
@@ -463,7 +472,8 @@ private lateinit var viewModel: Visits2ViewModel
                                 if (data.check_in != null) {
                                     navigateToGpsVisit(
                                         clickedVisit, data.check_in.toString(),
-                                        data.current_time
+                                        data.current_time,
+                                        checkInReq = checkInReq
                                     )
                                 } else {
                                     if (!isStartVisitDialogShowsUp) {
@@ -564,7 +574,7 @@ private lateinit var viewModel: Visits2ViewModel
     }
 
     private fun checkIn(insert: Int, item: CustomerVisitPlan) {
-        val checkIn = CheckInGPSReq(
+        checkInReq = CheckInGPSReq(
             insert = insert,
             start_latitude = item.customer_latitude.toString(),
             start_longitude = item.customer_longitude.toString(),
@@ -572,11 +582,11 @@ private lateinit var viewModel: Visits2ViewModel
             party_site_id = item.customer_party_site_id,
             phone_visit = "0",
         )
-        Log.d("WHATcheckIn", checkIn.toString())
+        Log.d("WHATcheckInReq", checkInReq.toString())
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
                 Visits2Intent.CheckIn(
-                    checkIn
+                    checkInReq
                 )
             )
         }
@@ -585,7 +595,8 @@ private lateinit var viewModel: Visits2ViewModel
     private fun navigateToGpsVisit(
         item: CustomerVisitPlan,
         checkIn: String,
-        currentTime: String
+        currentTime: String,
+        checkInReq: CheckInGPSReq
     ) {
         val navController = findNavController()
 
@@ -598,6 +609,8 @@ private lateinit var viewModel: Visits2ViewModel
             )
             return
         }
+
+        val jsonCheckInReq = Gson().toJson(checkInReq)
 
         val result = calculateTimeDifference(
             checkIn,
@@ -627,6 +640,8 @@ private lateinit var viewModel: Visits2ViewModel
             putLong("hours", result.hours)
             putLong("minutes", result.minutes)
             putLong("seconds", result.seconds)
+
+            putString("checkInReq", jsonCheckInReq)
         }
 
         navController.navigate(
@@ -686,28 +701,16 @@ private lateinit var viewModel: Visits2ViewModel
     override fun onResume() {
         super.onResume()
         isStartVisitDialogShowsUp = false
-        Log.d(
-            "StartVisitDialogShowsUpR",
-            isStartVisitDialogShowsUp.toString()
-        )
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         isStartVisitDialogShowsUp = false
-        Log.d(
-            "StartVisitDialogShowsUpDV",
-            isStartVisitDialogShowsUp.toString()
-        )
     }
 
     override fun onDestroy() {
         super.onDestroy()
         isStartVisitDialogShowsUp = false
-        Log.d(
-            "StartVisitDialogShowsUpD",
-            isStartVisitDialogShowsUp.toString()
-        )
     }
 
     private fun setupKeyboardInsets() {

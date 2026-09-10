@@ -115,7 +115,8 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 data.ALLOWED_TO_MAKE_ORDER,
                                 data.ALLOWED_TO_MAKE_RATE,
                                 if (data.USER_CATEGORY == "sprPrmt") true else false,
-                                )
+                                data.ALLOWED_TO_APPROVE_VISIT,
+                            )
                             SharedPreferencesHelper().setDebugUsername(
                                 binding.username.text.toString()
                             )

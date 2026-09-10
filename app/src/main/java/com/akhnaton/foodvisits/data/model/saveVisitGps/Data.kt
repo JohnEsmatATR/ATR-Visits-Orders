@@ -5,5 +5,6 @@ data class Data(
     val is_suspended: Boolean,
     val message: String,
     val success: Boolean,
-    val visit_id: Int
+    val visit_id: Int,
+    val wrong_zone: Int,
 )

@@ -16,6 +16,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
+import com.akhnaton.foodvisits.data.model.getVisitPlan.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.model.promoterSaveStock.Item
 import com.akhnaton.foodvisits.data.model.saveVisitGps.Data
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
@@ -46,6 +48,9 @@ class InventoryFragment : Fragment() {
 
     lateinit var customerCode: String
     lateinit var customerPartySiteId: String
+    var checkIn: String = ""
+    var currentTime: String = ""
+    lateinit var checkInReq: CheckInGPSReq
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -61,6 +66,12 @@ class InventoryFragment : Fragment() {
     fun getBundle() {
         customerCode = arguments?.getString("customerCode").toString()
         customerPartySiteId = arguments?.getString("customerPartySiteId").toString()
+        checkIn = arguments?.getString("checkIn").orEmpty()
+        currentTime = arguments?.getString("currentTime").orEmpty()
+        checkInReq = Gson().fromJson(
+            arguments?.getString("checkInReq").orEmpty(),
+            CheckInGPSReq::class.java
+        )
     }
 
 
@@ -100,7 +111,7 @@ class InventoryFragment : Fragment() {
 
     private fun setupClicks() {
         binding.btnBack.setOnClickListener {
-            requireActivity().onBackPressedDispatcher.onBackPressed()
+            checkIn()
         }
         binding.btnSendInventory.setOnClickListener {
             prepareRequest(true)
@@ -286,6 +297,16 @@ class InventoryFragment : Fragment() {
         }
     }
 
+    private fun checkIn() {
+        Log.d("WHATcheckIn", checkIn.toString())
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.CheckIn(
+                    checkInReq
+                )
+            )
+        }
+    }
 
     fun observeData() {
         lifecycleScope.launch {
@@ -334,6 +355,47 @@ class InventoryFragment : Fragment() {
                                     findNavController().popBackStack()
                                 }
                             )
+                        } else if (it.data.status == 401) {
+                            lifecycleScope.launch {
+                                viewModel.visitsIntent.send(
+                                    Visits2Intent.RefreshToken(
+                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                    )
+                                )
+                            }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.data.message,
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                        }
+                    }
+
+                    is Visits2Status.CheckIn -> {
+                        dialog.dismiss()
+                        if (it.data.status == 200) {
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                )
+
+                            findNavController().previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("checkIn", data.check_in)
+
+                            findNavController().previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("currentTime", data.current_time)
+
+                            findNavController().popBackStack()
+
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.visitsIntent.send(

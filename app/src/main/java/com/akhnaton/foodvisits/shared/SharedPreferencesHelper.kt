@@ -196,6 +196,7 @@ class SharedPreferencesHelper : Application() {
         allowedToMakeOrder: Boolean,
         allowedToMakeRate: Boolean,
         isSuperProm: Boolean,
+        allowedToApproveVisit: Boolean,
     ) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
@@ -209,6 +210,7 @@ class SharedPreferencesHelper : Application() {
             .putBoolean("allowed_to_make_order", allowedToMakeOrder)
             .putBoolean("allowed_to_make_rate", allowedToMakeRate)
             .putBoolean("is_super_prom", isSuperProm)
+            .putBoolean("allowed_to_approve_visit", allowedToApproveVisit)
             .apply()
     }
 
@@ -245,6 +247,11 @@ class SharedPreferencesHelper : Application() {
     fun isAllowedToMakeRate(): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getBoolean("allowed_to_make_rate", false)
+    }
+
+    fun isAllowedToApproveVisit(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("allowed_to_approve_visit", false)
     }
 
 

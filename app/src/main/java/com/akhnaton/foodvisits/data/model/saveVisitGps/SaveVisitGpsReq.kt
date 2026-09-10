@@ -18,5 +18,6 @@ data class SaveVisitGpsReq(
     val rate_comment: String? = null,
     val visit_with_confirmed: String? = null,
     val visit_with_user_id: String? = null,
-    val zone_flag: String
+//    val zone_flag: String
+    val check_zone_flag: String
 )

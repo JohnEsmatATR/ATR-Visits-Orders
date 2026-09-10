@@ -51,6 +51,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.repeatOnLifecycle
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.saveVisitGps.Data
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
@@ -87,7 +88,6 @@ class GpsVisitFragment : Fragment() {
         private const val TAG = "GpsVisitFragment"
     }
 
-    //    private val viewModel: Visits2ViewModel by viewModels()
     private lateinit var binding: FragmentGpsVisitBinding
     private lateinit var dialog: AlertDialog
 
@@ -116,14 +116,12 @@ class GpsVisitFragment : Fragment() {
 
     var orderType: String = "SALE"
     var customerType: String = "RETAIL"
+    lateinit var checkInReq: CheckInGPSReq
 
     var isProm: Boolean = false
     var isSuperProm: Boolean = false
 
     private var selectedRating = 0f
-
-//    private lateinit var fusedLocationClient: FusedLocationProviderClient
-//    private var currentDistanceMeters: Float = 0f
 
     private var isDeveloperModeEnable = 0
 
@@ -132,16 +130,13 @@ class GpsVisitFragment : Fragment() {
     private lateinit var checkConnection: CheckConnection
     private lateinit var viewModel: Visits2ViewModel
 
-    //    val customerLocation = Location("")
-    private lateinit var locationClient: ILocationClient
-//    val myLocation = Location("")
-
     private val timerHandler = Handler(Looper.getMainLooper())
 
     private var timerRunnable: Runnable? = null
 
     private var checkInTimeMillis = 0L
     private var serverTimeOffsetMillis = 0L
+    private var checkZoneFlag = ""
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -160,8 +155,11 @@ class GpsVisitFragment : Fragment() {
         visitWithUserId = arguments?.getString("visitWithUserId").toString()
         visitWithName = arguments?.getString("visitWithName").toString()
         checkIn = arguments?.getString("checkIn").orEmpty()
-
         currentTime = arguments?.getString("currentTime").orEmpty()
+        checkInReq = Gson().fromJson(
+            arguments?.getString("checkInReq").orEmpty(),
+            CheckInGPSReq::class.java
+        )
 
         viewModel = ViewModelProvider(
             this,
@@ -171,29 +169,6 @@ class GpsVisitFragment : Fragment() {
 
         askPermission()
         observeDistance()
-
-//        val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-//
-//        locationClient = DefaultLocationClient(
-//            requireContext(),
-//            LocationServices.getFusedLocationProviderClient(requireActivity())
-//        )
-//
-//        locationClient
-//            .getLocationUpdates(10000L)
-//            .catch { e -> e.printStackTrace() }
-//            .onEach { location ->
-//                val lat = location.latitude.toString().takeLast(3)
-//                val long = location.longitude.toString().takeLast(3)
-//
-//                calculateDistance(
-//                    lat.toDouble(),
-//                    long.toDouble(),
-//                    customerLatitude,
-//                    customerLongitude
-//                )
-//            }
-//            .launchIn(serviceScope)
 
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
@@ -212,49 +187,23 @@ class GpsVisitFragment : Fragment() {
             !checkIn.equals("null", ignoreCase = true) &&
             !currentTime.equals("null", ignoreCase = true)
         ) {
-
             checkInTimeMillis = parseApiDate(checkIn)
-
             val apiCurrentTimeMillis = parseApiDate(currentTime)
-
             if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
                 serverTimeOffsetMillis =
                     apiCurrentTimeMillis - System.currentTimeMillis()
                 binding.tvTimer.visibility = View.VISIBLE
                 startTimer()
-                Log.d(
-                    TAG,
-                    "Timer initialized: checkIn=$checkIn, " +
-                            "currentTime=$currentTime, " +
-                            "checkInMillis=$checkInTimeMillis, " +
-                            "serverOffset=$serverTimeOffsetMillis"
-                )
-            } else {
-                Log.e(
-                    TAG,
-                    "Timer NOT started. Invalid dates: " +
-                            "checkIn=$checkIn, currentTime=$currentTime"
-                )
             }
-        } else {
-            Log.e(
-                TAG,
-                "Timer NOT started. Missing checkIn/currentTime: " +
-                        "checkIn=$checkIn, currentTime=$currentTime"
-            )
         }
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
         isSuperProm = SharedPreferencesHelper.getInstance().getSuperProm()
-        Log.d("WHATPROM", isProm.toString())
-        Log.d("WHATPROM", isSuperProm.toString())
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
         MainActivity.binding.navView2.visibility = View.GONE
-
-//        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         if (isProm || isSuperProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE
@@ -277,9 +226,6 @@ class GpsVisitFragment : Fragment() {
                 requireContext(), customerLatitude!!, customerLongitude!!
             )
         }
-
-//        getCurrentLocation()
-//        observeDistance()
 
         binding.cardVisitReport.setOnClickListener {
             findNavController().navigate(
@@ -308,12 +254,15 @@ class GpsVisitFragment : Fragment() {
         }
 
         binding.cardInventory.setOnClickListener {
+            val jsonCheckInReq = Gson().toJson(checkInReq)
+
             val bundle = Bundle().apply {
                 putString("customerCode", customerCode)
                 putString(
                     "customerPartySiteId",
                     customerPartySiteId
                 )
+                putString("checkInReq", jsonCheckInReq)
             }
 
             findNavController().navigate(
@@ -401,27 +350,6 @@ class GpsVisitFragment : Fragment() {
             }
         }
 
-//        val positions = listOf(
-//            getString(R.string.order),
-//            getString(R.string.collection),
-//            getString(R.string.negative)
-//        )
-//
-//        val adapter = ArrayAdapter(
-//            requireContext(),
-//            android.R.layout.simple_dropdown_item_1line,
-//            positions
-//        )
-//
-//        binding.etVisitingPosition.setAdapter(adapter)
-//
-//        binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
-//            val selectedPosition = positions[position]
-//            if (selectedPosition == getString(R.string.order)) grade = "A"
-//            else if (selectedPosition == getString(R.string.collection)) grade = "B"
-//            else if (selectedPosition == getString(R.string.negative)) grade = "C"
-//        }
-
         binding.btnSave.setOnClickListener {
 //            if (convertDeveloperModeCheckToInt() == 1) {
 //                DialogUtils.showResultDialog(
@@ -433,98 +361,60 @@ class GpsVisitFragment : Fragment() {
 //                return@setOnClickListener
 //            }
 
-            val currentDistanceMeters = getCurrentDistanceMeters()
+            //ZoneFlag
+//            checkZoneFlag()
 
-            Log.d("WHATdistance", currentDistanceMeters.toString())
-            Log.d("WHATdistance", validGpsRange.toString())
-
-            if (currentDistanceMeters == null) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "لم يتم تحديد موقعك الحالي",
-                    description = "برجاء الانتظار حتى يتم تحديد موقع GPS ثم المحاولة مرة أخرى",
-                    isSuccess = false,
-                    showOkButton = true
-                )
-                return@setOnClickListener
-            }
-
-            if (currentDistanceMeters > (validGpsRange ?: 0)) {
-                DialogUtils.showResultDialog(
-                    context = requireContext(),
-                    message = "خطأ في الموقع",
-                    description =
-                        "المسافة الحالية هي: %.1f متر\nيجب ألا تتجاوز %d متر للبدء"
-                            .format(
-                                currentDistanceMeters,
-                                validGpsRange ?: 0
-                            ),
-                    isSuccess = false,
-                    isLocation = true,
-                    onReport = {
-                        if (isProm || isSuperProm) {
-                            dateVisit = endTimer()
-
-                            saveVisitGPSForPromoters()
-                        } else {
-                            saveVisitGPS()
-                        }
-                    },
-                )
-                return@setOnClickListener
-            }
             Log.d("WHATbtnSave", "Clicked")
 
             if (isProm || isSuperProm) {
                 dateVisit = endTimer()
 
-                saveVisitGPSForPromoters()
+                saveVisitGPSForPromoters(checkZoneFlag)
             } else {
-
-//            getCurrentLocation()
-
-//            checkInDate = getCurrentTimeTimestamp()
-//            dateVisit = getCurrentDateTimestamp()
-                saveVisitGPS()
+                saveVisitGPS(checkZoneFlag)
             }
         }
-
-//        getCustomerData()
         fetchData()
     }
 
-    private fun calculateDistance(
-        currentLatitude: Double,
-        currentLongitude: Double,
-        customerLatitude: Double?,
-        customerLongitude: Double?
-    ): Double? {
+    private fun checkZoneFlag() {
+        val currentDistanceMeters = getCurrentDistanceMeters()
 
-        if (customerLatitude == null || customerLongitude == null) {
-            Log.e("LocationService", "Customer location is null")
-            return null
+        if (currentDistanceMeters == null) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "لم يتم تحديد موقعك الحالي",
+                description = "برجاء الانتظار حتى يتم تحديد موقع GPS ثم المحاولة مرة أخرى",
+                isSuccess = false,
+                showOkButton = true
+            )
+            return
         }
 
-        val currentLocation = Location("current").apply {
-            latitude = currentLatitude
-            longitude = currentLongitude
+        if (currentDistanceMeters > (validGpsRange ?: 0)) {
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "خطأ في الموقع",
+                description =
+                    "المسافة الحالية هي: %.1f متر\nيجب ألا تتجاوز %d متر للبدء"
+                        .format(
+                            currentDistanceMeters,
+                            validGpsRange ?: 0
+                        ),
+                isSuccess = false,
+                isLocation = true,
+                onReport = {
+                    if (isProm || isSuperProm) {
+                        dateVisit = endTimer()
+
+                        saveVisitGPSForPromoters(checkZoneFlag)
+                    } else {
+                        saveVisitGPS(checkZoneFlag)
+                    }
+                },
+            )
+            return
         }
-
-        val customerLocation = Location("customer").apply {
-            latitude = customerLatitude
-            longitude = customerLongitude
-        }
-
-        val distanceMeters = currentLocation.distanceTo(customerLocation)
-
-        val distanceKm = distanceMeters / 1000.0
-
-        Log.d(
-            "LocationService",
-            "Distance = %.2f KM".format(distanceKm)
-        )
-
-        return distanceKm
     }
 
     private fun askPermission() {
@@ -568,34 +458,7 @@ class GpsVisitFragment : Fragment() {
         )
     }
 
-//    @SuppressLint("SetTextI18n")
-//    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-//    private fun observeLocation() {
-//        viewModel.stopLocationUpdates()
-//        viewModel.getCurrentLocation(customerLatitude, customerLongitude)
-//        lifecycleScope.launch {
-//            viewModel.locationState.collect { location ->
-//                location?.let {
-//
-//                    if (customerLatitude != null && customerLongitude != null) {
-//                        val distanceInMeters = myLocation.distanceTo(customerLocation)
-//                        val formattedDistance = String.format("%.1f", distanceInMeters)
-//                        binding.tvDistance.text = "$formattedDistance متر"
-//                    } else {
-//                        binding.tvDistance.text = "جارى تحديد الموقع"
-//                        Log.w("observeLocation", "Failed to parse latitude or longitude")
-//                    }
-//
-//                    Log.d(
-//                        "Locationnnnnnnnnnnnnnnn",
-//                        "Lat: ${it.latitude}, Lon: ${it.longitude}, Accuracy: ${it.accuracy} meters"
-//                    )
-//                }
-//            }
-//        }
-//    }
-
-    private fun saveVisitGPS() {
+    private fun saveVisitGPS(checkZoneFlag: String) {
         if (binding.etObjectiveVisit.text.toString().isEmpty()) {
             DialogUtils.showResultDialog(
                 context = requireContext(),
@@ -689,11 +552,11 @@ class GpsVisitFragment : Fragment() {
                         latitude = currentLocation.latitude.toString(),
                         longitude = currentLocation.longitude.toString(),
 
-                        zone_flag =
-                            if (currentDistanceMeters <= (validGpsRange ?: 0))
-                                "IN"
-                            else
-                                "ERROR",
+//                        zone_flag =
+//                            if (currentDistanceMeters <= (validGpsRange ?: 0))
+//                                "IN"
+//                            else
+//                                "ERROR",
 
                         rate =
                             if (binding.cbCompanionYes.isChecked)
@@ -721,14 +584,15 @@ class GpsVisitFragment : Fragment() {
                             } else {
                                 null
                             },
+
+                        check_zone_flag = checkZoneFlag
                     )
                 )
             )
         }
     }
 
-    private fun saveVisitGPSForPromoters() {
-
+    private fun saveVisitGPSForPromoters(checkZoneFlag: String) {
         if (visitWithName != null && visitWithName != "null") {
             if (!binding.cbCompanionYes.isChecked &&
                 !binding.cbCompanionNo.isChecked
@@ -777,11 +641,13 @@ class GpsVisitFragment : Fragment() {
                         latitude = currentLocation.latitude.toString(),
                         longitude = currentLocation.longitude.toString(),
 
-                        zone_flag =
-                            if (currentDistanceMeters <= (validGpsRange ?: 0))
-                                "IN"
-                            else
-                                "ERROR",
+//                        zone_flag =
+//                            if (currentDistanceMeters <= (validGpsRange ?: 0))
+//                                "IN"
+//                            else
+//                                "ERROR",
+
+                        check_zone_flag = checkZoneFlag
                     )
                 )
             )
@@ -793,7 +659,7 @@ class GpsVisitFragment : Fragment() {
             viewModel.status.collect {
                 when (it) {
                     is Visits2Status.Idle -> {}
-//                    is Visits2Status.Loading -> dialog.show()
+                    is Visits2Status.Loading -> dialog.show()
 
                     is Visits2Status.SaveVisitGps -> {
                         dialog.dismiss()
@@ -893,6 +759,47 @@ class GpsVisitFragment : Fragment() {
                                         })
                                 }
                             }
+                        } else if (it.data.status == 400) {
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    Data::class.java
+                                )
+                            if (data.wrong_zone == 1) {
+                                checkZoneFlag = "0"
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "خطأ في الموقع",
+                                    description =
+                                        "المسافة الحالية هي: %.1f متر\nيجب ألا تتجاوز %d متر للبدء"
+                                            .format(
+                                                0.0,
+                                                validGpsRange ?: 0
+                                            ),
+                                    isSuccess = false,
+                                    isLocation = true,
+                                    onReport = {
+                                        if (isProm || isSuperProm) {
+                                            saveVisitGPSForPromoters(checkZoneFlag)
+                                        } else {
+                                            saveVisitGPS(checkZoneFlag)
+                                        }
+                                    },
+                                )
+//                                DialogUtils.showResultDialog(
+//                                    context = requireContext(),
+//                                    message = it.data.message,
+//                                    isSuccess = false,
+//                                    showYesNoButtons = true,
+//                                    onYes = {
+//                                        if (isProm || isSuperProm) {
+//                                            saveVisitGPSForPromoters(checkZoneFlag)
+//                                        } else {
+//                                            saveVisitGPS(checkZoneFlag)
+//                                        }
+//                                    }
+//                                )
+                            }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.visitsIntent.send(
@@ -989,27 +896,6 @@ class GpsVisitFragment : Fragment() {
                         }
                     }
 
-//                    is Visits2Status.GetCustomerData -> {
-//                        dialog.dismiss()
-//                        if (it.data.status == 200) {
-////                            val data =
-////                                Gson().fromJson(
-////                                    it.data.data,
-////                                    Data::class.java
-////                                )
-//                            setRecycler(it.data.data.customer_address.toMutableList())
-//                        } else if (it.data.status == 401) {
-//                            lifecycleScope.launch {
-//                                viewModel.phoneVisitsIntent.send(
-//                                    PhoneVisitsIntent.RefreshToken(
-//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-//                                        SharedPreferencesHelper.getInstance().getUserToken()
-//                                    )
-//                                )
-//                            }
-//                        }
-//                    }
-
                     is Visits2Status.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
@@ -1036,8 +922,6 @@ class GpsVisitFragment : Fragment() {
                                     requireActivity().finishAffinity()
                                 })
                         }
-//                        binding.tryAgainButtons.root.visibility = View.GONE
-
                     }
 
                     is Visits2Status.Error -> {
@@ -1050,10 +934,8 @@ class GpsVisitFragment : Fragment() {
                             isSuccess = false,
                             showOkButton = true,
                             onOk = {
-//                                    findNavController().popBackStack()
                             }
                         )
-//                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
 
                     else -> {}
@@ -1062,91 +944,37 @@ class GpsVisitFragment : Fragment() {
         }
     }
 
-    fun getCurrentTimeTimestamp(): Long {
-        return System.currentTimeMillis() / 1000
-    }
-
-    fun getCurrentDateTimestamp(): Long {
-        val calendar = Calendar.getInstance()
-
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-
-        return calendar.timeInMillis / 1000
-    }
-
     private fun startTimer() {
-
         stopTimer()
-
         if (checkInTimeMillis <= 0L) {
-            Log.e(
-                TAG,
-                "startTimer(): checkInTimeMillis is invalid: $checkInTimeMillis"
-            )
             return
         }
-
         timerRunnable = object : Runnable {
-
             override fun run() {
-
-                // Don't update a destroyed view.
                 if (!isAdded || view == null) {
                     return
                 }
-
-                /*
-                 * Current server-equivalent time.
-                 *
-                 * serverTimeOffsetMillis =
-                 * server time - device time
-                 */
                 val currentTimeMillis =
                     System.currentTimeMillis() + serverTimeOffsetMillis
-
-                /*
-                 * Always calculate the elapsed time from timestamps.
-                 *
-                 * NEVER do elapsed += 1000.
-                 */
                 val elapsedMillis =
                     currentTimeMillis - checkInTimeMillis
-
                 updateTimerText(elapsedMillis)
-
-                /*
-                 * Schedule the SAME Runnable again.
-                 */
                 timerRunnable?.let { runnable ->
                     timerHandler.postDelayed(runnable, 1000L)
                 }
             }
         }
-
-        // Run immediately.
         timerRunnable?.let { runnable ->
             timerHandler.post(runnable)
         }
-
-        Log.d(
-            TAG,
-            "Timer started. checkInTimeMillis=$checkInTimeMillis"
-        )
     }
 
     private fun updateTimerText(elapsedMillis: Long) {
-
         val safeElapsedMillis = elapsedMillis.coerceAtLeast(0L)
-
         val totalSeconds = safeElapsedMillis / 1000L
-
         val hours = totalSeconds / 3600L
         val minutes = (totalSeconds / 60L) % 60L
         val seconds = totalSeconds % 60L
-
         binding.tvTimer.text = String.format(
             Locale.getDefault(),
             "%02d:%02d:%02d",
@@ -1157,22 +985,15 @@ class GpsVisitFragment : Fragment() {
     }
 
     private fun stopTimer() {
-
         timerRunnable?.let { runnable ->
             timerHandler.removeCallbacks(runnable)
         }
-
         timerRunnable = null
-
-        Log.d(TAG, "Timer stopped")
     }
 
     fun endTimer(): Long {
-
         dateVisit = System.currentTimeMillis() / 1000
-
         stopTimer()
-
         return dateVisit
     }
 
@@ -1196,37 +1017,19 @@ class GpsVisitFragment : Fragment() {
             "dd-MM-yyyy HH:mm:ss",
             Locale.getDefault()
         )
-
         return format.parse(date)?.time ?: 0L
     }
-
-//    @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
-//    private fun getCurrentLocation() {
-//        viewModel.getCurrentLocation(
-//            customerLatitude = customerLatitude,
-//            customerLongitude = customerLongitude
-//        )
-//    }
 
     private fun observeDistance() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-
                 viewModel.distanceKm.collect { distanceKm ->
-
                     if (distanceKm == null) {
                         binding.tvDistance.text = "جارى تحديد الموقع"
                         return@collect
                     }
-
                     binding.tvDistance.text =
                         "%.2f KM".format(distanceKm)
-
-                    Log.d(
-                        "GpsVisitFragment",
-                        "Current distance: %.2f meters"
-                            .format(distanceKm * 1000.0)
-                    )
                 }
             }
         }
@@ -1241,14 +1044,31 @@ class GpsVisitFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
+        checkIn = arguments?.getString("checkIn").orEmpty()
+        currentTime = arguments?.getString("currentTime").orEmpty()
+
+        if (
+            checkIn.isNotBlank() &&
+            currentTime.isNotBlank() &&
+            !checkIn.equals("null", ignoreCase = true) &&
+            !currentTime.equals("null", ignoreCase = true)
+        ) {
+            checkInTimeMillis = parseApiDate(checkIn)
+            val apiCurrentTimeMillis = parseApiDate(currentTime)
+            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
+                serverTimeOffsetMillis =
+                    apiCurrentTimeMillis - System.currentTimeMillis()
+                binding.tvTimer.visibility = View.VISIBLE
+                startTimer()
+            }
+        }
+
         RequestPermission().enableLocation(requireActivity())
         requestPermission.permissionCheck(requireActivity())
-
         viewModel.getCurrentLocation(
             customerLatitude = customerLatitude,
             customerLongitude = customerLongitude
         )
-
         DefaultLocationClient(
             requireContext(),
             null
@@ -1259,7 +1079,6 @@ class GpsVisitFragment : Fragment() {
         super.onPause()
         viewModel.stopLocationUpdates()
         binding.tvDistance.text = ""
-        // Stop Service And Stop EventBus From Fetch Location in onUpdateLocation Function
         Intent(requireContext(), GetLocationService::class.java).apply {
             action = GetLocationService.ACTION_STOP
             requireActivity().startService(this)
@@ -1297,7 +1116,6 @@ class GpsVisitFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
-
         if (checkInTimeMillis > 0L) {
             startTimer()
         }
@@ -1305,13 +1123,11 @@ class GpsVisitFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-
         stopTimer()
     }
 
     override fun onDestroyView() {
         stopTimer()
-
         super.onDestroyView()
     }
 
