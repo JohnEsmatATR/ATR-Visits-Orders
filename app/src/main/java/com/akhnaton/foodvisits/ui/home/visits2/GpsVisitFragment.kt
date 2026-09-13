@@ -351,15 +351,15 @@ class GpsVisitFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener {
-//            if (convertDeveloperModeCheckToInt() == 1) {
-//                DialogUtils.showResultDialog(
-//                    context = requireContext(),
-//                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
-//                    isSuccess = false,
-//                    showOkButton = true
-//                )
-//                return@setOnClickListener
-//            }
+            if (convertDeveloperModeCheckToInt() == 1) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
 
             //ZoneFlag
 //            checkZoneFlag()
@@ -771,11 +771,7 @@ class GpsVisitFragment : Fragment() {
                                     context = requireContext(),
                                     message = "خطأ في الموقع",
                                     description =
-                                        "المسافة الحالية هي: %.1f متر\nيجب ألا تتجاوز %d متر للبدء"
-                                            .format(
-                                                0.0,
-                                                validGpsRange ?: 0
-                                            ),
+                                        it.data.message,
                                     isSuccess = false,
                                     isLocation = true,
                                     onReport = {

@@ -791,9 +791,10 @@ class TelephoneVisitFragment : Fragment() {
                         lifecycleScope.launch {
                             viewModel.phoneVisitsIntent.send(
                                 PhoneVisitsIntent.DialOutbound(
-                                    "01270331812",
-//                                    item.TEL.toString(),
-                                    "1010"
+                                    phone.TEL,
+//                                    "01270331812",
+////                                    item.TEL.toString(),
+//                                    "1010"
                                 )
                             )
                         }

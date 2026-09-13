@@ -395,13 +395,9 @@ class PhoneVisitStepsFragment : Fragment() {
         val adapter =
             CustomerDataAdapter(
                 object : CustomerDataAdapter.OnItemClickListener {
-
                     override fun onClick(item: CustomerAddres) {
-
                         Log.d("WHATclick", "HII CLICK")
-
                         binding.btnStartVisit.visibility = View.VISIBLE
-
                         siteAddress = item.SITE_ADDRESS
                         customerPartySiteId = item.PARTY_SITE_ID
 
@@ -422,9 +418,10 @@ class PhoneVisitStepsFragment : Fragment() {
                         lifecycleScope.launch {
                             viewModel.phoneVisitsIntent.send(
                                 PhoneVisitsIntent.DialOutbound(
-                                    "01270331812",
-//                                    item.TEL.toString(),
-                                    "1010"
+                                    item.TEL.toString(),
+//                                    "01270331812",
+////                                    item.TEL.toString(),
+//                                    "1010"
                                 )
                             )
                         }

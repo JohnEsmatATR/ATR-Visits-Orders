@@ -243,6 +243,11 @@
     <string name="unit_size_label">حجم الصنف</string>
     <string name="unit_size_hint">أدخل حجم الصنف</string>
     <string name="price_before_label">السعر قبل الخصم</string>
+    <string name="print_button">اطبع</string>
+
+    <string name="images_title">الصور</string>
+    <string name="inventory_title">المخزون</string>
+
     <string name="price_before_hint">أدخل السعر قبل الخصم</string>
     <string name="price_after_label">السعر بعد الخصم</string>
     <string name="price_after_hint">أدخل السعر بعد الخصم</string>
@@ -262,5 +267,50 @@
     <string name="save_competitor">حفظ المنافس</string>
     <string name="food_list_title">قائمة الفواتير</string>
     <string name="food_list_section_title">الفواتير المتاحة</string>
+    <string name="show_phone_numbers">عرض الأرقام</string>
 
+    <string name="found">يوجد</string>
+    <string name="numbers">أرقام </string>
+    <string name="customer_phone_numbers">اختر الرقم للاتصال</string>
+    <string name="call">اتصال</string>
+    <string name="phone_number">رقم الهاتف</string>
+    <string name="item_totals">إجالي الأصناف</string>
+
+    <string name="search_product_name_code">ابحث باسم المنتج أو الكود...</string>
+    <string name="title_add_customer">تكويد عميل</string>
+
+    <string name="label_customer_type">نوع العميل</string>
+    <string name="hint_select_customer_type">اختر نوع العميل</string>
+
+    <string name="label_order_type">نوع الطلب</string>
+    <string name="hint_select_order_type">اختر نوع الطلب</string>
+
+    <string name="label_customer_line">خط العميل</string>
+    <string name="hint_select_customer_line">اختر خط العميل</string>
+
+    <string name="label_governorate">المحافظة</string>
+    <string name="hint_select_governorate">اختر المحافظة</string>
+
+    <string name="hint_select_area">اختر المنطقة</string>
+
+    <string name="label_customer_name">اسم العميل</string>
+    <string name="hint_enter_customer_name">أدخل اسم العميل</string>
+
+    <string name="label_customer_address">عنوان العميل</string>
+    <string name="hint_enter_customer_address">أدخل عنوان العميل</string>
+
+    <string name="label_phone">رقم الهاتف</string>
+    <string name="label_mobile">رقم الموبايل</string>
+
+    <string name="label_national_id">الرقم القومي</string>
+    <string name="hint_enter_national_id">أدخل الرقم القومي</string>
+
+    <string name="label_suggested_address">العنوان المقترح</string>
+    <string name="hint_no_suggested_address">لا يوجد عنوان مقترح بعد</string>
+
+    <string name="label_longitude">خطوط الطول</string>
+    <string name="label_latitude">خطوط العرض</string>
+
+    <string name="search_hint">ابحث...</string>
+    <string name="btn_add_customer">اضف عميل</string>
 </resources>
