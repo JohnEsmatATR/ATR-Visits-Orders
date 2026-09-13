@@ -50,6 +50,11 @@ class MoreFragment : Fragment() {
                 R.id.toPrint
             )
         }
+        binding.customerCoding.setOnClickListener {
+            findNavController().navigate(
+                R.id.toPersonCoding
+            )
+        }
 
         binding.cardOrders.setOnClickListener {
             requireContext().startActivity(Intent(requireActivity(), WebOrderActivity::class.java))

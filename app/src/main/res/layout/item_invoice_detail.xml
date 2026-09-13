@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.akhnaton.foodvisits.utils.NumberFormatter" />
+
+        <variable
+            name="item"
+            type="com.akhnaton.foodvisits.data.model.cardPrint.InvoiceDetailItem" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight=".75"
+            android:background="@drawable/rect_line">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="1dp"
+                android:gravity="center"
+                android:text="@{NumberFormatter.format(item.unit_total_value)}"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight=".75"
+            android:background="@drawable/rect_line">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="1dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@{NumberFormatter.format(item.unit_selling_price)}"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight=".45"
+            android:background="@drawable/rect_line">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="1dp"
+                android:gravity="center"
+                android:padding="2dp"
+                android:text="@{NumberFormatter.format(item.order_quantity)}"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_weight="1.5"
+            android:background="@drawable/rect_line">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="1dp"
+                android:gravity="center"
+                android:padding="5dp"
+                android:text="@{item.item_desc}"
+                android:textColor="#000000"
+                android:textSize="14sp" />
+        </FrameLayout>
+
+    </LinearLayout>
+</layout>

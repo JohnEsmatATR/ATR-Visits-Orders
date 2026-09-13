@@ -169,7 +169,6 @@
     <string name="please_specify_target_sales_type_begin_creating_visit_plan">يرجي تحديد نوع البيع المستهدف للبدء بانشاء خطة الزيارة</string>
     <string name="change_type_sale">تغيير نوع البيع</string>
     <string name="search_customer_name_code">ابحث باسم العميل أو الكود...</string>
-    <string name="search_product_name_code">ابحث باسم المنتج أو الكود...</string>
     <string name="change_work">تغيير العمل</string>
     <string name="choose_customer_address">اختر عنوان العميل</string>
     <string name="objective_visit">هدف الزيارة</string>
@@ -228,8 +227,6 @@
 
 
 
-    <string name="images_title">الصور</string>
-    <string name="inventory_title">المخزون</string>
     <string name="competitors_title">المنافسين</string>
 
     <string name="product_info_title">معلومات المنتج</string>
@@ -265,13 +262,5 @@
     <string name="save_competitor">حفظ المنافس</string>
     <string name="food_list_title">قائمة الفواتير</string>
     <string name="food_list_section_title">الفواتير المتاحة</string>
-    <string name="show_phone_numbers">عرض الأرقام</string>
-
-    <string name="found">يوجد</string>
-    <string name="numbers">أرقام </string>
-    <string name="customer_phone_numbers">اختر الرقم للاتصال</string>
-    <string name="call">اتصال</string>
-    <string name="phone_number">رقم الهاتف</string>
-    <string name="item_totals">إجالي الأصناف</string>
 
 </resources>

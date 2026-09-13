@@ -113,17 +113,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             supportFragmentManager.findFragmentById(R.id.main_fragment) as NavHostFragment
         val navController = navHostFragment.navController
         setupWithNavController(binding.navView2, navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.personCodingFragment -> {
+                    binding.navView2.visibility = View.GONE
+                }
+                else -> {
+                    binding.navView2.visibility = View.VISIBLE
+                }
+            }
+        }
+
         setupBottomNavigationInsets()
 
         binding.profileBtn.setOnClickListener(this)
         binding.ordersHistoryBtn.setOnClickListener(this)
         binding.approvalBtn.setOnClickListener(this)
-        binding.gooeyMenu.setOnMenuListener(this)
-        binding.gooeyMenu.openCloseMenu(false)
-
-//        lifecycleScope.launch {
-//            viewModel.mainIntent.send(AppSettingIntent.GetAppSetting(BuildConfig.VERSION_NAME))
-//        }
 
         if (!SharedPreferencesHelper.getInstance()
                 .getMakeOrder() && !SharedPreferencesHelper.getInstance().getProm()
