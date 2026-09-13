@@ -114,11 +114,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         val navController = navHostFragment.navController
         setupWithNavController(binding.navView2, navController)
 
+//        navController.addOnDestinationChangedListener { _, destination, _ ->
+//            when (destination.id) {
+//                R.id.personCodingFragment -> {
+//                    binding.navView2.visibility = View.GONE
+//                }
+//                else -> {
+//                    binding.navView2.visibility = View.VISIBLE
+//                }
+//            }
+//        }
+
         navController.addOnDestinationChangedListener { _, destination, _ ->
+
             when (destination.id) {
-                R.id.personCodingFragment -> {
+                R.id.cardPrintFragment,
+                R.id.cardPrintDetailsFragment -> {
                     binding.navView2.visibility = View.GONE
                 }
+
                 else -> {
                     binding.navView2.visibility = View.VISIBLE
                 }

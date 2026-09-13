@@ -27,8 +27,13 @@ import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
+import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class CardPrintFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "CardPrintFragment"
+    }
 
     private var _binding: FragmentCardPrintBinding? = null
     private val binding get() = _binding!!
@@ -101,15 +106,17 @@ class CardPrintFragment : Fragment() {
 
     private fun renderList(list: List<CardPrintItem>) {
         if (list.isEmpty()) {
-            binding.imNoData.visibility = View.VISIBLE
+            binding.llZeroState.visibility = View.VISIBLE
         } else {
-            binding.imNoData.visibility = View.GONE
+            binding.llZeroState.visibility = View.GONE
         }
+        binding.sectionTitleInclude.tvInvoiceCount.text = "${list.size}"
         adapter.updateList(list)
     }
 
     private fun setupRecycler() {
         adapter = CardPrintAdapter(emptyList()) { item ->
+            Log.d("CLICK","MARO")
             findNavController().navigate(
                 R.id.toCardPrintDetails,
                 Bundle().apply {
@@ -121,6 +128,7 @@ class CardPrintFragment : Fragment() {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@CardPrintFragment.adapter
         }
+
     }
 
     private fun observeStatus() {
@@ -130,10 +138,12 @@ class CardPrintFragment : Fragment() {
                     when (status) {
                         is CardPrintStatus.Loading -> {
                             binding.tryAgainButtons.root.visibility = View.GONE
-                            binding.imNoData.visibility = View.GONE
+                            binding.llZeroState.visibility = View.GONE
+                            binding.progressLoading.visibility = View.VISIBLE
                         }
                         is CardPrintStatus.GetPrintInvoicesList -> {
                             Log.d("WHATstatus", status.response.status.toString())
+                            binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
                                 sendRefreshToken()
                             } else {
@@ -143,6 +153,7 @@ class CardPrintFragment : Fragment() {
                         }
                         is CardPrintStatus.RefreshToken -> {
                             if (status.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${status.data.message}")
                                 val tokenData = com.google.gson.Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
@@ -162,7 +173,15 @@ class CardPrintFragment : Fragment() {
                             }
                         }
                         is CardPrintStatus.Error -> {
+                            Log.d(TAG, "fetchData: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = "خطأ",
+                                isSuccess = true,
+                                showOkButton = true,
+                            )
                         }
                         else -> {}
                     }

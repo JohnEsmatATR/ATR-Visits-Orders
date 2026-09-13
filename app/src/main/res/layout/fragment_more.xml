@@ -10,13 +10,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layoutDirection="ltr"
+        android:clipToPadding="false"
         android:background="@color/background">
 
         <LinearLayout
+            android:id="@+id/llMoreContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:padding="20dp"
+            android:paddingBottom="@dimen/_100sdp">
 
             <!-- Title -->
 
@@ -348,7 +351,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Logout -->
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLogout"

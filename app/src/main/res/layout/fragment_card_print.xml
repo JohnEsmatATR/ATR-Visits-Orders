@@ -7,247 +7,268 @@
 
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/background"
-        android:orientation="vertical"
         tools:context=".ui.home.cardPrint.CardPrintFragment">
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/_16sdp"
-            android:paddingTop="@dimen/_16sdp"
-            android:paddingBottom="@dimen/_8sdp">
-
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/btnBackContainer"
-                android:layout_width="@dimen/_32sdp"
-                android:layout_height="@dimen/_32sdp"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                app:cardBackgroundColor="@color/white"
-                app:cardCornerRadius="@dimen/_16sdp"
-                app:cardElevation="2dp"
-                app:strokeWidth="0dp">
-
-                <ImageView
-                    android:id="@+id/ivBack"
-                    android:layout_width="@dimen/_16sdp"
-                    android:layout_height="@dimen/_16sdp"
-                    android:layout_gravity="center"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_arrow_right"
-                    app:tint="@color/colorPrimary" />
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="@string/food_list_title"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_16ssp"
-                android:textStyle="bold" />
-
-        </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:background="@color/background"
             android:orientation="vertical"
-            android:padding="@dimen/_14sdp">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
+                android:paddingHorizontal="@dimen/_16sdp"
+                android:paddingTop="@dimen/_16sdp"
+                android:paddingBottom="@dimen/_8sdp">
 
                 <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnFilterContainer"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp"
-                    android:layout_marginEnd="@dimen/_8sdp"
+                    android:id="@+id/btnBackContainer"
+                    android:layout_width="@dimen/_32sdp"
+                    android:layout_height="@dimen/_32sdp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
                     app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="@dimen/_12sdp"
+                    app:cardCornerRadius="@dimen/_16sdp"
                     app:cardElevation="2dp"
+                    app:cardPreventCornerOverlap="false"
                     app:strokeWidth="0dp">
 
                     <ImageView
-                        android:id="@+id/ivFilter"
-                        android:layout_width="@dimen/_18sdp"
-                        android:layout_height="@dimen/_18sdp"
-                        android:layout_gravity="center"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_filter"
-                        app:tint="@color/colorPrimary" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/searchLayout"
-                    style="@style/OutlinedRoundedBox"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginTop="@dimen/_8sdp"
-                    android:layout_marginBottom="@dimen/_8sdp"
-                    app:boxBackgroundColor="@color/white"
-                    app:boxCornerRadiusBottomEnd="12dp"
-                    app:boxCornerRadiusBottomStart="12dp"
-                    app:boxCornerRadiusTopEnd="12dp"
-                    app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@android:color/transparent"
-                    app:boxStrokeWidth="0dp">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etSearch"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textAlignment="viewEnd"
-                        android:text=""
-                        android:hint="@string/search_customer_name_code"
-                        android:inputType="textEmailAddress" />
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/_8sdp"
-                android:gravity="right|center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/food_list_section_title"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_14ssp"
-                    android:textStyle="bold" />
-
-                <ImageView
-                    android:layout_width="@dimen/_18sdp"
-                    android:layout_height="@dimen/_18sdp"
-                    android:layout_marginStart="@dimen/_6sdp"
-                    android:contentDescription="@null"
-                    android:src="@drawable/ic_inventory"
-                    app:tint="@color/colorPrimary" />
-
-            </LinearLayout>
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/card_print_recycler"
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"
-                        android:clipToPadding="false"
-                        android:paddingHorizontal="@dimen/_8sdp"
-                        android:paddingTop="@dimen/_8sdp"
-                        android:paddingBottom="@dimen/_60sdp"
-                        tools:itemCount="4"
-                        tools:listitem="@layout/card_print_list" />
-
-                </LinearLayout>
-
-                <include
-                    android:id="@+id/tryAgainButtons"
-                    layout="@layout/try_again"
-                    android:visibility="gone"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent" />
-
-                <LinearLayout
-                    android:id="@+id/im_no_data"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:orientation="vertical"
-                    android:gravity="center"
-                    android:visibility="gone"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <com.google.android.material.card.MaterialCardView
-                        android:layout_width="@dimen/_60sdp"
-                        android:layout_height="@dimen/_60sdp"
-                        android:layout_marginBottom="@dimen/_12sdp"
-                        app:cardBackgroundColor="@color/input_box_bg"
-                        app:cardCornerRadius="@dimen/_30sdp"
-                        app:cardElevation="0dp"
-                        app:strokeWidth="0dp">
-
-                        <ImageView
-                            android:layout_width="@dimen/_26sdp"
-                            android:layout_height="@dimen/_26sdp"
-                            android:layout_gravity="center"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_inventory"
-                            app:tint="@color/colorPrimary" />
-
-                    </com.google.android.material.card.MaterialCardView>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/no_approvals_founded"
-                        android:gravity="center"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_16sdp" />
-
-                </LinearLayout>
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnScrollTop"
-                    android:layout_width="@dimen/_36sdp"
-                    android:layout_height="@dimen/_36sdp"
-                    android:layout_marginEnd="@dimen/_12sdp"
-                    android:layout_marginBottom="@dimen/_80sdp"
-                    android:elevation="8dp"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="@color/colorPrimary"
-                    app:cardCornerRadius="@dimen/_18sdp"
-                    app:cardElevation="4dp"
-                    app:strokeWidth="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent">
-
-                    <ImageView
+                        android:id="@+id/ivBack"
                         android:layout_width="@dimen/_16sdp"
                         android:layout_height="@dimen/_16sdp"
                         android:layout_gravity="center"
                         android:contentDescription="@null"
-                        android:src="@drawable/ic_arrow_up"
-                        app:tint="@color/white" />
+                        android:scaleType="centerInside"
+                        android:src="@drawable/ic_arrow_right"
+                        app:tint="@color/colorPrimary" />
 
                 </com.google.android.material.card.MaterialCardView>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:layout_marginEnd="@dimen/_40sdp"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:text="@string/food_list_title"
+                    android:textColor="@color/black"
+                    android:textSize="@dimen/_16ssp"
+                    android:textStyle="bold" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:padding="@dimen/_14sdp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnFilterContainer"
+                        android:layout_width="@dimen/_40sdp"
+                        android:layout_height="@dimen/_40sdp"
+                        android:layout_marginEnd="@dimen/_8sdp"
+                        app:cardBackgroundColor="@color/white"
+                        app:cardCornerRadius="@dimen/_12sdp"
+                        android:visibility="gone"
+                        app:cardElevation="2dp"
+                        app:strokeWidth="0dp">
+
+                        <ImageView
+                            android:id="@+id/ivFilter"
+                            android:layout_width="@dimen/_18sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_filter"
+                            app:tint="@color/colorPrimary" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/searchLayout"
+                        style="@style/OutlinedRoundedBox"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginTop="@dimen/_8sdp"
+                        android:layout_marginBottom="@dimen/_8sdp"
+                        app:boxBackgroundColor="@color/white"
+                        app:boxCornerRadiusBottomEnd="12dp"
+                        app:boxCornerRadiusBottomStart="12dp"
+                        app:boxCornerRadiusTopEnd="12dp"
+                        app:boxCornerRadiusTopStart="12dp"
+                        app:boxStrokeColor="@android:color/transparent"
+                        app:boxStrokeWidth="0dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etSearch"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textAlignment="viewEnd"
+                            android:hint="@string/search_customer_name_code"
+                            android:inputType="text" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <include
+                    android:id="@+id/sectionTitleInclude"
+                    layout="@layout/title_with_count"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:orientation="vertical"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/card_print_recycler"
+                            android:layout_width="match_parent"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:clipToPadding="false"
+                            android:paddingTop="@dimen/_8sdp"
+                            android:paddingBottom="@dimen/_60sdp"
+                            tools:itemCount="4"
+                            tools:listitem="@layout/card_print_list" />
+
+                    </LinearLayout>
+
+                    <include
+                        android:id="@+id/tryAgainButtons"
+                        layout="@layout/try_again"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent" />
+
+                    <LinearLayout
+                        android:id="@+id/ll_zero_state"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <ImageView
+                            android:layout_width="@dimen/_200sdp"
+                            android:layout_height="@dimen/_200sdp"
+                            android:layout_gravity="center"
+                            android:alpha="0.7"
+                            android:visibility="gone"
+                            android:src="@drawable/zs_no_products" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginBottom="@dimen/_50sdp"
+                            android:alpha="0.7"
+                            android:gravity="center"
+                            android:text="@string/no_selected_products"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="@dimen/_18ssp"
+                            android:textStyle="bold" />
+
+                    </LinearLayout>
+
+                    <com.google.android.material.card.MaterialCardView
+                        android:id="@+id/btnScrollTop"
+                        android:layout_width="@dimen/_36sdp"
+                        android:layout_height="@dimen/_36sdp"
+                        android:layout_marginEnd="@dimen/_12sdp"
+                        android:layout_marginBottom="@dimen/_80sdp"
+                        android:elevation="8dp"
+                        android:visibility="gone"
+                        app:cardBackgroundColor="@color/colorPrimary"
+                        app:cardCornerRadius="@dimen/_18sdp"
+                        app:cardElevation="4dp"
+                        app:strokeWidth="0dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent">
+
+                        <ImageView
+                            android:layout_width="@dimen/_16sdp"
+                            android:layout_height="@dimen/_16sdp"
+                            android:layout_gravity="center"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_arrow_up"
+                            app:tint="@color/white" />
+
+                    </com.google.android.material.card.MaterialCardView>
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/progressLoading"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:alpha="0.5"
+                android:background="@color/black"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminateTint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
