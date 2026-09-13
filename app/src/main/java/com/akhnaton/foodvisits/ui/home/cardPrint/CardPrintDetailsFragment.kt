@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.pdf.PdfDocument
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,6 +36,10 @@ import java.util.Locale
 
 class CardPrintDetailsFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "CardPrintDetailsFragment"
+    }
+
     private var _binding: FragmentCardPrintDetailsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: CardPrintViewModel by viewModels()
@@ -48,6 +53,7 @@ class CardPrintDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCardPrintDetailsBinding.inflate(inflater, container, false)
+        MainActivity.binding.navView2.visibility = View.GONE
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }
@@ -92,17 +98,8 @@ class CardPrintDetailsFragment : Fragment() {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        MainActivity.binding.navView2.visibility = View.GONE
-    }
 
-    override fun onPause() {
-        super.onPause()
-          MainActivity.binding.navView2.visibility = View.VISIBLE
-//        MainActivity.binding.gooeyMenu.visibility = View.VISIBLE
-//        MainActivity.binding.gooeyMenu.openCloseMenu(true)
-    }
+
 
     private fun splitBitmapIntoChunks(bitmap: Bitmap, chunkHeight: Int = 256): List<Bitmap> {
         val chunks = mutableListOf<Bitmap>()
@@ -117,7 +114,6 @@ class CardPrintDetailsFragment : Fragment() {
     }
 
     private fun createBitmapFromView(view: View, targetWidth: Int = 384): Bitmap? {
-
         view.measure(
             View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
@@ -139,9 +135,7 @@ class CardPrintDetailsFragment : Fragment() {
         )
 
         val canvas = Canvas(bitmap)
-
         canvas.scale(scale, scale)
-
         view.draw(canvas)
 
         return bitmap
@@ -186,7 +180,13 @@ class CardPrintDetailsFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.status.collect { status ->
                     when (status) {
+                        is CardPrintStatus.Loading -> {
+                            binding.tryAgainButtons.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.VISIBLE
+                        }
                         is CardPrintStatus.GetPrintInvoiceDetails -> {
+                            Log.d("WHATstatus", status.response.status.toString())
+                            binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
                                 sendRefreshToken()
                             } else {
@@ -213,11 +213,15 @@ class CardPrintDetailsFragment : Fragment() {
                         }
                         is CardPrintStatus.RefreshToken -> {
                             if (status.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${status.data.message}")
                                 val tokenData = com.google.gson.Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                viewModel.cardPrintIntent.trySend(
+                                    CardPrintIntent.GetPrintInvoiceDetails(orderSalesNumber)
+                                )
                             } else {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -231,7 +235,17 @@ class CardPrintDetailsFragment : Fragment() {
                                     })
                             }
                         }
-                        is CardPrintStatus.Error -> {}
+                        is CardPrintStatus.Error -> {
+                            Log.d(TAG, "fetchData: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
+                            binding.tryAgainButtons.root.visibility = View.VISIBLE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = "خطأ",
+                                isSuccess = true,
+                                showOkButton = true,
+                            )
+                        }
                         else -> {}
                     }
                 }

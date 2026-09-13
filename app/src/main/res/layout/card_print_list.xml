@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="cardPrint"
             type="com.akhnaton.foodvisits.data.model.cardPrint.CardPrintItem" />
@@ -13,20 +12,18 @@
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/_6sdp"
-        android:layout_marginEnd="@dimen/_6sdp"
-        android:layout_marginTop="@dimen/_3sdp"
-        android:layout_marginBottom="@dimen/_3sdp"
+        android:layout_marginTop="@dimen/_2sdp"
+        android:layout_marginBottom="@dimen/_2sdp"
         app:cardBackgroundColor="@color/testing"
-        app:cardCornerRadius="@dimen/_10sdp"
-        app:cardElevation="@dimen/_6sdp"
+        app:cardCornerRadius="@dimen/_8sdp"
+        app:cardElevation="@dimen/_4sdp"
         app:strokeColor="@color/colorPrimary"
         app:strokeWidth="1.5dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="@dimen/_8sdp">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/_4sdp">
 
             <ImageView
                 android:id="@+id/ivInvoice"
@@ -55,9 +52,9 @@
                 android:id="@+id/orderInfoBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/_8sdp"
+                android:layout_marginTop="@dimen/_4sdp"
                 app:cardBackgroundColor="@color/colorPrimary"
-                app:cardCornerRadius="@dimen/_6sdp"
+                app:cardCornerRadius="@dimen/_4sdp"
                 app:cardElevation="0dp"
                 app:layout_constraintTop_toBottomOf="@id/customerName"
                 app:layout_constraintStart_toStartOf="parent"
@@ -67,10 +64,10 @@
                     android:id="@+id/orderType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:paddingStart="@dimen/_8sdp"
-                    android:paddingEnd="@dimen/_8sdp"
-                    android:paddingTop="@dimen/_4sdp"
-                    android:paddingBottom="@dimen/_4sdp"
+                    android:paddingStart="@dimen/_6sdp"
+                    android:paddingEnd="@dimen/_6sdp"
+                    android:paddingTop="@dimen/_2sdp"
+                    android:paddingBottom="@dimen/_2sdp"
                     android:text="@{cardPrint.order_type}"
                     android:textColor="@color/white"
                     android:textSize="@dimen/_12ssp" />
@@ -82,6 +79,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/_6sdp"
+                android:layout_marginEnd="@dimen/_30sdp"
                 android:gravity="end"
                 android:text="@{cardPrint.order_sales_number}"
                 android:textColor="@color/grey_color"

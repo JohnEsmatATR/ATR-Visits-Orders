@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.updatePadding
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -27,7 +28,6 @@ class MoreFragment : Fragment() {
     companion object {
         private const val TAG = "MoreFragment"
     }
-
     private lateinit var binding: FragmentMoreBinding
     private lateinit var dialog: AlertDialog
 
@@ -38,6 +38,8 @@ class MoreFragment : Fragment() {
         binding.tvVersionName.setText("V ${BuildConfig.VERSION_NAME}")
 
         MainActivity.binding.navView2.visibility = View.VISIBLE
+
+        adjustBottomPaddingForNavBar()
 
         binding.cardSupport.setOnClickListener {
             findNavController().navigate(
@@ -81,11 +83,26 @@ class MoreFragment : Fragment() {
         }
     }
 
+    private fun adjustBottomPaddingForNavBar() {
+        val navBar = MainActivity.binding.navView2
+        navBar.post {
+            if (navBar.height > 0) {
+                val extraSpace = dpToPx(20)
+                binding.llMoreContainer.updatePadding(
+                    bottom = navBar.height + extraSpace
+                )
+            }
+        }
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return (dp * resources.displayMetrics.density).toInt()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
             layoutInflater, R.layout.fragment_more, container, false
         )

@@ -39,6 +39,11 @@ object ConstantLinks {
     const val REFRESH_TOKEN = "Auth/refresh_token"
     const val GET_CARD = "invoice/getPrintInvoicesList"
     const val GET_CARDDETAILS = "invoice/getPrintInvoiceDetails"
+    const val GET_SALES_AND_CUSTOMER_TYPES = "Personalization/getSalesAndCustomerTypes"
+    const val GET_LINES = "Personalization/getLines"
+    const val GET_MAIN_CUSTOMERS_LINE = "visit/getMainCustomersLine"
+    const val GET_USER_AREAS = "visit/getUserAreas"
+    const val POST_PERSON_CODING = "Customer/createNewCustomer"
 
     //----------------------------------------------------------------------------------------------
 
