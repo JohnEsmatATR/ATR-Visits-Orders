@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/food_list_section_title"
+            android:text="@string/total_food_list_section_title"
             android:textColor="@color/black"
             android:textSize="@dimen/_14ssp"
             android:textStyle="bold" />

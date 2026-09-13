@@ -56,7 +56,11 @@ class CardPrintFragment : Fragment() {
         setupListeners()
         setupSearch()
         setupScrollToTop()
+        getData()
 
+    }
+
+    private fun getData() {
         viewModel.cardPrintIntent.trySend(CardPrintIntent.GetPrintInvoicesList)
     }
 
@@ -116,7 +120,7 @@ class CardPrintFragment : Fragment() {
 
     private fun setupRecycler() {
         adapter = CardPrintAdapter(emptyList()) { item ->
-            Log.d("CLICK","MARO")
+            Log.d("CLICK", "MARO")
             findNavController().navigate(
                 R.id.toCardPrintDetails,
                 Bundle().apply {
@@ -141,6 +145,7 @@ class CardPrintFragment : Fragment() {
                             binding.llZeroState.visibility = View.GONE
                             binding.progressLoading.visibility = View.VISIBLE
                         }
+
                         is CardPrintStatus.GetPrintInvoicesList -> {
                             Log.d("WHATstatus", status.response.status.toString())
                             binding.progressLoading.visibility = View.GONE
@@ -151,6 +156,7 @@ class CardPrintFragment : Fragment() {
                                 renderList(fullList)
                             }
                         }
+
                         is CardPrintStatus.RefreshToken -> {
                             if (status.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${status.data.message}")
@@ -159,6 +165,7 @@ class CardPrintFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                getData()
                             } else {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -167,11 +174,17 @@ class CardPrintFragment : Fragment() {
                                     showOkButton = true,
                                     onOk = {
                                         SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
                                         requireActivity().finishAffinity()
                                     })
                             }
                         }
+
                         is CardPrintStatus.Error -> {
                             Log.d(TAG, "fetchData: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
@@ -183,6 +196,7 @@ class CardPrintFragment : Fragment() {
                                 showOkButton = true,
                             )
                         }
+
                         else -> {}
                     }
                 }
