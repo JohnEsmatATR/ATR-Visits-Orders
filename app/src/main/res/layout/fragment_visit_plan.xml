@@ -335,27 +335,14 @@
                     android:textSize="13sp"
                     android:textStyle="bold"
                     tools:text="13 زيارة" />
-                <!-- set with getString(R.string.visits_count_format, count) -->
             </RelativeLayout>
 
-<!--            &lt;!&ndash; ===================== Visits list ===================== &ndash;&gt;-->
-<!--            <androidx.recyclerview.widget.RecyclerView-->
-<!--                android:id="@+id/rv_visits"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginHorizontal="16dp"-->
-<!--                android:nestedScrollingEnabled="false"-->
-<!--                tools:listitem="@layout/item_visit_card"-->
-<!--                tools:itemCount="3" />-->
-
-            <!-- ===================== Visits list (Static - Design only) ===================== -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"
                 android:orientation="vertical">
 
-                <!-- ============ كارت 1 ============ -->
                 <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -375,267 +362,14 @@
                             android:layout_alignParentRight="true"
                             android:background="@color/colorAccent" />
 
-                        <LinearLayout
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_visits"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentRight="true"
-                                    android:text="صيدلية مجدى حبيب"
-                                    android:textColor="@color/gray"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentLeft="true"
-                                    android:layout_centerVertical="true"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal">
-
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:background="@drawable/bg_circle_red_light"
-                                        android:padding="6dp"
-                                        android:src="@drawable/ic_trash"
-                                        app:tint="@color/red" />
-
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_marginLeft="8dp"
-                                        android:background="@drawable/bg_circle_blue_light"
-                                        android:padding="6dp"
-                                        android:src="@drawable/ic_swap"
-                                        app:tint="@color/blue" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginLeft="8dp"
-                                        android:background="@drawable/bg_chip_orange_light"
-                                        android:drawablePadding="4dp"
-                                        android:paddingHorizontal="10dp"
-                                        android:paddingVertical="5dp"
-                                        android:text="@string/status_unapproved"
-                                        android:textColor="@color/colorAccent"
-                                        android:textSize="11sp"
-                                        app:drawableStartCompat="@drawable/ic_dot_orange" />
-                                </LinearLayout>
-                            </RelativeLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:layout_gravity="right"
-                                android:text="كود: 10121 • موقع: 3698456"
-                                android:textColor="@color/grey_color"
-                                android:textSize="12sp" />
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:layout_marginVertical="10dp"
-                                android:background="@color/input_box_stroke" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center_vertical|right"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="المندوب: مارى ماهر اديب خليل"
-                                    android:textColor="@color/gray"
-                                    android:textSize="13sp" />
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginLeft="6dp"
-                                    android:src="@drawable/ic_person_outline_black_24dp"
-                                    app:tint="@color/grey_color" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:gravity="center_vertical|right"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="شارع وابور الترجمان بولاق مصر"
-                                    android:textColor="@color/gray"
-                                    android:textSize="13sp" />
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginLeft="6dp"
-                                    android:src="@drawable/ic_address"
-                                    app:tint="@color/grey_color" />
-                            </LinearLayout>
-
-                        </LinearLayout>
-                    </RelativeLayout>
-                </androidx.cardview.widget.CardView>
-
-                <!-- ============ كارت 2 ============ -->
-                <androidx.cardview.widget.CardView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    android:layoutDirection="rtl"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="1dp"
-                    app:cardBackgroundColor="@color/white">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <View
-                            android:layout_width="5dp"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentRight="true"
-                            android:background="@color/green" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginRight="5dp"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <RelativeLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentRight="true"
-                                    android:text="صيدلية النور"
-                                    android:textColor="@color/gray"
-                                    android:textSize="16sp"
-                                    android:textStyle="bold" />
-
-                                <LinearLayout
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_alignParentLeft="true"
-                                    android:layout_centerVertical="true"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal">
-
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:background="@drawable/bg_circle_red_light"
-                                        android:padding="6dp"
-                                        android:src="@drawable/ic_trash"
-                                        app:tint="@color/red" />
-
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:layout_marginLeft="8dp"
-                                        android:background="@drawable/bg_circle_blue_light"
-                                        android:padding="6dp"
-                                        android:src="@drawable/ic_swap"
-                                        app:tint="@color/blue" />
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginLeft="8dp"
-                                        android:background="@drawable/bg_chip_orange_light"
-                                        android:drawablePadding="4dp"
-                                        android:paddingHorizontal="10dp"
-                                        android:paddingVertical="5dp"
-                                        android:text="معتمدة"
-                                        android:textColor="@color/colorAccent"
-                                        android:textSize="11sp"
-                                        app:drawableStartCompat="@drawable/ic_dot_orange" />
-                                </LinearLayout>
-                            </RelativeLayout>
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:layout_gravity="right"
-                                android:text="كود: 10245 • موقع: 3698777"
-                                android:textColor="@color/grey_color"
-                                android:textSize="12sp" />
-
-                            <View
-                                android:layout_width="match_parent"
-                                android:layout_height="1dp"
-                                android:layout_marginVertical="10dp"
-                                android:background="@color/input_box_stroke" />
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:gravity="center_vertical|right"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="المندوب: أحمد سمير فتحي"
-                                    android:textColor="@color/gray"
-                                    android:textSize="13sp" />
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginLeft="6dp"
-                                    android:src="@drawable/ic_person_outline_black_24dp"
-                                    app:tint="@color/grey_color" />
-                            </LinearLayout>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="6dp"
-                                android:gravity="center_vertical|right"
-                                android:orientation="horizontal">
-
-                                <TextView
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:text="شارع الجمهورية المنصورة"
-                                    android:textColor="@color/gray"
-                                    android:textSize="13sp" />
-
-                                <ImageView
-                                    android:layout_width="16dp"
-                                    android:layout_height="16dp"
-                                    android:layout_marginLeft="6dp"
-                                    android:src="@drawable/ic_address"
-                                    app:tint="@color/grey_color" />
-                            </LinearLayout>
-
-                        </LinearLayout>
+                            android:layout_marginHorizontal="16dp"
+                            android:nestedScrollingEnabled="false"
+                            tools:listitem="@layout/item_visit_card"
+                            tools:itemCount="3" />
                     </RelativeLayout>
                 </androidx.cardview.widget.CardView>
 
@@ -646,31 +380,38 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
-    <!-- ===================== Floating action buttons (bottom-LEFT, per mockup) ===================== -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_duplicate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="75dp"
+        android:layout_height="50dp"
         android:layout_gravity="bottom|left"
         android:layout_marginLeft="20dp"
-        android:layout_marginBottom="100dp"
-        android:backgroundTint="@color/fab_duplicate_blue"
+        android:layout_marginBottom="88dp"
+        android:backgroundTint="#2185F3"
         android:src="@drawable/ic_copy"
+        app:borderWidth="0dp"
+        app:elevation="4dp"
+        app:fabCustomSize="50dp"
+        app:maxImageSize="26dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PillFAB"
         app:tint="@color/white"
-        app:fabSize="normal"
         tools:ignore="ContentDescription" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_visit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="75dp"
+        android:layout_height="50dp"
         android:layout_gravity="bottom|left"
         android:layout_marginLeft="20dp"
         android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/colorAccent"
-        android:src="@drawable/ic_baseline_add_24"
-        app:tint="@color/white"
-        app:fabSize="normal"
+        android:backgroundTint="#FF7A00"
+        android:src="@drawable/ic_add_circle_orange"
+        app:borderWidth="0dp"
+        app:elevation="4dp"
+        app:fabCustomSize="50dp"
+        app:maxImageSize="28dp"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.PillFAB"
+        app:tint="@null"
         tools:ignore="ContentDescription" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

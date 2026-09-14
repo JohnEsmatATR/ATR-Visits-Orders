@@ -336,8 +336,8 @@
     <string name="weekly_view">عرض أسبوعي</string>
     <string name="monthly_view">عرض شهري</string>
     <string name="search_visits_today_hint">   ابحث في زيارات هذا اليوم...</string>
-<!--    <string name="visits_count_format">%1$d زيارة</string>-->
-    <string name="visits_count_format">2 زيارة</string>
+    <string name="visits_count_format">%1$d زيارة</string>
+<!--    <string name="visits_count_format">2 زيارة</string>-->
 
 
     <string name="status_unapproved">غير معتمدة</string>
@@ -353,4 +353,7 @@
     <string name="weekday_thu_short">خ</string>
     <string name="weekday_fri_short">ج</string>
     <string name="weekday_sat_short">س</string>
+
+    <string name="code_label">كود</string>
+
 </resources>
