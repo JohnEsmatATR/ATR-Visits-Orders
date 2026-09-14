@@ -128,6 +128,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
         navController.addOnDestinationChangedListener { _, destination, _ ->
 
             when (destination.id) {
+                R.id.VisitPlanFragment,
                 R.id.cardPrintFragment,
                 R.id.cardPrintDetailsFragment -> {
                     binding.navView2.visibility = View.GONE

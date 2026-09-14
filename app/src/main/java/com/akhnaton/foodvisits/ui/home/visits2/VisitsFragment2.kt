@@ -158,14 +158,7 @@ class VisitsFragment2 : Fragment() {
         }
 
         binding.btnCopyVisits.setOnClickListener {
-
-//            binding.btnCopyVisits.isEnabled = false
-
-            if (allReps.isEmpty()) {
-                getSalesMan()
-            } else {
-                showScheduleBottomSheet()
-            }
+            findNavController().navigate(R.id.toVisitPlan)
         }
 
         binding.swipeRefresh.setColorSchemeColors(
