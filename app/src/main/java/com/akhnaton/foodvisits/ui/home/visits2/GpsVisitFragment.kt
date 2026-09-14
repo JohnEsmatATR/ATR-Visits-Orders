@@ -161,6 +161,9 @@ class GpsVisitFragment : Fragment() {
             CheckInGPSReq::class.java
         )
 
+        observeInventoryResult()
+        updateTimerFromLatestServerData()
+
         viewModel = ViewModelProvider(
             this,
             Visits2ViewModelFactory(requireContext())
@@ -227,25 +230,39 @@ class GpsVisitFragment : Fragment() {
             )
         }
 
-        binding.cardVisitReport.setOnClickListener {
-            findNavController().navigate(
-                R.id.toCompetitors
-            )
-        }
-
         binding.cardCalls.setOnClickListener {
             findNavController().navigate(
                 R.id.toCalls
             )
         }
 
-        binding.cardImages.setOnClickListener {
+        binding.cardVisitReport.setOnClickListener {
+            val jsonCheckInReq = Gson().toJson(checkInReq)
+
             val bundle = Bundle().apply {
                 putString("customerCode", customerCode)
                 putString(
                     "customerPartySiteId",
                     customerPartySiteId
                 )
+                putString("checkInReq", jsonCheckInReq)
+            }
+
+            findNavController().navigate(
+                R.id.toCompetitors, bundle
+            )
+        }
+
+        binding.cardImages.setOnClickListener {
+            val jsonCheckInReq = Gson().toJson(checkInReq)
+
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+                putString("checkInReq", jsonCheckInReq)
             }
 
             findNavController().navigate(
@@ -375,6 +392,69 @@ class GpsVisitFragment : Fragment() {
             }
         }
         fetchData()
+    }
+
+    private fun observeInventoryResult() {
+        val navController = findNavController()
+        val backStackEntry = navController.currentBackStackEntry
+        val savedStateHandle = backStackEntry?.savedStateHandle
+
+        if (savedStateHandle == null) {
+            return
+        }
+
+        savedStateHandle
+            .getLiveData<String>("checkIn")
+            .observe(viewLifecycleOwner) { newCheckIn ->
+                checkIn = newCheckIn.orEmpty()
+                updateTimerFromLatestServerData()
+            }
+
+        savedStateHandle
+            .getLiveData<String>("currentTime")
+            .observe(viewLifecycleOwner) { newCurrentTime ->
+                currentTime = newCurrentTime.orEmpty()
+                updateTimerFromLatestServerData()
+            }
+    }
+
+    private fun updateTimerFromLatestServerData() {
+        if (checkIn.isBlank()) {
+            return
+        }
+
+        if (currentTime.isBlank()) {
+            return
+        }
+
+        if (checkIn.equals("null", ignoreCase = true)) {
+            return
+        }
+
+        if (currentTime.equals("null", ignoreCase = true)) {
+            return
+        }
+        val newCheckInTimeMillis =
+            parseApiDate(checkIn)
+
+        val apiCurrentTimeMillis =
+            parseApiDate(currentTime)
+
+        if (newCheckInTimeMillis <= 0L) {
+            return
+        }
+
+        if (apiCurrentTimeMillis <= 0L) {
+            return
+        }
+        checkInTimeMillis = newCheckInTimeMillis
+
+        serverTimeOffsetMillis =
+            apiCurrentTimeMillis - System.currentTimeMillis()
+
+        binding.tvTimer.visibility = View.VISIBLE
+
+        startTimer()
     }
 
     private fun checkZoneFlag() {
@@ -1040,24 +1120,24 @@ class GpsVisitFragment : Fragment() {
     override fun onResume() {
         super.onResume()
 
-        checkIn = arguments?.getString("checkIn").orEmpty()
-        currentTime = arguments?.getString("currentTime").orEmpty()
-
-        if (
-            checkIn.isNotBlank() &&
-            currentTime.isNotBlank() &&
-            !checkIn.equals("null", ignoreCase = true) &&
-            !currentTime.equals("null", ignoreCase = true)
-        ) {
-            checkInTimeMillis = parseApiDate(checkIn)
-            val apiCurrentTimeMillis = parseApiDate(currentTime)
-            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
-                serverTimeOffsetMillis =
-                    apiCurrentTimeMillis - System.currentTimeMillis()
-                binding.tvTimer.visibility = View.VISIBLE
-                startTimer()
-            }
-        }
+//        checkIn = arguments?.getString("checkIn").orEmpty()
+//        currentTime = arguments?.getString("currentTime").orEmpty()
+//
+//        if (
+//            checkIn.isNotBlank() &&
+//            currentTime.isNotBlank() &&
+//            !checkIn.equals("null", ignoreCase = true) &&
+//            !currentTime.equals("null", ignoreCase = true)
+//        ) {
+//            checkInTimeMillis = parseApiDate(checkIn)
+//            val apiCurrentTimeMillis = parseApiDate(currentTime)
+//            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
+//                serverTimeOffsetMillis =
+//                    apiCurrentTimeMillis - System.currentTimeMillis()
+//                binding.tvTimer.visibility = View.VISIBLE
+//                startTimer()
+//            }
+//        }
 
         RequestPermission().enableLocation(requireActivity())
         requestPermission.permissionCheck(requireActivity())

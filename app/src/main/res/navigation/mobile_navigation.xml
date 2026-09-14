@@ -86,7 +86,7 @@
 
     <fragment
         android:id="@+id/inventoryFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.promoterProcedures.InventoryFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoter.InventoryFragment"
         android:label="fragment_inventory"
         tools:layout="@layout/fragment_inventory">
 
@@ -98,7 +98,7 @@
 
     <fragment
         android:id="@+id/uploadPhotosFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.promoterProcedures.UploadPhotosFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoter.UploadPhotosFragment"
         android:label="fragment_upload_photos"
         tools:layout="@layout/fragment_upload_photos">
 
@@ -257,7 +257,7 @@
 
     <fragment
         android:id="@+id/competitorFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.promoterProcedures.CompetitorFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoter.CompetitorsFragment"
         android:label="fragment_competitor"
         tools:layout="@layout/fragment_competitors">
 

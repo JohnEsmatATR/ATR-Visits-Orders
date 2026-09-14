@@ -1,6 +1,7 @@
-package com.akhnaton.foodvisits.ui.home.promoterProcedures
+package com.akhnaton.foodvisits.ui.home.promoter
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -22,13 +24,18 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentUploadPhotosBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -47,8 +54,14 @@ class UploadPhotosFragment : Fragment() {
     private val selectedImages = mutableListOf<Uri>()
     private lateinit var selectedImagesAdapter: SelectedImagesAdapter
 
-    private val viewModel: PromoterCompetitorsViewModel by viewModels()
+    private val viewModel: PromoterViewModel by viewModels()
 
+    private val versionName = BuildConfig.VERSION_NAME
+
+    var checkIn: String = ""
+    var currentTime: String = ""
+    lateinit var checkInReq: CheckInGPSReq
+    private lateinit var dialog: AlertDialog
     private val galleryPicker =
         registerForActivityResult(
             ActivityResultContracts.GetMultipleContents()
@@ -97,6 +110,16 @@ class UploadPhotosFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        checkIn = arguments?.getString("checkIn").orEmpty()
+        currentTime = arguments?.getString("currentTime").orEmpty()
+        checkInReq = Gson().fromJson(
+            arguments?.getString("checkInReq").orEmpty(),
+            CheckInGPSReq::class.java
+        )
+
+        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+        dialog.hide()
+
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
 
             val systemBars = insets.getInsets(
@@ -123,13 +146,82 @@ class UploadPhotosFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.status.collect { status ->
                     when (status) {
+                        is PromoterStatus.Idle -> {}
+                        is PromoterStatus.Loading -> dialog.show()
                         is PromoterStatus.UploadImages -> {
+                            dialog.dismiss()
                             Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
                             findNavController().popBackStack()
                         }
 
+                        is PromoterStatus.CheckIn -> {
+                            dialog.dismiss()
+                            if (status.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
+
+                                val navController = findNavController()
+
+                                val previousBackStackEntry =
+                                    navController.previousBackStackEntry
+
+                                if (previousBackStackEntry == null) {
+                                    return@collect
+                                }
+
+                                val savedStateHandle =
+                                    previousBackStackEntry.savedStateHandle
+
+                                savedStateHandle.set(
+                                    "checkIn",
+                                    data.check_in
+                                )
+
+                                savedStateHandle.set(
+                                    "currentTime",
+                                    data.current_time
+                                )
+
+                                val result =
+                                    navController.popBackStack()
+
+                            } else if (status.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
                         is PromoterStatus.Error -> {
-                            Toast.makeText(requireContext(), status.error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = status.error.toString(),
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
+                            viewModel.resetStatus()
                         }
 
                         else -> {}
@@ -140,9 +232,17 @@ class UploadPhotosFragment : Fragment() {
     }
 
     private fun setupViews() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    checkIn()
+                }
+            }
+        )
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            checkIn()
         }
 
         binding.cardUpload.setOnClickListener {
@@ -165,6 +265,17 @@ class UploadPhotosFragment : Fragment() {
         setupImagesRecycler()
 
         updateImagesUI()
+    }
+
+    private fun checkIn() {
+        Log.d("WHATcheckIn", checkIn.toString())
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.CheckIn(
+                    checkInReq
+                )
+            )
+        }
     }
 
     private fun setupImagesRecycler() {
@@ -276,7 +387,7 @@ class UploadPhotosFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.promoterIntent.send(
                 PromoterIntent.UploadImages(
-                    appVersion = "1.0".toBody(),
+                    appVersion = versionName.toBody(),
                     apiToken = apiToken.toBody(),
                     image = imageParts,
                     created_by = employeeId.toBody(),

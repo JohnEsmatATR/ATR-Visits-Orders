@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.promoterProcedures
+package com.akhnaton.foodvisits.ui.home.promoter
 
 import android.net.Uri
 import android.view.LayoutInflater

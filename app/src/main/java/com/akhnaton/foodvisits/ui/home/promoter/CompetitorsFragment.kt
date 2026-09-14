@@ -1,5 +1,6 @@
-package com.akhnaton.foodvisits.ui.home.promoterProcedures
+package com.akhnaton.foodvisits.ui.home.promoter
 
+import android.app.AlertDialog
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -22,8 +23,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitor
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitorTypes
 import com.akhnaton.foodvisits.data.model.promoter.GetPromotionTypes
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
@@ -38,16 +39,19 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.datepicker.CalendarConstraints
 import java.util.TimeZone
 import android.content.Intent
+import androidx.activity.OnBackPressedCallback
+import com.akhnaton.foodvisits.BuildConfig
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
+import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.google.gson.Gson
 
-class CompetitorFragment : Fragment() {
+class CompetitorsFragment : Fragment() {
 
     private var promotionTypesList: List<GetPromotionTypes> = emptyList()
     private var competitorsList: List<GetCompetitor> = emptyList()
@@ -61,10 +65,17 @@ class CompetitorFragment : Fragment() {
 
     private lateinit var imagesAdapter: SelectedImagesAdapter
 
-    private val viewModel: PromoterCompetitorsViewModel by viewModels()
+    private val viewModel: PromoterViewModel by viewModels()
 
     private var selectedCompetitorId: String? = null
     private var selectedTypeId: String? = null
+
+    var checkIn: String = ""
+    var currentTime: String = ""
+    lateinit var checkInReq: CheckInGPSReq
+    private val versionName = BuildConfig.VERSION_NAME
+
+    private lateinit var dialog: AlertDialog
 
     private val pickImagesLauncher = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
@@ -89,11 +100,30 @@ class CompetitorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        checkIn = arguments?.getString("checkIn").orEmpty()
+        currentTime = arguments?.getString("currentTime").orEmpty()
+        checkInReq = Gson().fromJson(
+            arguments?.getString("checkInReq").orEmpty(),
+            CheckInGPSReq::class.java
+        )
+
+        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+        dialog.hide()
+
         setupImagesRecyclerView()
         observeStatus()
 
-        binding.ivBack.setOnClickListener {
-            findNavController().popBackStack()
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    checkIn()
+                }
+            }
+        )
+
+        binding.btnBackContainer.setOnClickListener {
+            checkIn()
         }
 
         binding.btnAddImages.setOnClickListener {
@@ -113,6 +143,16 @@ class CompetitorFragment : Fragment() {
 
         binding.layoutOfferDate.setEndIconOnClickListener {
             showOfferDatePicker()
+        }
+    }
+
+    private fun checkIn() {
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.CheckIn(
+                    checkInReq
+                )
+            )
         }
     }
 
@@ -190,14 +230,17 @@ class CompetitorFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.status.collect { status ->
                     when (status) {
+                        is PromoterStatus.Idle -> {}
+                        is PromoterStatus.Loading -> dialog.show()
                         is PromoterStatus.GetCompetitorList -> {
-                            if (status.response.status == 401) {
+                            dialog.dismiss()
+                            if (status.data.status == 401) {
                                 sendRefreshToken()
                             } else {
-                                competitorTypesList = status.response.data.get_competitor_types
-                                competitorsList = status.response.data.get_competitor
-                                promotionTypesList = status.response.data.get_promotion_types
-                                itemSizesList = status.response.data.get_item_sizes
+                                competitorTypesList = status.data.data.get_competitor_types
+                                competitorsList = status.data.data.get_competitor
+                                promotionTypesList = status.data.data.get_promotion_types
+                                itemSizesList = status.data.data.get_item_sizes
 
                                 setupPromotionTypeCheckboxes(promotionTypesList)
                                 setupItemSizesDropdown(itemSizesList)
@@ -206,14 +249,22 @@ class CompetitorFragment : Fragment() {
                                 val companies = competitorsList.map { it.competitor_name }
 
                                 binding.actvCategory.setAdapter(
-                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
+                                    ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_list_item_1,
+                                        types
+                                    )
                                 )
                                 binding.actvCategory.setOnItemClickListener { _, _, position, _ ->
                                     selectedTypeId = competitorTypesList[position].id
                                 }
 
                                 binding.actvCompany.setAdapter(
-                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, companies)
+                                    ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_list_item_1,
+                                        companies
+                                    )
                                 )
                                 binding.actvCompany.setOnItemClickListener { _, _, position, _ ->
                                     selectedCompetitorId = competitorsList[position].id
@@ -224,12 +275,75 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.SendCompetitors -> {
-                            Toast.makeText(requireContext(), "تم حفظ المنافس بنجاح", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                            Toast.makeText(
+                                requireContext(),
+                                "تم حفظ المنافس بنجاح",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             viewModel.resetStatus()
                             findNavController().popBackStack()
                         }
 
+                        is PromoterStatus.CheckIn -> {
+                            dialog.dismiss()
+
+                            if (status.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
+
+                                val navController = findNavController()
+
+                                val previousBackStackEntry =
+                                    navController.previousBackStackEntry
+
+                                if (previousBackStackEntry == null) {
+                                    return@collect
+                                }
+
+                                val savedStateHandle =
+                                    previousBackStackEntry.savedStateHandle
+
+                                savedStateHandle.set(
+                                    "checkIn",
+                                    data.check_in
+                                )
+
+                                savedStateHandle.set(
+                                    "currentTime",
+                                    data.current_time
+                                )
+
+                                val result =
+                                    navController.popBackStack()
+
+                            } else if (status.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
                         is PromoterStatus.RefreshToken -> {
+                            dialog.dismiss()
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
@@ -244,7 +358,12 @@ class CompetitorFragment : Fragment() {
                                     showOkButton = true,
                                     onOk = {
                                         SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
                                         requireActivity().finishAffinity()
                                     })
                             }
@@ -252,7 +371,16 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.Error -> {
-                            Toast.makeText(requireContext(), status.error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = status.error.toString(),
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
                             viewModel.resetStatus()
                         }
 
@@ -282,7 +410,11 @@ class CompetitorFragment : Fragment() {
         }
 
         if (selectedTypeId == null || selectedCompetitorId == null) {
-            Toast.makeText(requireContext(), "من فضلك اختر الفئة والشركة المنافسة", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "من فضلك اختر الفئة والشركة المنافسة",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -324,7 +456,7 @@ class CompetitorFragment : Fragment() {
 
         viewModel.promoterIntent.trySend(
             PromoterIntent.SendCompetitors(
-                appVersion = "1.0".toBody(),
+                appVersion = versionName.toBody(),
                 apiToken = apiToken.toBody(),
                 image = imagePart,
                 created_by = employeeId.toBody(),
@@ -339,7 +471,7 @@ class CompetitorFragment : Fragment() {
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),
-                user_type = "".toBody(),
+                user_type = "prom".toBody(),
                 PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
                 competitor_id = selectedCompetitorId!!.toBody(),
                 type_id = selectedTypeId!!.toBody(),
@@ -357,6 +489,7 @@ class CompetitorFragment : Fragment() {
         val requestFile = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
         return MultipartBody.Part.createFormData("image", tempFile.name, requestFile)
     }
+
     private var offerDateForApi: String = ""
 
     private fun showOfferDatePicker() {
@@ -378,6 +511,7 @@ class CompetitorFragment : Fragment() {
 
         datePicker.show(childFragmentManager, "OFFER_DATE_PICKER")
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

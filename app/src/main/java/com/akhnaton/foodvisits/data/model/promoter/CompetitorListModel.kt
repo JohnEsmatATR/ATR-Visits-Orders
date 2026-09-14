@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.data.model.promoter
 
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
+
 
 data class CompetitorListModel(
     val status: Int,
