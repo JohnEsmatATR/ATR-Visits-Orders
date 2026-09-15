@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
     private var requestPermission = RequestPermission()
     private var addCustomerEnable = false
     private var isProm = false
+    private var isSuperProm = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,7 +127,6 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
 //        }
 
         navController.addOnDestinationChangedListener { _, destination, _ ->
-
             when (destination.id) {
                 R.id.moreFragment,
                 R.id.visitsFragment,
@@ -134,6 +134,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
                 R.id.mainFragment -> {
                     binding.navView2.visibility = View.VISIBLE
                 }
+
                 else -> {
                     binding.navView2.visibility = View.GONE
                 }
@@ -154,10 +155,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             binding.approvalBtn.visibility = View.GONE
         }
 
+        isSuperProm = SharedPreferencesHelper.getInstance().getSuperProm()
         isProm = SharedPreferencesHelper.getInstance().getProm()
 
         val phoneItem = binding.navView2.menu.findItem(R.id.visitPhoneFragment)
-        phoneItem.isVisible = !isProm
+        if (isProm || isSuperProm) phoneItem.isVisible = false
 
         fetchData()
         getProfileImage(binding)

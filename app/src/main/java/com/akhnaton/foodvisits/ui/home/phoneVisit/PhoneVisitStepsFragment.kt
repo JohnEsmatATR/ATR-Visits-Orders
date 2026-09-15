@@ -696,6 +696,11 @@ class PhoneVisitStepsFragment : Fragment() {
                         is PhoneVisitsStatus.DialOutbound -> {
                             dialog.dismiss()
                             if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.dialOutbound.Data::class.java
+                                    )
                                 launchGrandstreamWave(requireContext())
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {

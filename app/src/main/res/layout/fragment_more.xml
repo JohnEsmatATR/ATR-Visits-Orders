@@ -279,7 +279,6 @@
                 android:id="@+id/customerCoding"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:visibility="gone"
                 android:layout_marginTop="@dimen/_8sdp"
                 app:cardCornerRadius="20dp">
 
@@ -358,6 +357,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/_52sdp"
                 android:layout_marginTop="28dp"
+                android:layout_marginBottom="56dp"
                 android:backgroundTint="@color/colorPrimary"
                 android:text="تسجيل الخروج"
                 android:textColor="@android:color/white"

@@ -41,6 +41,9 @@ import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.convertDateToApiFormat
 import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
+import com.akhnaton.foodvisits.shared.location.DefaultLocationClient
+import com.akhnaton.foodvisits.shared.location.GetLocationService
+import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.shared.openLocationInMap
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -573,11 +576,16 @@ class VisitsFragment2 : Fragment() {
         }
     }
 
+    private fun getCurrentLocationValue(): Location? {
+        return viewModel.locationState.value
+    }
+
     private fun checkIn(insert: Int, item: CustomerVisitPlan) {
+        val currentLocation = getCurrentLocationValue()
         checkInReq = CheckInGPSReq(
             insert = insert,
-            start_latitude = item.customer_latitude.toString(),
-            start_longitude = item.customer_longitude.toString(),
+            start_latitude = currentLocation?.latitude.toString(),
+            start_longitude = currentLocation?.longitude.toString(),
             ord_type = item.customer_order_type,
             party_site_id = item.customer_party_site_id,
             phone_visit = "0",
@@ -698,10 +706,9 @@ class VisitsFragment2 : Fragment() {
         })
     }
 
-    override fun onResume() {
-        super.onResume()
-        isStartVisitDialogShowsUp = false
-    }
+//    override fun onResume() {
+//        super.onResume()
+//    }
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -731,6 +738,38 @@ class VisitsFragment2 : Fragment() {
                 )
             )
             insets
+        }
+    }
+
+    @RequiresPermission(
+        allOf = [
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ]
+    )
+    override fun onResume() {
+        super.onResume()
+
+        isStartVisitDialogShowsUp = false
+
+        RequestPermission().enableLocation(requireActivity())
+        RequestPermission().permissionCheck(requireActivity())
+        viewModel.getCurrentLocation(
+            customerLatitude = customerLatitude,
+            customerLongitude = customerLongitude
+        )
+        DefaultLocationClient(
+            requireContext(),
+            null
+        ).checkGpsOpened(requireActivity())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        viewModel.stopLocationUpdates()
+        Intent(requireContext(), GetLocationService::class.java).apply {
+            action = GetLocationService.ACTION_STOP
+            requireActivity().startService(this)
         }
     }
 
