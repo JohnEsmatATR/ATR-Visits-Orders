@@ -16,6 +16,7 @@ import com.akhnaton.foodvisits.databinding.FragmentVisitPlanBinding
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class VisitPlanFragment : Fragment() {
 
@@ -45,6 +46,10 @@ class VisitPlanFragment : Fragment() {
 
         setupRecyclerView()
         observeViewModel()
+
+        binding.fabDuplicate.setOnClickListener {
+            showCopyPlanBottomSheet()
+        }
 
         binding.btnBackContainer.setOnClickListener {
             findNavController().popBackStack()
@@ -278,6 +283,30 @@ class VisitPlanFragment : Fragment() {
         params.columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f)
         view.layoutParams = params
         binding.gridCalendarDays.addView(view)
+    }
+
+    private fun showCopyPlanBottomSheet() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_copy_plan, null)
+        dialog.setContentView(view)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        val btnCancel = view.findViewById<View>(R.id.btn_cancel_copy)
+        val btnConfirm = view.findViewById<View>(R.id.btn_confirm_copy)
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirm.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     override fun onDestroyView() {

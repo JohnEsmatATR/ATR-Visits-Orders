@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layoutDirection="rtl"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet_top_rounded"
+    android:clipToOutline="true"
+    android:layout_margin="12dp"
+    android:padding="20dp">
+
+
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/bg_drag_handle" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <FrameLayout
+            android:layout_width="@dimen/_20sdp"
+            android:layout_height="@dimen/_24sdp"
+            android:layout_marginLeft="@dimen/_8sdp">
+
+            <View
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_6sdp"
+                android:layout_gravity="top"
+                android:background="@color/color_one" />
+
+            <TextView
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_18sdp"
+                android:layout_gravity="bottom"
+                android:background="@color/color_white"
+                android:gravity="center"
+                android:text="17"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_9ssp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="نسخ خطة الشهر الحالي"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_copy_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/bg_chip_blue_light"
+        android:gravity="center"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="18dp"
+        android:text="سيتم نسخ خطة الزيارات الحالية إلى الشهر القادم (أكتوبر)."
+        android:textColor="#0066FF"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_confirm_copy"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="#007AFF"
+            android:text="نسخ الآن"
+            android:textColor="@color/white"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_copy"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="#EFEFF4"
+            android:text="إلغاء"
+            android:textColor="@color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="14dp"
+            app:strokeWidth="0dp" />
+
+    </LinearLayout>
+
+</LinearLayout>
