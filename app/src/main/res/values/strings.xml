@@ -92,7 +92,7 @@
     <string name="pending">Pending</string>
     <string name="send">Send</string>
     <string name="price_list">Price List</string>
-    <string name="no_approvals_founded">No Approvals founded</string>
+<!--    <string name="no_approvals_founded">No Approvals founded</string>-->
     <string name="no_data">No Data</string>
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
@@ -327,4 +327,33 @@
 
     <string name="customer_card_number">عنوان العميل في البطاقه</string>
     <string name="hint_customer_card_number">ادخل عنوان العميل</string>
+
+    <string name="no_approvals_founded">لا توجد نتائج مطابقة للبحث</string>
+
+
+    <string name="visit_plan_title">خطة الزيارات</string>
+    <string name="visit_plan_subtitle">إدارة وجدولة زيارات العملاء بكل سهولة</string>
+    <string name="weekly_view">عرض أسبوعي</string>
+    <string name="monthly_view">عرض شهري</string>
+    <string name="search_visits_today_hint">   ابحث في زيارات هذا اليوم...</string>
+    <string name="visits_count_format">%1$d زيارة</string>
+<!--    <string name="visits_count_format">2 زيارة</string>-->
+
+
+    <string name="status_unapproved">غير معتمدة</string>
+    <string name="status_approved">معتمدة</string>
+
+    <string name="delegate_prefix">المندوب:</string>
+    <string name="location_code_label">موقع</string>
+
+    <string name="weekday_sun_short">أح</string>
+    <string name="weekday_mon_short">ن</string>
+    <string name="weekday_tue_short">ث</string>
+    <string name="weekday_wed_short">ر</string>
+    <string name="weekday_thu_short">خ</string>
+    <string name="weekday_fri_short">ج</string>
+    <string name="weekday_sat_short">س</string>
+
+    <string name="code_label">كود</string>
+
 </resources>

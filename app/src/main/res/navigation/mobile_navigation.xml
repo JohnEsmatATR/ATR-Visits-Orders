@@ -117,6 +117,9 @@
         <action
             android:id="@+id/toGpsVisit"
             app:destination="@id/gpsVisitFragment" />
+        <action
+            android:id="@+id/toVisitPlan"
+            app:destination="@id/VisitPlanFragment" />
 
     </fragment>
 
@@ -295,5 +298,11 @@
         android:name="com.akhnaton.foodvisits.ui.home.personCoding.PersonCodingFragment"
         android:label="fragment_person_coding"
         tools:layout="@layout/fragment_person_coding" />
+
+    <fragment
+        android:id="@+id/VisitPlanFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.visitPlan.VisitPlanFragment"
+        android:label="fragment_visit_plan"
+        tools:layout="@layout/fragment_visit_plan" />
 
 </navigation>

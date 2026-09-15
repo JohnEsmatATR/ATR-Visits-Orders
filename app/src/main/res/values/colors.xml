@@ -12,12 +12,12 @@
     <color name="color_one">#fb7268</color>
     <color name="color_white">#ededf2</color>
     <color name="color_two">#E3E0E0</color>
-<!--    <color name="orange">#FFA726</color>-->
+    <!--    <color name="orange">#FFA726</color>-->
     <color name="orange">#ff8340</color>
     <color name="red">#EF5350</color>
     <color name="blue">#29B6F6</color>.
     <color name="order_card">#32449A</color>.
-<!--    <color name="order_card">#001787</color>.-->
+    <!--    <color name="order_card">#001787</color>.-->
     <color name="main_button">#E6E6E5</color>
     <color name="default_color_dark">#52a6b8</color>
     <color name="gray">#35323D</color>
@@ -41,5 +41,7 @@
     <color name="input_box_bg">#FAFAFA</color>
     <color name="input_box_stroke">#E0E0E0</color>
 
+    <color name="blue_bg">#E1F5FE</color>
+    <color name="fab_duplicate_blue">#2F6FED</color>
 
 </resources>
