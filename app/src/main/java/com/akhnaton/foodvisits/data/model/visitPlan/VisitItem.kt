@@ -14,7 +14,15 @@ data class VisitData(
 data class VisitItem(
     val id: String,
     val start: String,
-    val title: String,
+    val customer_name: String,
+    val customer_code: String,
+    val site_address: String,
     val party_site: String,
+    val sales_man: String,
     val approve: String?
+)
+
+data class UpdateVisitDateRes(
+    val status: Int,
+    val message: String?
 )

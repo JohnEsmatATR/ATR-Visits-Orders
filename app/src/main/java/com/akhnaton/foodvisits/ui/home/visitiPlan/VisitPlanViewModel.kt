@@ -28,6 +28,7 @@ class VisitPlanViewModel : ViewModel() {
             visitIntent.consumeAsFlow().collect {
                 when (it) {
                     is VisitIntent.GetMonthlyVisits -> getMonthlyVisits()
+                    is VisitIntent.UpdateVisitDate -> updateVisitDate(it.id, it.newDate)
                     is VisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
                 }
             }
@@ -41,6 +42,18 @@ class VisitPlanViewModel : ViewModel() {
                 val response = VisitRepository().getMonthlyVisits()
                 allVisits = response.data.visits
                 VisitStatus.GetMonthlyVisits(response)
+            } catch (e: Exception) {
+                VisitStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun updateVisitDate(id: String, newDate: String) {
+        viewModelScope.launch {
+            _status.value = VisitStatus.Loading
+            _status.value = try {
+                val response = VisitRepository().updateVisitDate(id, newDate)
+                VisitStatus.UpdateVisitDate(response)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)
             }

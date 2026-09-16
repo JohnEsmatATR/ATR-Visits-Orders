@@ -71,7 +71,6 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <!-- العنوان الأول (يظهر على اليمين في RTL) -->
                         <TextView
                             android:id="@+id/tv_header_title"
                             android:layout_width="wrap_content"
@@ -147,12 +146,9 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
-                            android:text="سبتمبر ٢٠٢٦"
                             android:textColor="@color/gray"
                             android:textSize="18sp"
-                            android:textStyle="bold"
-                            tools:ignore="HardcodedText" />
-                        <!-- ^ set this programmatically from the current month/year -->
+                            android:textStyle="bold" />
 
                         <LinearLayout
                             android:id="@+id/ll_period_nav"
@@ -217,7 +213,7 @@
                         </LinearLayout>
                     </RelativeLayout>
 
-                    <!-- Weekday headers: rightmost = Sunday, leftmost = Saturday -->
+                    <!-- Weekday headers -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -233,22 +229,14 @@
                         <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sat_short" />
                     </LinearLayout>
 
-                    <!-- Calendar grid (6 weeks x 7 days) -->
+                    <!-- Calendar grid -->
                     <GridLayout
                         android:id="@+id/grid_calendar_days"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:columnCount="7"
-                        android:rowCount="6">
-                        <!-- Fill from code using item_calendar_day.xml per cell.
-                             IMPORTANT: since this is now a plain LTR-style grid (no start/end
-                             tricks), place Sunday in column 0 (rightmost visually only if you
-                             also set android:layoutDirection="rtl" on this GridLayout, OR simply
-                             feed the adapter columns in already-mirrored order: column 0 = Sat,
-                             column 6 = Sun, to match the header row above without relying on
-                             mirroring at all. -->
-                    </GridLayout>
+                        android:rowCount="6" />
 
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
@@ -315,12 +303,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:text="الجمعة، ١٨ سبتمبر"
                     android:textColor="@color/gray"
                     android:textSize="16sp"
-                    android:textStyle="bold"
-                    tools:ignore="HardcodedText" />
-                <!-- ^ set from code (selected date), no fixed string needed -->
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/tv_visit_count"
@@ -352,9 +337,40 @@
                     tools:listitem="@layout/item_visit_card"
                     tools:itemCount="3" />
 
+                <!-- ===================== Zero state ===================== -->
+                <LinearLayout
+                    android:id="@+id/ll_zero_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingTop="40dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="@dimen/_150sdp"
+                        android:layout_height="@dimen/_150sdp"
+                        android:layout_gravity="center"
+                        android:alpha="0.7"
+                        android:src="@drawable/zs_no_products"
+                        tools:ignore="ContentDescription" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginTop="12dp"
+                        android:alpha="0.7"
+                        android:gravity="center"
+                        android:text="@string/no_visits_today"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="@dimen/_16ssp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
             </LinearLayout>
-
-
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

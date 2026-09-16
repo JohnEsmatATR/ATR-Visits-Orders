@@ -4,12 +4,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 import com.akhnaton.foodvisits.databinding.ItemVisitCardBinding
+import androidx.core.content.ContextCompat
 
 class VisitsAdapter(
     private var list: List<VisitItem>,
-    private val onItemClick: (VisitItem) -> Unit
+    private val onItemClick: (VisitItem) -> Unit,
+    private val onSwapClick: (VisitItem) -> Unit
 ) : RecyclerView.Adapter<VisitsAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemVisitCardBinding) :
@@ -25,17 +28,41 @@ class VisitsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = list[position]
         with(holder.binding) {
-            tvPharmacyName.text = item.title
-            tvCodeLocation.text = "كود: ${item.id} • موقع: ${item.party_site}"
+            tvPharmacyName.text = item.customer_name
+            tvCodeLocation.text = "كود: ${item.customer_code} • موقع: ${item.party_site}"
+            tvDelegate.text = "المندوب: ${item.sales_man}"
+            tvAddress.text = item.site_address
 
-            if (item.approve.isNullOrEmpty()) {
-                tvStatus.text = "غير معتمدة"
-            } else {
-                tvStatus.text = "معتمدة"
+            when (item.approve) {
+                "1" -> {
+                    tvStatus.text = "معتمدة"
+                    tvStatus.setTextColor(ContextCompat.getColor(root.context, R.color.green2))
+                    tvStatus.setBackgroundResource(R.drawable.bg_chip_green_light)
+                    tvStatus.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_dot_green, 0, 0, 0
+                    )
+                }
+                "" -> {
+                    tvStatus.text = "غير معتمدة"
+                    tvStatus.setTextColor(ContextCompat.getColor(root.context, R.color.colorAccent))
+                    tvStatus.setBackgroundResource(R.drawable.bg_chip_orange_light)
+                    tvStatus.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_dot_orange, 0, 0, 0
+                    )
+                }
+                else -> {
+                    tvStatus.text = "قيد الانتظار"
+                    tvStatus.setTextColor(ContextCompat.getColor(root.context, R.color.gray))
+                    tvStatus.setBackgroundResource(R.drawable.bg_chip_gray_light)
+                    tvStatus.setCompoundDrawablesWithIntrinsicBounds(
+                        R.drawable.ic_dot_gray, 0, 0, 0
+                    )
+                }
             }
 
-            tvDelegate.visibility = View.GONE
-            tvAddress.visibility = View.GONE
+            ivSwap.setOnClickListener {
+                onSwapClick(item)
+            }
         }
 
         holder.itemView.setOnClickListener {
@@ -49,5 +76,4 @@ class VisitsAdapter(
         list = newList
         notifyDataSetChanged()
     }
-
 }

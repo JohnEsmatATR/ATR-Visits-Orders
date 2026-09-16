@@ -355,5 +355,6 @@
     <string name="weekday_sat_short">س</string>
 
     <string name="code_label">كود</string>
+    <string name="no_visits_today">لا توجد زيارات في هذا اليوم</string>
 
 </resources>

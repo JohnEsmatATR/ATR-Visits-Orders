@@ -9,4 +9,6 @@ class VisitRepository {
 
     suspend fun getMonthlyVisits() = retrofit.getMonthlyVisits()
 
+    suspend fun updateVisitDate(id: String, newDate: String) = retrofit.updateVisitDate(id, newDate)
+
 }

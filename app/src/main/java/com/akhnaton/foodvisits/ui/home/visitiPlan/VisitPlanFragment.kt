@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
+import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.transition.AutoTransition
@@ -46,6 +47,9 @@ class VisitPlanFragment : Fragment() {
     private var isWeeklyView = false
     private var selectedCalendar: Calendar = Calendar.getInstance()
 
+    private var moveDialogCalendar: Calendar = Calendar.getInstance()
+    private var moveDialogSelectedDate: Calendar? = null
+
     private var allVisits: List<VisitItem> = emptyList()
 
     override fun onCreateView(
@@ -86,9 +90,15 @@ class VisitPlanFragment : Fragment() {
     }
 
     private fun setupRecycler() {
-        adapter = VisitsAdapter(emptyList()) { item ->
-            Log.d(TAG, "clicked: ${item.id}")
-        }
+        adapter = VisitsAdapter(
+            emptyList(),
+            onItemClick = { item ->
+                Log.d(TAG, "clicked: ${item.id}")
+            },
+            onSwapClick = { item ->
+                showMoveVisitDialog(visitId = item.id)
+            }
+        )
         binding.rvVisits.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@VisitPlanFragment.adapter
@@ -137,6 +147,11 @@ class VisitPlanFragment : Fragment() {
                                         requireActivity().finishAffinity()
                                     })
                             }
+                        }
+
+                        is VisitStatus.UpdateVisitDate -> {
+                            binding.progressLoading.visibility = View.GONE
+                            getData()
                         }
 
                         is VisitStatus.Error -> {
@@ -300,13 +315,13 @@ class VisitPlanFragment : Fragment() {
         for (i in 0 until firstDayOfWeek) {
             val emptyView = inflater.inflate(R.layout.item_calendar_day, binding.gridCalendarDays, false)
             emptyView.visibility = View.INVISIBLE
-            addGridCell(emptyView)
+            addGridCell(binding.gridCalendarDays, emptyView)
         }
 
         for (day in 1..daysInMonth) {
             val dayCalendar = monthCalendar.clone() as Calendar
             dayCalendar.set(Calendar.DAY_OF_MONTH, day)
-            addGridCell(buildDayView(dayCalendar))
+            addGridCell(binding.gridCalendarDays, buildDayView(dayCalendar))
         }
     }
 
@@ -320,7 +335,7 @@ class VisitPlanFragment : Fragment() {
         for (i in 0 until 7) {
             val dayCalendar = startOfWeek.clone() as Calendar
             dayCalendar.add(Calendar.DAY_OF_MONTH, i)
-            addGridCell(buildDayView(dayCalendar))
+            addGridCell(binding.gridCalendarDays, buildDayView(dayCalendar))
         }
     }
 
@@ -367,13 +382,98 @@ class VisitPlanFragment : Fragment() {
 
         return dayView
     }
-    private fun addGridCell(view: View) {
+
+    private fun addGridCell(grid: android.widget.GridLayout, view: View) {
         val params = android.widget.GridLayout.LayoutParams()
         params.width = 0
         params.height = ViewGroup.LayoutParams.WRAP_CONTENT
         params.columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f)
         view.layoutParams = params
-        binding.gridCalendarDays.addView(view)
+        grid.addView(view)
+    }
+
+    private fun showMoveVisitDialog(visitId: String) {
+        val dialog = Dialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_move_visit, null)
+        dialog.setContentView(view)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        moveDialogCalendar = Calendar.getInstance()
+        moveDialogSelectedDate = null
+
+        val tvMonthYear = view.findViewById<android.widget.TextView>(R.id.tv_move_month_year)
+        val grid = view.findViewById<android.widget.GridLayout>(R.id.grid_move_calendar_days)
+        val ivPrevMonth = view.findViewById<View>(R.id.iv_move_prev_month)
+        val ivNextMonth = view.findViewById<View>(R.id.iv_move_next_month)
+        val ivClose = view.findViewById<View>(R.id.iv_close_move)
+        val btnCancel = view.findViewById<View>(R.id.btn_cancel_move)
+        val btnConfirm = view.findViewById<View>(R.id.btn_confirm_move)
+
+        ivPrevMonth.visibility = View.GONE
+        ivNextMonth.visibility = View.GONE
+
+        fun updateMoveMonthLabel() {
+            val sdf = SimpleDateFormat("MMMM yyyy", Locale("ar"))
+            tvMonthYear.text = sdf.format(moveDialogCalendar.time)
+        }
+
+        fun buildMoveGrid() {
+            grid.removeAllViews()
+            val monthCalendar = moveDialogCalendar.clone() as Calendar
+            monthCalendar.set(Calendar.DAY_OF_MONTH, 1)
+
+            val firstDayOfWeek = monthCalendar.get(Calendar.DAY_OF_WEEK) - 1
+            val daysInMonth = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val inflater = LayoutInflater.from(requireContext())
+
+            for (i in 0 until firstDayOfWeek) {
+                val emptyView = inflater.inflate(R.layout.item_calendar_day, grid, false)
+                emptyView.visibility = View.INVISIBLE
+                addGridCell(grid, emptyView)
+            }
+
+            for (day in 1..daysInMonth) {
+                val dayCalendar = monthCalendar.clone() as Calendar
+                dayCalendar.set(Calendar.DAY_OF_MONTH, day)
+
+                val dayView = inflater.inflate(R.layout.item_calendar_day, grid, false)
+                val tvDay = dayView.findViewById<android.widget.TextView>(R.id.tv_day)
+                val viewDot = dayView.findViewById<View>(R.id.view_dot)
+
+                tvDay.text = day.toString()
+                viewDot.visibility = View.INVISIBLE
+
+                val selected = moveDialogSelectedDate
+                val isSelected = selected != null &&
+                        dayCalendar.get(Calendar.DAY_OF_MONTH) == selected.get(Calendar.DAY_OF_MONTH) &&
+                        dayCalendar.get(Calendar.MONTH) == selected.get(Calendar.MONTH) &&
+                        dayCalendar.get(Calendar.YEAR) == selected.get(Calendar.YEAR)
+
+                tvDay.isSelected = isSelected
+
+                dayView.setOnClickListener {
+                    moveDialogSelectedDate = dayCalendar
+                    buildMoveGrid()
+                }
+
+                addGridCell(grid, dayView)
+            }
+        }
+
+        updateMoveMonthLabel()
+        buildMoveGrid()
+
+        ivClose.setOnClickListener { dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            val selected = moveDialogSelectedDate ?: return@setOnClickListener
+            val newDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selected.time)
+            viewModel.visitIntent.trySend(VisitIntent.UpdateVisitDate(visitId, newDate))
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun showCopyPlanBottomSheet() {
