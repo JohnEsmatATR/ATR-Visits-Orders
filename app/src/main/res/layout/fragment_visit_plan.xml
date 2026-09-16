@@ -9,6 +9,7 @@
     android:background="@color/background"
     tools:context=".ui.home.visitPlan.VisitPlanFragment">
 
+
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -342,37 +343,14 @@
                 android:layout_marginHorizontal="16dp"
                 android:orientation="vertical">
 
-                <androidx.cardview.widget.CardView
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_visits"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="14dp"
-                    android:layoutDirection="rtl"
-                    app:cardCornerRadius="16dp"
-                    app:cardElevation="1dp"
-                    app:cardBackgroundColor="@color/white">
-
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
-
-                        <View
-                            android:layout_width="5dp"
-                            android:layout_height="match_parent"
-                            android:layout_alignParentRight="true"
-                            android:background="@color/colorAccent" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rv_visits"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="16dp"
-                            android:nestedScrollingEnabled="false"
-                            tools:listitem="@layout/item_visit_card"
-                            tools:itemCount="3" />
-
-                    </RelativeLayout>
-
-                </androidx.cardview.widget.CardView>
+                    android:layout_marginHorizontal="16dp"
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_visit_card"
+                    tools:itemCount="3" />
 
             </LinearLayout>
 
@@ -380,6 +358,14 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <ProgressBar
+        android:id="@+id/progressLoading"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_duplicate"

@@ -1,41 +1,55 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
+import android.content.Intent
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
+import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
+import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitStatus
 import com.akhnaton.foodvisits.databinding.FragmentVisitPlanBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class VisitPlanFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "VisitPlanFragment"
+    }
+
     private var _binding: FragmentVisitPlanBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: VisitPlanViewModel by viewModels()
-    private lateinit var visitAdapter: VisitAdapter
+    private lateinit var adapter: VisitsAdapter
 
     private val monthCalendarBase: Calendar = Calendar.getInstance()
     private val weekCalendar: Calendar = Calendar.getInstance()
     private var isWeeklyView = false
-
     private var selectedCalendar: Calendar = Calendar.getInstance()
 
+    private var allVisits: List<VisitItem> = emptyList()
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVisitPlanBinding.inflate(inflater, container, false)
         return binding.root
@@ -44,9 +58,20 @@ class VisitPlanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()
-        observeViewModel()
+        setupRecycler()
+        setupListeners()
+        observeStatus()
+        getData()
 
+        renderCalendar()
+        selectDay(selectedCalendar)
+    }
+
+    private fun getData() {
+        viewModel.visitIntent.trySend(VisitIntent.GetMonthlyVisits)
+    }
+
+    private fun setupListeners() {
         binding.fabDuplicate.setOnClickListener {
             showCopyPlanBottomSheet()
         }
@@ -58,32 +83,95 @@ class VisitPlanFragment : Fragment() {
         binding.chipWeeklyView.setOnClickListener { toggleView() }
         binding.ivPrevPeriod.setOnClickListener { shiftWeek(-1) }
         binding.ivNextPeriod.setOnClickListener { shiftWeek(1) }
-
-        renderCalendar()
-        selectDay(selectedCalendar)
     }
 
-    private fun setupRecyclerView() {
-        visitAdapter = VisitAdapter(
-            onDeleteClick = { visit -> },
-            onSwapClick = { visit -> }
-        )
-        binding.rvVisits.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvVisits.adapter = visitAdapter
-    }
-
-    private fun observeViewModel() {
-        viewModel.visitsForSelectedDate.observe(viewLifecycleOwner) { visits ->
-            visitAdapter.submitList(visits)
-            binding.tvVisitCount.text = getString(R.string.visits_count_format, visits.size)
+    private fun setupRecycler() {
+        adapter = VisitsAdapter(emptyList()) { item ->
+            Log.d(TAG, "clicked: ${item.id}")
         }
+        binding.rvVisits.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@VisitPlanFragment.adapter
+        }
+    }
+
+    private fun observeStatus() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect { status ->
+                    when (status) {
+                        is VisitStatus.Loading -> {
+                            binding.progressLoading.visibility = View.VISIBLE
+                        }
+
+                        is VisitStatus.GetMonthlyVisits -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.response.status == 401) {
+                                sendRefreshToken()
+                            } else {
+                                allVisits = status.response.data.visits
+                                filterVisitsForSelectedDate()
+                                renderCalendar()
+                            }
+                        }
+
+                        is VisitStatus.RefreshToken -> {
+                            if (status.data.status == 200) {
+                                val tokenData = com.google.gson.Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                getData()
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(
+                                            Intent(requireContext(), LoginActivity2::class.java)
+                                        )
+                                        requireActivity().finishAffinity()
+                                    })
+                            }
+                        }
+
+                        is VisitStatus.Error -> {
+                            Log.d(TAG, "fetchData: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = "خطأ",
+                                isSuccess = false,
+                                showOkButton = true,
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    private fun filterVisitsForSelectedDate() {
+        val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
+
+        val filteredList = allVisits.filter { visit ->
+            val visitDateOnly = visit.start.take(10)
+            visitDateOnly == selectedDateKey
+        }
+
+        adapter.updateList(filteredList)
+        binding.tvVisitCount.text = getString(R.string.visits_count_format, filteredList.size)
     }
 
     private fun selectDay(calendar: Calendar) {
         selectedCalendar = calendar.clone() as Calendar
-
-        val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
-        viewModel.loadVisitsFor(dateKey)
+        filterVisitsForSelectedDate()
 
         val displayFormat = SimpleDateFormat("EEEE، d MMMM", Locale("ar"))
         binding.tvVisitDate.text = displayFormat.format(selectedCalendar.time)
@@ -266,7 +354,11 @@ class VisitPlanFragment : Fragment() {
         tvDay.isSelected = isSelected
 
         val dayKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(dayCalendar.time)
-        viewDot.visibility = if (viewModel.daysWithVisits.contains(dayKey)) View.VISIBLE else View.INVISIBLE
+
+        val hasVisits = allVisits.any { visit ->
+            visit.start.take(10) == dayKey
+        }
+        viewDot.visibility = if (hasVisits) View.VISIBLE else View.INVISIBLE
 
         dayView.setOnClickListener {
             selectDay(dayCalendar)
@@ -275,7 +367,6 @@ class VisitPlanFragment : Fragment() {
 
         return dayView
     }
-
     private fun addGridCell(view: View) {
         val params = android.widget.GridLayout.LayoutParams()
         params.width = 0
@@ -298,15 +389,21 @@ class VisitPlanFragment : Fragment() {
         val btnCancel = view.findViewById<View>(R.id.btn_cancel_copy)
         val btnConfirm = view.findViewById<View>(R.id.btn_confirm_copy)
 
-        btnCancel.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        btnConfirm.setOnClickListener {
-            dialog.dismiss()
-        }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+        btnConfirm.setOnClickListener { dialog.dismiss() }
 
         dialog.show()
+    }
+
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.visitIntent.send(
+                VisitIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
     }
 
     override fun onDestroyView() {
