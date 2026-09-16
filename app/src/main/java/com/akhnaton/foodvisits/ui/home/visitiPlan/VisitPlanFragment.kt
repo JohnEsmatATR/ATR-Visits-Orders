@@ -393,10 +393,14 @@ class VisitPlanFragment : Fragment() {
     }
 
     private fun showMoveVisitDialog(visitId: String) {
-        val dialog = Dialog(requireContext())
+        val dialog = BottomSheetDialog(requireContext())
         val view = layoutInflater.inflate(R.layout.dialog_move_visit, null)
         dialog.setContentView(view)
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
 
         moveDialogCalendar = Calendar.getInstance()
         moveDialogSelectedDate = null
