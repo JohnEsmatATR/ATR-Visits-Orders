@@ -83,7 +83,9 @@ class VisitPlanFragment : Fragment() {
         binding.btnBackContainer.setOnClickListener {
             findNavController().popBackStack()
         }
-
+        binding.fabAddVisit.setOnClickListener {
+            findNavController().navigate(R.id.toAddVisitPlan)
+        }
         binding.chipWeeklyView.setOnClickListener { toggleView() }
         binding.ivPrevPeriod.setOnClickListener { shiftWeek(-1) }
         binding.ivNextPeriod.setOnClickListener { shiftWeek(1) }
