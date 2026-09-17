@@ -368,15 +368,15 @@ class GpsVisitFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener {
-//            if (convertDeveloperModeCheckToInt() == 1) {
-//                DialogUtils.showResultDialog(
-//                    context = requireContext(),
-//                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
-//                    isSuccess = false,
-//                    showOkButton = true
-//                )
-//                return@setOnClickListener
-//            }
+            if (convertDeveloperModeCheckToInt() == 1) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
 
             //ZoneFlag
 //            checkZoneFlag()
