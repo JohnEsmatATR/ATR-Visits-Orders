@@ -22,7 +22,6 @@
             android:orientation="vertical"
             android:paddingBottom="24dp">
 
-            <!-- ===================== Header banner ===================== -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -120,7 +119,6 @@
 
             </RelativeLayout>
 
-            <!-- ===================== Calendar card ===================== -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -135,7 +133,6 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
-                    <!-- Month row -->
                     <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -213,7 +210,6 @@
                         </LinearLayout>
                     </RelativeLayout>
 
-                    <!-- Weekday headers -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -229,7 +225,6 @@
                         <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sat_short" />
                     </LinearLayout>
 
-                    <!-- Calendar grid -->
                     <GridLayout
                         android:id="@+id/grid_calendar_days"
                         android:layout_width="match_parent"
@@ -241,7 +236,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- ===================== Search bar ===================== -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -290,7 +284,6 @@
                 </RelativeLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- ===================== Visits count + date ===================== -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

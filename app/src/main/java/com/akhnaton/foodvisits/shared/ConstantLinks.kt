@@ -49,8 +49,8 @@ object ConstantLinks {
     const val POST_PERSON_CODING = "Customer/createNewCustomer"
     const val GET_MONTHLY_VISITS = "Visit/getMonthlyVisits"
     const val UPDATE_VISIT = "Visit/updateSetupPlanDetail"
-
-
+    const val ADD_VISIT_PLAN = "Personalization/getSalesAndCustomerTypes"
+    const val GET_LINE_VISIT = "visit/getLines"
     //----------------------------------------------------------------------------------------------
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod

@@ -58,7 +58,6 @@
                     android:textStyle="bold" />
             </RelativeLayout>
 
-            <!-- Card 1: Sale Type -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_sale_type"
                 android:layout_width="match_parent"
@@ -85,7 +84,6 @@
                         android:clickable="true"
                         android:focusable="true">
 
-                        <!-- رقم الخطوة علي اليمين -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/status_indicator_sale_type"
                             android:layout_width="28dp"
@@ -117,7 +115,6 @@
                                 tools:ignore="ContentDescription" />
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- السهم علي الشمال -->
                         <ImageView
                             android:id="@+id/iv_chevron_sale_type"
                             android:layout_width="20dp"
@@ -128,7 +125,6 @@
                             app:tint="#FF8A00"
                             tools:ignore="ContentDescription" />
 
-                        <!-- الكلام محاذاة لليمين -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -181,7 +177,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 2: Route -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_route"
                 android:layout_width="match_parent"
@@ -207,7 +202,6 @@
                         android:clickable="true"
                         android:focusable="true">
 
-                        <!-- رقم الخطوة علي اليمين -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/status_indicator_route"
                             android:layout_width="28dp"
@@ -239,7 +233,6 @@
                                 tools:ignore="ContentDescription" />
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- السهم علي الشمال -->
                         <ImageView
                             android:id="@+id/iv_chevron_route"
                             android:layout_width="20dp"
@@ -250,7 +243,6 @@
                             app:tint="#FF8A00"
                             tools:ignore="ContentDescription" />
 
-                        <!-- الكلام محاذاة لليمين -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -341,7 +333,6 @@
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Card 3: Customers -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/card_customers"
                 android:layout_width="match_parent"
@@ -367,7 +358,6 @@
                         android:clickable="true"
                         android:focusable="true">
 
-                        <!-- رقم الخطوة علي اليمين -->
                         <com.google.android.material.card.MaterialCardView
                             android:id="@+id/status_indicator_customers"
                             android:layout_width="28dp"
@@ -399,7 +389,6 @@
                                 tools:ignore="ContentDescription" />
                         </com.google.android.material.card.MaterialCardView>
 
-                        <!-- السهم علي الشمال -->
                         <ImageView
                             android:id="@+id/iv_chevron_customers"
                             android:layout_width="20dp"
@@ -410,7 +399,6 @@
                             app:tint="#FF8A00"
                             tools:ignore="ContentDescription" />
 
-                        <!-- الكلام محاذاة لليمين -->
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -567,5 +555,33 @@
         app:iconGravity="textStart"
         app:iconPadding="8dp"
         app:iconTint="@color/white" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/progress_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:alpha="0.5"
+            android:background="@color/black"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:indeterminateTint="@color/colorPrimary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
