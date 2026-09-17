@@ -11,6 +11,7 @@
         android:layout_height="match_parent"
         android:layoutDirection="ltr"
         android:clipToPadding="false"
+        android:fitsSystemWindows="true"
         android:background="@color/background">
 
         <LinearLayout
@@ -19,9 +20,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="20dp"
-            android:paddingBottom="@dimen/_100sdp">
+            android:paddingBottom="@dimen/_200sdp">
 
-            <!-- Title -->
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -33,7 +33,6 @@
                 android:textSize="@dimen/_20ssp"
                 android:textStyle="bold" />
 
-            <!-- Profile Section -->
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -42,7 +41,6 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- User Info -->
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -85,7 +83,6 @@
 
                 </LinearLayout>
 
-                <!-- Profile Image -->
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="@dimen/_70sdp"
@@ -106,7 +103,6 @@
 
             </LinearLayout>
 
-            <!-- Version Card -->
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardVersion"
@@ -121,7 +117,6 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <!-- App Version -->
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -158,7 +153,6 @@
                         android:layout_height="1dp"
                         android:background="#EEEEEE" />
 
-                    <!-- Account Status -->
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -196,7 +190,6 @@
 
             </com.google.android.material.card.MaterialCardView>
 
-            <!-- Support Card -->
 
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/cardSupport"
@@ -279,7 +272,6 @@
                 android:id="@+id/customerCoding"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:visibility="gone"
                 android:layout_marginTop="@dimen/_8sdp"
                 app:cardCornerRadius="20dp">
 

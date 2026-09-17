@@ -145,9 +145,9 @@
     <string name="select_area">تحديد المنطقة</string>
     <string name="write_customer_name">ادخل اسم العميل</string>
     <string name="write_customer_address">ادخل عنوان العميل</string>
-    <string name="write_customer_phone">ادخل رقم الهاتف المحمول</string>
+    <string name="write_customer_mobile">ادخل رقم الهاتف المحمول</string>
 
-    <string name="write_customer_mobile">ادخل رقم الهاتف الارضى</string>
+    <string name="write_customer_phone">ادخل رقم الهاتف الارضى</string>
     <string name="write_nationality_id">ادخل الرقم القومى</string>
     <string name="write_nationality_name">ادخل اسم العميل فى البطاقة</string>
     <string name="write_nationality_address">ادخل عنوان العميل فى البطاقة</string>
@@ -279,7 +279,7 @@
     <string name="item_totals">إجالي الأصناف</string>
 
     <string name="search_product_name_code">ابحث باسم المنتج أو الكود...</string>
-    <string name="title_add_customer">تكويد عميل</string>
+    <string name="title_add_customer">تكويد عميل بيع مباشر</string>
 
     <string name="label_customer_type">نوع العميل</string>
     <string name="hint_select_customer_type">اختر نوع العميل</string>
