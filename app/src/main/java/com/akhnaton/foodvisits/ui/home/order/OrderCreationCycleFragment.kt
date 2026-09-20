@@ -84,28 +84,12 @@ class OrderCreationCycleFragment : Fragment() {
         MainActivity.binding.navView2.visibility = View.GONE
 
         binding.btnBack.setOnClickListener {
-            if (fragment == "Telephone")
-                findNavController().popBackStack(
-                    R.id.toVisitPhone,
-                    false
-                )
-            else if (fragment == "Gps")
-                findNavController().popBackStack(
-                    R.id.toVisitGps,
-                    false
-                )
+            findNavController().popBackStack()
         }
 
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (fragment == "Telephone")
-                    findNavController().navigate(
-                        R.id.toVisitPhone
-                    )
-                else if (fragment == "Gps")
-                    findNavController().navigate(
-                        R.id.toVisitGps
-                    )
+                findNavController().popBackStack()
             }
         }
 
