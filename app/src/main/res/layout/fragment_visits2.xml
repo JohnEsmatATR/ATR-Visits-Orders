@@ -34,7 +34,7 @@
                     android:layout_marginEnd="@dimen/_4sdp"
                     android:layout_marginStart="@dimen/_8sdp"
                     android:backgroundTint="@color/colorPrimary"
-                    android:text="نسخ زيارات المندوب"
+                    android:text="@string/plan_visits"
                     android:textSize="@dimen/_12ssp"
                     android:textColor="@android:color/white"
                     app:cornerRadius="@dimen/_8sdp" />

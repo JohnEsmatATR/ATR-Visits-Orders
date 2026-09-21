@@ -355,5 +355,6 @@
     <string name="weekday_sat_short">س</string>
 
     <string name="code_label">كود</string>
+    <string name="plan_visits">خطة الزيارات</string>
 
 </resources>
