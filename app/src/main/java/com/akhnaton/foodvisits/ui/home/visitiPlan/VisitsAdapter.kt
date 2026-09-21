@@ -11,7 +11,8 @@ import androidx.core.content.ContextCompat
 class VisitsAdapter(
     private var list: List<VisitItem>,
     private val onItemClick: (VisitItem) -> Unit,
-    private val onSwapClick: (VisitItem) -> Unit
+    private val onSwapClick: (VisitItem) -> Unit,
+    private val onDeleteClick: (VisitItem) -> Unit
 ) : RecyclerView.Adapter<VisitsAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemVisitCardBinding) :
@@ -58,7 +59,9 @@ class VisitsAdapter(
                     )
                 }
             }
-
+            ivDelete.setOnClickListener {
+                onDeleteClick(item)
+            }
             ivSwap.setOnClickListener {
                 onSwapClick(item)
             }

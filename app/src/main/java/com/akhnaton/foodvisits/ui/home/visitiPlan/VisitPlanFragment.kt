@@ -51,6 +51,7 @@ class VisitPlanFragment : Fragment() {
     private var moveDialogSelectedDate: Calendar? = null
 
     private var allVisits: List<VisitItem> = emptyList()
+    private var isFirstLoad = true
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -69,6 +70,15 @@ class VisitPlanFragment : Fragment() {
 
         renderCalendar()
         selectDay(selectedCalendar)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isFirstLoad) {
+            isFirstLoad = false
+        } else {
+            getData()
+        }
     }
 
     private fun getData() {
@@ -99,7 +109,10 @@ class VisitPlanFragment : Fragment() {
             },
             onSwapClick = { item ->
                 showMoveVisitDialog(visitId = item.id)
-            }
+            },
+            onDeleteClick = { item ->
+                showDeleteConfirmDialog(visitId = item.id)
+            },
         )
         binding.rvVisits.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -155,7 +168,20 @@ class VisitPlanFragment : Fragment() {
                             binding.progressLoading.visibility = View.GONE
                             getData()
                         }
-
+                        is VisitStatus.CopyPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = status.response.data.message,
+                                isSuccess = true,
+                                showOkButton = true,
+                                onOk = { getData() }
+                            )
+                        }
+                        is VisitStatus.DeleteVisitPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            getData()
+                        }
                         is VisitStatus.Error -> {
                             Log.d(TAG, "fetchData: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
@@ -495,8 +521,45 @@ class VisitPlanFragment : Fragment() {
         val btnCancel = view.findViewById<View>(R.id.btn_cancel_copy)
         val btnConfirm = view.findViewById<View>(R.id.btn_confirm_copy)
 
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+        btnConfirm.setOnClickListener {
+            val sdfMonth = SimpleDateFormat("MM-yyyy", Locale.US)
+            val sourceDate = sdfMonth.format(monthCalendarBase.time)
+
+            val targetCal = monthCalendarBase.clone() as Calendar
+            targetCal.add(Calendar.MONTH, 1)
+            val targetDate = sdfMonth.format(targetCal.time)
+
+            viewModel.visitIntent.trySend(VisitIntent.CopyPlan(sourceDate, targetDate))
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+    private fun showDeleteConfirmDialog(visitId: String) {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_delete_visit, null)
+        dialog.setContentView(view)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        val btnCancel = view.findViewById<View>(R.id.btn_cancel_delete)
+        val btnConfirm = view.findViewById<View>(R.id.btn_confirm_delete)
+
         btnCancel.setOnClickListener { dialog.dismiss() }
-        btnConfirm.setOnClickListener { dialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            viewModel.visitIntent.trySend(
+                VisitIntent.DeleteVisitPlan(listOf(visitId.toIntOrNull() ?: 0))
+            )
+            dialog.dismiss()
+        }
 
         dialog.show()
     }

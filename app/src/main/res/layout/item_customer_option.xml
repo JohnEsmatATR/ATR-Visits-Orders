@@ -22,10 +22,11 @@
             android:layout_centerVertical="true" />
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_toLeftOf="@id/cb_customer"
+            android:layout_toRightOf="@id/cb_customer"
+            android:layout_centerVertical="true"
             android:layout_marginLeft="10dp"
             android:gravity="right"
             android:orientation="vertical">
@@ -37,7 +38,7 @@
                 android:textColor="@color/black"
                 android:textSize="15sp"
                 android:textStyle="bold"
-                tools:text="ص.التقوى" />
+                tools:text="@string/customer_name_sample" />
 
             <TextView
                 android:id="@+id/tv_customer_address"
@@ -46,7 +47,10 @@
                 android:layout_marginTop="2dp"
                 android:textColor="@color/grey_color"
                 android:textSize="12sp"
-                tools:text="ش عبد العزيز فج النور • كود: 10802" />
+                android:ellipsize="end"
+                android:maxLines="2"
+                tools:text="@string/customer_address_sample" />
         </LinearLayout>
+
     </RelativeLayout>
 </androidx.cardview.widget.CardView>

@@ -377,4 +377,18 @@
     <string name="no_customers_found">لا يوجد عملاء في هذا الخط</string>
     <string name="loading_data">جاري تحميل البيانات...</string>
 
+    <string name="route_name_sample">CAIRO WEST 1</string>
+    <string name="route_code_sample">AMD: المخزن  •  كود: 12021</string>
+    <string name="customer_name_sample">ص.التقوى</string>
+    <string name="customer_address_sample">ش عبد العزيز فج النور • كود: 10802</string>
+    <string name="pharmacy_name_sample">صيدلية مجدى حبيب</string>
+    <string name="code_location_sample">كود: 10121 • موقع: 3698456</string>
+    <string name="delegate_sample">المندوب: مارى ماهر اديب خليل</string>
+    <string name="address_sample">شارع وابور الترجمان   بولاق   مصر</string>
+
+
+
+    <string name="delete_visit_title">حذف الزيارة</string>
+    <string name="delete_visit_message">هل انت متاكد من حذف تلك الزياره...</string>
+    <string name="delete_now">حذف الآن</string>
 </resources>
