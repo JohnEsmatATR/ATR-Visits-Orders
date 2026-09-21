@@ -3,13 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layoutDirection="rtl"
     android:orientation="vertical"
     android:background="@drawable/bg_bottom_sheet_top_rounded"
     android:clipToOutline="true"
     android:layout_margin="12dp"
     android:padding="20dp">
-    
+
     <View
         android:layout_width="40dp"
         android:layout_height="4dp"
@@ -25,33 +26,19 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <FrameLayout
+        <ImageView
+            android:id="@+id/iv_delete_icon"
             android:layout_width="@dimen/_20sdp"
-            android:layout_height="@dimen/_24sdp"
-            android:layout_marginLeft="@dimen/_8sdp">
-
-            <View
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_6sdp"
-                android:layout_gravity="top"
-                android:background="@color/color_one" />
-
-            <TextView
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_18sdp"
-                android:layout_gravity="bottom"
-                android:background="@color/color_white"
-                android:gravity="center"
-                android:text="17"
-                android:textColor="@color/black"
-                android:textSize="@dimen/_9ssp"
-                android:textStyle="bold" />
-        </FrameLayout>
+            android:layout_height="@dimen/_20sdp"
+            android:layout_marginLeft="@dimen/_8sdp"
+            android:src="@drawable/ic_delete"
+            app:tint="#FF3B30"
+            tools:ignore="ContentDescription" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="نسخ خطة الشهر الحالي"
+            android:text="@string/delete_visit_title"
             android:textColor="@color/black"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -59,16 +46,16 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/tv_copy_message"
+        android:id="@+id/tv_delete_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="24dp"
-        android:background="@drawable/bg_chip_blue_light"
+        android:background="@drawable/bg_chip_red_light"
         android:gravity="center"
         android:paddingHorizontal="16dp"
         android:paddingVertical="18dp"
-        android:text="سيتم نسخ خطة الزيارات الحالية إلى الشهر القادم (أكتوبر)."
-        android:textColor="#0066FF"
+        android:text="@string/delete_visit_message"
+        android:textColor="#FF3B30"
         android:textSize="15sp"
         android:textStyle="bold" />
 
@@ -78,26 +65,26 @@
         android:orientation="horizontal">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_confirm_copy"
+            android:id="@+id/btn_confirm_delete"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
-            android:backgroundTint="#007AFF"
-            android:text="نسخ الآن"
+            android:backgroundTint="#FF3B30"
+            android:text="@string/delete_now"
             android:textColor="@color/white"
             android:textSize="15sp"
             android:textStyle="bold"
             app:cornerRadius="14dp" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_cancel_copy"
+            android:id="@+id/btn_cancel_delete"
             android:layout_width="0dp"
             android:layout_height="52dp"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:backgroundTint="#EFEFF4"
-            android:text="إلغاء"
+            android:text="@string/cancel"
             android:textColor="@color/black"
             android:textSize="15sp"
             android:textStyle="bold"

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_move_visit_dialog"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layoutDirection="rtl"
+    android:orientation="vertical"
+    android:background="@drawable/bg_bottom_sheet_top_rounded"
+    android:clipToOutline="true"
+    android:padding="18dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp">
+
+        <TextView
+            android:id="@+id/tv_move_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:text="نقل الزيارة"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/iv_refresh_move"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_refresh"
+            app:tint="@color/gray"
+            tools:ignore="ContentDescription" />
+
+        <ImageView
+            android:id="@+id/iv_close_move"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_close"
+            app:tint="@color/gray"
+            tools:ignore="ContentDescription" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+
+        <ImageView
+            android:id="@+id/iv_move_next_month"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_alignParentLeft="true"
+            android:padding="3dp"
+            android:src="@drawable/ic_arrow_left"
+            android:scaleX="-1"
+            app:tint="@color/gray"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tv_move_month_year"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="@color/gray"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            tools:text="سبتمبر ٢٠٢٦" />
+
+        <ImageView
+            android:id="@+id/iv_move_prev_month"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_alignParentRight="true"
+            android:padding="3dp"
+            android:src="@drawable/ic_arrow_left"
+            app:tint="@color/gray"
+            tools:ignore="ContentDescription" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="7">
+
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sun_short" />
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_mon_short" />
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_tue_short" />
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_wed_short" />
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_thu_short" />
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_fri_short" />
+        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sat_short" />
+    </LinearLayout>
+
+
+    <GridLayout
+        android:id="@+id/grid_move_calendar_days"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="18dp"
+        android:columnCount="7"
+        android:rowCount="6" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_cancel_move"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:text="إلغاء"
+            android:textColor="@color/gray"
+            app:cornerRadius="14dp"
+            app:strokeColor="@color/input_box_stroke" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_confirm_move"
+            android:layout_width="0dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/colorPrimary"
+            android:text="نقل الآن"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            app:cornerRadius="14dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

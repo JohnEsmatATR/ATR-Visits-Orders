@@ -1,41 +1,60 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
+import android.app.Dialog
+import android.content.Intent
 import android.os.Bundle
 import android.transition.AutoTransition
 import android.transition.TransitionManager
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
+import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
+import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitStatus
 import com.akhnaton.foodvisits.databinding.FragmentVisitPlanBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class VisitPlanFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "VisitPlanFragment"
+    }
+
     private var _binding: FragmentVisitPlanBinding? = null
     private val binding get() = _binding!!
-
     private val viewModel: VisitPlanViewModel by viewModels()
-    private lateinit var visitAdapter: VisitAdapter
+    private lateinit var adapter: VisitsAdapter
 
     private val monthCalendarBase: Calendar = Calendar.getInstance()
     private val weekCalendar: Calendar = Calendar.getInstance()
     private var isWeeklyView = false
-
     private var selectedCalendar: Calendar = Calendar.getInstance()
 
+    private var moveDialogCalendar: Calendar = Calendar.getInstance()
+    private var moveDialogSelectedDate: Calendar? = null
+
+    private var allVisits: List<VisitItem> = emptyList()
+    private var isFirstLoad = true
+
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVisitPlanBinding.inflate(inflater, container, false)
         return binding.root
@@ -44,9 +63,29 @@ class VisitPlanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupRecyclerView()
-        observeViewModel()
+        setupRecycler()
+        setupListeners()
+        observeStatus()
+        getData()
 
+        renderCalendar()
+        selectDay(selectedCalendar)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (isFirstLoad) {
+            isFirstLoad = false
+        } else {
+            getData()
+        }
+    }
+
+    private fun getData() {
+        viewModel.visitIntent.trySend(VisitIntent.GetMonthlyVisits)
+    }
+
+    private fun setupListeners() {
         binding.fabDuplicate.setOnClickListener {
             showCopyPlanBottomSheet()
         }
@@ -54,36 +93,128 @@ class VisitPlanFragment : Fragment() {
         binding.btnBackContainer.setOnClickListener {
             findNavController().popBackStack()
         }
-
+        binding.fabAddVisit.setOnClickListener {
+            findNavController().navigate(R.id.toAddVisitPlan)
+        }
         binding.chipWeeklyView.setOnClickListener { toggleView() }
         binding.ivPrevPeriod.setOnClickListener { shiftWeek(-1) }
         binding.ivNextPeriod.setOnClickListener { shiftWeek(1) }
-
-        renderCalendar()
-        selectDay(selectedCalendar)
     }
 
-    private fun setupRecyclerView() {
-        visitAdapter = VisitAdapter(
-            onDeleteClick = { visit -> },
-            onSwapClick = { visit -> }
+    private fun setupRecycler() {
+        adapter = VisitsAdapter(
+            emptyList(),
+            onItemClick = { item ->
+                Log.d(TAG, "clicked: ${item.id}")
+            },
+            onSwapClick = { item ->
+                showMoveVisitDialog(visitId = item.id)
+            },
+            onDeleteClick = { item ->
+                showDeleteConfirmDialog(visitId = item.id)
+            },
         )
-        binding.rvVisits.layoutManager = LinearLayoutManager(requireContext())
-        binding.rvVisits.adapter = visitAdapter
+        binding.rvVisits.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = this@VisitPlanFragment.adapter
+        }
     }
 
-    private fun observeViewModel() {
-        viewModel.visitsForSelectedDate.observe(viewLifecycleOwner) { visits ->
-            visitAdapter.submitList(visits)
-            binding.tvVisitCount.text = getString(R.string.visits_count_format, visits.size)
+    private fun observeStatus() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect { status ->
+                    when (status) {
+                        is VisitStatus.Loading -> {
+                            binding.progressLoading.visibility = View.VISIBLE
+                        }
+
+                        is VisitStatus.GetMonthlyVisits -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.response.status == 401) {
+                                sendRefreshToken()
+                            } else {
+                                allVisits = status.response.data.visits
+                                filterVisitsForSelectedDate()
+                                renderCalendar()
+                            }
+                        }
+
+                        is VisitStatus.RefreshToken -> {
+                            if (status.data.status == 200) {
+                                val tokenData = com.google.gson.Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                getData()
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(
+                                            Intent(requireContext(), LoginActivity2::class.java)
+                                        )
+                                        requireActivity().finishAffinity()
+                                    })
+                            }
+                        }
+
+                        is VisitStatus.UpdateVisitDate -> {
+                            binding.progressLoading.visibility = View.GONE
+                            getData()
+                        }
+                        is VisitStatus.CopyPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = status.response.data.message,
+                                isSuccess = true,
+                                showOkButton = true,
+                                onOk = { getData() }
+                            )
+                        }
+                        is VisitStatus.DeleteVisitPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            getData()
+                        }
+                        is VisitStatus.Error -> {
+                            Log.d(TAG, "fetchData: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = "خطأ",
+                                isSuccess = false,
+                                showOkButton = true,
+                            )
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
         }
+    }
+
+    private fun filterVisitsForSelectedDate() {
+        val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
+
+        val filteredList = allVisits.filter { visit ->
+            val visitDateOnly = visit.start.take(10)
+            visitDateOnly == selectedDateKey
+        }
+
+        adapter.updateList(filteredList)
+        binding.tvVisitCount.text = getString(R.string.visits_count_format, filteredList.size)
     }
 
     private fun selectDay(calendar: Calendar) {
         selectedCalendar = calendar.clone() as Calendar
-
-        val dateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
-        viewModel.loadVisitsFor(dateKey)
+        filterVisitsForSelectedDate()
 
         val displayFormat = SimpleDateFormat("EEEE، d MMMM", Locale("ar"))
         binding.tvVisitDate.text = displayFormat.format(selectedCalendar.time)
@@ -212,13 +343,13 @@ class VisitPlanFragment : Fragment() {
         for (i in 0 until firstDayOfWeek) {
             val emptyView = inflater.inflate(R.layout.item_calendar_day, binding.gridCalendarDays, false)
             emptyView.visibility = View.INVISIBLE
-            addGridCell(emptyView)
+            addGridCell(binding.gridCalendarDays, emptyView)
         }
 
         for (day in 1..daysInMonth) {
             val dayCalendar = monthCalendar.clone() as Calendar
             dayCalendar.set(Calendar.DAY_OF_MONTH, day)
-            addGridCell(buildDayView(dayCalendar))
+            addGridCell(binding.gridCalendarDays, buildDayView(dayCalendar))
         }
     }
 
@@ -232,7 +363,7 @@ class VisitPlanFragment : Fragment() {
         for (i in 0 until 7) {
             val dayCalendar = startOfWeek.clone() as Calendar
             dayCalendar.add(Calendar.DAY_OF_MONTH, i)
-            addGridCell(buildDayView(dayCalendar))
+            addGridCell(binding.gridCalendarDays, buildDayView(dayCalendar))
         }
     }
 
@@ -266,7 +397,11 @@ class VisitPlanFragment : Fragment() {
         tvDay.isSelected = isSelected
 
         val dayKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(dayCalendar.time)
-        viewDot.visibility = if (viewModel.daysWithVisits.contains(dayKey)) View.VISIBLE else View.INVISIBLE
+
+        val hasVisits = allVisits.any { visit ->
+            visit.start.take(10) == dayKey
+        }
+        viewDot.visibility = if (hasVisits) View.VISIBLE else View.INVISIBLE
 
         dayView.setOnClickListener {
             selectDay(dayCalendar)
@@ -276,13 +411,101 @@ class VisitPlanFragment : Fragment() {
         return dayView
     }
 
-    private fun addGridCell(view: View) {
+    private fun addGridCell(grid: android.widget.GridLayout, view: View) {
         val params = android.widget.GridLayout.LayoutParams()
         params.width = 0
         params.height = ViewGroup.LayoutParams.WRAP_CONTENT
         params.columnSpec = android.widget.GridLayout.spec(android.widget.GridLayout.UNDEFINED, 1f)
         view.layoutParams = params
-        binding.gridCalendarDays.addView(view)
+        grid.addView(view)
+    }
+
+    private fun showMoveVisitDialog(visitId: String) {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_move_visit, null)
+        dialog.setContentView(view)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        moveDialogCalendar = Calendar.getInstance()
+        moveDialogSelectedDate = null
+
+        val tvMonthYear = view.findViewById<android.widget.TextView>(R.id.tv_move_month_year)
+        val grid = view.findViewById<android.widget.GridLayout>(R.id.grid_move_calendar_days)
+        val ivPrevMonth = view.findViewById<View>(R.id.iv_move_prev_month)
+        val ivNextMonth = view.findViewById<View>(R.id.iv_move_next_month)
+        val ivClose = view.findViewById<View>(R.id.iv_close_move)
+        val btnCancel = view.findViewById<View>(R.id.btn_cancel_move)
+        val btnConfirm = view.findViewById<View>(R.id.btn_confirm_move)
+
+        ivPrevMonth.visibility = View.GONE
+        ivNextMonth.visibility = View.GONE
+
+        fun updateMoveMonthLabel() {
+            val sdf = SimpleDateFormat("MMMM yyyy", Locale("ar"))
+            tvMonthYear.text = sdf.format(moveDialogCalendar.time)
+        }
+
+        fun buildMoveGrid() {
+            grid.removeAllViews()
+            val monthCalendar = moveDialogCalendar.clone() as Calendar
+            monthCalendar.set(Calendar.DAY_OF_MONTH, 1)
+
+            val firstDayOfWeek = monthCalendar.get(Calendar.DAY_OF_WEEK) - 1
+            val daysInMonth = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+            val inflater = LayoutInflater.from(requireContext())
+
+            for (i in 0 until firstDayOfWeek) {
+                val emptyView = inflater.inflate(R.layout.item_calendar_day, grid, false)
+                emptyView.visibility = View.INVISIBLE
+                addGridCell(grid, emptyView)
+            }
+
+            for (day in 1..daysInMonth) {
+                val dayCalendar = monthCalendar.clone() as Calendar
+                dayCalendar.set(Calendar.DAY_OF_MONTH, day)
+
+                val dayView = inflater.inflate(R.layout.item_calendar_day, grid, false)
+                val tvDay = dayView.findViewById<android.widget.TextView>(R.id.tv_day)
+                val viewDot = dayView.findViewById<View>(R.id.view_dot)
+
+                tvDay.text = day.toString()
+                viewDot.visibility = View.INVISIBLE
+
+                val selected = moveDialogSelectedDate
+                val isSelected = selected != null &&
+                        dayCalendar.get(Calendar.DAY_OF_MONTH) == selected.get(Calendar.DAY_OF_MONTH) &&
+                        dayCalendar.get(Calendar.MONTH) == selected.get(Calendar.MONTH) &&
+                        dayCalendar.get(Calendar.YEAR) == selected.get(Calendar.YEAR)
+
+                tvDay.isSelected = isSelected
+
+                dayView.setOnClickListener {
+                    moveDialogSelectedDate = dayCalendar
+                    buildMoveGrid()
+                }
+
+                addGridCell(grid, dayView)
+            }
+        }
+
+        updateMoveMonthLabel()
+        buildMoveGrid()
+
+        ivClose.setOnClickListener { dialog.dismiss() }
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            val selected = moveDialogSelectedDate ?: return@setOnClickListener
+            val newDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selected.time)
+            viewModel.visitIntent.trySend(VisitIntent.UpdateVisitDate(visitId, newDate))
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun showCopyPlanBottomSheet() {
@@ -303,10 +526,53 @@ class VisitPlanFragment : Fragment() {
         }
 
         btnConfirm.setOnClickListener {
+            val sdfMonth = SimpleDateFormat("MM-yyyy", Locale.US)
+            val sourceDate = sdfMonth.format(monthCalendarBase.time)
+
+            val targetCal = monthCalendarBase.clone() as Calendar
+            targetCal.add(Calendar.MONTH, 1)
+            val targetDate = sdfMonth.format(targetCal.time)
+
+            viewModel.visitIntent.trySend(VisitIntent.CopyPlan(sourceDate, targetDate))
             dialog.dismiss()
         }
 
         dialog.show()
+    }
+    private fun showDeleteConfirmDialog(visitId: String) {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_confirm_delete_visit, null)
+        dialog.setContentView(view)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        val btnCancel = view.findViewById<View>(R.id.btn_cancel_delete)
+        val btnConfirm = view.findViewById<View>(R.id.btn_confirm_delete)
+
+        btnCancel.setOnClickListener { dialog.dismiss() }
+
+        btnConfirm.setOnClickListener {
+            viewModel.visitIntent.trySend(
+                VisitIntent.DeleteVisitPlan(listOf(visitId.toIntOrNull() ?: 0))
+            )
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.visitIntent.send(
+                VisitIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
     }
 
     override fun onDestroyView() {

@@ -355,5 +355,40 @@
     <string name="weekday_sat_short">س</string>
 
     <string name="code_label">كود</string>
+    <string name="no_visits_today">لا توجد زيارات في هذا اليوم</string>
 
+
+    <string name="sale_type_title">اختر نوع البيع</string>
+    <string name="route_title">اختر خط السير</string>
+    <string name="customers_days_title">العملاء وأيام الزيارة الأسبوعية</string>
+    <string name="customers_days_subtitle">حدد أيام الزيارة والعملاء</string>
+
+    <string name="select_weekly_days">1. اختر أيام الزيارة الأسبوعية:</string>
+    <string name="select_customers_format">2. اختر العملاء (%d محدد):</string>
+    <string name="select_all">تحديد الكل</string>
+    <string name="deselect_all">إلغاء التحديد</string>
+
+    <string name="search_route_hint">ابحث عن خط سير...</string>
+    <string name="search_customer_hint">ابحث باسم العميل أو الكود...</string>
+
+    <string name="save_visit_plan">حفظ خطة الزيارة</string>
+
+    <string name="no_routes_found">لا توجد خطوط سير متاحة</string>
+    <string name="no_customers_found">لا يوجد عملاء في هذا الخط</string>
+    <string name="loading_data">جاري تحميل البيانات...</string>
+
+    <string name="route_name_sample">CAIRO WEST 1</string>
+    <string name="route_code_sample">AMD: المخزن  •  كود: 12021</string>
+    <string name="customer_name_sample">ص.التقوى</string>
+    <string name="customer_address_sample">ش عبد العزيز فج النور • كود: 10802</string>
+    <string name="pharmacy_name_sample">صيدلية مجدى حبيب</string>
+    <string name="code_location_sample">كود: 10121 • موقع: 3698456</string>
+    <string name="delegate_sample">المندوب: مارى ماهر اديب خليل</string>
+    <string name="address_sample">شارع وابور الترجمان   بولاق   مصر</string>
+
+
+
+    <string name="delete_visit_title">حذف الزيارة</string>
+    <string name="delete_visit_message">هل انت متاكد من حذف تلك الزياره...</string>
+    <string name="delete_now">حذف الآن</string>
 </resources>
