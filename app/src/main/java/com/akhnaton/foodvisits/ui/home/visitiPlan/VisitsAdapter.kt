@@ -1,7 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
@@ -12,7 +11,8 @@ import androidx.core.content.ContextCompat
 class VisitsAdapter(
     private var list: List<VisitItem>,
     private val onItemClick: (VisitItem) -> Unit,
-    private val onSwapClick: (VisitItem) -> Unit
+    private val onSwapClick: (VisitItem) -> Unit,
+    private val onDeleteClick: (VisitItem) -> Unit
 ) : RecyclerView.Adapter<VisitsAdapter.ViewHolder>() {
 
     class ViewHolder(val binding: ItemVisitCardBinding) :
@@ -62,6 +62,10 @@ class VisitsAdapter(
 
             ivSwap.setOnClickListener {
                 onSwapClick(item)
+            }
+
+            ivDelete.setOnClickListener {
+                onDeleteClick(item)
             }
         }
 
