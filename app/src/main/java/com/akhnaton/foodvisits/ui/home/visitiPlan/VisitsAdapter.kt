@@ -65,6 +65,10 @@ class VisitsAdapter(
             ivSwap.setOnClickListener {
                 onSwapClick(item)
             }
+
+            ivDelete.setOnClickListener {
+                onDeleteClick(item)
+            }
         }
 
         holder.itemView.setOnClickListener {
