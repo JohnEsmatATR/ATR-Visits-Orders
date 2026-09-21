@@ -1,10 +1,12 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,13 +22,23 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.getSalesMan.SalesMan
 import com.akhnaton.foodvisits.data.model.visitPlan.CustomerItem
 import com.akhnaton.foodvisits.data.model.visitPlan.LineItem
 import com.akhnaton.foodvisits.data.model.visitPlan.SaveCustomerRequest
 import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitStatus
+import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
+import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
 import com.akhnaton.foodvisits.databinding.FragmentAddVisitPlanBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.convertDateToApiFormat
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.visits2.ScheduleBottomSheet
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -56,6 +68,8 @@ class AddVisitPlanFragment : Fragment() {
     private val selectedVisitDates: MutableSet<String> = mutableSetOf()
     private val dayKeyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
+    private var allReps = mutableListOf<SalesMan>()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -79,6 +93,12 @@ class AddVisitPlanFragment : Fragment() {
 
         binding.cardRoute.visibility = View.GONE
         binding.cardCustomers.visibility = View.GONE
+
+        if (SharedPreferencesHelper.getInstance().isAllowedToApproveVisit()) {
+            binding.cardCopySalePlan.visibility = View.VISIBLE
+        } else {
+            binding.cardCopySalePlan.visibility = View.GONE
+        }
     }
 
     private fun setupVisitCalendar() {
@@ -285,6 +305,110 @@ class AddVisitPlanFragment : Fragment() {
                                 findNavController().popBackStack()
                             }
                         }
+
+                        is AddVisitStatus.GetSalesMan -> {
+                            binding.progressLoading.visibility = View.GONE
+//                            binding.btnCopyVisits.isEnabled = true
+                            if (status.response.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.response.data,
+                                        com.akhnaton.foodvisits.data.model.getSalesMan.Data::class.java
+                                    )
+                                allReps = data.salesMan.toMutableList()
+                                showScheduleBottomSheet()
+                            } else if (status.response.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.addVisitPlanIntent.send(
+                                        AddVisitIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.response.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
+                        is AddVisitStatus.CopyDayPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.response.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.response.data,
+                                        com.akhnaton.foodvisits.data.model.copyDayPlan.Data::class.java
+                                    )
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "نسخ: ${data.copied}, تخطي: ${data.skipped}",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        getSalesTypes()
+                                    }
+                                )
+                            } else if (status.response.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.addVisitPlanIntent.send(
+                                        AddVisitIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.response.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
+                        is AddVisitStatus.RefreshToken -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.response.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.response.data,
+                                        com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                    )
+                                SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                getSalesTypes()
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.response.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance()
+                                            .logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    }
+                                )
+                            }
+                        }
+
                         is AddVisitStatus.Error -> {
                             binding.progressLoading.visibility = View.GONE
                             Toast.makeText(
@@ -397,6 +521,14 @@ class AddVisitPlanFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
+        binding.cardCopySalePlan.setOnClickListener {
+            if (allReps.isEmpty()) {
+                getSalesMan()
+            } else {
+                showScheduleBottomSheet()
+            }
+        }
+
         binding.btnSavePlan.setOnClickListener {
             val saleType = selectedSaleType
             val line = selectedLine
@@ -500,6 +632,45 @@ class AddVisitPlanFragment : Fragment() {
             if (isReady) resources.getColor(R.color.colorPrimary, null)
             else Color.parseColor("#CCCCCC")
         )
+    }
+
+    private fun getSalesMan() {
+        lifecycleScope.launch {
+            viewModel.addVisitPlanIntent.send(
+                AddVisitIntent.GetSalesMan
+            )
+        }
+    }
+
+    private fun showScheduleBottomSheet() {
+        val tag = "schedule"
+        if (parentFragmentManager.isStateSaved) return
+        if (parentFragmentManager.findFragmentByTag(tag) != null)
+            return
+
+        ScheduleBottomSheet(
+            employees = allReps,
+            listener = object : ScheduleBottomSheet.Listener {
+                override fun onConfirm(
+                    employee: SalesMan,
+                    date: String,
+                    targetDate: String,
+                ) {
+
+                    val copyDayPlanReq = CopyDayPlanReq(
+                        convertDateToApiFormat(date),
+                        convertDateToApiFormat(targetDate),
+                        employee.PERSON_ID.toInt(),
+                    )
+
+                    lifecycleScope.launch {
+                        viewModel.addVisitPlanIntent.send(
+                            AddVisitIntent.CopyDayPlan(copyDayPlanReq)
+                        )
+                    }
+                }
+            }
+        ).show(parentFragmentManager, tag)
     }
 
     override fun onDestroyView() {
