@@ -102,6 +102,7 @@
         <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sat_short" />
     </LinearLayout>
 
+
     <GridLayout
         android:id="@+id/grid_move_calendar_days"
         android:layout_width="match_parent"

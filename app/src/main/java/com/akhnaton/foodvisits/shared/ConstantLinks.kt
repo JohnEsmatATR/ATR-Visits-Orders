@@ -52,6 +52,10 @@ object ConstantLinks {
     const val DELETE_VISIT = "Visit/deleteVisitPlan"
     const val ADD_VISIT_PLAN = "Personalization/getSalesAndCustomerTypes"
     const val GET_LINE_VISIT = "visit/getLines"
+    const val GET_VISIT_CUSTOMERS = "Customer/getVisitCustomers"
+    const val SAVE_VISIT_PLAN = "Visit/saveSetupPlan"
+    const val DELETE_VISIT = "Visit/deleteVisitPlan"
+    const val COPY_PLAN = "Visit/copyPlan"
     //----------------------------------------------------------------------------------------------
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod

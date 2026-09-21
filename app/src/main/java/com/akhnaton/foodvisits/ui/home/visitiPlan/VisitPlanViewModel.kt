@@ -6,7 +6,7 @@ import com.akhnaton.foodvisits.data.model.deleteVisitPlan.DeleteVisitPlanReq
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitStatus
-import com.akhnaton.foodvisits.domin.VisitRepository
+import com.akhnaton.foodvisits.domin.VisitPlanRepository
 import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +32,8 @@ class VisitPlanViewModel : ViewModel() {
                     is VisitIntent.UpdateVisitDate -> updateVisitDate(it.id, it.newDate)
                     is VisitIntent.DeleteVisitDate -> deleteVisitDate(it.deleteVisitPlanReq)
                     is VisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
+                    is VisitIntent.DeleteVisitPlan -> deleteVisitPlan(it.ids)
+                    is VisitIntent.CopyPlan -> copyPlan(it.sourceDate, it.targetDate)
                 }
             }
         }
@@ -41,7 +43,7 @@ class VisitPlanViewModel : ViewModel() {
         viewModelScope.launch {
             _status.value = VisitStatus.Loading
             _status.value = try {
-                val response = VisitRepository().getMonthlyVisits()
+                val response = VisitPlanRepository().getMonthlyVisits()
                 allVisits = response.data.visits
                 VisitStatus.GetMonthlyVisits(response)
             } catch (e: Exception) {
@@ -54,7 +56,7 @@ class VisitPlanViewModel : ViewModel() {
         viewModelScope.launch {
             _status.value = VisitStatus.Loading
             _status.value = try {
-                val response = VisitRepository().updateVisitDate(id, newDate)
+                val response = VisitPlanRepository().updateVisitDate(id, newDate)
                 VisitStatus.UpdateVisitDate(response)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)
@@ -81,6 +83,28 @@ class VisitPlanViewModel : ViewModel() {
                 VisitStatus.RefreshToken(
                     PhoneVisitsRepository().refreshToken(userId, token)
                 )
+            } catch (e: Exception) {
+                VisitStatus.Error(e.message)
+            }
+        }
+    }
+    private fun deleteVisitPlan(ids: List<Int>) {
+        viewModelScope.launch {
+            _status.value = VisitStatus.Loading
+            _status.value = try {
+                val response = VisitPlanRepository().deleteVisitPlan(ids)
+                VisitStatus.DeleteVisitPlan(response)
+            } catch (e: Exception) {
+                VisitStatus.Error(e.message)
+            }
+        }
+    }
+    private fun copyPlan(sourceDate: String, targetDate: String) {
+        viewModelScope.launch {
+            _status.value = VisitStatus.Loading
+            _status.value = try {
+                val response = VisitPlanRepository().copyPlan(sourceDate, targetDate)
+                VisitStatus.CopyPlan(response)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)
             }

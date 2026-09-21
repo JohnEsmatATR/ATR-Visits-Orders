@@ -59,7 +59,9 @@ class VisitsAdapter(
                     )
                 }
             }
-
+            ivDelete.setOnClickListener {
+                onDeleteClick(item)
+            }
             ivSwap.setOnClickListener {
                 onSwapClick(item)
             }
