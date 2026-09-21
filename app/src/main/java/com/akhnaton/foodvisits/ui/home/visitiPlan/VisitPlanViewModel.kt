@@ -30,7 +30,6 @@ class VisitPlanViewModel : ViewModel() {
                 when (it) {
                     is VisitIntent.GetMonthlyVisits -> getMonthlyVisits()
                     is VisitIntent.UpdateVisitDate -> updateVisitDate(it.id, it.newDate)
-                    is VisitIntent.DeleteVisitDate -> deleteVisitDate(it.deleteVisitPlanReq)
                     is VisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     is VisitIntent.DeleteVisitPlan -> deleteVisitPlan(it.ids)
                     is VisitIntent.CopyPlan -> copyPlan(it.sourceDate, it.targetDate)
@@ -64,17 +63,6 @@ class VisitPlanViewModel : ViewModel() {
         }
     }
 
-    private fun deleteVisitDate(deleteVisitPlanReq: DeleteVisitPlanReq) {
-        viewModelScope.launch {
-            _status.value = VisitStatus.Loading
-            _status.value = try {
-                val response = VisitRepository().deleteVisitDate(deleteVisitPlanReq)
-                VisitStatus.DeleteVisitDate(response)
-            } catch (e: Exception) {
-                VisitStatus.Error(e.message)
-            }
-        }
-    }
 
     private fun refreshToken(userId: String, token: String) {
         viewModelScope.launch {

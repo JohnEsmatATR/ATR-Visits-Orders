@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
@@ -14,6 +15,8 @@ class VisitsAdapter(
     private val onSwapClick: (VisitItem) -> Unit,
     private val onDeleteClick: (VisitItem) -> Unit
 ) : RecyclerView.Adapter<VisitsAdapter.ViewHolder>() {
+
+    private var actionsVisible = true
 
     class ViewHolder(val binding: ItemVisitCardBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -59,15 +62,16 @@ class VisitsAdapter(
                     )
                 }
             }
+
+            val actionsVisibility = if (actionsVisible) View.VISIBLE else View.GONE
+            ivDelete.visibility = actionsVisibility
+            ivSwap.visibility = actionsVisibility
+
             ivDelete.setOnClickListener {
                 onDeleteClick(item)
             }
             ivSwap.setOnClickListener {
                 onSwapClick(item)
-            }
-
-            ivDelete.setOnClickListener {
-                onDeleteClick(item)
             }
         }
 
@@ -77,6 +81,13 @@ class VisitsAdapter(
     }
 
     override fun getItemCount(): Int = list.size
+
+    fun setActionsVisible(visible: Boolean) {
+        if (actionsVisible != visible) {
+            actionsVisible = visible
+            notifyDataSetChanged()
+        }
+    }
 
     fun updateList(newList: List<VisitItem>) {
         list = newList

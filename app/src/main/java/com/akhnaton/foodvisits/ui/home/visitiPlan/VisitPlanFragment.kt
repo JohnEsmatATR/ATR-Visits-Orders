@@ -26,6 +26,7 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -131,18 +132,30 @@ class VisitPlanFragment : Fragment() {
 
                         is VisitStatus.GetMonthlyVisits -> {
                             binding.progressLoading.visibility = View.GONE
-                            if (status.response.status == 401) {
-                                sendRefreshToken()
-                            } else {
-                                allVisits = status.response.data.visits
-                                filterVisitsForSelectedDate()
-                                renderCalendar()
+                            when (status.response.status) {
+                                200 -> {
+                                    allVisits = status.response.data.visits
+                                    filterVisitsForSelectedDate()
+                                    renderCalendar()
+                                }
+
+                                401 -> sendRefreshToken()
+
+                                else -> {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = status.response.message,
+                                        isSuccess = false,
+                                        showOkButton = true,
+                                    )
+                                }
                             }
                         }
 
                         is VisitStatus.RefreshToken -> {
+                            binding.progressLoading.visibility = View.GONE
                             if (status.data.status == 200) {
-                                val tokenData = com.google.gson.Gson().fromJson(
+                                val tokenData = Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
@@ -160,7 +173,8 @@ class VisitPlanFragment : Fragment() {
                                             Intent(requireContext(), LoginActivity2::class.java)
                                         )
                                         requireActivity().finishAffinity()
-                                    })
+                                    }
+                                )
                             }
                         }
 
@@ -168,6 +182,7 @@ class VisitPlanFragment : Fragment() {
                             binding.progressLoading.visibility = View.GONE
                             getData()
                         }
+
                         is VisitStatus.CopyPlan -> {
                             binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
@@ -178,19 +193,15 @@ class VisitPlanFragment : Fragment() {
                                 onOk = { getData() }
                             )
                         }
+
                         is VisitStatus.DeleteVisitPlan -> {
                             binding.progressLoading.visibility = View.GONE
                             getData()
                         }
+
                         is VisitStatus.Error -> {
                             Log.d(TAG, "fetchData: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = "خطأ",
-                                isSuccess = false,
-                                showOkButton = true,
-                            )
                         }
 
                         else -> {}
@@ -208,6 +219,7 @@ class VisitPlanFragment : Fragment() {
             visitDateOnly == selectedDateKey
         }
 
+        adapter.setActionsVisible(!isSelectedDatePast())
         adapter.updateList(filteredList)
         binding.tvVisitCount.text = getString(R.string.visits_count_format, filteredList.size)
     }
@@ -458,6 +470,13 @@ class VisitPlanFragment : Fragment() {
             val daysInMonth = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
             val inflater = LayoutInflater.from(requireContext())
 
+            val today = Calendar.getInstance().apply {
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+
             for (i in 0 until firstDayOfWeek) {
                 val emptyView = inflater.inflate(R.layout.item_calendar_day, grid, false)
                 emptyView.visibility = View.INVISIBLE
@@ -467,6 +486,10 @@ class VisitPlanFragment : Fragment() {
             for (day in 1..daysInMonth) {
                 val dayCalendar = monthCalendar.clone() as Calendar
                 dayCalendar.set(Calendar.DAY_OF_MONTH, day)
+                dayCalendar.set(Calendar.HOUR_OF_DAY, 0)
+                dayCalendar.set(Calendar.MINUTE, 0)
+                dayCalendar.set(Calendar.SECOND, 0)
+                dayCalendar.set(Calendar.MILLISECOND, 0)
 
                 val dayView = inflater.inflate(R.layout.item_calendar_day, grid, false)
                 val tvDay = dayView.findViewById<android.widget.TextView>(R.id.tv_day)
@@ -474,6 +497,16 @@ class VisitPlanFragment : Fragment() {
 
                 tvDay.text = day.toString()
                 viewDot.visibility = View.INVISIBLE
+
+                if (!dayCalendar.after(today)) {
+                    dayView.alpha = 0.3f
+                    dayView.isClickable = false
+                    tvDay.isSelected = false
+                    addGridCell(grid, dayView)
+                    continue
+                }
+
+                dayView.alpha = 1.0f
 
                 val selected = moveDialogSelectedDate
                 val isSelected = selected != null &&
@@ -573,6 +606,22 @@ class VisitPlanFragment : Fragment() {
                 )
             )
         }
+    }
+
+    private fun isSelectedDatePast(): Boolean {
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val selected = (selectedCalendar.clone() as Calendar).apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return selected.before(today)
     }
 
     override fun onDestroyView() {

@@ -1,11 +1,14 @@
 package com.akhnaton.foodvisits.data.statusValue.visitPlan
 
+import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
 import com.akhnaton.foodvisits.data.model.visitPlan.AddVisitPlan
 import com.akhnaton.foodvisits.data.model.visitPlan.GetLinesRes
 import com.akhnaton.foodvisits.data.model.visitPlan.GetVisitCustomersRes
 import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRes
 
 sealed class AddVisitStatus {
+    data class RefreshToken(val data: RefreshTokenRes) : AddVisitStatus()
+
     object Loading : AddVisitStatus()
     data class GetSalesTypes(val response: AddVisitPlan) : AddVisitStatus()
     data class Error(val message: String?) : AddVisitStatus()

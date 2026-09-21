@@ -1,10 +1,12 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,12 +29,20 @@ import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitStatus
 import com.akhnaton.foodvisits.databinding.FragmentAddVisitPlanBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class AddVisitPlanFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "AddVisitPlanFragment"
+    }
 
     private var _binding: FragmentAddVisitPlanBinding? = null
     private val binding get() = _binding!!
@@ -55,6 +65,9 @@ class AddVisitPlanFragment : Fragment() {
     private var visibleMonthOffset = 0
     private val selectedVisitDates: MutableSet<String> = mutableSetOf()
     private val dayKeyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -79,6 +92,11 @@ class AddVisitPlanFragment : Fragment() {
 
         binding.cardRoute.visibility = View.GONE
         binding.cardCustomers.visibility = View.GONE
+        binding.cardRoute.visibility = View.GONE
+        binding.cardCustomers.visibility = View.GONE
+
+        binding.contentSaleType.visibility = View.VISIBLE
+        binding.ivChevronSaleType.rotation = 180f
     }
 
     private fun setupVisitCalendar() {
@@ -219,7 +237,7 @@ class AddVisitPlanFragment : Fragment() {
                 binding.contentCustomers.visibility = View.VISIBLE
                 binding.ivChevronCustomers.animate().rotation(180f).setDuration(200).start()
 
-                viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetCustomers(line.LINE_CODE))
+                getCustomers(line.LINE_CODE)
             }
         )
         binding.rvRoutes.layoutManager = LinearLayoutManager(requireContext())
@@ -250,6 +268,71 @@ class AddVisitPlanFragment : Fragment() {
         viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetLines(saleType))
     }
 
+    private fun getCustomers(lineCode: String) {
+        viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetCustomers(lineCode))
+    }
+
+    private fun sendRefreshToken() {
+        viewModel.addVisitPlanIntent.trySend(
+            AddVisitIntent.RefreshToken(
+                SharedPreferencesHelper.getInstance().getEmployeeId(),
+                SharedPreferencesHelper.getInstance().getUserToken()
+            )
+        )
+    }
+
+    private fun handleResponse(
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    pendingRetry = null
+                    showSessionExpired(message)
+                } else {
+                    pendingRetry = retry
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message,
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
+    }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(
+                    Intent(requireContext(), LoginActivity2::class.java)
+                )
+                requireActivity().finishAffinity()
+            }
+        )
+    }
+
     private fun observeStatus() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -261,37 +344,80 @@ class AddVisitPlanFragment : Fragment() {
 
                         is AddVisitStatus.GetSalesTypes -> {
                             binding.progressLoading.visibility = View.GONE
-                            salesTypes = status.response.data.sales_types
-                            buildSaleTypeGrid()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { getSalesTypes() }
+                            ) {
+                                salesTypes = status.response.data.sales_types
+                                buildSaleTypeGrid()
+                            }
                         }
 
                         is AddVisitStatus.GetLines -> {
                             binding.progressLoading.visibility = View.GONE
-                            lines = status.response.data.lines
-                            lineAdapter.updateList(currentFilteredList())
-                        }
-                        is AddVisitStatus.GetCustomers -> {
-                            binding.progressLoading.visibility = View.GONE
-                            customersList = status.response.data.setup_customers
-                            selectedCustomerIds.clear()
-                            customersAdapter.updateList(customersList)
-                            updateCustomersCountLabel()
-                            updateSaveButtonState()
-                        }
-                        is AddVisitStatus.SaveSetupPlan -> {
-                            binding.progressLoading.visibility = View.GONE
-                            Toast.makeText(requireContext(), status.response.message, Toast.LENGTH_SHORT).show()
-                            if (status.response.data.success) {
-                                findNavController().popBackStack()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { selectedSaleType?.let { getLines(it) } }
+                            ) {
+                                lines = status.response.data.lines
+                                lineAdapter.updateList(currentFilteredList())
                             }
                         }
-                        is AddVisitStatus.Error -> {
+
+                        is AddVisitStatus.GetCustomers -> {
                             binding.progressLoading.visibility = View.GONE
-                            Toast.makeText(
-                                requireContext(),
-                                status.message ?: "خطأ",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { selectedLine?.let { getCustomers(it.LINE_CODE) } }
+                            ) {
+                                customersList = status.response.data.setup_customers
+                                selectedCustomerIds.clear()
+                                customersAdapter.updateList(customersList)
+                                updateCustomersCountLabel()
+                                updateSaveButtonState()
+                            }
+                        }
+
+                        is AddVisitStatus.SaveSetupPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { submitPlan() }
+                            ) {
+                                Toast.makeText(requireContext(), status.response.message, Toast.LENGTH_SHORT).show()
+                                if (status.response.data.success) {
+                                    findNavController().popBackStack()
+                                }
+                            }
+                        }
+
+                        is AddVisitStatus.RefreshToken -> {
+                            binding.progressLoading.visibility = View.GONE
+                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
+                            if (status.data.status == 200) {
+                                val tokenData = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                val retry = pendingRetry
+                                pendingRetry = null
+                                retry?.invoke()
+                            } else {
+                                pendingRetry = null
+                                hasRetriedAfterRefresh = false
+                                showSessionExpired(status.data.message)
+                            }
+                        }
+
+                        is AddVisitStatus.Error -> {
+                            Log.d(TAG, "observeStatus: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
                         }
 
                         else -> {}
@@ -392,40 +518,41 @@ class AddVisitPlanFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-
         binding.btnBackContainer.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.btnSavePlan.setOnClickListener {
-            val saleType = selectedSaleType
-            val line = selectedLine
+        binding.btnSavePlan.setOnClickListener { submitPlan() }
+    }
 
-            if (saleType == null || line == null || selectedCustomerIds.isEmpty() || selectedVisitDates.isEmpty()) {
-                Toast.makeText(requireContext(), "من فضلك أكمل كل الخطوات", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+    private fun submitPlan() {
+        val saleType = selectedSaleType
+        val line = selectedLine
+
+        if (saleType == null || line == null || selectedCustomerIds.isEmpty() || selectedVisitDates.isEmpty()) {
+            Toast.makeText(requireContext(), "من فضلك أكمل كل الخطوات", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val customersRequest = customersList
+            .filter { selectedCustomerIds.contains(it.PARTY_SITE_ID) }
+            .map {
+                SaveCustomerRequest(
+                    customer_code = it.CUSTOMER_CODE,
+                    party_site_id = it.PARTY_SITE_ID,
+                    customer_type = it.CUSTOMER_PROFILE_CLASS,
+                    customer_branch = it.CUSTOMER_BRANCH
+                )
             }
 
-            val customersRequest = customersList
-                .filter { selectedCustomerIds.contains(it.PARTY_SITE_ID) }
-                .map {
-                    SaveCustomerRequest(
-                        customer_code = it.CUSTOMER_CODE,
-                        party_site_id = it.PARTY_SITE_ID,
-                        customer_type = it.CUSTOMER_PROFILE_CLASS,
-                        customer_branch = it.CUSTOMER_BRANCH
-                    )
-                }
+        val request = SaveSetupPlanRequest(
+            order_type = saleType,
+            line_id = line.LINE_CODE,
+            customers = customersRequest,
+            dates = selectedVisitDates.sorted()
+        )
 
-            val request = SaveSetupPlanRequest(
-                order_type = saleType,
-                line_id = line.LINE_CODE,
-                customers = customersRequest,
-                dates = selectedVisitDates.sorted()
-            )
-
-            viewModel.addVisitPlanIntent.trySend(AddVisitIntent.SaveSetupPlan(request))
-        }
+        viewModel.addVisitPlanIntent.trySend(AddVisitIntent.SaveSetupPlan(request))
     }
 
     private fun setupExpandableSections() {
@@ -504,6 +631,7 @@ class AddVisitPlanFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pendingRetry = null
         _binding = null
     }
 }
