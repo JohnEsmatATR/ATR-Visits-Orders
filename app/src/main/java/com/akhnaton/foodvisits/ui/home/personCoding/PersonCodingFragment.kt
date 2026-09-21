@@ -337,6 +337,7 @@ class PersonCodingFragment : Fragment() {
                                 showError(status.response.message)
                             }
                         }
+
                         is PersonStatus.AddCustomer -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
@@ -344,7 +345,7 @@ class PersonCodingFragment : Fragment() {
                             } else if (status.response.status == 200) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = status.response.message,
+                                    message = status.response.message.firstOrNull().orEmpty(),
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
@@ -352,7 +353,7 @@ class PersonCodingFragment : Fragment() {
                                     }
                                 )
                             } else {
-                                showError(status.response.message)
+                                showError(status.response.message.toString())
                             }
                         }
                         is PersonStatus.RefreshToken -> {

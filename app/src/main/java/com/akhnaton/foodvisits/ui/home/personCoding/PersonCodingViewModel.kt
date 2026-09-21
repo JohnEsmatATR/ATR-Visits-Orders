@@ -144,7 +144,7 @@ class PersonCodingViewModel : ViewModel() {
                 } catch (parseError: Exception) {
                     null
                 }
-                PersonStatus.Error(backendMessage ?: e.message())
+                PersonStatus.Error(backendMessage.toString() ?: e.message())
             } catch (e: Exception) {
                 PersonStatus.Error(e.message)
             }

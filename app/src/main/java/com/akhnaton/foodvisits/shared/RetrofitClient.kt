@@ -11,10 +11,6 @@ abstract class RetrofitClient {
 
     companion object {
         var gson: Gson = GsonBuilder()
-            .registerTypeAdapter(
-                object : TypeToken<List<String>>() {}.type,
-                StringOrListAdapter()
-            )
             .setLenient()
             .create()
 
