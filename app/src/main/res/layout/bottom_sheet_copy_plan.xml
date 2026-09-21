@@ -9,8 +9,7 @@
     android:clipToOutline="true"
     android:layout_margin="12dp"
     android:padding="20dp">
-
-
+    
     <View
         android:layout_width="40dp"
         android:layout_height="4dp"

@@ -2,6 +2,7 @@ package com.akhnaton.foodvisits.ui.home.personCoding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.akhnaton.foodvisits.data.model.personCoding.AddCustomerModel
 import com.akhnaton.foodvisits.data.statusValue.personCoding.PersonIntent
 import com.akhnaton.foodvisits.data.statusValue.personCoding.PersonStatus
 import com.akhnaton.foodvisits.domin.PersonCodingRepository
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import retrofit2.HttpException
 
 class PersonCodingViewModel : ViewModel() {
 
@@ -128,6 +130,21 @@ class PersonCodingViewModel : ViewModel() {
                 PersonStatus.AddCustomer(
                     PersonCodingRepository().addCustomer(fields, frontImage, backImage)
                 )
+            } catch (e: HttpException) {
+                val backendMessage = try {
+                    val errorBodyString = e.response()?.errorBody()?.string()
+                    if (!errorBodyString.isNullOrBlank()) {
+                        com.google.gson.Gson().fromJson(
+                            errorBodyString,
+                            AddCustomerModel::class.java
+                        ).message
+                    } else {
+                        null
+                    }
+                } catch (parseError: Exception) {
+                    null
+                }
+                PersonStatus.Error(backendMessage.toString() ?: e.message())
             } catch (e: Exception) {
                 PersonStatus.Error(e.message)
             }

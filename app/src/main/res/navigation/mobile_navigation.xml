@@ -293,6 +293,7 @@
             app:argType="string" />
 
     </fragment>
+
     <fragment
         android:id="@+id/personCodingFragment"
         android:name="com.akhnaton.foodvisits.ui.home.personCoding.PersonCodingFragment"
@@ -303,6 +304,16 @@
         android:id="@+id/VisitPlanFragment"
         android:name="com.akhnaton.foodvisits.ui.home.visitPlan.VisitPlanFragment"
         android:label="fragment_visit_plan"
-        tools:layout="@layout/fragment_visit_plan" />
+        tools:layout="@layout/fragment_visit_plan">
+        <action
+            android:id="@+id/toAddVisitPlan"
+            app:destination="@id/addVisitPlanFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addVisitPlanFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.visitPlan.AddVisitPlanFragment"
+        android:label="fragment_add_visit_plan"
+        tools:layout="@layout/fragment_add_visit_plan" />
 
 </navigation>

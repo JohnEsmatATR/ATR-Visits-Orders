@@ -145,9 +145,9 @@
     <string name="select_area">تحديد المنطقة</string>
     <string name="write_customer_name">ادخل اسم العميل</string>
     <string name="write_customer_address">ادخل عنوان العميل</string>
-    <string name="write_customer_phone">ادخل رقم الهاتف المحمول</string>
+    <string name="write_customer_mobile">ادخل رقم الهاتف المحمول</string>
 
-    <string name="write_customer_mobile">ادخل رقم الهاتف الارضى</string>
+    <string name="write_customer_phone">ادخل رقم الهاتف الارضى</string>
     <string name="write_nationality_id">ادخل الرقم القومى</string>
     <string name="write_nationality_name">ادخل اسم العميل فى البطاقة</string>
     <string name="write_nationality_address">ادخل عنوان العميل فى البطاقة</string>
@@ -279,7 +279,7 @@
     <string name="item_totals">إجالي الأصناف</string>
 
     <string name="search_product_name_code">ابحث باسم المنتج أو الكود...</string>
-    <string name="title_add_customer">تكويد عميل</string>
+    <string name="title_add_customer">تكويد عميل بيع مباشر</string>
 
     <string name="label_customer_type">نوع العميل</string>
     <string name="hint_select_customer_type">اختر نوع العميل</string>
@@ -355,6 +355,27 @@
     <string name="weekday_sat_short">س</string>
 
     <string name="code_label">كود</string>
+    <string name="no_visits_today">لا توجد زيارات في هذا اليوم</string>
+
+
+    <string name="sale_type_title">اختر نوع البيع</string>
+    <string name="route_title">اختر خط السير</string>
+    <string name="customers_days_title">العملاء وأيام الزيارة الأسبوعية</string>
+    <string name="customers_days_subtitle">حدد أيام الزيارة والعملاء</string>
+
+    <string name="select_weekly_days">1. اختر أيام الزيارة الأسبوعية:</string>
+    <string name="select_customers_format">2. اختر العملاء (%d محدد):</string>
+    <string name="select_all">تحديد الكل</string>
+    <string name="deselect_all">إلغاء التحديد</string>
+
+    <string name="search_route_hint">ابحث عن خط سير...</string>
+    <string name="search_customer_hint">ابحث باسم العميل أو الكود...</string>
+
+    <string name="save_visit_plan">حفظ خطة الزيارة</string>
+
+    <string name="no_routes_found">لا توجد خطوط سير متاحة</string>
+    <string name="no_customers_found">لا يوجد عملاء في هذا الخط</string>
+    <string name="loading_data">جاري تحميل البيانات...</string>
     <string name="plan_visits">خطة الزيارات</string>
 
 </resources>

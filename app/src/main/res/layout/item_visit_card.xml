@@ -69,7 +69,6 @@
                         android:src="@drawable/ic_swap"
                         app:tint="@color/blue"
                         tools:ignore="ContentDescription" />
-
                     <ImageView
                         android:id="@+id/iv_delete"
                         android:layout_width="30dp"

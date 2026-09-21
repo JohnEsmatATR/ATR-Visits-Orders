@@ -44,4 +44,12 @@
     <color name="blue_bg">#E1F5FE</color>
     <color name="fab_duplicate_blue">#2F6FED</color>
 
+    <color name="green2">#2E7D32</color>
+    <color name="green_light">#E8F5E9</color>
+    <color name="gray_status_light">#F0F0F0</color>
+
+
+    <color name="gradient_orange_start">#FF9800</color>
+    <color name="gradient_orange_end">#FF5A36</color>
+    <color name="unselected_card_bg">#F5F5F7</color>
 </resources>

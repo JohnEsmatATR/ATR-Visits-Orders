@@ -73,6 +73,8 @@ class PersonCodingFragment : Fragment() {
     private var backIdImageUri: Uri? = null
     private var pickingFrontImage = false
 
+    private var pendingRetryAfterRefresh: (() -> Unit)? = null
+
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     private val pickImageLauncher = registerForActivityResult(
@@ -84,11 +86,13 @@ class PersonCodingFragment : Fragment() {
                 binding.imFrontIdImage.setImageURI(uri)
                 binding.imFrontIdImage.visibility = View.VISIBLE
                 binding.layoutFrontPlaceholder.visibility = View.GONE
+                binding.btnClearFrontImage.visibility = View.VISIBLE
             } else {
                 backIdImageUri = uri
                 binding.imBackIdImage.setImageURI(uri)
                 binding.imBackIdImage.visibility = View.VISIBLE
                 binding.layoutBackPlaceholder.visibility = View.GONE
+                binding.btnClearBackImage.visibility = View.VISIBLE
             }
         }
     }
@@ -128,9 +132,6 @@ class PersonCodingFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.customerIntent.send(PersonIntent.GetSalesAndCustomerTypes)
-        }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.customerIntent.send(PersonIntent.GetSalesAndCustomerTypes)
             viewModel.customerIntent.send(PersonIntent.GetUserAreas)
         }
     }
@@ -149,6 +150,10 @@ class PersonCodingFragment : Fragment() {
             frontIdImageUri?.let { showFullScreenImage(it) }
         }
 
+        binding.btnClearFrontImage.setOnClickListener {
+            clearFrontImage()
+        }
+
         binding.layoutBackPlaceholder.setOnClickListener {
             pickingFrontImage = false
             pickImageLauncher.launch("image/*")
@@ -157,9 +162,30 @@ class PersonCodingFragment : Fragment() {
         binding.imBackIdImage.setOnClickListener {
             backIdImageUri?.let { showFullScreenImage(it) }
         }
+
+        binding.btnClearBackImage.setOnClickListener {
+            clearBackImage()
+        }
+
         binding.addCustomerBtn.setOnClickListener {
             submitAddCustomer()
         }
+    }
+
+    private fun clearFrontImage() {
+        frontIdImageUri = null
+        binding.imFrontIdImage.setImageURI(null)
+        binding.imFrontIdImage.visibility = View.GONE
+        binding.btnClearFrontImage.visibility = View.GONE
+        binding.layoutFrontPlaceholder.visibility = View.VISIBLE
+    }
+
+    private fun clearBackImage() {
+        backIdImageUri = null
+        binding.imBackIdImage.setImageURI(null)
+        binding.imBackIdImage.visibility = View.GONE
+        binding.btnClearBackImage.visibility = View.GONE
+        binding.layoutBackPlaceholder.visibility = View.VISIBLE
     }
 
     private fun showFullScreenImage(uri: Uri) {
@@ -248,7 +274,11 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetSalesAndCustomerTypes -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
-                                sendRefreshToken()
+                                sendRefreshToken {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        viewModel.customerIntent.send(PersonIntent.GetSalesAndCustomerTypes)
+                                    }
+                                }
                             } else if (status.response.status == 200) {
                                 bindCustomerAndOrderTypes(status.response)
                             } else {
@@ -258,7 +288,7 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetLines -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
-                                sendRefreshToken()
+                                sendRefreshToken { tryLoadLines() }
                             } else if (status.response.status == 200) {
                                 bindLines(status.response)
                             } else {
@@ -268,39 +298,21 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetMainCustomersLine -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
-                                sendRefreshToken()
+                                sendRefreshToken { tryLoadMainCustomers() }
                             } else if (status.response.status == 200) {
                                 bindMainCustomers(status.response)
                             } else {
                                 showError(status.response.message)
                             }
                         }
-                        is PersonStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
-                            if (status.data.status == 200) {
-                                Log.d("WHATRefreshToken", "${status.data.message}")
-                                val tokenData = com.google.gson.Gson().fromJson(
-                                    status.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
-                            } else {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = status.data.message,
-                                    isSuccess = false,
-                                    showOkButton = true,
-                                    onOk = {
-                                        SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
-                                        requireActivity().finishAffinity()
-                                    })
-                            }
-                        }
                         is PersonStatus.GetUserAreas -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
-                                sendRefreshToken()
+                                sendRefreshToken {
+                                    viewLifecycleOwner.lifecycleScope.launch {
+                                        viewModel.customerIntent.send(PersonIntent.GetUserAreas)
+                                    }
+                                }
                             } else if (status.response.status == 200) {
                                 bindGovernorates(status.response)
                             } else {
@@ -310,21 +322,30 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetAreasByGovernorate -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
-                                sendRefreshToken()
+                                sendRefreshToken {
+                                    selectedGovernorate?.let { governorate ->
+                                        viewLifecycleOwner.lifecycleScope.launch {
+                                            viewModel.customerIntent.send(
+                                                PersonIntent.GetAreasByGovernorate(governorate.id)
+                                            )
+                                        }
+                                    }
+                                }
                             } else if (status.response.status == 200) {
                                 bindAreas(status.response)
                             } else {
                                 showError(status.response.message)
                             }
                         }
+
                         is PersonStatus.AddCustomer -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.response.status == 401) {
-                                sendRefreshToken()
+                                sendRefreshToken { submitAddCustomer() }
                             } else if (status.response.status == 200) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = status.response.message,
+                                    message = status.response.message.firstOrNull().orEmpty(),
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
@@ -332,7 +353,35 @@ class PersonCodingFragment : Fragment() {
                                     }
                                 )
                             } else {
-                                showError(status.response.message)
+                                showError(status.response.message.toString())
+                            }
+                        }
+                        is PersonStatus.RefreshToken -> {
+                            if (status.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${status.data.message}")
+                                val tokenData = com.google.gson.Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                pendingRetryAfterRefresh?.invoke()
+                                pendingRetryAfterRefresh = null
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    })
                             }
                         }
                         is PersonStatus.Error -> {
@@ -340,16 +389,27 @@ class PersonCodingFragment : Fragment() {
                             binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
-                                message = "خطأ",
-                                isSuccess = true,
+                                message = status.message ?: "حدث خطأ، حاول مرة أخرى",
+                                isSuccess = false,
                                 showOkButton = true,
                             )
                         }
                         else -> {}
-
                     }
                 }
             }
+        }
+    }
+
+    private fun sendRefreshToken(retry: (() -> Unit)? = null) {
+        pendingRetryAfterRefresh = retry
+        lifecycleScope.launch {
+            viewModel.customerIntent.send(
+                PersonIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
         }
     }
 
@@ -381,9 +441,19 @@ class PersonCodingFragment : Fragment() {
         binding.spSelectArea.setAdapter(null)
     }
 
+    private fun resetOrderType() {
+        selectedOrderType = null
+        binding.orderType.setText("", false)
+    }
+
     private fun resetLineAndBelow() {
         resetLine()
         resetMainCustomer()
+    }
+
+    private fun resetOrderTypeAndBelow() {
+        resetOrderType()
+        resetLineAndBelow()
     }
 
     private fun bindCustomerAndOrderTypes(response: SalesAndCustomerModel) {
@@ -396,7 +466,7 @@ class PersonCodingFragment : Fragment() {
         binding.customerType.threshold = 0
         binding.customerType.setOnItemClickListener { _, _, position, _ ->
             selectedCustomerType = customerTypes[position]
-            resetLineAndBelow()
+            resetOrderTypeAndBelow()
             tryLoadLines()
         }
 
@@ -456,17 +526,6 @@ class PersonCodingFragment : Fragment() {
         binding.personType.threshold = 0
         binding.personType.setOnItemClickListener { _, _, position, _ ->
             selectedMainCustomer = customers[position]
-        }
-    }
-
-    private fun sendRefreshToken() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.customerIntent.send(
-                PersonIntent.RefreshToken(
-                    SharedPreferencesHelper.getInstance().getEmployeeId(),
-                    SharedPreferencesHelper.getInstance().getUserToken()
-                )
-            )
         }
     }
 
