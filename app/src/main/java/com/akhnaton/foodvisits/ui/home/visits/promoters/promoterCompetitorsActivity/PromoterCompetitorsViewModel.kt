@@ -41,12 +41,14 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         it.prom_type, it.prom_date, it.user_type,
                         it.PromoterCompetitorCompress, it.competitor_id, it.type_id,
                     )
+
                     is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(it.appVersion)
                     is PromoterIntent.UploadImages -> fetchUploadImages(
                         it.appVersion, it.apiToken, it.image, it.created_by,
                         it.creation_date, it.customer_code, it.party_site_id,
                         it.user_type, it.funNum
                     )
+
                     is PromoterIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     else -> {}
                 }
@@ -54,7 +56,7 @@ class PromoterCompetitorsViewModel : ViewModel() {
         }
     }
 
-    private fun     fetchSendCompetitors(
+    private fun fetchSendCompetitors(
         appVersion: RequestBody,
         apiToken: RequestBody,
         image: MultipartBody.Part,
@@ -108,8 +110,6 @@ class PromoterCompetitorsViewModel : ViewModel() {
     }
 
 
-
-
     private fun fetchGetCompetitorList(
         appVersion: Double,
     ) {
@@ -159,6 +159,7 @@ class PromoterCompetitorsViewModel : ViewModel() {
             }
         }
     }
+
     private fun refreshToken(userId: String, token: String) {
         viewModelScope.launch {
             _status.value = PromoterStatus.Loading

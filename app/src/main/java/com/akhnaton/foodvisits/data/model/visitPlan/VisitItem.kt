@@ -1,11 +1,12 @@
 package com.akhnaton.foodvisits.data.model.visitPlan
+
 import com.google.gson.JsonElement
 
 data class VisitListModel(
     val status: Int,
     val message: String,
     val type: String,
-    val data: VisitData
+    val data: JsonElement?
 )
 
 data class VisitData(
@@ -40,7 +41,7 @@ data class DeleteVisitRes(
     val status: Int,
     val message: String,
     val type: String,
-    val data: DeleteVisitData
+    val data: JsonElement?
 )
 
 data class CopyPlanReq(
@@ -60,5 +61,5 @@ data class CopyPlanRes(
     val status: Int,
     val message: String,
     val type: String,
-    val data: CopyPlanData
+    val data: JsonElement?
 )

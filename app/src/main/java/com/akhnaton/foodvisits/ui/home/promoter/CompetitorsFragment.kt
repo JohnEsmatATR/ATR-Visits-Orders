@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.promoter
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -20,14 +21,21 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.data.model.promoter.CompetitorList
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitor
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitorTypes
 import com.akhnaton.foodvisits.data.model.promoter.GetPromotionTypes
-import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
-import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
+import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.promoter.SelectedImagesAdapter
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -39,19 +47,13 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import com.google.android.material.datepicker.MaterialDatePicker
 import java.util.TimeZone
-import android.content.Intent
-import androidx.activity.OnBackPressedCallback
-import com.akhnaton.foodvisits.BuildConfig
-import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
-import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
-import com.akhnaton.foodvisits.shared.DialogUtils
-import com.akhnaton.foodvisits.shared.ProgressDialogHelper
-import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import com.google.gson.Gson
 
-class CompetitorsFragment : Fragment() {
+class CompetitorFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "CompetitorFragment"
+    }
 
     private var promotionTypesList: List<GetPromotionTypes> = emptyList()
     private var competitorsList: List<GetCompetitor> = emptyList()
@@ -65,16 +67,13 @@ class CompetitorsFragment : Fragment() {
 
     private lateinit var imagesAdapter: SelectedImagesAdapter
 
-    private val viewModel: PromoterViewModel by viewModels()
+    private val viewModel: PromoterCompetitorsViewModel by viewModels()
 
     private var selectedCompetitorId: String? = null
     private var selectedTypeId: String? = null
 
-    var checkIn: String = ""
-    var currentTime: String = ""
-    lateinit var checkInReq: CheckInGPSReq
-    private val versionName = BuildConfig.VERSION_NAME
-
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
     private lateinit var dialog: AlertDialog
 
     private val pickImagesLauncher = registerForActivityResult(
@@ -100,39 +99,21 @@ class CompetitorsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        checkIn = arguments?.getString("checkIn").orEmpty()
-        currentTime = arguments?.getString("currentTime").orEmpty()
-        checkInReq = Gson().fromJson(
-            arguments?.getString("checkInReq").orEmpty(),
-            CheckInGPSReq::class.java
-        )
-
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
         setupImagesRecyclerView()
         observeStatus()
 
-        requireActivity().onBackPressedDispatcher.addCallback(
-            viewLifecycleOwner,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    checkIn()
-                }
-            }
-        )
-
-        binding.btnBackContainer.setOnClickListener {
-            checkIn()
+        binding.ivBack.setOnClickListener {
+            findNavController().popBackStack()
         }
 
         binding.btnAddImages.setOnClickListener {
             pickImagesLauncher.launch("image/*")
         }
 
-        viewModel.promoterIntent.trySend(
-            PromoterIntent.GetCompetitorList(appVersion = 1.0)
-        )
+        getCompetitorList()
 
         binding.btnSave.setOnClickListener {
             onSaveClicked()
@@ -146,14 +127,10 @@ class CompetitorsFragment : Fragment() {
         }
     }
 
-    private fun checkIn() {
-        lifecycleScope.launch {
-            viewModel.promoterIntent.send(
-                PromoterIntent.CheckIn(
-                    checkInReq
-                )
-            )
-        }
+    private fun getCompetitorList() {
+        viewModel.promoterIntent.trySend(
+            PromoterIntent.GetCompetitorList(appVersion = 1.0)
+        )
     }
 
     private fun setupImagesRecyclerView() {
@@ -225,172 +202,6 @@ class CompetitorsFragment : Fragment() {
         )
     }
 
-    private fun observeStatus() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.status.collect { status ->
-                    when (status) {
-                        is PromoterStatus.Idle -> {}
-                        is PromoterStatus.Loading -> dialog.show()
-                        is PromoterStatus.GetCompetitorList -> {
-                            dialog.dismiss()
-                            if (status.data.status == 401) {
-                                sendRefreshToken()
-                            } else {
-                                competitorTypesList = status.data.data.get_competitor_types
-                                competitorsList = status.data.data.get_competitor
-                                promotionTypesList = status.data.data.get_promotion_types
-                                itemSizesList = status.data.data.get_item_sizes
-
-                                setupPromotionTypeCheckboxes(promotionTypesList)
-                                setupItemSizesDropdown(itemSizesList)
-
-                                val types = competitorTypesList.map { it.type_name }
-                                val companies = competitorsList.map { it.competitor_name }
-
-                                binding.actvCategory.setAdapter(
-                                    ArrayAdapter(
-                                        requireContext(),
-                                        android.R.layout.simple_list_item_1,
-                                        types
-                                    )
-                                )
-                                binding.actvCategory.setOnItemClickListener { _, _, position, _ ->
-                                    selectedTypeId = competitorTypesList[position].id
-                                }
-
-                                binding.actvCompany.setAdapter(
-                                    ArrayAdapter(
-                                        requireContext(),
-                                        android.R.layout.simple_list_item_1,
-                                        companies
-                                    )
-                                )
-                                binding.actvCompany.setOnItemClickListener { _, _, position, _ ->
-                                    selectedCompetitorId = competitorsList[position].id
-                                }
-
-                                viewModel.resetStatus()
-                            }
-                        }
-
-                        is PromoterStatus.SendCompetitors -> {
-                            dialog.dismiss()
-                            Toast.makeText(
-                                requireContext(),
-                                "تم حفظ المنافس بنجاح",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            viewModel.resetStatus()
-                            findNavController().popBackStack()
-                        }
-
-                        is PromoterStatus.CheckIn -> {
-                            dialog.dismiss()
-
-                            if (status.data.status == 200) {
-                                val data =
-                                    Gson().fromJson(
-                                        status.data.data,
-                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
-                                    )
-
-                                val navController = findNavController()
-
-                                val previousBackStackEntry =
-                                    navController.previousBackStackEntry
-
-                                if (previousBackStackEntry == null) {
-                                    return@collect
-                                }
-
-                                val savedStateHandle =
-                                    previousBackStackEntry.savedStateHandle
-
-                                savedStateHandle.set(
-                                    "checkIn",
-                                    data.check_in
-                                )
-
-                                savedStateHandle.set(
-                                    "currentTime",
-                                    data.current_time
-                                )
-
-                                val result =
-                                    navController.popBackStack()
-
-                            } else if (status.data.status == 401) {
-                                lifecycleScope.launch {
-                                    viewModel.promoterIntent.send(
-                                        PromoterIntent.RefreshToken(
-                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                            SharedPreferencesHelper.getInstance().getUserToken()
-                                        )
-                                    )
-                                }
-                            } else {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = status.data.message,
-                                    isSuccess = false,
-                                    showOkButton = true,
-                                    onOk = {
-//                                    findNavController().popBackStack()
-                                    }
-                                )
-                            }
-                        }
-
-                        is PromoterStatus.RefreshToken -> {
-                            dialog.dismiss()
-                            if (status.data.status == 200) {
-                                val tokenData = Gson().fromJson(
-                                    status.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
-                            } else {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = status.data.message,
-                                    isSuccess = false,
-                                    showOkButton = true,
-                                    onOk = {
-                                        SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(
-                                            Intent(
-                                                requireContext(),
-                                                LoginActivity2::class.java
-                                            )
-                                        )
-                                        requireActivity().finishAffinity()
-                                    })
-                            }
-                            viewModel.resetStatus()
-                        }
-
-                        is PromoterStatus.Error -> {
-                            dialog.dismiss()
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = status.error.toString(),
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
-                            viewModel.resetStatus()
-                        }
-
-                        else -> {}
-                    }
-                }
-            }
-        }
-    }
-
     private fun sendRefreshToken() {
         lifecycleScope.launch {
             viewModel.promoterIntent.send(
@@ -402,6 +213,155 @@ class CompetitorsFragment : Fragment() {
         }
     }
 
+    private fun handleResponse(
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    pendingRetry = null
+                    viewModel.resetStatus()
+                    showSessionExpired(message)
+                } else {
+                    pendingRetry = retry
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                viewModel.resetStatus()
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message,
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
+    }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                requireActivity().finishAffinity()
+            }
+        )
+    }
+
+    private fun observeStatus() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect { status ->
+                    when (status) {
+                        is PromoterStatus.Loading -> {
+                            dialog.show()
+                        }
+                        is PromoterStatus.GetCompetitorList -> {
+                            dialog.hide()
+                            handleResponse(
+                                code = status.response.status,
+                                message = "",
+                                retry = { getCompetitorList() }
+                            ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    CompetitorList::class.java
+                                )
+
+                                competitorTypesList = data?.get_competitor_types ?: emptyList()
+                                competitorsList = data?.get_competitor ?: emptyList()
+                                promotionTypesList = data?.get_promotion_types ?: emptyList()
+                                itemSizesList = data?.get_item_sizes ?: emptyList()
+
+                                setupPromotionTypeCheckboxes(promotionTypesList)
+                                setupItemSizesDropdown(itemSizesList)
+
+                                val types = competitorTypesList.map { it.type_name }
+                                val companies = competitorsList.map { it.competitor_name }
+
+                                binding.actvCategory.setAdapter(
+                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
+                                )
+                                binding.actvCategory.setOnItemClickListener { _, _, position, _ ->
+                                    selectedTypeId = competitorTypesList[position].id
+                                }
+
+                                binding.actvCompany.setAdapter(
+                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, companies)
+                                )
+                                binding.actvCompany.setOnItemClickListener { _, _, position, _ ->
+                                    selectedCompetitorId = competitorsList[position].id
+                                }
+
+                                viewModel.resetStatus()
+                            }
+                        }
+
+                        is PromoterStatus.SendCompetitors -> {
+                            dialog.hide()
+                            handleResponse(
+                                code = status.response.status ?: -1,
+                                message = "",
+                                retry = { onSaveClicked() }
+                            ) {
+                                Toast.makeText(requireContext(), "تم حفظ المنافس بنجاح", Toast.LENGTH_SHORT).show()
+                                viewModel.resetStatus()
+                                findNavController().popBackStack()
+                            }
+                        }
+
+                        is PromoterStatus.RefreshToken -> {
+                            dialog.hide()
+                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
+                            if (status.data.status == 200) {
+                                val tokenData = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                val retry = pendingRetry
+                                pendingRetry = null
+                                viewModel.resetStatus()
+                                retry?.invoke()
+                            } else {
+                                pendingRetry = null
+                                hasRetriedAfterRefresh = false
+                                viewModel.resetStatus()
+                                showSessionExpired(status.data.message)
+                            }
+                        }
+
+                        is PromoterStatus.Error -> {
+                            dialog.hide()
+                            Log.d(TAG, "observeStatus: ${status.error}")
+                            viewModel.resetStatus()
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+        }
+    }
+
     private fun onSaveClicked() {
 
         if (offerDateForApi.isBlank()) {
@@ -410,11 +370,7 @@ class CompetitorsFragment : Fragment() {
         }
 
         if (selectedTypeId == null || selectedCompetitorId == null) {
-            Toast.makeText(
-                requireContext(),
-                "من فضلك اختر الفئة والشركة المنافسة",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(requireContext(), "من فضلك اختر الفئة والشركة المنافسة", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -447,16 +403,13 @@ class CompetitorsFragment : Fragment() {
         val partySiteId = arguments?.getString("customerPartySiteId")
             ?: requireActivity().intent?.getStringExtra("party_site") ?: ""
 
-        Log.d("CUSTOMER_DEBUG", "Fragment customer_code = '$customerCode'")
-        Log.d("TOKEN_DEBUG", "api_token = '$apiToken' (length=${apiToken.length})")
-
         val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
 
         viewModel.promoterIntent.trySend(
             PromoterIntent.SendCompetitors(
-                appVersion = versionName.toBody(),
+                appVersion = "1.0".toBody(),
                 apiToken = apiToken.toBody(),
                 image = imagePart,
                 created_by = employeeId.toBody(),
@@ -471,7 +424,7 @@ class CompetitorsFragment : Fragment() {
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),
-                user_type = "prom".toBody(),
+                user_type = "".toBody(),
                 PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
                 competitor_id = selectedCompetitorId!!.toBody(),
                 type_id = selectedTypeId!!.toBody(),
@@ -514,6 +467,7 @@ class CompetitorsFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pendingRetry = null
         _binding = null
     }
 }

@@ -1,5 +1,7 @@
 package com.akhnaton.foodvisits.data.model.visitPlan
 
+import com.google.gson.JsonElement
+
 data class SaveCustomerRequest(
     val customer_code: String,
     val party_site_id: String,
@@ -23,5 +25,5 @@ data class SaveSetupPlanRes(
     val status: Int,
     val message: String,
     val type: String,
-    val data: SaveSetupPlanData
+    val data: JsonElement?
 )

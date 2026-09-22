@@ -1,11 +1,11 @@
 package com.akhnaton.foodvisits.data.model.promoter
 
-import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
-
+import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
+import com.google.gson.JsonElement
 
 data class CompetitorListModel(
     val status: Int,
-    val data: CompetitorList,
+    val data: JsonElement?,
 )
 
 data class CompetitorList(

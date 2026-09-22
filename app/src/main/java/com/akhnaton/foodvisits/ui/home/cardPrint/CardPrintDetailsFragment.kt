@@ -49,6 +49,8 @@ class CardPrintDetailsFragment : Fragment() {
     private lateinit var adapter: CardPrintDetailsAdapter
     private lateinit var printMe: PrinterManager
 
+    private var hasRetriedAfterRefresh = false
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -97,9 +99,6 @@ class CardPrintDetailsFragment : Fragment() {
             }
         }
     }
-
-
-
 
     private fun splitBitmapIntoChunks(bitmap: Bitmap, chunkHeight: Int = 256): List<Bitmap> {
         val chunks = mutableListOf<Bitmap>()
@@ -185,35 +184,59 @@ class CardPrintDetailsFragment : Fragment() {
                             binding.progressLoading.visibility = View.VISIBLE
                         }
                         is CardPrintStatus.GetPrintInvoiceDetails -> {
-                            Log.d("WHATstatus", status.response.status.toString())
                             binding.progressLoading.visibility = View.GONE
-                            if (status.response.status == 401) {
-                                sendRefreshToken()
-                            } else {
-                                val info = status.response.data.invoice_info
-                                val details = status.response.data.invoice_details
 
-                                binding.invoiceInfo = info
-                                adapter.updateList(details)
+                            when (status.response.status) {
+                                200 -> {
+                                    hasRetriedAfterRefresh = false
 
-                                binding.printMeLayout.post {
-                                    binding.rvInvoiceDetails.requestLayout()
-                                    binding.printMeLayout.requestLayout()
+                                    val info = status.response.data.invoice_info
+                                    val details = status.response.data.invoice_details
+
+                                    binding.invoiceInfo = info
+                                    adapter.updateList(details)
+
+                                    binding.printMeLayout.post {
+                                        binding.rvInvoiceDetails.requestLayout()
+                                        binding.printMeLayout.requestLayout()
+                                    }
+
+                                    val totalVat = details.sumOf { it.tax_value }
+                                    val totalWithoutTax = info.invoice_total_value - totalVat
+
+                                    binding.tvVat.text = NumberFormatter.format(totalVat)
+                                    binding.tvTotalInvoiceWithoutTax.text = NumberFormatter.format(totalWithoutTax)
+                                    binding.tvTotalInvoice.text = NumberFormatter.format(info.invoice_total_value)
+
+                                    binding.executePendingBindings()
                                 }
-
-                                val totalVat = details.sumOf { it.tax_value }
-                                val totalWithoutTax = info.invoice_total_value - totalVat
-
-                                binding.tvVat.text = NumberFormatter.format(totalVat)
-                                binding.tvTotalInvoiceWithoutTax.text = NumberFormatter.format(totalWithoutTax)
-                                binding.tvTotalInvoice.text = NumberFormatter.format(info.invoice_total_value)
-
-                                binding.executePendingBindings()
+                                401 -> {
+                                    if (!hasRetriedAfterRefresh) {
+                                        hasRetriedAfterRefresh = true
+                                        sendRefreshToken()
+                                    } else {
+                                        binding.tryAgainButtons.root.visibility = View.VISIBLE
+                                        DialogUtils.showResultDialog(
+                                            context = requireContext(),
+                                            message = status.response.message ?: "حدث خطأ، برجاء المحاولة مرة أخرى",
+                                            isSuccess = false,
+                                            showOkButton = true,
+                                        )
+                                    }
+                                }
+                                else -> {
+                                    binding.tryAgainButtons.root.visibility = View.VISIBLE
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = status.response.message ?: "حدث خطأ، برجاء المحاولة مرة أخرى",
+                                        isSuccess = false,
+                                        showOkButton = true,
+                                    )
+                                }
                             }
                         }
                         is CardPrintStatus.RefreshToken -> {
                             if (status.data.status == 200) {
-                                Log.d("WHATRefreshToken", "${status.data.message}")
                                 val tokenData = com.google.gson.Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
@@ -239,12 +262,6 @@ class CardPrintDetailsFragment : Fragment() {
                             Log.d(TAG, "fetchData: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = "خطأ",
-                                isSuccess = true,
-                                showOkButton = true,
-                            )
                         }
                         else -> {}
                     }

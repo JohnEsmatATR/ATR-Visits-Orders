@@ -53,7 +53,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:text="@string/visit_plan_title"
+                    android:text="@string/visit_plan_title2"
                     android:textColor="@color/black"
                     android:textSize="18sp"
                     android:textStyle="bold" />
@@ -298,7 +298,8 @@
                                 android:id="@+id/et_search_route"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:layout_toLeftOf="@id/iv_search_icon_route"
+                                android:layout_toRightOf="@id/iv_search_icon_route"
+                                android:layout_marginLeft="8dp"
                                 android:background="@null"
                                 android:gravity="right|center_vertical"
                                 android:hint="@string/search_route_hint"
@@ -322,9 +323,33 @@
                             android:id="@+id/rv_routes"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:focusable="false"
                             android:nestedScrollingEnabled="false"
+                            android:focusableInTouchMode="true"
                             tools:listitem="@layout/item_route_option" />
+                        <LinearLayout
+                            android:id="@+id/ll_routes_empty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="40dp"
+                            android:visibility="gone">
 
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="12dp"
+                                android:alpha="0.7"
+                                android:gravity="center"
+                                android:text="@string/no_routes_found"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="@dimen/_16ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
                         <LinearLayout
                             android:id="@+id/list_routes"
                             android:layout_width="match_parent"
@@ -565,7 +590,8 @@
                                 android:id="@+id/et_search_customer"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-                                android:layout_toLeftOf="@id/iv_search_icon_customer"
+                                android:layout_toRightOf="@id/iv_search_icon_customer"
+                                android:layout_marginLeft="8dp"
                                 android:background="@null"
                                 android:gravity="right|center_vertical"
                                 android:hint="@string/search_customer_hint"
@@ -589,9 +615,33 @@
                             android:id="@+id/rv_customers"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:focusable="false"
                             android:nestedScrollingEnabled="false"
+                            android:focusableInTouchMode="true"
                             tools:listitem="@layout/item_customer_option" />
+                        <LinearLayout
+                            android:id="@+id/ll_customers_empty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="40dp"
+                            android:visibility="gone">
 
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:layout_marginTop="12dp"
+                                android:alpha="0.7"
+                                android:gravity="center"
+                                android:text="@string/no_customers_found"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="@dimen/_16ssp"
+                                android:textStyle="bold" />
+
+                        </LinearLayout>
                         <LinearLayout
                             android:id="@+id/list_customers"
                             android:layout_width="match_parent"

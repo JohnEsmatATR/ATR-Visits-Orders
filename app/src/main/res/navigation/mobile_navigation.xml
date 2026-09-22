@@ -260,7 +260,7 @@
 
     <fragment
         android:id="@+id/competitorFragment"
-        android:name="com.akhnaton.foodvisits.ui.home.promoter.CompetitorsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.promoter.CompetitorFragment"
         android:label="fragment_competitor"
         tools:layout="@layout/fragment_competitors">
 

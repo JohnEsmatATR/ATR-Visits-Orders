@@ -1,17 +1,22 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -27,12 +32,20 @@ import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitStatus
 import com.akhnaton.foodvisits.databinding.FragmentAddVisitPlanBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class AddVisitPlanFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "AddVisitPlanFragment"
+    }
 
     private var _binding: FragmentAddVisitPlanBinding? = null
     private val binding get() = _binding!!
@@ -56,6 +69,9 @@ class AddVisitPlanFragment : Fragment() {
     private val selectedVisitDates: MutableSet<String> = mutableSetOf()
     private val dayKeyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -68,6 +84,7 @@ class AddVisitPlanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        handleTopBottomKeyboard()
         setupClickListeners()
         setupExpandableSections()
         setupRoutesRecyclerView()
@@ -79,6 +96,34 @@ class AddVisitPlanFragment : Fragment() {
 
         binding.cardRoute.visibility = View.GONE
         binding.cardCustomers.visibility = View.GONE
+
+        binding.contentSaleType.visibility = View.VISIBLE
+        binding.ivChevronSaleType.rotation = 180f
+    }
+
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
     private fun setupVisitCalendar() {
@@ -182,7 +227,6 @@ class AddVisitPlanFragment : Fragment() {
                 selectedVisitDates.add(dayKey)
             }
             buildVisitCalendarGrid()
-            updateSelectedDatesCountLabel()
             updateSaveButtonState()
         }
 
@@ -198,14 +242,14 @@ class AddVisitPlanFragment : Fragment() {
         grid.addView(view)
     }
 
-    private fun updateSelectedDatesCountLabel() {
-    }
+
 
     private fun setupRoutesRecyclerView() {
         lineAdapter = LineAdapter(
             items = lines,
             getSelectedCode = { selectedLine?.LINE_CODE },
             onLineClick = { line ->
+                hideKeyboard()
                 selectedLine = line
                 lineAdapter.updateList(currentFilteredList())
                 updateRouteHeader()
@@ -219,7 +263,7 @@ class AddVisitPlanFragment : Fragment() {
                 binding.contentCustomers.visibility = View.VISIBLE
                 binding.ivChevronCustomers.animate().rotation(180f).setDuration(200).start()
 
-                viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetCustomers(line.LINE_CODE))
+                getCustomers(line.LINE_CODE)
             }
         )
         binding.rvRoutes.layoutManager = LinearLayoutManager(requireContext())
@@ -228,17 +272,30 @@ class AddVisitPlanFragment : Fragment() {
         binding.etSearchRoute.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                lineAdapter.updateList(currentFilteredList(s?.toString().orEmpty()))
+                val filtered = currentFilteredList(s?.toString().orEmpty())
+                lineAdapter.updateList(filtered)
+                binding.llRoutesEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun currentFilteredList(query: String = binding.etSearchRoute.text?.toString().orEmpty()): List<LineItem> {
-        if (query.isBlank()) return lines
+        val normalizedQuery = query.normalizeArabic()
+        if (normalizedQuery.isBlank()) return lines
         return lines.filter {
-            it.LINE_NAME.contains(query, ignoreCase = true) ||
-                    it.LINE_CODE.contains(query, ignoreCase = true)
+            it.LINE_NAME.normalizeArabic().contains(normalizedQuery) ||
+                    it.LINE_CODE.normalizeArabic().contains(normalizedQuery)
+        }
+    }
+
+    private fun currentFilteredCustomers(query: String = binding.etSearchCustomer.text?.toString().orEmpty()): List<CustomerItem> {
+        val normalizedQuery = query.normalizeArabic()
+        if (normalizedQuery.isBlank()) return customersList
+        return customersList.filter {
+            it.CUSTOMER_NAME.normalizeArabic().contains(normalizedQuery) ||
+                    it.CUSTOMER_CODE.normalizeArabic().contains(normalizedQuery) ||
+                    it.SITE_ADDRESS.normalizeArabic().contains(normalizedQuery)
         }
     }
 
@@ -248,6 +305,71 @@ class AddVisitPlanFragment : Fragment() {
 
     private fun getLines(saleType: String) {
         viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetLines(saleType))
+    }
+
+    private fun getCustomers(lineCode: String) {
+        viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetCustomers(lineCode))
+    }
+
+    private fun sendRefreshToken() {
+        viewModel.addVisitPlanIntent.trySend(
+            AddVisitIntent.RefreshToken(
+                SharedPreferencesHelper.getInstance().getEmployeeId(),
+                SharedPreferencesHelper.getInstance().getUserToken()
+            )
+        )
+    }
+
+    private fun handleResponse(
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    pendingRetry = null
+                    showSessionExpired(message)
+                } else {
+                    pendingRetry = retry
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message,
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
+    }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(
+                    Intent(requireContext(), LoginActivity2::class.java)
+                )
+                requireActivity().finishAffinity()
+            }
+        )
     }
 
     private fun observeStatus() {
@@ -261,37 +383,101 @@ class AddVisitPlanFragment : Fragment() {
 
                         is AddVisitStatus.GetSalesTypes -> {
                             binding.progressLoading.visibility = View.GONE
-                            salesTypes = status.response.data.sales_types
-                            buildSaleTypeGrid()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { getSalesTypes() }
+                            ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.AddVisitPlanData::class.java
+                                )
+                                salesTypes = data?.sales_types ?: emptyList()
+                                buildSaleTypeGrid()
+                            }
                         }
 
                         is AddVisitStatus.GetLines -> {
                             binding.progressLoading.visibility = View.GONE
-                            lines = status.response.data.lines
-                            lineAdapter.updateList(currentFilteredList())
-                        }
-                        is AddVisitStatus.GetCustomers -> {
-                            binding.progressLoading.visibility = View.GONE
-                            customersList = status.response.data.setup_customers
-                            selectedCustomerIds.clear()
-                            customersAdapter.updateList(customersList)
-                            updateCustomersCountLabel()
-                            updateSaveButtonState()
-                        }
-                        is AddVisitStatus.SaveSetupPlan -> {
-                            binding.progressLoading.visibility = View.GONE
-                            Toast.makeText(requireContext(), status.response.message, Toast.LENGTH_SHORT).show()
-                            if (status.response.data.success) {
-                                findNavController().popBackStack()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { selectedSaleType?.let { getLines(it) } }
+                            ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.GetLinesData::class.java
+                                )
+                                lines = data?.lines ?: emptyList()
+                                binding.etSearchRoute.text?.clear()
+                                lineAdapter.updateList(currentFilteredList())
+                                binding.llRoutesEmpty.visibility = if (lines.isEmpty()) View.VISIBLE else View.GONE
                             }
                         }
-                        is AddVisitStatus.Error -> {
+
+                        is AddVisitStatus.GetCustomers -> {
                             binding.progressLoading.visibility = View.GONE
-                            Toast.makeText(
-                                requireContext(),
-                                status.message ?: "خطأ",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { selectedLine?.let { getCustomers(it.LINE_CODE) } }
+                            ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.GetVisitCustomersData::class.java
+                                )
+                                customersList = data?.setup_customers ?: emptyList()
+                                selectedCustomerIds.clear()
+                                binding.etSearchCustomer.text?.clear()
+                                customersAdapter.updateList(customersList)
+                                binding.llCustomersEmpty.visibility = if (customersList.isEmpty()) View.VISIBLE else View.GONE
+
+                                updateCustomersCountLabel()
+                                updateSaveButtonState()
+                            }
+                        }
+
+                        is AddVisitStatus.SaveSetupPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { submitPlan() }
+                            ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanData::class.java
+                                )
+                                Toast.makeText(requireContext(), status.response.message, Toast.LENGTH_SHORT).show()
+                                if (data?.success == true) {
+                                    findNavController().popBackStack()
+                                }
+                            }
+                        }
+
+                        is AddVisitStatus.RefreshToken -> {
+                            binding.progressLoading.visibility = View.GONE
+                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
+                            if (status.data.status == 200) {
+                                val tokenData = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                val retry = pendingRetry
+                                pendingRetry = null
+                                retry?.invoke()
+                            } else {
+                                pendingRetry = null
+                                hasRetriedAfterRefresh = false
+                                showSessionExpired(status.data.message)
+                            }
+                        }
+
+                        is AddVisitStatus.Error -> {
+                            Log.d(TAG, "observeStatus: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
                         }
 
                         else -> {}
@@ -338,6 +524,7 @@ class AddVisitPlanFragment : Fragment() {
 
                 customersList = emptyList()
                 selectedCustomerIds.clear()
+                binding.etSearchCustomer.text?.clear()
                 customersAdapter.updateList(emptyList())
                 updateCustomersCountLabel()
 
@@ -392,40 +579,41 @@ class AddVisitPlanFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-
         binding.btnBackContainer.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.btnSavePlan.setOnClickListener {
-            val saleType = selectedSaleType
-            val line = selectedLine
+        binding.btnSavePlan.setOnClickListener { submitPlan() }
+    }
 
-            if (saleType == null || line == null || selectedCustomerIds.isEmpty() || selectedVisitDates.isEmpty()) {
-                Toast.makeText(requireContext(), "من فضلك أكمل كل الخطوات", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
+    private fun submitPlan() {
+        val saleType = selectedSaleType
+        val line = selectedLine
+
+        if (saleType == null || line == null || selectedCustomerIds.isEmpty() || selectedVisitDates.isEmpty()) {
+            Toast.makeText(requireContext(), "من فضلك أكمل كل الخطوات", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val customersRequest = customersList
+            .filter { selectedCustomerIds.contains(it.PARTY_SITE_ID) }
+            .map {
+                SaveCustomerRequest(
+                    customer_code = it.CUSTOMER_CODE,
+                    party_site_id = it.PARTY_SITE_ID,
+                    customer_type = it.CUSTOMER_PROFILE_CLASS,
+                    customer_branch = it.CUSTOMER_BRANCH
+                )
             }
 
-            val customersRequest = customersList
-                .filter { selectedCustomerIds.contains(it.PARTY_SITE_ID) }
-                .map {
-                    SaveCustomerRequest(
-                        customer_code = it.CUSTOMER_CODE,
-                        party_site_id = it.PARTY_SITE_ID,
-                        customer_type = it.CUSTOMER_PROFILE_CLASS,
-                        customer_branch = it.CUSTOMER_BRANCH
-                    )
-                }
+        val request = SaveSetupPlanRequest(
+            order_type = saleType,
+            line_id = line.LINE_CODE,
+            customers = customersRequest,
+            dates = selectedVisitDates.sorted()
+        )
 
-            val request = SaveSetupPlanRequest(
-                order_type = saleType,
-                line_id = line.LINE_CODE,
-                customers = customersRequest,
-                dates = selectedVisitDates.sorted()
-            )
-
-            viewModel.addVisitPlanIntent.trySend(AddVisitIntent.SaveSetupPlan(request))
-        }
+        viewModel.addVisitPlanIntent.trySend(AddVisitIntent.SaveSetupPlan(request))
     }
 
     private fun setupExpandableSections() {
@@ -459,6 +647,7 @@ class AddVisitPlanFragment : Fragment() {
             list = customersList,
             isSelected = { selectedCustomerIds.contains(it.PARTY_SITE_ID) },
             onToggle = { item ->
+                hideKeyboard()
                 if (selectedCustomerIds.contains(item.PARTY_SITE_ID)) {
                     selectedCustomerIds.remove(item.PARTY_SITE_ID)
                 } else {
@@ -483,6 +672,16 @@ class AddVisitPlanFragment : Fragment() {
             updateCustomersCountLabel()
             updateSaveButtonState()
         }
+
+        binding.etSearchCustomer.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val filtered = currentFilteredCustomers(s?.toString().orEmpty())
+                customersAdapter.updateList(filtered)
+                binding.llCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun updateCustomersCountLabel() {
@@ -504,6 +703,18 @@ class AddVisitPlanFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pendingRetry = null
         _binding = null
     }
+}
+
+private fun String.normalizeArabic(): String {
+    return this
+        .replace("أ", "ا")
+        .replace("إ", "ا")
+        .replace("آ", "ا")
+        .replace("ة", "ه")
+        .replace("ى", "ي")
+        .trim()
+        .lowercase()
 }
