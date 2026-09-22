@@ -20,14 +20,11 @@ import com.akhnaton.foodvisits.data.model.cardPrint.CardPrintItem
 import com.akhnaton.foodvisits.data.statusValue.cardPrint.CardPrintIntent
 import com.akhnaton.foodvisits.data.statusValue.cardPrint.CardPrintStatus
 import com.akhnaton.foodvisits.databinding.FragmentCardPrintBinding
-import com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintAdapter
-import com.akhnaton.foodvisits.ui.home.cardPrint.CardPrintViewModel
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import androidx.lifecycle.lifecycleScope
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
-import com.akhnaton.foodvisits.ui.home.MainActivity
 
 class CardPrintFragment : Fragment() {
 
@@ -40,6 +37,9 @@ class CardPrintFragment : Fragment() {
     private val viewModel: CardPrintViewModel by viewModels()
     private lateinit var adapter: CardPrintAdapter
     private var fullList: List<CardPrintItem> = emptyList()
+
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -57,7 +57,6 @@ class CardPrintFragment : Fragment() {
         setupSearch()
         setupScrollToTop()
         getData()
-
     }
 
     private fun getData() {
@@ -120,7 +119,6 @@ class CardPrintFragment : Fragment() {
 
     private fun setupRecycler() {
         adapter = CardPrintAdapter(emptyList()) { item ->
-            Log.d("CLICK", "MARO")
             findNavController().navigate(
                 R.id.toCardPrintDetails,
                 Bundle().apply {
@@ -131,76 +129,6 @@ class CardPrintFragment : Fragment() {
         binding.cardPrintRecycler.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@CardPrintFragment.adapter
-        }
-
-    }
-
-    private fun observeStatus() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.status.collect { status ->
-                    when (status) {
-                        is CardPrintStatus.Loading -> {
-                            binding.tryAgainButtons.root.visibility = View.GONE
-                            binding.llZeroState.visibility = View.GONE
-                            binding.progressLoading.visibility = View.VISIBLE
-                        }
-
-                        is CardPrintStatus.GetPrintInvoicesList -> {
-                            Log.d("WHATstatus", status.response.status.toString())
-                            binding.progressLoading.visibility = View.GONE
-                            if (status.response.status == 401) {
-                                sendRefreshToken()
-                            } else {
-                                fullList = status.response.data
-                                renderList(fullList)
-                            }
-                        }
-
-                        is CardPrintStatus.RefreshToken -> {
-                            if (status.data.status == 200) {
-                                Log.d("WHATRefreshToken", "${status.data.message}")
-                                val tokenData = com.google.gson.Gson().fromJson(
-                                    status.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
-                                getData()
-                            } else {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = status.data.message,
-                                    isSuccess = false,
-                                    showOkButton = true,
-                                    onOk = {
-                                        SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(
-                                            Intent(
-                                                requireContext(),
-                                                LoginActivity2::class.java
-                                            )
-                                        )
-                                        requireActivity().finishAffinity()
-                                    })
-                            }
-                        }
-
-                        is CardPrintStatus.Error -> {
-                            Log.d(TAG, "fetchData: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
-                            binding.tryAgainButtons.root.visibility = View.VISIBLE
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = "خطأ",
-                                isSuccess = true,
-                                showOkButton = true,
-                            )
-                        }
-
-                        else -> {}
-                    }
-                }
-            }
         }
     }
 
@@ -215,11 +143,119 @@ class CardPrintFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
+    private fun handleResponse(
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    pendingRetry = null
+                    showSessionExpired(message)
+                } else {
+                    pendingRetry = retry
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message,
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
     }
 
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(
+                    Intent(requireContext(), LoginActivity2::class.java)
+                )
+                requireActivity().finishAffinity()
+            }
+        )
+    }
+
+    private fun observeStatus() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect { status ->
+                    when (status) {
+                        is CardPrintStatus.Loading -> {
+                            binding.tryAgainButtons.root.visibility = View.GONE
+                            binding.llZeroState.visibility = View.GONE
+                            binding.progressLoading.visibility = View.VISIBLE
+                        }
+
+                        is CardPrintStatus.GetPrintInvoicesList -> {
+                            binding.progressLoading.visibility = View.GONE
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { getData() }
+                            ) {
+                                fullList = status.response.data
+                                renderList(fullList)
+                            }
+                        }
+
+                        is CardPrintStatus.RefreshToken -> {
+                            binding.progressLoading.visibility = View.GONE
+                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
+                            if (status.data.status == 200) {
+                                val tokenData = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                val retry = pendingRetry
+                                pendingRetry = null
+                                retry?.invoke()
+                            } else {
+                                pendingRetry = null
+                                hasRetriedAfterRefresh = false
+                                showSessionExpired(status.data.message)
+                            }
+                        }
+
+                        is CardPrintStatus.Error -> {
+                            Log.d(TAG, "observeStatus: ${status.message}")
+                            binding.progressLoading.visibility = View.GONE
+                            binding.tryAgainButtons.root.visibility = View.VISIBLE
+                        }
+
+                        else -> {}
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        pendingRetry = null
+        _binding = null
+    }
 }
 
 private fun String.normalizeArabic(): String {

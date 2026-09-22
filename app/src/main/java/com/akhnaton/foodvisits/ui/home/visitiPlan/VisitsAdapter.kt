@@ -13,10 +13,13 @@ class VisitsAdapter(
     private var list: List<VisitItem>,
     private val onItemClick: (VisitItem) -> Unit,
     private val onSwapClick: (VisitItem) -> Unit,
-    private val onDeleteClick: (VisitItem) -> Unit
+    private val onDeleteClick: (VisitItem) -> Unit,
+    private val onSelectToggle: (VisitItem) -> Unit
 ) : RecyclerView.Adapter<VisitsAdapter.ViewHolder>() {
 
     private var actionsVisible = true
+    private var selectionMode = false
+    private var selectedIds: Set<String> = emptySet()
 
     class ViewHolder(val binding: ItemVisitCardBinding) :
         RecyclerView.ViewHolder(binding.root)
@@ -63,9 +66,15 @@ class VisitsAdapter(
                 }
             }
 
-            val actionsVisibility = if (actionsVisible) View.VISIBLE else View.GONE
+            val actionsVisibility = if (actionsVisible && !selectionMode) View.VISIBLE else View.GONE
             ivDelete.visibility = actionsVisibility
             ivSwap.visibility = actionsVisibility
+
+            ivSelectCircle.visibility = if (selectionMode) View.VISIBLE else View.GONE
+            ivSelectCircle.setImageResource(
+                if (selectedIds.contains(item.id)) R.drawable.ic_check_circle_orange
+                else R.drawable.ic_circle_unchecked
+            )
 
             ivDelete.setOnClickListener {
                 onDeleteClick(item)
@@ -73,10 +82,17 @@ class VisitsAdapter(
             ivSwap.setOnClickListener {
                 onSwapClick(item)
             }
+            ivSelectCircle.setOnClickListener {
+                onSelectToggle(item)
+            }
         }
 
         holder.itemView.setOnClickListener {
-            onItemClick(item)
+            if (selectionMode) {
+                onSelectToggle(item)
+            } else {
+                onItemClick(item)
+            }
         }
     }
 
@@ -87,6 +103,18 @@ class VisitsAdapter(
             actionsVisible = visible
             notifyDataSetChanged()
         }
+    }
+
+    fun setSelectionMode(enabled: Boolean) {
+        if (selectionMode != enabled) {
+            selectionMode = enabled
+            notifyDataSetChanged()
+        }
+    }
+
+    fun setSelectedIds(ids: Set<String>) {
+        selectedIds = ids
+        notifyDataSetChanged()
     }
 
     fun updateList(newList: List<VisitItem>) {

@@ -308,11 +308,16 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                     is PromoterStatus.GetCompetitorList -> {
                         hideDialog()
 
+                        val data = Gson().fromJson(
+                            status.response.data,
+                            com.akhnaton.foodvisits.data.model.promoter.CompetitorList::class.java
+                        )
+
                         // الشركات
                         val competitorsNameArray = mutableListOf<String>()
                         val competitorsNameIdArray = mutableListOf<Int>()
 
-                        for (company in status.response.data.get_competitor) {
+                        for (company in data?.get_competitor.orEmpty()) {
                             competitorsNameArray.add(company.competitor_name)
                             competitorsNameIdArray.add(company.id.toInt())
                         }
@@ -322,7 +327,7 @@ class PromoterCompetitorsActivity : AppCompatActivity() {
                         val competitorsTypeArray = mutableListOf<String>()
                         val competitorsTypeIdArray = mutableListOf<Int>()
 
-                        for (company in status.response.data.get_competitor_types) {
+                        for (company in data?.get_competitor_types.orEmpty()) {
                             competitorsTypeArray.add(company.type_name)
                             competitorsTypeIdArray.add(company.id.toInt())
                         }

@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
-import android.app.Dialog
 import android.content.Intent
 import android.os.Bundle
 import android.transition.AutoTransition
@@ -10,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -53,6 +53,14 @@ class VisitPlanFragment : Fragment() {
 
     private var allVisits: List<VisitItem> = emptyList()
     private var isFirstLoad = true
+
+    private var searchQuery: String = ""
+
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
+
+    private var isSelectionMode = false
+    private val selectedVisitIds: MutableSet<String> = mutableSetOf()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -100,6 +108,30 @@ class VisitPlanFragment : Fragment() {
         binding.chipWeeklyView.setOnClickListener { toggleView() }
         binding.ivPrevPeriod.setOnClickListener { shiftWeek(-1) }
         binding.ivNextPeriod.setOnClickListener { shiftWeek(1) }
+
+        binding.etSearch.addTextChangedListener { text ->
+            searchQuery = text?.toString().orEmpty()
+            filterVisitsForSelectedDate()
+        }
+
+        binding.tvSelectMode.setOnClickListener {
+            isSelectionMode = true
+            updateSelectionUI()
+        }
+
+        binding.tvCancelSelection.setOnClickListener {
+            isSelectionMode = false
+            selectedVisitIds.clear()
+            updateSelectionUI()
+        }
+
+        binding.tvSelectAll.setOnClickListener {
+            toggleSelectAllForSelectedDate()
+        }
+
+        binding.tvDeleteSelected.setOnClickListener {
+            showBulkDeleteConfirmDialog()
+        }
     }
 
     private fun setupRecycler() {
@@ -112,13 +144,128 @@ class VisitPlanFragment : Fragment() {
                 showMoveVisitDialog(visitId = item.id)
             },
             onDeleteClick = { item ->
-                showDeleteConfirmDialog(visitId = item.id)
+                showDeleteConfirmDialog(visitIds = listOf(item.id))
+            },
+            onSelectToggle = { item ->
+                toggleVisitSelected(item.id)
             },
         )
         binding.rvVisits.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@VisitPlanFragment.adapter
         }
+    }
+
+    private fun toggleVisitSelected(visitId: String) {
+        if (selectedVisitIds.contains(visitId)) {
+            selectedVisitIds.remove(visitId)
+        } else {
+            selectedVisitIds.add(visitId)
+        }
+        updateSelectionUI()
+    }
+
+    private fun toggleSelectAllForSelectedDate() {
+        val visitsForSelectedDate = getVisitsForSelectedDate()
+        val allSelected = visitsForSelectedDate.isNotEmpty() &&
+                visitsForSelectedDate.all { selectedVisitIds.contains(it.id) }
+
+        if (allSelected) {
+            visitsForSelectedDate.forEach { selectedVisitIds.remove(it.id) }
+        } else {
+            visitsForSelectedDate.forEach { selectedVisitIds.add(it.id) }
+        }
+        updateSelectionUI()
+    }
+
+    private fun getVisitsForSelectedDate(): List<VisitItem> {
+        val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
+        return allVisits.filter { it.start.take(10) == selectedDateKey }
+    }
+
+    private fun updateSelectionUI() {
+        binding.tvSelectMode.visibility = if (isSelectionMode) View.GONE else View.VISIBLE
+        binding.llSelectionControls.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
+
+        val visitsForSelectedDate = getVisitsForSelectedDate()
+        val allSelected = visitsForSelectedDate.isNotEmpty() &&
+                visitsForSelectedDate.all { selectedVisitIds.contains(it.id) }
+        binding.tvSelectAll.text = getString(
+            if (allSelected) R.string.deselect_all_action else R.string.select_all_action
+        )
+
+        binding.tvDeleteSelected.visibility = if (isSelectionMode && selectedVisitIds.isNotEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+        binding.tvDeleteSelected.text = getString(R.string.delete_selected_format, selectedVisitIds.size)
+
+        adapter.setSelectionMode(isSelectionMode)
+        adapter.setSelectedIds(selectedVisitIds.toSet())
+    }
+
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.visitIntent.send(
+                VisitIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
+    }
+
+    private fun handleResponse(
+        code: Int,
+        message: String?,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    pendingRetry = null
+                    showSessionExpired(message)
+                } else {
+                    pendingRetry = retry
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message.orEmpty(),
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
+    }
+
+    private fun showSessionExpired(message: String?) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message.orEmpty(),
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(
+                    Intent(requireContext(), LoginActivity2::class.java)
+                )
+                requireActivity().finishAffinity()
+            }
+        )
     }
 
     private fun observeStatus() {
@@ -132,76 +279,95 @@ class VisitPlanFragment : Fragment() {
 
                         is VisitStatus.GetMonthlyVisits -> {
                             binding.progressLoading.visibility = View.GONE
-                            when (status.response.status) {
-                                200 -> {
-                                    allVisits = status.response.data.visits
-                                    filterVisitsForSelectedDate()
-                                    renderCalendar()
-                                }
-
-                                401 -> sendRefreshToken()
-
-                                else -> {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = status.response.message,
-                                        isSuccess = false,
-                                        showOkButton = true,
-                                    )
-                                }
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { getData() }
+                            ) {
+                                val visitData = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.VisitData::class.java
+                                )
+                                allVisits = visitData.visits
+                                filterVisitsForSelectedDate()
+                                renderCalendar()
                             }
                         }
 
                         is VisitStatus.RefreshToken -> {
                             binding.progressLoading.visibility = View.GONE
+                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
-                                getData()
+                                hasRetriedAfterRefresh = true
+                                val retry = pendingRetry
+                                pendingRetry = null
+                                retry?.invoke()
                             } else {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = status.data.message,
-                                    isSuccess = false,
-                                    showOkButton = true,
-                                    onOk = {
-                                        SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(
-                                            Intent(requireContext(), LoginActivity2::class.java)
-                                        )
-                                        requireActivity().finishAffinity()
-                                    }
-                                )
+                                pendingRetry = null
+                                hasRetriedAfterRefresh = false
+                                showSessionExpired(status.data.message)
                             }
                         }
 
                         is VisitStatus.UpdateVisitDate -> {
                             binding.progressLoading.visibility = View.GONE
-                            getData()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { getData() }
+                            ) {
+                                getData()
+                            }
                         }
 
                         is VisitStatus.CopyPlan -> {
                             binding.progressLoading.visibility = View.GONE
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = status.response.data.message,
-                                isSuccess = true,
-                                showOkButton = true,
-                                onOk = { getData() }
-                            )
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { showCopyPlanBottomSheet() }
+                            ) {
+                                val copyPlanData = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.CopyPlanData::class.java
+                                )
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = copyPlanData.message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = { getData() }
+                                )
+                            }
                         }
 
                         is VisitStatus.DeleteVisitPlan -> {
                             binding.progressLoading.visibility = View.GONE
-                            getData()
+                            handleResponse(
+                                code = status.response.status,
+                                message = status.response.message,
+                                retry = { getData() }
+                            ) {
+                                isSelectionMode = false
+                                selectedVisitIds.clear()
+                                getData()
+                            }
                         }
 
                         is VisitStatus.Error -> {
-                            Log.d(TAG, "fetchData: ${status.message}")
+                            Log.d(TAG, "observeStatus: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = status.message.orEmpty(),
+                                isSuccess = false,
+                                showOkButton = true,
+                            )
                         }
 
                         else -> {}
@@ -213,15 +379,28 @@ class VisitPlanFragment : Fragment() {
 
     private fun filterVisitsForSelectedDate() {
         val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
+        val query = searchQuery.normalizeArabic()
 
         val filteredList = allVisits.filter { visit ->
             val visitDateOnly = visit.start.take(10)
-            visitDateOnly == selectedDateKey
+            val matchesDate = visitDateOnly == selectedDateKey
+            val matchesSearch = query.isBlank() ||
+                    visit.customer_name.normalizeArabic().contains(query) ||
+                    visit.customer_code.normalizeArabic().contains(query) ||
+                    visit.site_address.normalizeArabic().contains(query) ||
+                    visit.sales_man.normalizeArabic().contains(query)
+            matchesDate && matchesSearch
         }
 
         adapter.setActionsVisible(!isSelectedDatePast())
         adapter.updateList(filteredList)
         binding.tvVisitCount.text = getString(R.string.visits_count_format, filteredList.size)
+
+        val isEmpty = filteredList.isEmpty()
+        binding.rvVisits.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        binding.llZeroState.visibility = if (isEmpty) View.VISIBLE else View.GONE
+
+        updateSelectionUI()
     }
 
     private fun selectDay(calendar: Calendar) {
@@ -572,7 +751,8 @@ class VisitPlanFragment : Fragment() {
 
         dialog.show()
     }
-    private fun showDeleteConfirmDialog(visitId: String) {
+
+    private fun showDeleteConfirmDialog(visitIds: List<String>) {
         val dialog = BottomSheetDialog(requireContext())
         val view = layoutInflater.inflate(R.layout.dialog_confirm_delete_visit, null)
         dialog.setContentView(view)
@@ -589,7 +769,7 @@ class VisitPlanFragment : Fragment() {
 
         btnConfirm.setOnClickListener {
             viewModel.visitIntent.trySend(
-                VisitIntent.DeleteVisitPlan(listOf(visitId.toIntOrNull() ?: 0))
+                VisitIntent.DeleteVisitPlan(visitIds.map { it.toIntOrNull() ?: 0 })
             )
             dialog.dismiss()
         }
@@ -597,15 +777,9 @@ class VisitPlanFragment : Fragment() {
         dialog.show()
     }
 
-    private fun sendRefreshToken() {
-        lifecycleScope.launch {
-            viewModel.visitIntent.send(
-                VisitIntent.RefreshToken(
-                    SharedPreferencesHelper.getInstance().getEmployeeId(),
-                    SharedPreferencesHelper.getInstance().getUserToken()
-                )
-            )
-        }
+    private fun showBulkDeleteConfirmDialog() {
+        if (selectedVisitIds.isEmpty()) return
+        showDeleteConfirmDialog(visitIds = selectedVisitIds.toList())
     }
 
     private fun isSelectedDatePast(): Boolean {
@@ -626,6 +800,17 @@ class VisitPlanFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        pendingRetry = null
         _binding = null
+    }
+    private fun String.normalizeArabic(): String {
+        return this
+            .replace("أ", "ا")
+            .replace("إ", "ا")
+            .replace("آ", "ا")
+            .replace("ة", "ه")
+            .replace("ى", "ي")
+            .trim()
+            .lowercase()
     }
 }

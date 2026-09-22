@@ -332,6 +332,7 @@
 
 
     <string name="visit_plan_title">خطة الزيارات</string>
+    <string name="visit_plan_title2">عمل خطة الزيارات</string>
     <string name="visit_plan_subtitle">إدارة وجدولة زيارات العملاء بكل سهولة</string>
     <string name="weekly_view">عرض أسبوعي</string>
     <string name="monthly_view">عرض شهري</string>
@@ -385,6 +386,12 @@
     <string name="code_location_sample">كود: 10121 • موقع: 3698456</string>
     <string name="delegate_sample">المندوب: مارى ماهر اديب خليل</string>
     <string name="address_sample">شارع وابور الترجمان   بولاق   مصر</string>
+
+    <string name="select_action">تحديد</string>
+    <string name="select_all_action">تحديد الكل</string>
+    <string name="deselect_all_action">إلغاء الكل</string>
+    <string name="cancel_selection_action">إلغاء التحديد</string>
+    <string name="delete_selected_format">حذف (%d)</string>
 
 
 

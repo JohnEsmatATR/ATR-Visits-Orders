@@ -11,9 +11,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.GridLayout
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -81,6 +84,7 @@ class AddVisitPlanFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        handleTopBottomKeyboard()
         setupClickListeners()
         setupExpandableSections()
         setupRoutesRecyclerView()
@@ -92,11 +96,34 @@ class AddVisitPlanFragment : Fragment() {
 
         binding.cardRoute.visibility = View.GONE
         binding.cardCustomers.visibility = View.GONE
-        binding.cardRoute.visibility = View.GONE
-        binding.cardCustomers.visibility = View.GONE
 
         binding.contentSaleType.visibility = View.VISIBLE
         binding.ivChevronSaleType.rotation = 180f
+    }
+
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
+    }
+
+    private fun hideKeyboard() {
+        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
     private fun setupVisitCalendar() {
@@ -200,7 +227,6 @@ class AddVisitPlanFragment : Fragment() {
                 selectedVisitDates.add(dayKey)
             }
             buildVisitCalendarGrid()
-            updateSelectedDatesCountLabel()
             updateSaveButtonState()
         }
 
@@ -216,14 +242,14 @@ class AddVisitPlanFragment : Fragment() {
         grid.addView(view)
     }
 
-    private fun updateSelectedDatesCountLabel() {
-    }
+
 
     private fun setupRoutesRecyclerView() {
         lineAdapter = LineAdapter(
             items = lines,
             getSelectedCode = { selectedLine?.LINE_CODE },
             onLineClick = { line ->
+                hideKeyboard()
                 selectedLine = line
                 lineAdapter.updateList(currentFilteredList())
                 updateRouteHeader()
@@ -246,17 +272,30 @@ class AddVisitPlanFragment : Fragment() {
         binding.etSearchRoute.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                lineAdapter.updateList(currentFilteredList(s?.toString().orEmpty()))
+                val filtered = currentFilteredList(s?.toString().orEmpty())
+                lineAdapter.updateList(filtered)
+                binding.llRoutesEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
             }
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
     private fun currentFilteredList(query: String = binding.etSearchRoute.text?.toString().orEmpty()): List<LineItem> {
-        if (query.isBlank()) return lines
+        val normalizedQuery = query.normalizeArabic()
+        if (normalizedQuery.isBlank()) return lines
         return lines.filter {
-            it.LINE_NAME.contains(query, ignoreCase = true) ||
-                    it.LINE_CODE.contains(query, ignoreCase = true)
+            it.LINE_NAME.normalizeArabic().contains(normalizedQuery) ||
+                    it.LINE_CODE.normalizeArabic().contains(normalizedQuery)
+        }
+    }
+
+    private fun currentFilteredCustomers(query: String = binding.etSearchCustomer.text?.toString().orEmpty()): List<CustomerItem> {
+        val normalizedQuery = query.normalizeArabic()
+        if (normalizedQuery.isBlank()) return customersList
+        return customersList.filter {
+            it.CUSTOMER_NAME.normalizeArabic().contains(normalizedQuery) ||
+                    it.CUSTOMER_CODE.normalizeArabic().contains(normalizedQuery) ||
+                    it.SITE_ADDRESS.normalizeArabic().contains(normalizedQuery)
         }
     }
 
@@ -349,7 +388,11 @@ class AddVisitPlanFragment : Fragment() {
                                 message = status.response.message,
                                 retry = { getSalesTypes() }
                             ) {
-                                salesTypes = status.response.data.sales_types
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.AddVisitPlanData::class.java
+                                )
+                                salesTypes = data?.sales_types ?: emptyList()
                                 buildSaleTypeGrid()
                             }
                         }
@@ -361,8 +404,14 @@ class AddVisitPlanFragment : Fragment() {
                                 message = status.response.message,
                                 retry = { selectedSaleType?.let { getLines(it) } }
                             ) {
-                                lines = status.response.data.lines
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.GetLinesData::class.java
+                                )
+                                lines = data?.lines ?: emptyList()
+                                binding.etSearchRoute.text?.clear()
                                 lineAdapter.updateList(currentFilteredList())
+                                binding.llRoutesEmpty.visibility = if (lines.isEmpty()) View.VISIBLE else View.GONE
                             }
                         }
 
@@ -373,9 +422,16 @@ class AddVisitPlanFragment : Fragment() {
                                 message = status.response.message,
                                 retry = { selectedLine?.let { getCustomers(it.LINE_CODE) } }
                             ) {
-                                customersList = status.response.data.setup_customers
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.GetVisitCustomersData::class.java
+                                )
+                                customersList = data?.setup_customers ?: emptyList()
                                 selectedCustomerIds.clear()
+                                binding.etSearchCustomer.text?.clear()
                                 customersAdapter.updateList(customersList)
+                                binding.llCustomersEmpty.visibility = if (customersList.isEmpty()) View.VISIBLE else View.GONE
+
                                 updateCustomersCountLabel()
                                 updateSaveButtonState()
                             }
@@ -388,8 +444,12 @@ class AddVisitPlanFragment : Fragment() {
                                 message = status.response.message,
                                 retry = { submitPlan() }
                             ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanData::class.java
+                                )
                                 Toast.makeText(requireContext(), status.response.message, Toast.LENGTH_SHORT).show()
-                                if (status.response.data.success) {
+                                if (data?.success == true) {
                                     findNavController().popBackStack()
                                 }
                             }
@@ -464,6 +524,7 @@ class AddVisitPlanFragment : Fragment() {
 
                 customersList = emptyList()
                 selectedCustomerIds.clear()
+                binding.etSearchCustomer.text?.clear()
                 customersAdapter.updateList(emptyList())
                 updateCustomersCountLabel()
 
@@ -586,6 +647,7 @@ class AddVisitPlanFragment : Fragment() {
             list = customersList,
             isSelected = { selectedCustomerIds.contains(it.PARTY_SITE_ID) },
             onToggle = { item ->
+                hideKeyboard()
                 if (selectedCustomerIds.contains(item.PARTY_SITE_ID)) {
                     selectedCustomerIds.remove(item.PARTY_SITE_ID)
                 } else {
@@ -610,6 +672,16 @@ class AddVisitPlanFragment : Fragment() {
             updateCustomersCountLabel()
             updateSaveButtonState()
         }
+
+        binding.etSearchCustomer.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val filtered = currentFilteredCustomers(s?.toString().orEmpty())
+                customersAdapter.updateList(filtered)
+                binding.llCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
     }
 
     private fun updateCustomersCountLabel() {
@@ -634,4 +706,15 @@ class AddVisitPlanFragment : Fragment() {
         pendingRetry = null
         _binding = null
     }
+}
+
+private fun String.normalizeArabic(): String {
+    return this
+        .replace("أ", "ا")
+        .replace("إ", "ا")
+        .replace("آ", "ا")
+        .replace("ة", "ه")
+        .replace("ى", "ي")
+        .trim()
+        .lowercase()
 }

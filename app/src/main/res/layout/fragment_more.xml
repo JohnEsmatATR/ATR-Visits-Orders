@@ -279,7 +279,6 @@
                 android:id="@+id/customerCoding"
                 android:layout_width="match_parent"
                 android:layout_height="70dp"
-                android:visibility="gone"
                 android:layout_marginTop="@dimen/_8sdp"
                 app:cardCornerRadius="20dp">
 

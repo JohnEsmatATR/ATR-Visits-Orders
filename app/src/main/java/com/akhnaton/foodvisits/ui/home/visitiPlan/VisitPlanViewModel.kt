@@ -2,12 +2,13 @@ package com.akhnaton.foodvisits.ui.home.visitPlan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.model.deleteVisitPlan.DeleteVisitPlanReq
+import com.akhnaton.foodvisits.data.model.visitPlan.VisitData
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitStatus
 import com.akhnaton.foodvisits.domin.VisitPlanRepository
 import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,7 +44,10 @@ class VisitPlanViewModel : ViewModel() {
             _status.value = VisitStatus.Loading
             _status.value = try {
                 val response = VisitPlanRepository().getMonthlyVisits()
-                allVisits = response.data.visits
+                if (response.status == 200) {
+                    val visitData = Gson().fromJson(response.data, VisitData::class.java)
+                    allVisits = visitData?.visits ?: emptyList()
+                }
                 VisitStatus.GetMonthlyVisits(response)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)
