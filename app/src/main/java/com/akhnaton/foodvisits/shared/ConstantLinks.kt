@@ -49,7 +49,6 @@ object ConstantLinks {
     const val POST_PERSON_CODING = "Customer/createNewCustomer"
     const val GET_MONTHLY_VISITS = "Visit/getMonthlyVisits"
     const val UPDATE_VISIT = "Visit/updateSetupPlanDetail"
-    const val DELETE_VISIT = "Visit/deleteVisitPlan"
     const val ADD_VISIT_PLAN = "Personalization/getSalesAndCustomerTypes"
     const val GET_LINE_VISIT = "visit/getLines"
     const val GET_VISIT_CUSTOMERS = "Customer/getVisitCustomers"
