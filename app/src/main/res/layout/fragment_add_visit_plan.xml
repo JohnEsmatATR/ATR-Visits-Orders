@@ -59,7 +59,7 @@
             </RelativeLayout>
 
             <com.google.android.material.card.MaterialCardView
-                android:id="@+id/card_copy_sale_plan"
+                android:id="@+id/cardCopySalePlan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="16dp"

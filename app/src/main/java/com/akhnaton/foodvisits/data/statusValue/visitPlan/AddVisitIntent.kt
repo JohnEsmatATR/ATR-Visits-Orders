@@ -13,5 +13,4 @@ sealed class AddVisitIntent {
     data class SaveSetupPlan(val request: SaveSetupPlanRequest) : AddVisitIntent()
     object GetSalesMan : AddVisitIntent()
     data class CopyDayPlan(val copyDayPlanReq: CopyDayPlanReq) : AddVisitIntent()
-    data class RefreshToken(val userId: String, val token: String) : AddVisitIntent()
 }
