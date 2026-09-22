@@ -1,10 +1,12 @@
 package com.akhnaton.foodvisits.data.model.personCoding
 
+import com.google.gson.JsonElement
+
 data class SalesAndCustomerModel(
     val status: Int,
     val message: String,
     val type: String,
-    val data: SalesAndCustomerTypesData?
+    val data: JsonElement?
 )
 
 data class SalesAndCustomerTypesData(

@@ -6,6 +6,7 @@ import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitStatus
 import com.akhnaton.foodvisits.domin.AddVisitRepository
+import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,11 +27,25 @@ class AddVisitPlanViewModel : ViewModel() {
         viewModelScope.launch {
             addVisitPlanIntent.consumeAsFlow().collect {
                 when (it) {
+                    is AddVisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     is AddVisitIntent.GetSalesTypes -> getSalesTypes()
                     is AddVisitIntent.GetLines -> getLines(it.saleType)
                     is AddVisitIntent.GetCustomers -> getCustomers(it.lineId)
                     is AddVisitIntent.SaveSetupPlan -> saveSetupPlan(it.request)
                 }
+            }
+        }
+    }
+
+    private fun refreshToken(userId: String, token: String) {
+        viewModelScope.launch {
+            _status.value = AddVisitStatus.Loading
+            _status.value = try {
+                AddVisitStatus.RefreshToken(
+                    PhoneVisitsRepository().refreshToken(userId, token)
+                )
+            } catch (e: Exception) {
+                AddVisitStatus.Error(e.message)
             }
         }
     }
@@ -82,5 +97,4 @@ class AddVisitPlanViewModel : ViewModel() {
             }
         }
     }
-
 }

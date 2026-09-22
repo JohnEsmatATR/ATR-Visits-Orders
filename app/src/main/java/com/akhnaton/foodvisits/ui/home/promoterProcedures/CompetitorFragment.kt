@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.promoterProcedures
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -19,14 +20,19 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.data.model.promoter.CompetitorList
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitor
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitorTypes
 import com.akhnaton.foodvisits.data.model.promoter.GetPromotionTypes
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
+import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -38,16 +44,13 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.appcompat.app.AppCompatDelegate
-import com.google.android.material.datepicker.MaterialDatePicker
-import com.google.android.material.datepicker.CalendarConstraints
 import java.util.TimeZone
-import android.content.Intent
-import com.akhnaton.foodvisits.shared.DialogUtils
-import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import com.google.gson.Gson
 
 class CompetitorFragment : Fragment() {
+
+    companion object {
+        private const val TAG = "CompetitorFragment"
+    }
 
     private var promotionTypesList: List<GetPromotionTypes> = emptyList()
     private var competitorsList: List<GetCompetitor> = emptyList()
@@ -65,6 +68,9 @@ class CompetitorFragment : Fragment() {
 
     private var selectedCompetitorId: String? = null
     private var selectedTypeId: String? = null
+
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
 
     private val pickImagesLauncher = registerForActivityResult(
         ActivityResultContracts.GetMultipleContents()
@@ -100,9 +106,7 @@ class CompetitorFragment : Fragment() {
             pickImagesLauncher.launch("image/*")
         }
 
-        viewModel.promoterIntent.trySend(
-            PromoterIntent.GetCompetitorList(appVersion = 1.0)
-        )
+        getCompetitorList()
 
         binding.btnSave.setOnClickListener {
             onSaveClicked()
@@ -114,6 +118,12 @@ class CompetitorFragment : Fragment() {
         binding.layoutOfferDate.setEndIconOnClickListener {
             showOfferDatePicker()
         }
+    }
+
+    private fun getCompetitorList() {
+        viewModel.promoterIntent.trySend(
+            PromoterIntent.GetCompetitorList(appVersion = 1.0)
+        )
     }
 
     private fun setupImagesRecyclerView() {
@@ -185,19 +195,89 @@ class CompetitorFragment : Fragment() {
         )
     }
 
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
+    }
+
+    private fun handleResponse(
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    pendingRetry = null
+                    viewModel.resetStatus()
+                    showSessionExpired(message)
+                } else {
+                    pendingRetry = retry
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                viewModel.resetStatus()
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message,
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
+    }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                requireActivity().finishAffinity()
+            }
+        )
+    }
+
     private fun observeStatus() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.GetCompetitorList -> {
-                            if (status.response.status == 401) {
-                                sendRefreshToken()
-                            } else {
-                                competitorTypesList = status.response.data.get_competitor_types
-                                competitorsList = status.response.data.get_competitor
-                                promotionTypesList = status.response.data.get_promotion_types
-                                itemSizesList = status.response.data.get_item_sizes
+                            handleResponse(
+                                code = status.response.status,
+                                message = "",
+                                retry = { getCompetitorList() }
+                            ) {
+                                val data = Gson().fromJson(
+                                    status.response.data,
+                                    CompetitorList::class.java
+                                )
+
+                                competitorTypesList = data?.get_competitor_types ?: emptyList()
+                                competitorsList = data?.get_competitor ?: emptyList()
+                                promotionTypesList = data?.get_promotion_types ?: emptyList()
+                                itemSizesList = data?.get_item_sizes ?: emptyList()
 
                                 setupPromotionTypeCheckboxes(promotionTypesList)
                                 setupItemSizesDropdown(itemSizesList)
@@ -224,35 +304,40 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.SendCompetitors -> {
-                            Toast.makeText(requireContext(), "تم حفظ المنافس بنجاح", Toast.LENGTH_SHORT).show()
-                            viewModel.resetStatus()
-                            findNavController().popBackStack()
+                            handleResponse(
+                                code = status.response.status ?: -1,
+                                message = "",
+                                retry = { onSaveClicked() }
+                            ) {
+                                Toast.makeText(requireContext(), "تم حفظ المنافس بنجاح", Toast.LENGTH_SHORT).show()
+                                viewModel.resetStatus()
+                                findNavController().popBackStack()
+                            }
                         }
 
                         is PromoterStatus.RefreshToken -> {
+                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                val retry = pendingRetry
+                                pendingRetry = null
+                                viewModel.resetStatus()
+                                retry?.invoke()
                             } else {
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = status.data.message,
-                                    isSuccess = false,
-                                    showOkButton = true,
-                                    onOk = {
-                                        SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
-                                        requireActivity().finishAffinity()
-                                    })
+                                pendingRetry = null
+                                hasRetriedAfterRefresh = false
+                                viewModel.resetStatus()
+                                showSessionExpired(status.data.message)
                             }
-                            viewModel.resetStatus()
                         }
 
                         is PromoterStatus.Error -> {
-                            Toast.makeText(requireContext(), status.error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, "observeStatus: ${status.error}")
                             viewModel.resetStatus()
                         }
 
@@ -260,17 +345,6 @@ class CompetitorFragment : Fragment() {
                     }
                 }
             }
-        }
-    }
-
-    private fun sendRefreshToken() {
-        lifecycleScope.launch {
-            viewModel.promoterIntent.send(
-                PromoterIntent.RefreshToken(
-                    SharedPreferencesHelper.getInstance().getEmployeeId(),
-                    SharedPreferencesHelper.getInstance().getUserToken()
-                )
-            )
         }
     }
 
@@ -315,9 +389,6 @@ class CompetitorFragment : Fragment() {
         val partySiteId = arguments?.getString("customerPartySiteId")
             ?: requireActivity().intent?.getStringExtra("party_site") ?: ""
 
-        Log.d("CUSTOMER_DEBUG", "Fragment customer_code = '$customerCode'")
-        Log.d("TOKEN_DEBUG", "api_token = '$apiToken' (length=${apiToken.length})")
-
         val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
         val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
@@ -357,6 +428,7 @@ class CompetitorFragment : Fragment() {
         val requestFile = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
         return MultipartBody.Part.createFormData("image", tempFile.name, requestFile)
     }
+
     private var offerDateForApi: String = ""
 
     private fun showOfferDatePicker() {
@@ -378,8 +450,10 @@ class CompetitorFragment : Fragment() {
 
         datePicker.show(childFragmentManager, "OFFER_DATE_PICKER")
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        pendingRetry = null
         _binding = null
     }
 }

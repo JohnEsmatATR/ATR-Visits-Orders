@@ -43,7 +43,6 @@ class VisitPlanViewModel : ViewModel() {
             _status.value = VisitStatus.Loading
             _status.value = try {
                 val response = VisitPlanRepository().getMonthlyVisits()
-                allVisits = response.data.visits
                 VisitStatus.GetMonthlyVisits(response)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)

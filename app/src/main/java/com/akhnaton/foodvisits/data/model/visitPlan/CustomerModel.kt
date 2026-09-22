@@ -1,5 +1,7 @@
 package com.akhnaton.foodvisits.data.model.visitPlan
 
+import com.google.gson.JsonElement
+
 data class CustomerItem(
     val CUSTOMER_NAME: String,
     val SITE_ADDRESS: String,
@@ -20,5 +22,5 @@ data class GetVisitCustomersRes(
     val status: Int,
     val message: String,
     val type: String,
-    val data: GetVisitCustomersData
+    val data: JsonElement?
 )
