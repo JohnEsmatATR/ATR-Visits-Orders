@@ -45,7 +45,8 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 class CompetitorFragment : Fragment() {
 
     companion object {
@@ -79,7 +80,7 @@ class CompetitorFragment : Fragment() {
             val currentImages = imagesAdapter.getImages().toMutableList()
             currentImages.addAll(uris)
             imagesAdapter.setImages(currentImages)
-            binding.rvImages.visibility = View.VISIBLE
+            updateImagesVisibility()
         }
     }
 
@@ -111,7 +112,7 @@ class CompetitorFragment : Fragment() {
         binding.btnSave.setOnClickListener {
             onSaveClicked()
         }
-        binding.etOfferDate.setOnClickListener {
+        binding.tvOfferDate.setOnClickListener {
             showOfferDatePicker()
         }
 
@@ -133,8 +134,7 @@ class CompetitorFragment : Fragment() {
                 val currentImages = imagesAdapter.getImages().toMutableList()
                 currentImages.removeAt(position)
                 imagesAdapter.setImages(currentImages)
-                binding.rvImages.visibility =
-                    if (currentImages.isEmpty()) View.GONE else View.VISIBLE
+                updateImagesVisibility()
             }
         )
 
@@ -146,6 +146,31 @@ class CompetitorFragment : Fragment() {
         binding.rvImages.adapter = imagesAdapter
     }
 
+    private fun updateImagesVisibility() {
+        val hasImages = imagesAdapter.getImages().isNotEmpty()
+        binding.btnAddImages.visibility = if (hasImages) View.GONE else View.VISIBLE
+        binding.rvImages.visibility = if (hasImages) View.VISIBLE else View.GONE
+    }
+    private fun setupKeyboardInsets() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            val systemBars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
+    }
     private fun setupPromotionTypeCheckboxes(items: List<GetPromotionTypes>) {
         val container = binding.llPromotionTypesContainer
         container.removeAllViews()
@@ -445,7 +470,7 @@ class CompetitorFragment : Fragment() {
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             offerDateForApi = sdf.format(calendar.time)
 
-            binding.etOfferDate.setText(offerDateForApi)
+            binding.tvOfferDate.setText(offerDateForApi)
         }
 
         datePicker.show(childFragmentManager, "OFFER_DATE_PICKER")

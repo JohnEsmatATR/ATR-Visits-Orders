@@ -227,9 +227,60 @@ class GpsVisitFragment : Fragment() {
             )
         }
 
-        binding.cardVisitReport.setOnClickListener {
+        binding.cardCalls.setOnClickListener {
             findNavController().navigate(
-                R.id.toCompetitors
+                R.id.toCalls
+            )
+        }
+
+        binding.cardVisitReport.setOnClickListener {
+            val jsonCheckInReq = Gson().toJson(checkInReq)
+
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+                putString("checkInReq", jsonCheckInReq)
+            }
+
+            findNavController().navigate(
+                R.id.toCompetitors, bundle
+            )
+        }
+
+        binding.cardImages.setOnClickListener {
+            val jsonCheckInReq = Gson().toJson(checkInReq)
+
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+                putString("checkInReq", jsonCheckInReq)
+            }
+
+            findNavController().navigate(
+                R.id.toImages, bundle
+            )
+        }
+
+        binding.cardInventory.setOnClickListener {
+            val jsonCheckInReq = Gson().toJson(checkInReq)
+
+            val bundle = Bundle().apply {
+                putString("customerCode", customerCode)
+                putString(
+                    "customerPartySiteId",
+                    customerPartySiteId
+                )
+                putString("checkInReq", jsonCheckInReq)
+            }
+
+            findNavController().navigate(
+                R.id.toInventory, bundle
             )
         }
 

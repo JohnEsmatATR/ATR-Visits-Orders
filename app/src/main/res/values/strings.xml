@@ -234,9 +234,9 @@
     <string name="product_name_label">اسم المنتج</string>
     <string name="product_name_hint">أدخل اسم المنتج</string>
     <string name="category_label">الفئة</string>
-    <string name="category_hint">SKIN CARE</string>
+    <string name="category_hint">اختر الفئه...</string>
     <string name="competing_company_label">الشركة المنافسة</string>
-    <string name="competing_company_hint">L\'OREAL</string>
+    <string name="competing_company_hint">اختر الشركة المنافسة...</string>
 
     <string name="sizes_prices_title">القياسات والأسعار</string>
     <string name="product_size_label">حجم المنتج</string>
@@ -398,4 +398,7 @@
     <string name="delete_visit_title">حذف الزيارة</string>
     <string name="delete_visit_message">هل انت متاكد من حذف تلك الزياره...</string>
     <string name="delete_now">حذف الآن</string>
+
+    <string name="add_images_hint">يمكنك التقاط صور من الكاميرا أو الاختيار من المعرض</string>
+    <string name="select_date_hint">أدخل التاريخ</string>
 </resources>
