@@ -399,4 +399,6 @@
     <string name="delete_visit_title">حذف الزيارة</string>
     <string name="delete_visit_message">هل انت متاكد من حذف تلك الزياره...</string>
     <string name="delete_now">حذف الآن</string>
+    <string name="copy_sale_plan">نسخ خطة مندوب</string>
+    <string name="copy_sale_plan_description">نسخ خطة جاهزة ليوم محدد بدلا من الإنشاء اليدوى</string>
 </resources>

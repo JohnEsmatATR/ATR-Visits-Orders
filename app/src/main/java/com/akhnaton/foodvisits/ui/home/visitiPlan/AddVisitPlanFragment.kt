@@ -25,16 +25,21 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
+import com.akhnaton.foodvisits.data.model.getSalesMan.SalesMan
 import com.akhnaton.foodvisits.data.model.visitPlan.CustomerItem
 import com.akhnaton.foodvisits.data.model.visitPlan.LineItem
 import com.akhnaton.foodvisits.data.model.visitPlan.SaveCustomerRequest
 import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
+import com.akhnaton.foodvisits.data.statusValue.login.LoginIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitStatus
 import com.akhnaton.foodvisits.databinding.FragmentAddVisitPlanBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.shared.convertDateToApiFormat
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
+import com.akhnaton.foodvisits.ui.home.visits2.ScheduleBottomSheet
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -68,6 +73,7 @@ class AddVisitPlanFragment : Fragment() {
     private var visibleMonthOffset = 0
     private val selectedVisitDates: MutableSet<String> = mutableSetOf()
     private val dayKeyFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+    private var allReps = mutableListOf<SalesMan>()
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
@@ -94,6 +100,8 @@ class AddVisitPlanFragment : Fragment() {
         setupCustomersRecyclerView()
         updateSaveButtonState()
 
+        binding.cardRoute.visibility = View.GONE
+        binding.cardCustomers.visibility = View.GONE
         binding.cardRoute.visibility = View.GONE
         binding.cardCustomers.visibility = View.GONE
 
@@ -227,6 +235,7 @@ class AddVisitPlanFragment : Fragment() {
                 selectedVisitDates.add(dayKey)
             }
             buildVisitCalendarGrid()
+            updateSelectedDatesCountLabel()
             updateSaveButtonState()
         }
 
@@ -242,14 +251,14 @@ class AddVisitPlanFragment : Fragment() {
         grid.addView(view)
     }
 
-
+    private fun updateSelectedDatesCountLabel() {
+    }
 
     private fun setupRoutesRecyclerView() {
         lineAdapter = LineAdapter(
             items = lines,
             getSelectedCode = { selectedLine?.LINE_CODE },
             onLineClick = { line ->
-                hideKeyboard()
                 selectedLine = line
                 lineAdapter.updateList(currentFilteredList())
                 updateRouteHeader()
@@ -263,7 +272,7 @@ class AddVisitPlanFragment : Fragment() {
                 binding.contentCustomers.visibility = View.VISIBLE
                 binding.ivChevronCustomers.animate().rotation(180f).setDuration(200).start()
 
-                getCustomers(line.LINE_CODE)
+                viewModel.addVisitPlanIntent.trySend(AddVisitIntent.GetCustomers(line.LINE_CODE))
             }
         )
         binding.rvRoutes.layoutManager = LinearLayoutManager(requireContext())
@@ -457,10 +466,10 @@ class AddVisitPlanFragment : Fragment() {
 
                         is AddVisitStatus.RefreshToken -> {
                             binding.progressLoading.visibility = View.GONE
-                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
-                            if (status.data.status == 200) {
+                            Log.d(TAG, "refreshToken status=${status.response.status} message=${status.response.message}")
+                            if (status.response.status == 200) {
                                 val tokenData = Gson().fromJson(
-                                    status.data.data,
+                                    status.response.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
@@ -471,10 +480,48 @@ class AddVisitPlanFragment : Fragment() {
                             } else {
                                 pendingRetry = null
                                 hasRetriedAfterRefresh = false
-                                showSessionExpired(status.data.message)
+                                showSessionExpired(status.response.message)
                             }
                         }
 
+                        is AddVisitStatus.CopyDayPlan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.response.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.response.data,
+                                        com.akhnaton.foodvisits.data.model.copyDayPlan.Data::class.java
+                                    )
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "نسخ: ${data.copied}, تخطي: ${data.skipped}",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        getSalesTypes()
+                                    }
+                                )
+                            } else if (status.response.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.addVisitPlanIntent.send(
+                                        AddVisitIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.response.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
                         is AddVisitStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
@@ -485,6 +532,71 @@ class AddVisitPlanFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun submitPlan() {
+        val saleType = selectedSaleType
+        val line = selectedLine
+
+        if (saleType == null || line == null || selectedCustomerIds.isEmpty() || selectedVisitDates.isEmpty()) {
+            Toast.makeText(requireContext(), "من فضلك أكمل كل الخطوات", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val customersRequest = customersList
+            .filter { selectedCustomerIds.contains(it.PARTY_SITE_ID) }
+            .map {
+                SaveCustomerRequest(
+                    customer_code = it.CUSTOMER_CODE,
+                    party_site_id = it.PARTY_SITE_ID,
+                    customer_type = it.CUSTOMER_PROFILE_CLASS,
+                    customer_branch = it.CUSTOMER_BRANCH
+                )
+            }
+
+        val request = SaveSetupPlanRequest(
+            order_type = saleType,
+            line_id = line.LINE_CODE,
+            customers = customersRequest,
+            dates = selectedVisitDates.sorted()
+        )
+
+        viewModel.addVisitPlanIntent.trySend(AddVisitIntent.SaveSetupPlan(request))
+    }
+
+    private fun showScheduleBottomSheet() {
+        val tag = "schedule"
+
+        if (parentFragmentManager.isStateSaved) return
+
+        if (parentFragmentManager.findFragmentByTag(tag) != null)
+            return
+
+//        binding.btnCopyVisits.isEnabled = true
+
+        ScheduleBottomSheet(
+            employees = allReps,
+            listener = object : ScheduleBottomSheet.Listener {
+                override fun onConfirm(
+                    employee: SalesMan,
+                    date: String,
+                    targetDate: String,
+                ) {
+
+                    val copyDayPlanReq = CopyDayPlanReq(
+                        convertDateToApiFormat(date),
+                        convertDateToApiFormat(targetDate),
+                        employee.PERSON_ID.toInt(),
+                    )
+
+                    lifecycleScope.launch {
+                        viewModel.addVisitPlanIntent.send(
+                            AddVisitIntent.CopyDayPlan(copyDayPlanReq)
+                        )
+                    }
+                }
+            }
+        ).show(parentFragmentManager, tag)
     }
 
     private fun buildSaleTypeGrid() {
@@ -583,37 +695,24 @@ class AddVisitPlanFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.btnSavePlan.setOnClickListener { submitPlan() }
-    }
-
-    private fun submitPlan() {
-        val saleType = selectedSaleType
-        val line = selectedLine
-
-        if (saleType == null || line == null || selectedCustomerIds.isEmpty() || selectedVisitDates.isEmpty()) {
-            Toast.makeText(requireContext(), "من فضلك أكمل كل الخطوات", Toast.LENGTH_SHORT).show()
-            return
+        binding.cardCopySalePlan.setOnClickListener {
+            if (allReps.isEmpty()) {
+                getSalesMan()
+            } else {
+                showScheduleBottomSheet()
+            }
         }
 
-        val customersRequest = customersList
-            .filter { selectedCustomerIds.contains(it.PARTY_SITE_ID) }
-            .map {
-                SaveCustomerRequest(
-                    customer_code = it.CUSTOMER_CODE,
-                    party_site_id = it.PARTY_SITE_ID,
-                    customer_type = it.CUSTOMER_PROFILE_CLASS,
-                    customer_branch = it.CUSTOMER_BRANCH
-                )
-            }
+        binding.btnSavePlan.setOnClickListener { submitPlan() }
 
-        val request = SaveSetupPlanRequest(
-            order_type = saleType,
-            line_id = line.LINE_CODE,
-            customers = customersRequest,
-            dates = selectedVisitDates.sorted()
-        )
+    }
 
-        viewModel.addVisitPlanIntent.trySend(AddVisitIntent.SaveSetupPlan(request))
+    private fun getSalesMan() {
+        lifecycleScope.launch {
+            viewModel.addVisitPlanIntent.send(
+                AddVisitIntent.GetSalesMan
+            )
+        }
     }
 
     private fun setupExpandableSections() {

@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.IAddVisit
+import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
 import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
@@ -15,5 +16,9 @@ class AddVisitRepository {
     suspend fun getVisitCustomers(lineId: String) = retrofit.getVisitCustomers(lineId)
 
     suspend fun saveSetupPlan(request: SaveSetupPlanRequest) = retrofit.saveSetupPlan(request)
+
+    suspend fun getSalesMan() = retrofit.getSalesMan()
+
+    suspend fun copyDayPlan(copyDayPlanReq: CopyDayPlanReq) = retrofit.copyDayPlan(copyDayPlanReq)
 
 }
