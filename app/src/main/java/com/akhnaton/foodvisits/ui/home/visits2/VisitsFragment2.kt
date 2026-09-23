@@ -154,11 +154,11 @@ class VisitsFragment2 : Fragment() {
             is_visited_today = false
         )
 
-//        if (SharedPreferencesHelper.getInstance().isAllowedToApproveVisit()) {
-//            binding.btnCopyVisits.visibility = View.VISIBLE
-//        } else {
-//            binding.btnCopyVisits.visibility = View.GONE
-//        }
+        if (SharedPreferencesHelper.getInstance().isAllowedToApproveVisit()) {
+            binding.btnCopyVisits.visibility = View.VISIBLE
+        } else {
+            binding.btnCopyVisits.visibility = View.GONE
+        }
 
         binding.btnCopyVisits.setOnClickListener {
             findNavController().navigate(R.id.toVisitPlan)

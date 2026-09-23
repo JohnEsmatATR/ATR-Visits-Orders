@@ -34,6 +34,8 @@ import com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanRequest
 import com.akhnaton.foodvisits.data.statusValue.login.LoginIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.AddVisitStatus
+import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
+import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
 import com.akhnaton.foodvisits.databinding.FragmentAddVisitPlanBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
@@ -481,6 +483,38 @@ class AddVisitPlanFragment : Fragment() {
                                 pendingRetry = null
                                 hasRetriedAfterRefresh = false
                                 showSessionExpired(status.response.message)
+                            }
+                        }
+
+                        is AddVisitStatus.GetSalesMan -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.response.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.response.data,
+                                        com.akhnaton.foodvisits.data.model.getSalesMan.Data::class.java
+                                    )
+                                allReps = data.salesMan.toMutableList()
+                                showScheduleBottomSheet()
+                            } else if (status.response.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.addVisitPlanIntent.send(
+                                        AddVisitIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.response.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
                             }
                         }
 
