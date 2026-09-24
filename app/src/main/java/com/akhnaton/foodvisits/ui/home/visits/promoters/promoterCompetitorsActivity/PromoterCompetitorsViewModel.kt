@@ -39,8 +39,8 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         it.product_id, it.price, it.price_after_disc,
                         it.product_name, it.weight, it.discount_rate,
                         it.prom_type, it.prom_date, it.user_type,
-                        it.PromoterCompetitorCompress, it.competitor_id, it.type_id,
-                    )
+                        it.product_size, it.competitor_id, it.type_id,
+                        )
                     is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(it.appVersion)
                     is PromoterIntent.UploadImages -> fetchUploadImages(
                         it.appVersion, it.apiToken, it.image, it.created_by,
@@ -71,7 +71,7 @@ class PromoterCompetitorsViewModel : ViewModel() {
         prom_type: RequestBody,
         prom_date: RequestBody,
         user_type: RequestBody,
-        PromoterCompetitorCompress: RequestBody,
+        product_size: RequestBody,
         competitor_id: RequestBody,
         type_id: RequestBody,
     ) {
@@ -96,7 +96,7 @@ class PromoterCompetitorsViewModel : ViewModel() {
                         prom_type,
                         prom_date,
                         user_type,
-                        PromoterCompetitorCompress,
+                        product_size,
                         competitor_id,
                         type_id,
                     )

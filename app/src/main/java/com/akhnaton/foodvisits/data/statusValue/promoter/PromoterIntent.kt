@@ -117,7 +117,8 @@ sealed class PromoterIntent {
         val prom_type: RequestBody,
         val prom_date: RequestBody,
         val user_type: RequestBody,
-        val PromoterCompetitorCompress: RequestBody,
+//        val PromoterCompetitorCompress: RequestBody,
+        val product_size: RequestBody,
         val competitor_id: RequestBody,
         val type_id: RequestBody,
     ) : PromoterIntent() {
@@ -143,7 +144,7 @@ sealed class PromoterIntent {
             if (prom_type != other.prom_type) return false
             if (prom_date != other.prom_date) return false
             if (user_type != other.user_type) return false
-            if (PromoterCompetitorCompress != other.PromoterCompetitorCompress) return false
+            if (product_size != other.product_size) return false
             if (competitor_id != other.competitor_id) return false
             if (type_id != other.type_id) return false
 
@@ -167,7 +168,7 @@ sealed class PromoterIntent {
             result = 31 * result + prom_type.hashCode()
             result = 31 * result + prom_date.hashCode()
             result = 31 * result + user_type.hashCode()
-            result = 31 * result + PromoterCompetitorCompress.hashCode()
+            result = 31 * result + product_size.hashCode()
             result = 31 * result + competitor_id.hashCode()
             result = 31 * result + type_id.hashCode()
             return result

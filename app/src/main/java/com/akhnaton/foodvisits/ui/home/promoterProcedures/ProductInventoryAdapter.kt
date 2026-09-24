@@ -5,9 +5,13 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.promoterGetItemData.Data
 import com.akhnaton.foodvisits.databinding.ItemProductInventoryBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
 
 class ProductInventoryAdapter(
     private val onSaveClick: (Data) -> Unit
@@ -154,6 +158,15 @@ class ProductInventoryAdapter(
             )
 
             isBinding = true
+            binding.btnSaveChanges.icon =
+                if (item.hasChanges) {
+                    androidx.core.content.ContextCompat.getDrawable(
+                        binding.root.context,
+                        R.drawable.ic_check_circle2
+                    )
+                } else {
+                    null
+                }
 
             /*
              * Remove old watchers first.
@@ -180,7 +193,7 @@ class ProductInventoryAdapter(
                 item.segment3
 
             binding.tvProductCode.text =
-                "الكود: ${item.inventory_item_id}"
+                "الكود: ${item.item_code}"
 
             binding.tvBarcode.text =
                 item.item_code
@@ -241,7 +254,8 @@ class ProductInventoryAdapter(
                         if (isBinding) {
                             return
                         }
-
+                        Log.d(TAG,"quantity type: item_id=${item.inventory_item_id}, type value=$s")
+                        item.writtenQuantity = s.toString()
                         markItemAsChanged(
                             item
                         )
@@ -281,6 +295,8 @@ class ProductInventoryAdapter(
                         if (isBinding) {
                             return
                         }
+                        Log.d(TAG,"price type: item_id=${item.inventory_item_id}, type value=$s")
+                        item.writtenPrice = s.toString()
 
                         markItemAsChanged(
                             item
@@ -321,6 +337,8 @@ class ProductInventoryAdapter(
                         if (isBinding) {
                             return
                         }
+                        Log.d(TAG,"price type: item_id=${item.inventory_item_id}, type value=$s")
+                        item.writtenReturned = s.toString()
 
                         markItemAsChanged(
                             item
@@ -348,16 +366,40 @@ class ProductInventoryAdapter(
              */
             binding.btnSaveChanges.setOnClickListener {
 
-                val quantity =
+                val quantityText =
                     binding.etQuantity.text
                         .toString()
-                        .toIntOrNull()
+                        .trim()
+
+                val priceText =
+                    binding.etPrice.text
+                        .toString()
+                        .trim()
+
+                if (quantityText.isEmpty()) {
+                    DialogUtils.showResultDialog(
+                        context = binding.root.context,
+                        message = "من فضلك أدخل الكمية",
+                        isSuccess = false,
+                        showOkButton = true,
+                    )
+                    return@setOnClickListener
+                }
+                else if(priceText.isEmpty()){
+                    DialogUtils.showResultDialog(
+                        context = binding.root.context,
+                        message = "من فضلك أدخل السعر",
+                        isSuccess = false,
+                        showOkButton = true,
+                    )
+                    return@setOnClickListener
+                }
+                val quantity =
+                    quantityText.toIntOrNull()
                         ?: 0
 
                 val price =
-                    binding.etPrice.text
-                        .toString()
-                        .toDoubleOrNull()
+                    priceText.toDoubleOrNull()
                         ?: 0.0
 
                 val returned =
@@ -375,9 +417,15 @@ class ProductInventoryAdapter(
                 item.writtenReturned =
                     returned.toString()
 
-                onSaveClick(
+                markItemAsChanged(
                     item
                 )
+
+                binding.btnSaveChanges.icon =
+                    androidx.core.content.ContextCompat.getDrawable(
+                        binding.root.context,
+                        R.drawable.ic_check_circle2
+                    )
             }
         }
     }

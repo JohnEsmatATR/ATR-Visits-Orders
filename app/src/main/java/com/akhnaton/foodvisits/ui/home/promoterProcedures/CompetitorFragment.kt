@@ -416,7 +416,7 @@ class CompetitorFragment : Fragment() {
 
         val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
 
-        val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
+        //val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
 
         viewModel.promoterIntent.trySend(
             PromoterIntent.SendCompetitors(
@@ -431,12 +431,13 @@ class CompetitorFragment : Fragment() {
                 price = binding.etPriceBefore.text.toString().toBody(),
                 price_after_disc = binding.etPriceAfter.text.toString().toBody(),
                 product_name = binding.etProductName.text.toString().toBody(),
-                weight = combinedWeight.toBody(),
+                weight = binding.actvUnitSize.text.toString().toBody(),
+                product_size = binding.etProductSize.text.toString().toBody(),
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),
                 user_type = "".toBody(),
-                PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
+               // PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
                 competitor_id = selectedCompetitorId!!.toBody(),
                 type_id = selectedTypeId!!.toBody(),
             )

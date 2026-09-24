@@ -123,15 +123,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="@dimen/_42sdp"
                 android:layout_gravity="top"
-                android:drawableStart="@drawable/ic_check_circle2"
-                android:drawablePadding="@dimen/_4sdp"
                 android:gravity="center"
                 android:text="حفظ"
                 android:textColor="@color/white"
                 android:textSize="@dimen/_10ssp"
                 android:textStyle="bold"
                 app:backgroundTint="@color/orange"
-                app:cornerRadius="@dimen/_10sdp" />
+                app:cornerRadius="@dimen/_10sdp"
+                app:iconPadding="@dimen/_4sdp"
+                app:iconGravity="textStart"
+                app:iconTint="@color/white" />
 
             <!-- Brand -->
 
