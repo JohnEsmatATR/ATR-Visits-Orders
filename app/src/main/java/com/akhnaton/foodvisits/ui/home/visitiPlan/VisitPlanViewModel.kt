@@ -29,11 +29,37 @@ class VisitPlanViewModel : ViewModel() {
             visitIntent.consumeAsFlow().collect {
                 when (it) {
                     is VisitIntent.GetMonthlyVisits -> getMonthlyVisits()
+                    is VisitIntent.GetPendingVisits -> getPendingVisits(it.page, it.pageSize, it.isLoadMore)
+                    is VisitIntent.ApproveVisits -> approveVisits(it.ids, it.decision)
                     is VisitIntent.UpdateVisitDate -> updateVisitDate(it.id, it.newDate)
                     is VisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     is VisitIntent.DeleteVisitPlan -> deleteVisitPlan(it.ids)
                     is VisitIntent.CopyPlan -> copyPlan(it.sourceDate, it.targetDate)
                 }
+            }
+        }
+    }
+
+    private fun getPendingVisits(page: Int, pageSize: Int, isLoadMore: Boolean) {
+        viewModelScope.launch {
+            _status.value = if (isLoadMore) VisitStatus.LoadingMore else VisitStatus.Loading
+            _status.value = try {
+                val response = VisitPlanRepository().getPendingVisitsForApproval(page, pageSize)
+                VisitStatus.GetPendingVisits(response, isLoadMore)
+            } catch (e: Exception) {
+                VisitStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun approveVisits(ids: List<String>, decision: Int) {
+        viewModelScope.launch {
+            _status.value = VisitStatus.Loading
+            _status.value = try {
+                val response = VisitPlanRepository().approveVisits(ids, decision)
+                VisitStatus.ApproveVisits(response)
+            } catch (e: Exception) {
+                VisitStatus.Error(e.message)
             }
         }
     }

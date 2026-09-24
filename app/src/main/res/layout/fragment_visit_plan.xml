@@ -9,488 +9,155 @@
     android:background="@color/background"
     tools:context=".ui.home.visitPlan.VisitPlanFragment">
 
-
-    <androidx.core.widget.NestedScrollView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:fillViewport="false"
-        android:scrollbars="none">
+        android:orientation="vertical">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="24dp">
+            android:background="@color/white"
+            android:clipChildren="false"
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/_16sdp"
+            android:paddingTop="@dimen/_16sdp"
+            android:paddingBottom="@dimen/_8sdp">
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/white"
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/btnBackContainer"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
                 android:clipChildren="false"
                 android:clipToPadding="false"
-                android:paddingHorizontal="@dimen/_16sdp"
-                android:paddingTop="@dimen/_16sdp"
-                android:paddingBottom="@dimen/_8sdp">
-
-                <com.google.android.material.card.MaterialCardView
-                    android:id="@+id/btnBackContainer"
-                    android:layout_width="@dimen/_32sdp"
-                    android:layout_height="@dimen/_32sdp"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:clipChildren="false"
-                    android:clipToPadding="false"
-                    app:cardBackgroundColor="@color/white"
-                    app:cardCornerRadius="@dimen/_16sdp"
-                    app:cardElevation="2dp"
-                    app:strokeWidth="0dp">
-
-                    <ImageView
-                        android:id="@+id/ivBack"
-                        android:layout_width="@dimen/_16sdp"
-                        android:layout_height="@dimen/_16sdp"
-                        android:layout_gravity="center"
-                        android:contentDescription="@null"
-                        android:src="@drawable/ic_arrow_left"
-                        app:tint="@color/colorPrimary" />
-
-                </com.google.android.material.card.MaterialCardView>
-
-                <LinearLayout
-                    android:id="@+id/ll_header_texts"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:id="@+id/tv_header_title"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/visit_plan_title"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_16ssp"
-                            android:textStyle="bold" />
-
-                        <FrameLayout
-                            android:layout_width="@dimen/_20sdp"
-                            android:layout_height="@dimen/_24sdp"
-                            android:layout_marginLeft="@dimen/_8sdp">
-
-                            <View
-                                android:layout_width="@dimen/_20sdp"
-                                android:layout_height="@dimen/_6sdp"
-                                android:layout_gravity="top"
-                                android:background="@color/color_one" />
-
-                            <TextView
-                                android:layout_width="@dimen/_20sdp"
-                                android:layout_height="@dimen/_18sdp"
-                                android:layout_gravity="bottom"
-                                android:background="@color/color_white"
-                                android:gravity="center"
-                                android:text="17"
-                                android:textColor="@color/black"
-                                android:textSize="@dimen/_9ssp"
-                                android:textStyle="bold" />
-                        </FrameLayout>
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:id="@+id/tv_header_subtitle"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_2sdp"
-                        android:drawablePadding="@dimen/_4sdp"
-                        android:gravity="center_horizontal"
-                        android:text="@string/visit_plan_subtitle"
-                        android:textColor="@color/grey_color"
-                        android:textSize="@dimen/_10ssp" />
-
-                </LinearLayout>
-
-            </RelativeLayout>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:cardCornerRadius="20dp"
+                app:cardBackgroundColor="@color/white"
+                app:cardCornerRadius="@dimen/_16sdp"
                 app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/white">
+                app:strokeWidth="0dp">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                <ImageView
+                    android:id="@+id/ivBack"
+                    android:layout_width="@dimen/_16sdp"
+                    android:layout_height="@dimen/_16sdp"
+                    android:layout_gravity="center"
+                    android:contentDescription="@null"
+                    android:src="@drawable/ic_arrow_left"
+                    app:tint="@color/colorPrimary" />
 
-                    <RelativeLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp">
-
-                        <TextView
-                            android:id="@+id/tv_month_year"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
-                            android:textColor="@color/gray"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
-
-                        <LinearLayout
-                            android:id="@+id/ll_period_nav"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentLeft="true"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <ImageView
-                                android:id="@+id/iv_next_period"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:layout_marginEnd="4dp"
-                                android:padding="3dp"
-                                android:src="@drawable/ic_arrow_left"
-                                android:visibility="gone"
-                                app:tint="@color/gray"
-                                tools:ignore="ContentDescription" />
-
-                            <LinearLayout
-                                android:id="@+id/chip_weekly_view"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@drawable/bg_chip_orange_light"
-                                android:gravity="center_vertical"
-                                android:orientation="horizontal"
-                                android:paddingHorizontal="12dp"
-                                android:paddingVertical="6dp">
-
-                                <ImageView
-                                    android:id="@+id/iv_chip_icon"
-                                    android:layout_width="14dp"
-                                    android:layout_height="14dp"
-                                    android:src="@drawable/ic_arrow_up"
-                                    app:tint="@color/colorAccent"
-                                    tools:ignore="ContentDescription" />
-
-                                <TextView
-                                    android:id="@+id/tv_chip_label"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginLeft="6dp"
-                                    android:text="@string/weekly_view"
-                                    android:textColor="@color/colorAccent"
-                                    android:textSize="13sp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <ImageView
-                                android:id="@+id/iv_prev_period"
-                                android:layout_width="22dp"
-                                android:layout_height="22dp"
-                                android:layout_marginStart="4dp"
-                                android:padding="3dp"
-                                android:scaleX="-1"
-                                android:src="@drawable/ic_arrow_left"
-                                android:visibility="gone"
-                                app:tint="@color/gray"
-                                tools:ignore="ContentDescription" />
-
-                        </LinearLayout>
-                    </RelativeLayout>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:weightSum="7">
-
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sun_short" />
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_mon_short" />
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_tue_short" />
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_wed_short" />
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_thu_short" />
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_fri_short" />
-                        <TextView style="@style/CalendarWeekDayLabel" android:text="@string/weekday_sat_short" />
-                    </LinearLayout>
-
-                    <GridLayout
-                        android:id="@+id/grid_calendar_days"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:columnCount="7"
-                        android:rowCount="6" />
-
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="14dp"
-                app:cardElevation="0dp"
-                app:cardBackgroundColor="@color/input_box_bg"
-                app:strokeColor="@color/input_box_stroke"
-                app:strokeWidth="1dp">
-
-                <RelativeLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="14dp">
-
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_alignParentRight="true"
-                        android:src="@drawable/ic_search"
-                        app:tint="@color/gray"
-                        tools:ignore="ContentDescription" />
-
-                    <View
-                        android:id="@+id/et_search_dummy_anchor"
-                        android:layout_width="1dp"
-                        android:layout_height="1dp"
-                        android:layout_alignParentRight="true" />
-
-                    <EditText
-                        android:id="@+id/et_search"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="16dp"
-                        android:layout_toLeftOf="@id/et_search_dummy_anchor"
-                        android:layout_alignParentLeft="true"
-                        android:background="@null"
-                        android:gravity="right"
-                        android:hint="@string/search_visits_today_hint"
-                        android:inputType="text"
-                        android:textColorHint="@color/grey2"
-                        android:textSize="14sp" />
-
-                </RelativeLayout>
-            </androidx.cardview.widget.CardView>
-
-            <RelativeLayout
-                android:id="@+id/rl_selection_row"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="8dp">
-
-                <TextView
-                    android:id="@+id/tv_select_mode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:background="@drawable/bg_chip_orange_light"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="6dp"
-                    android:text="@string/select_action"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
-
-                <LinearLayout
-                    android:id="@+id/ll_selection_controls"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/tv_select_all"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="8dp"
-                        android:background="@drawable/bg_chip_orange_light"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="6dp"
-                        android:text="@string/select_all_action"
-                        android:textColor="@color/colorAccent"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_cancel_selection"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_chip_gray_light"
-                        android:paddingHorizontal="14dp"
-                        android:paddingVertical="6dp"
-                        android:text="@string/cancel_selection_action"
-                        android:textColor="@color/gray"
-                        android:textSize="13sp"
-                        android:textStyle="bold" />
-
-                </LinearLayout>
-
-                <TextView
-                    android:id="@+id/tv_delete_selected"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:background="@drawable/bg_chip_red_light"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="6dp"
-                    android:textColor="@color/red"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:visibility="gone"
-                    tools:text="حذف (3)" />
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
-                android:layout_marginBottom="12dp">
-
-                <TextView
-                    android:id="@+id/tv_visit_date"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:textColor="@color/gray"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/tv_visit_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:background="@drawable/bg_chip_orange_light"
-                    android:paddingHorizontal="14dp"
-                    android:paddingVertical="6dp"
-                    android:text="@string/visits_count_format"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    tools:text="13 زيارة" />
-            </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/ll_header_texts"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="16dp"
+                android:layout_centerInParent="true"
+                android:gravity="center_horizontal"
                 android:orientation="vertical">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rv_visits"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="16dp"
-                    android:nestedScrollingEnabled="false"
-                    tools:listitem="@layout/item_visit_card"
-                    tools:itemCount="3" />
                 <LinearLayout
-                    android:id="@+id/ll_zero_state"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    android:paddingTop="40dp"
-                    android:visibility="gone">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <TextView
+                        android:id="@+id/tv_header_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center"
-                        android:layout_marginTop="12dp"
-                        android:alpha="0.7"
-                        android:gravity="center"
-                        android:text="@string/no_visits_today"
-                        android:textColor="@color/colorPrimary"
+                        android:text="@string/visit_plan_title"
+                        android:textColor="@color/black"
                         android:textSize="@dimen/_16ssp"
                         android:textStyle="bold" />
 
+                    <FrameLayout
+                        android:layout_width="@dimen/_20sdp"
+                        android:layout_height="@dimen/_24sdp"
+                        android:layout_marginLeft="@dimen/_8sdp">
+
+                        <View
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_6sdp"
+                            android:layout_gravity="top"
+                            android:background="@color/color_one" />
+
+                        <TextView
+                            android:layout_width="@dimen/_20sdp"
+                            android:layout_height="@dimen/_18sdp"
+                            android:layout_gravity="bottom"
+                            android:background="@color/color_white"
+                            android:gravity="center"
+                            android:text="17"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_9ssp"
+                            android:textStyle="bold" />
+                    </FrameLayout>
+
                 </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tv_header_subtitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_2sdp"
+                    android:drawablePadding="@dimen/_4sdp"
+                    android:gravity="center_horizontal"
+                    android:text="@string/visit_plan_subtitle"
+                    android:textColor="@color/grey_color"
+                    android:textSize="@dimen/_10ssp" />
 
             </LinearLayout>
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+        </RelativeLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/progressLoading"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:alpha="0.5"
-            android:background="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <ProgressBar
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/ll_tabs"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:indeterminateTint="@color/colorPrimary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginHorizontal="@dimen/_16sdp"
+            android:layout_marginTop="@dimen/_8sdp"
+            android:layout_marginBottom="@dimen/_4sdp"
+            android:background="@drawable/bg_tab_switch_container"
+            android:orientation="horizontal"
+            android:padding="@dimen/_3sdp"
+            android:weightSum="2">
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/tab_my_visits"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/bg_tab_selected"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:gravity="center"
+                android:paddingVertical="@dimen/_6sdp"
+                android:text="@string/visit_plan_tab_my_visits"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_11ssp"
+                android:textStyle="bold" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_duplicate"
-        android:layout_width="50dp"
-        android:layout_height="70dp"
-        android:layout_gravity="bottom|left"
-        android:layout_marginLeft="20dp"
-        android:layout_marginBottom="88dp"
-        android:backgroundTint="#2185F1"
-        android:src="@drawable/ic_copy"
-        app:borderWidth="0dp"
-        app:elevation="4dp"
-        app:fabCustomSize="50dp"
-        app:maxImageSize="26dp"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.PillFAB"
-        app:tint="@color/white"
-        tools:ignore="ContentDescription" />
+            <TextView
+                android:id="@+id/tab_pending"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:gravity="center"
+                android:paddingVertical="@dimen/_6sdp"
+                android:text="@string/visit_plan_tab_pending"
+                android:textColor="@color/gray"
+                android:textSize="@dimen/_11ssp"
+                android:textStyle="bold" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_visit"
-        android:layout_width="50dp"
-        android:layout_height="70dp"
-        android:layout_gravity="bottom|left"
-        android:layout_marginLeft="20dp"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:src="@drawable/ic_add_circle_orange"
-        app:borderWidth="0dp"
-        app:elevation="4dp"
-        app:fabCustomSize="50dp"
-        app:maxImageSize="28dp"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.PillFAB"
-        app:tint="@null"
-        tools:ignore="ContentDescription" />
+        </LinearLayout>
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

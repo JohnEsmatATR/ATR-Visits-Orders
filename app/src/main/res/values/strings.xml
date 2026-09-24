@@ -398,4 +398,20 @@
     <string name="delete_visit_title">حذف الزيارة</string>
     <string name="delete_visit_message">هل انت متاكد من حذف تلك الزياره...</string>
     <string name="delete_now">حذف الآن</string>
+
+    <string name="visit_plan_tab_my_visits">خطة زياراتي</string>
+    <string name="visit_plan_tab_pending">بانتظار الموافقة</string>
+    <string name="search_pending_visits_hint">ابحث في الزيارات المعلقة...</string>
+    <string name="pending_select_all">تحديد الكل</string>
+    <string name="no_pending_visits">لا توجد زيارات بانتظار الموافقة</string>
+    <string name="approve_action">موافقة</string>
+    <string name="reject_action">رفض</string>
+    <string name="bulk_approve_format">موافقة (%1$d)</string>
+    <string name="bulk_reject_format">رفض (%1$d)</string>
+    <string name="visit_number_format">رقم الزيارة: %1$s</string>
+    <string name="delegate_format">المندوب: %1$s</string>
+    <string name="proposed_date_format">تاريخ الزيارة المقترح: %1$s</string>
+
+    <string name="visits_approved_toast">تم الموافقة على %1$d زيارات</string>
+    <string name="visits_rejected_toast">تم رفض %1$d زيارات</string>
 </resources>

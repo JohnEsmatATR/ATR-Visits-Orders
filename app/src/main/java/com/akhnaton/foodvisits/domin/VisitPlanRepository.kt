@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.IVisitPlan
+import com.akhnaton.foodvisits.data.model.pendingVisits.ApproveVisitsReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
 
 class VisitPlanRepository {
@@ -8,6 +9,12 @@ class VisitPlanRepository {
     private val retrofit = RetrofitClient.getInstance(IVisitPlan::class.java)
 
     suspend fun getMonthlyVisits() = retrofit.getMonthlyVisits()
+
+    suspend fun getPendingVisitsForApproval(page: Int, pageSize: Int) =
+        retrofit.getPendingVisitsForApproval(page, pageSize)
+
+    suspend fun approveVisits(ids: List<String>, decision: Int) =
+        retrofit.approveVisits(ApproveVisitsReq(ids, decision))
 
     suspend fun updateVisitDate(id: String, newDate: String) = retrofit.updateVisitDate(id, newDate)
 

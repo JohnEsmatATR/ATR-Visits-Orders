@@ -52,4 +52,8 @@
     <color name="gradient_orange_start">#FF9800</color>
     <color name="gradient_orange_end">#FF5A36</color>
     <color name="unselected_card_bg">#F5F5F7</color>
+
+    <color name="tab_switch_bg">#EFEFF4</color>
+    <color name="approve_green">#34C759</color>
+    <color name="reject_red">#FF3B30</color>
 </resources>
