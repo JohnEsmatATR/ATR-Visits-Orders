@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.promoter
+package com.akhnaton.foodvisits.ui.home.promoterProcedures
 
 import android.app.AlertDialog
 import android.content.Intent
@@ -9,6 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import android.widget.ArrayAdapter
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
@@ -31,6 +34,7 @@ import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.inventory.ProductInventoryAdapter
+import com.akhnaton.foodvisits.ui.home.promoter.PromoterViewModel
 import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModel
 import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModelFactory
 import com.google.gson.Gson
@@ -64,6 +68,7 @@ class InventoryFragment : Fragment() {
         callApis()
         observeData()
         setupClicks()
+        handleTopBottomKeyboard()
 
     }
 
@@ -89,7 +94,25 @@ class InventoryFragment : Fragment() {
         dialog.hide()
     }
 
-
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
+    }
     fun callApis() {
         callGetItemData()
     }
@@ -208,6 +231,12 @@ class InventoryFragment : Fragment() {
         val requestItems = ArrayList<Item>()
         items.forEach {
             if (it.hasChanges) {
+                Log.d(
+                    TAG,
+                    "sending item: itemId=${it.inventory_item_id}, " +
+                            "price=${it.writtenPrice}, " +
+                            "quantity=${it.writtenQuantity}, "
+                )
                 requestItems.add(
                     Item(
                         it.inventory_item_id.toInt(),
@@ -281,7 +310,7 @@ class InventoryFragment : Fragment() {
                         }
                     }
 
-                    is PromoterStatus.PromoterSaveStock -> {
+                    is Visits2Status.PromoterSaveStock -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             DialogUtils.showResultDialog(

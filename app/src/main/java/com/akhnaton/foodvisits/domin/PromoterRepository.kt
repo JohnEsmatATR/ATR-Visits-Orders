@@ -143,7 +143,7 @@ class PromoterRepository {
         prom_type: RequestBody,
         prom_date: RequestBody,
         user_type: RequestBody,
-        PromoterCompetitorCompress: RequestBody,
+        product_size: RequestBody,
         competitor_name: RequestBody,
         type_name: RequestBody,
     ) =
@@ -160,11 +160,11 @@ class PromoterRepository {
             price_after_disc,
             product_name,
             weight,
+            product_size,
             discount_rate,
             prom_type,
             prom_date,
             user_type,
-            PromoterCompetitorCompress,
             competitor_name,
             type_name,
         )
