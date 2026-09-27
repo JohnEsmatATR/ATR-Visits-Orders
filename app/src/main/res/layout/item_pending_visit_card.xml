@@ -33,7 +33,8 @@
             android:layout_marginStart="12dp"
             android:buttonTint="@color/green"
             android:minWidth="0dp"
-            android:minHeight="0dp" />
+            android:minHeight="0dp"
+            android:visibility="gone" />
 
         <View
             android:id="@+id/view_vertical_divider"
@@ -44,7 +45,8 @@
             android:layout_marginVertical="16dp"
             android:layout_toEndOf="@id/cb_select"
             android:layout_marginStart="4dp"
-            android:background="@color/input_box_stroke" />
+            android:background="@color/input_box_stroke"
+            android:visibility="gone" />
 
         <LinearLayout
             android:id="@+id/ll_content_container"

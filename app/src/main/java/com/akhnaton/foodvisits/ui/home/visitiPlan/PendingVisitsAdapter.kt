@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.ui.home.visitiPlan
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
@@ -15,6 +16,7 @@ class PendingVisitsAdapter(
 ) : RecyclerView.Adapter<PendingVisitsAdapter.ViewHolder>() {
 
     private var selectedIds: Set<String> = emptySet()
+    private var isSelectionMode: Boolean = false
 
     class ViewHolder(val binding: ItemPendingVisitCardBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -33,9 +35,18 @@ class PendingVisitsAdapter(
             tvDelegate.text = root.context.getString(R.string.delegate_format, item.LAST_NAME)
             tvProposedDate.text = root.context.getString(R.string.proposed_date_format, item.DATE_OF_VISIT)
 
+            cbSelect.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
+            viewVerticalDivider.visibility = if (isSelectionMode) View.VISIBLE else View.GONE
+
             cbSelect.setOnCheckedChangeListener(null)
             cbSelect.isChecked = selectedIds.contains(item.ID)
             cbSelect.setOnCheckedChangeListener { _, _ -> onSelectToggle(item) }
+
+            root.setOnClickListener {
+                if (isSelectionMode) {
+                    onSelectToggle(item)
+                }
+            }
 
             btnApprove.setOnClickListener { onApproveClick(item) }
             btnReject.setOnClickListener { onRejectClick(item) }
@@ -57,6 +68,11 @@ class PendingVisitsAdapter(
 
     fun setSelectedIds(ids: Set<String>) {
         selectedIds = ids
+        notifyDataSetChanged()
+    }
+
+    fun setSelectionMode(enabled: Boolean) {
+        isSelectionMode = enabled
         notifyDataSetChanged()
     }
 

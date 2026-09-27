@@ -56,41 +56,63 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <LinearLayout
-            android:id="@+id/ll_select_all_row"
+        <RelativeLayout
+            android:id="@+id/rl_selection_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:layout_marginBottom="8dp"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <CheckBox
-                android:id="@+id/cb_select_all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:buttonTint="@color/colorAccent"
-                android:minWidth="0dp"
-                android:minHeight="0dp"
-                android:text="@string/pending_select_all"
-                android:textColor="@color/black"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+            android:layout_marginBottom="8dp">
 
             <TextView
-                android:id="@+id/tv_selected_count"
-                android:layout_width="0dp"
+                android:id="@+id/tv_select_mode"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="end|center_vertical"
+                android:layout_alignParentRight="true"
+                android:background="@drawable/bg_chip_orange_light"
+                android:paddingHorizontal="14dp"
+                android:paddingVertical="6dp"
+                android:text="@string/select_action"
                 android:textColor="@color/colorAccent"
                 android:textSize="13sp"
-                android:textStyle="bold"
-                android:visibility="gone"
-                tools:text="تم تحديد 2 زيارة"
-                tools:visibility="visible" />
+                android:textStyle="bold" />
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_selection_controls"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/tv_select_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/bg_chip_orange_light"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:text="@string/select_all_action"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_cancel_selection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_chip_gray_light"
+                    android:paddingHorizontal="14dp"
+                    android:paddingVertical="6dp"
+                    android:text="@string/cancel_selection_action"
+                    android:textColor="@color/gray"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
         <FrameLayout
             android:layout_width="match_parent"

@@ -57,6 +57,7 @@ class PendingVisitsFragment : Fragment() {
     private var lastActionIds: List<String> = emptyList()
     private var lastDecision: Int = DECISION_APPROVE
 
+    private var isSelectionMode = false
     private val selectedVisitIds: MutableSet<String> = mutableSetOf()
 
     override fun onCreateView(
@@ -87,7 +88,7 @@ class PendingVisitsFragment : Fragment() {
     private fun loadFirstPage() {
         currentPage = 1
         allLoadedVisits = emptyList()
-        selectedVisitIds.clear()
+        exitSelectionMode()
         viewModel.visitIntent.trySend(
             VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = false)
         )
@@ -138,7 +139,15 @@ class PendingVisitsFragment : Fragment() {
             applyFilterAndRender()
         }
 
-        binding.cbSelectAll.setOnClickListener {
+        binding.tvSelectMode.setOnClickListener {
+            enterSelectionMode()
+        }
+
+        binding.tvCancelSelection.setOnClickListener {
+            exitSelectionMode()
+        }
+
+        binding.tvSelectAll.setOnClickListener {
             val filtered = getFilteredVisits()
             val allSelected = filtered.isNotEmpty() && filtered.all { selectedVisitIds.contains(it.ID) }
             if (allSelected) {
@@ -158,13 +167,33 @@ class PendingVisitsFragment : Fragment() {
         }
     }
 
+    private fun enterSelectionMode() {
+        isSelectionMode = true
+        selectedVisitIds.clear()
+        binding.tvSelectMode.visibility = View.GONE
+        binding.llSelectionControls.visibility = View.VISIBLE
+        adapter.setSelectionMode(true)
+        updateSelectionUI()
+    }
+
+    private fun exitSelectionMode() {
+        isSelectionMode = false
+        selectedVisitIds.clear()
+        binding.tvSelectMode.visibility = View.VISIBLE
+        binding.llSelectionControls.visibility = View.GONE
+        adapter.setSelectionMode(false)
+        updateSelectionUI()
+    }
+
     private fun toggleVisitSelected(visitId: String) {
+        if (!isSelectionMode) return
         if (selectedVisitIds.contains(visitId)) {
             selectedVisitIds.remove(visitId)
         } else {
             selectedVisitIds.add(visitId)
         }
         updateSelectionUI()
+        adapter.setSelectedIds(selectedVisitIds.toSet())
     }
 
     private fun approveVisits(ids: List<String>) {
@@ -302,7 +331,6 @@ class PendingVisitsFragment : Fragment() {
                                 retry = { submitDecision(lastActionIds, lastDecision) }
                             ) {
                                 showDecisionToast()
-                                selectedVisitIds.clear()
                                 loadFirstPage()
                             }
                         }
@@ -358,10 +386,8 @@ class PendingVisitsFragment : Fragment() {
     private fun applyFilterAndRender() {
         val filtered = getFilteredVisits()
         adapter.updateList(filtered)
+        adapter.setSelectionMode(isSelectionMode)
         adapter.setSelectedIds(selectedVisitIds.toSet())
-
-        val allSelected = filtered.isNotEmpty() && filtered.all { selectedVisitIds.contains(it.ID) }
-        binding.cbSelectAll.isChecked = allSelected
 
         val isEmpty = filtered.isEmpty()
         binding.rvPendingVisits.visibility = if (isEmpty) View.GONE else View.VISIBLE
@@ -372,7 +398,7 @@ class PendingVisitsFragment : Fragment() {
 
     private fun updateSelectionUI() {
         val count = selectedVisitIds.size
-        binding.llBulkActions.visibility = if (count > 0) View.VISIBLE else View.GONE
+        binding.llBulkActions.visibility = if (isSelectionMode && count > 0) View.VISIBLE else View.GONE
         binding.btnBulkApprove.text = getString(R.string.bulk_approve_format, count)
         binding.btnBulkReject.text = getString(R.string.bulk_reject_format, count)
     }
