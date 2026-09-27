@@ -145,9 +145,9 @@
     <string name="select_area">تحديد المنطقة</string>
     <string name="write_customer_name">ادخل اسم العميل</string>
     <string name="write_customer_address">ادخل عنوان العميل</string>
-    <string name="write_customer_mobile">ادخل رقم الهاتف المحمول</string>
+    <string name="write_customer_phone">ادخل رقم الهاتف المحمول</string>
 
-    <string name="write_customer_phone">ادخل رقم الهاتف الارضى</string>
+    <string name="write_customer_mobile">ادخل رقم الهاتف الارضى</string>
     <string name="write_nationality_id">ادخل الرقم القومى</string>
     <string name="write_nationality_name">ادخل اسم العميل فى البطاقة</string>
     <string name="write_nationality_address">ادخل عنوان العميل فى البطاقة</string>
@@ -377,7 +377,6 @@
     <string name="no_routes_found">لا توجد خطوط سير متاحة</string>
     <string name="no_customers_found">لا يوجد عملاء في هذا الخط</string>
     <string name="loading_data">جاري تحميل البيانات...</string>
-    <string name="plan_visits">خطة الزيارات</string>
 
     <string name="route_name_sample">CAIRO WEST 1</string>
     <string name="route_code_sample">AMD: المخزن  •  كود: 12021</string>
@@ -401,4 +400,20 @@
     <string name="delete_now">حذف الآن</string>
     <string name="copy_sale_plan">نسخ خطة مندوب</string>
     <string name="copy_sale_plan_description">نسخ خطة جاهزة ليوم محدد بدلا من الإنشاء اليدوى</string>
+
+    <string name="visit_plan_tab_my_visits">خطة زياراتي</string>
+    <string name="visit_plan_tab_pending">بانتظار الموافقة</string>
+    <string name="search_pending_visits_hint">ابحث في الزيارات المعلقة...</string>
+    <string name="pending_select_all">تحديد الكل</string>
+    <string name="no_pending_visits">لا توجد زيارات بانتظار الموافقة</string>
+    <string name="approve_action">موافقة</string>
+    <string name="reject_action">رفض</string>
+    <string name="bulk_approve_format">موافقة (%1$d)</string>
+    <string name="bulk_reject_format">رفض (%1$d)</string>
+    <string name="visit_number_format">رقم الزيارة: %1$s</string>
+    <string name="delegate_format">المندوب: %1$s</string>
+    <string name="proposed_date_format">تاريخ الزيارة المقترح: %1$s</string>
+
+    <string name="visits_approved_toast">تم الموافقة على %1$d زيارات</string>
+    <string name="visits_rejected_toast">تم رفض %1$d زيارات</string>
 </resources>

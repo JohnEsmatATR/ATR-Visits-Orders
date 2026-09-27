@@ -302,7 +302,7 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
             }
 
             val firebaseToken = task.result
-            val username = binding.etUsername.text.toString().lowercase().trim()
+            val username = binding.etUsername.text.toString().trim()
             val password = binding.etPassword.text.toString().trim()
 
             Log.d("FCM", ">>> Sending login data:")
@@ -354,12 +354,8 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                 WindowInsetsCompat.Type.systemBars()
             )
             view.setPadding(
-                view.paddingLeft,
-                systemBars.top,
-                view.paddingRight,
-                maxOf(
-                    imeInsets.bottom,
-                    systemBars.bottom
+                view.paddingLeft, systemBars.top, view.paddingRight, maxOf(
+                    imeInsets.bottom, systemBars.bottom
                 )
             )
             insets

@@ -56,8 +56,8 @@ class VisitsAdapter(
                         R.drawable.ic_dot_orange, 0, 0, 0
                     )
                 }
-                else -> {
-                    tvStatus.text = "قيد الانتظار"
+                "0" -> {
+                    tvStatus.text = "مرفوضه"
                     tvStatus.setTextColor(ContextCompat.getColor(root.context, R.color.gray))
                     tvStatus.setBackgroundResource(R.drawable.bg_chip_gray_light)
                     tvStatus.setCompoundDrawablesWithIntrinsicBounds(

@@ -304,7 +304,7 @@
         android:id="@+id/VisitPlanFragment"
         android:name="com.akhnaton.foodvisits.ui.home.visitPlan.VisitPlanFragment"
         android:label="fragment_visit_plan"
-        tools:layout="@layout/fragment_visit_plan">
+        tools:layout="@layout/fragment_my_visits_plan">
         <action
             android:id="@+id/toAddVisitPlan"
             app:destination="@id/addVisitPlanFragment" />
