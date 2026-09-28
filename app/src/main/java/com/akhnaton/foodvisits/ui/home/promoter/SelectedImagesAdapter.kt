@@ -31,16 +31,17 @@ class SelectedImagesAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position == 0) {
-            TYPE_ADD
-        } else {
-            TYPE_IMAGE
-        }
+//        return if (position == 0) {
+//            TYPE_ADD
+//        } else {
+//            TYPE_IMAGE
+//        }
+        return TYPE_IMAGE
     }
 
     override fun getItemCount(): Int {
         // +1 because position 0 is "Add More"
-        return images.size + 1
+        return images.size
     }
 
     override fun onCreateViewHolder(
@@ -86,7 +87,7 @@ class SelectedImagesAdapter(
             // Position 0 = Add More
             // Therefore image position = RecyclerView position - 1
 
-            val image = images[position - 1]
+            val image = images[position]
 
             Glide.with(holder.binding.root.context)
                 .load(image)
@@ -99,7 +100,7 @@ class SelectedImagesAdapter(
 
                 if (adapterPosition != RecyclerView.NO_POSITION) {
 
-                    val imagePosition = adapterPosition - 1
+                    val imagePosition = adapterPosition
 
                     if (imagePosition in images.indices) {
                         onRemoveClick(imagePosition)

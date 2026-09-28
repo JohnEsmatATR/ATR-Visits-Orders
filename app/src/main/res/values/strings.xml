@@ -419,4 +419,5 @@
 
     <string name="add_images_hint">يمكنك التقاط صور من الكاميرا أو الاختيار من المعرض</string>
     <string name="select_date_hint">أدخل التاريخ</string>
+    <string name="plan_visits">خطة الزيارات</string>
 </resources>

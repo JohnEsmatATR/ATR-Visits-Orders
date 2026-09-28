@@ -31,6 +31,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.time.LocalDate
+import java.time.YearMonth
+import java.time.format.DateTimeFormatter
 
 class MyVisitsPlanFragment : Fragment() {
 
@@ -91,7 +94,12 @@ class MyVisitsPlanFragment : Fragment() {
     }
 
     private fun getData() {
-        viewModel.visitIntent.trySend(VisitIntent.GetMonthlyVisits)
+        viewModel.visitIntent.trySend(
+            VisitIntent.GetMonthlyVisits(
+                getFirstDayOfCurrentMonth(),
+                getLastDayOfCurrentMonth()
+            )
+        )
     }
 
     private fun setupListeners() {
@@ -176,7 +184,8 @@ class MyVisitsPlanFragment : Fragment() {
     }
 
     private fun getVisitsForSelectedDate(): List<VisitItem> {
-        val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
+        val selectedDateKey =
+            SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
         return allVisits.filter { it.start.take(10) == selectedDateKey }
     }
 
@@ -191,12 +200,14 @@ class MyVisitsPlanFragment : Fragment() {
             if (allSelected) R.string.deselect_all_action else R.string.select_all_action
         )
 
-        binding.tvDeleteSelected.visibility = if (isSelectionMode && selectedVisitIds.isNotEmpty()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
-        binding.tvDeleteSelected.text = getString(R.string.delete_selected_format, selectedVisitIds.size)
+        binding.tvDeleteSelected.visibility =
+            if (isSelectionMode && selectedVisitIds.isNotEmpty()) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        binding.tvDeleteSelected.text =
+            getString(R.string.delete_selected_format, selectedVisitIds.size)
 
         adapter.setSelectionMode(isSelectionMode)
         adapter.setSelectedIds(selectedVisitIds.toSet())
@@ -293,7 +304,10 @@ class MyVisitsPlanFragment : Fragment() {
 
                         is VisitStatus.RefreshToken -> {
                             binding.progressLoading.visibility = View.GONE
-                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
+                            Log.d(
+                                TAG,
+                                "refreshToken status=${status.data.status} message=${status.data.message}"
+                            )
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
@@ -375,7 +389,8 @@ class MyVisitsPlanFragment : Fragment() {
     }
 
     private fun filterVisitsForSelectedDate() {
-        val selectedDateKey = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
+        val selectedDateKey =
+            SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedCalendar.time)
         val query = searchQuery.normalizeArabic()
 
         val filteredList = allVisits.filter { visit ->
@@ -529,7 +544,8 @@ class MyVisitsPlanFragment : Fragment() {
         val inflater = LayoutInflater.from(requireContext())
 
         for (i in 0 until firstDayOfWeek) {
-            val emptyView = inflater.inflate(R.layout.item_calendar_day, binding.gridCalendarDays, false)
+            val emptyView =
+                inflater.inflate(R.layout.item_calendar_day, binding.gridCalendarDays, false)
             emptyView.visibility = View.INVISIBLE
             addGridCell(binding.gridCalendarDays, emptyView)
         }
@@ -578,9 +594,10 @@ class MyVisitsPlanFragment : Fragment() {
 
         dayView.alpha = 1.0f
 
-        val isSelected = dayCalendar.get(Calendar.DAY_OF_MONTH) == selectedCalendar.get(Calendar.DAY_OF_MONTH) &&
-                dayCalendar.get(Calendar.MONTH) == selectedCalendar.get(Calendar.MONTH) &&
-                dayCalendar.get(Calendar.YEAR) == selectedCalendar.get(Calendar.YEAR)
+        val isSelected =
+            dayCalendar.get(Calendar.DAY_OF_MONTH) == selectedCalendar.get(Calendar.DAY_OF_MONTH) &&
+                    dayCalendar.get(Calendar.MONTH) == selectedCalendar.get(Calendar.MONTH) &&
+                    dayCalendar.get(Calendar.YEAR) == selectedCalendar.get(Calendar.YEAR)
 
         tvDay.isSelected = isSelected
 
@@ -614,7 +631,8 @@ class MyVisitsPlanFragment : Fragment() {
         dialog.setContentView(view)
 
         dialog.setOnShowListener {
-            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            val bottomSheet =
+                dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.setBackgroundResource(android.R.color.transparent)
         }
 
@@ -723,7 +741,8 @@ class MyVisitsPlanFragment : Fragment() {
         dialog.setContentView(view)
 
         dialog.setOnShowListener {
-            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            val bottomSheet =
+                dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.setBackgroundResource(android.R.color.transparent)
         }
 
@@ -755,7 +774,8 @@ class MyVisitsPlanFragment : Fragment() {
         dialog.setContentView(view)
 
         dialog.setOnShowListener {
-            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            val bottomSheet =
+                dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
             bottomSheet?.setBackgroundResource(android.R.color.transparent)
         }
 
@@ -800,6 +820,7 @@ class MyVisitsPlanFragment : Fragment() {
         pendingRetry = null
         _binding = null
     }
+
     private fun String.normalizeArabic(): String {
         return this
             .replace("أ", "ا")
@@ -809,5 +830,17 @@ class MyVisitsPlanFragment : Fragment() {
             .replace("ى", "ي")
             .trim()
             .lowercase()
+    }
+
+    fun getFirstDayOfCurrentMonth(): String {
+        return YearMonth.now()
+            .atDay(1)
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+    }
+
+    fun getLastDayOfCurrentMonth(): String {
+        return YearMonth.now()
+            .atEndOfMonth()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
     }
 }

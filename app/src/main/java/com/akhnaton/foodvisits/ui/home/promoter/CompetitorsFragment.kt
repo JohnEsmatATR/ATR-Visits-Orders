@@ -50,6 +50,8 @@ import java.util.Locale
 import java.util.TimeZone
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.akhnaton.foodvisits.BuildConfig
+
 class CompetitorFragment : Fragment() {
 
     companion object {
@@ -77,10 +79,15 @@ class CompetitorFragment : Fragment() {
     private var hasRetriedAfterRefresh = false
     private lateinit var dialog: AlertDialog
 
+    private val versionName = BuildConfig.VERSION_NAME
+
     private val pickImagesLauncher = registerForActivityResult(
-        ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri> ->
-        if (uris.isNotEmpty()) {
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        dialog.hide()
+        Log.d("WHATisShowing", dialog.isShowing.toString())
+        if (uri != null) {
+            var uris = listOf(uri)
             val currentImages = imagesAdapter.getImages().toMutableList()
             currentImages.addAll(uris)
             imagesAdapter.setImages(currentImages)
@@ -103,6 +110,7 @@ class CompetitorFragment : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
+        handleTopBottomKeyboard()
         setupImagesRecyclerView()
         observeStatus()
 
@@ -125,6 +133,26 @@ class CompetitorFragment : Fragment() {
 
         binding.layoutOfferDate.setEndIconOnClickListener {
             showOfferDatePicker()
+        }
+    }
+
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
         }
     }
 
@@ -158,6 +186,7 @@ class CompetitorFragment : Fragment() {
         binding.btnAddImages.visibility = if (hasImages) View.GONE else View.VISIBLE
         binding.rvImages.visibility = if (hasImages) View.VISIBLE else View.GONE
     }
+
     private fun setupKeyboardInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val imeInsets = insets.getInsets(
@@ -178,6 +207,7 @@ class CompetitorFragment : Fragment() {
             insets
         }
     }
+
     private fun setupPromotionTypeCheckboxes(items: List<GetPromotionTypes>) {
         val container = binding.llPromotionTypesContainer
         container.removeAllViews()
@@ -296,10 +326,11 @@ class CompetitorFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.Loading -> {
-                            dialog.show()
+                            if (!dialog.isShowing) dialog.show()
                         }
+
                         is PromoterStatus.GetCompetitorList -> {
-                            dialog.hide()
+                            if (dialog.isShowing) dialog.hide()
                             handleResponse(
                                 code = status.response.status,
                                 message = "",
@@ -322,14 +353,22 @@ class CompetitorFragment : Fragment() {
                                 val companies = competitorsList.map { it.competitor_name }
 
                                 binding.actvCategory.setAdapter(
-                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, types)
+                                    ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_list_item_1,
+                                        types
+                                    )
                                 )
                                 binding.actvCategory.setOnItemClickListener { _, _, position, _ ->
                                     selectedTypeId = competitorTypesList[position].id
                                 }
 
                                 binding.actvCompany.setAdapter(
-                                    ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, companies)
+                                    ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_list_item_1,
+                                        companies
+                                    )
                                 )
                                 binding.actvCompany.setOnItemClickListener { _, _, position, _ ->
                                     selectedCompetitorId = competitorsList[position].id
@@ -340,21 +379,28 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.SendCompetitors -> {
-                            dialog.hide()
+                            if (dialog.isShowing) dialog.hide()
                             handleResponse(
                                 code = status.response.status ?: -1,
                                 message = "",
                                 retry = { onSaveClicked() }
                             ) {
-                                Toast.makeText(requireContext(), "تم حفظ المنافس بنجاح", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    requireContext(),
+                                    "تم حفظ المنافس بنجاح",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 viewModel.resetStatus()
                                 findNavController().popBackStack()
                             }
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            dialog.hide()
-                            Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
+                            if (dialog.isShowing) dialog.hide()
+                            Log.d(
+                                TAG,
+                                "refreshToken status=${status.data.status} message=${status.data.message}"
+                            )
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
@@ -375,12 +421,23 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.Error -> {
-                            dialog.hide()
+                            if (dialog.isShowing) dialog.hide()
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = status.error.toString(),
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+//                                    findNavController().popBackStack()
+                                }
+                            )
                             Log.d(TAG, "observeStatus: ${status.error}")
                             viewModel.resetStatus()
                         }
 
-                        else -> {}
+                        else -> {
+                            dialog.hide()
+                        }
                     }
                 }
             }
@@ -395,7 +452,11 @@ class CompetitorFragment : Fragment() {
         }
 
         if (selectedTypeId == null || selectedCompetitorId == null) {
-            Toast.makeText(requireContext(), "من فضلك اختر الفئة والشركة المنافسة", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "من فضلك اختر الفئة والشركة المنافسة",
+                Toast.LENGTH_SHORT
+            ).show()
             return
         }
 
@@ -434,7 +495,7 @@ class CompetitorFragment : Fragment() {
 
         viewModel.promoterIntent.trySend(
             PromoterIntent.SendCompetitors(
-                appVersion = "1.0".toBody(),
+                appVersion = versionName.toBody(),
                 apiToken = apiToken.toBody(),
                 image = imagePart,
                 created_by = employeeId.toBody(),
@@ -451,7 +512,7 @@ class CompetitorFragment : Fragment() {
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),
                 user_type = "".toBody(),
-               // PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
+                // PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
                 competitor_id = selectedCompetitorId!!.toBody(),
                 type_id = selectedTypeId!!.toBody(),
             )

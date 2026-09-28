@@ -11,16 +11,19 @@ import com.akhnaton.foodvisits.data.model.visitPlan.UpdateVisitDateRes
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitListModel
 import com.akhnaton.foodvisits.shared.ConstantLinks
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.HTTP
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface IVisitPlan {
     @GET(ConstantLinks.GET_MONTHLY_VISITS)
-    suspend fun getMonthlyVisits(): VisitListModel
+    suspend fun getMonthlyVisits(
+        @Query("from") from: String,
+        @Query("to") to: String
+    ): VisitListModel
 
     @GET(ConstantLinks.GET_PENDING_VISITS_ENDPOINT)
     suspend fun getPendingVisitsForApproval(

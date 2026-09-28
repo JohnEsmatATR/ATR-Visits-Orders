@@ -1,4 +1,4 @@
-package com.akhnaton.foodvisits.ui.home.promoterProcedures
+package com.akhnaton.foodvisits.ui.home.promoter
 
 import android.app.AlertDialog
 import android.content.Intent

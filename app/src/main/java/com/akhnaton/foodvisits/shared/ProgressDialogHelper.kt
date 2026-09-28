@@ -6,7 +6,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.provider.Settings
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.WindowManager
 import android.widget.ProgressBar
 import android.widget.TextView
 import cn.pedant.SweetAlert.SweetAlertDialog
@@ -39,26 +41,28 @@ class ProgressDialogHelper {
         message: String
     ): AlertDialog {
 
-        val view =
-            LayoutInflater.from(context)
-                .inflate(
-                    R.layout.dialog_loading,
-                    null
+        val view = LayoutInflater.from(context)
+            .inflate(R.layout.dialog_loading, null)
+
+        view.findViewById<TextView>(R.id.tvMessage).text = message
+
+        val dialog = AlertDialog.Builder(context)
+            .setView(view)
+            .setCancelable(false)
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.window?.apply {
+                setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
+                setLayout(
+                    WindowManager.LayoutParams.WRAP_CONTENT,
+                    WindowManager.LayoutParams.WRAP_CONTENT
                 )
 
-        view.findViewById<TextView>(
-            R.id.tvMessage
-        ).text = message
-
-        val dialog =
-            AlertDialog.Builder(context)
-                .setView(view)
-                .setCancelable(false)
-                .create()
-
-        dialog.window?.setBackgroundDrawable(
-            ColorDrawable(Color.TRANSPARENT)
-        )
+                setGravity(Gravity.CENTER)
+            }
+        }
 
         dialog.show()
 
