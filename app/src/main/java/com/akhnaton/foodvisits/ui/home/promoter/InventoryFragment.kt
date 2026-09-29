@@ -63,12 +63,12 @@ class InventoryFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        handleTopBottomKeyboard()
         getBundle()
         init()
         callApis()
         observeData()
         setupClicks()
-        handleTopBottomKeyboard()
 
     }
 
@@ -97,21 +97,17 @@ class InventoryFragment : Fragment() {
     private fun handleTopBottomKeyboard() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            val imeInsets = insets.getInsets(
-                WindowInsetsCompat.Type.ime()
-            )
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
             view.setPadding(
-                view.paddingLeft,
+                systemBars.left,
                 systemBars.top,
-                view.paddingRight,
-                maxOf(
-                    imeInsets.bottom,
-                    systemBars.bottom
-                )
+                systemBars.right,
+                maxOf(imeInsets.bottom, systemBars.bottom)
             )
             insets
         }
+        ViewCompat.requestApplyInsets(binding.root)
     }
     fun callApis() {
         callGetItemData()
@@ -310,7 +306,7 @@ class InventoryFragment : Fragment() {
                         }
                     }
 
-                    is Visits2Status.PromoterSaveStock -> {
+                    is Visits2Status.PromoterSaveStock -> { // PromoterStatus not Visits2Status
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             DialogUtils.showResultDialog(
