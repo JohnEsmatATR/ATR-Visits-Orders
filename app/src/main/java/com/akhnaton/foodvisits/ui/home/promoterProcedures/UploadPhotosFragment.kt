@@ -25,8 +25,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.akhnaton.foodvisits.R
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentUploadPhotosBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
@@ -60,7 +60,7 @@ class UploadPhotosFragment : Fragment() {
 
     private var hasRetriedAfterRefresh = false
 
-    private val viewModel: PromoterCompetitorsViewModel by viewModels()
+    private val viewModel: PromoterViewModel by viewModels()
 
     private val galleryPicker =
         registerForActivityResult(
