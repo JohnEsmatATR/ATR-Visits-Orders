@@ -75,13 +75,9 @@ class UploadPhotosFragment : Fragment() {
         registerForActivityResult(
             ActivityResultContracts.GetMultipleContents()
         ) { uris ->
-
             if (uris.isNotEmpty()) {
-
                 selectedImages.addAll(uris)
-
                 selectedImagesAdapter.setImages(selectedImages)
-
                 updateImagesUI()
             }
         }
@@ -131,7 +127,7 @@ class UploadPhotosFragment : Fragment() {
         )
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+        dialog.dismiss()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -157,7 +153,6 @@ class UploadPhotosFragment : Fragment() {
                         is PromoterStatus.Loading -> dialog.show()
 
                         is PromoterStatus.UploadImages -> {
-                            dialog.dismiss()
                             Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
                             findNavController().popBackStack()
                             dialog.dismiss()
@@ -352,7 +347,7 @@ class UploadPhotosFragment : Fragment() {
         }
 
         binding.btnBack.setOnClickListener {
-            checkIn()
+            findNavController().popBackStack()
         }
 
         binding.cardUpload.setOnClickListener {
@@ -368,7 +363,7 @@ class UploadPhotosFragment : Fragment() {
         }
 
         binding.btnUpload.setOnClickListener {
-            Log.d("UPLOAD_DEBUG", "uploadImages called, images count = ${selectedImages.size}")
+            Log.d(TAG, "uploadImages called, images count = ${selectedImages.size}")
             uploadImages()
         }
 
