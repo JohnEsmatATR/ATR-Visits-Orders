@@ -8,34 +8,38 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import android.widget.ArrayAdapter
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
-import com.akhnaton.foodvisits.data.model.getVisitPlan.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.model.promoterSaveStock.Item
-import com.akhnaton.foodvisits.data.model.saveVisitGps.Data
+import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
-import com.akhnaton.foodvisits.databinding.FragmentGpsVisitBinding
 import com.akhnaton.foodvisits.databinding.FragmentInventoryBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.inventory.ProductInventoryAdapter
+import com.akhnaton.foodvisits.ui.home.promoter.PromoterViewModel
 import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModel
 import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModelFactory
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import kotlin.getValue
 
 class InventoryFragment : Fragment() {
 
@@ -43,7 +47,7 @@ class InventoryFragment : Fragment() {
         private const val TAG = "InventoryFragment"
     }
 
-    private lateinit var viewModel: Visits2ViewModel
+    private val viewModel: PromoterViewModel by viewModels()
     private lateinit var binding: FragmentInventoryBinding
     private lateinit var dialog: AlertDialog
     private lateinit var adapter: ProductInventoryAdapter
@@ -53,6 +57,8 @@ class InventoryFragment : Fragment() {
     var checkIn: String = ""
     var currentTime: String = ""
     lateinit var checkInReq: CheckInGPSReq
+
+    private val versionName = BuildConfig.VERSION_NAME
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -79,10 +85,10 @@ class InventoryFragment : Fragment() {
 
 
     fun init() {
-        viewModel = ViewModelProvider(
-            this,
-            Visits2ViewModelFactory(requireContext())
-        )[Visits2ViewModel::class.java]
+//        viewModel = ViewModelProvider(
+//            this,
+//            Visits2ViewModelFactory(requireContext())
+//        )[Visits2ViewModel::class.java]
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
@@ -127,12 +133,23 @@ class InventoryFragment : Fragment() {
     }
 
     private fun setupClicks() {
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    checkIn()
+                }
+            }
+        )
+
         binding.btnBack.setOnClickListener {
             checkIn()
         }
+
         binding.btnSendInventory.setOnClickListener {
             prepareRequest(true)
         }
+
         binding.etSearch.addTextChangedListener { editable ->
             val query = editable?.toString().orEmpty()
             adapter.filter(query)
@@ -142,8 +159,8 @@ class InventoryFragment : Fragment() {
 
     fun callGetItemData() {
         lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                Visits2Intent.PromoterGetItemData(
+            viewModel.promoterIntent.send(
+                PromoterIntent.PromoterGetItemData(
                     customerCode,
                     customerPartySiteId
                 )
@@ -154,107 +171,30 @@ class InventoryFragment : Fragment() {
     fun prepareRequest(
         isAll: Boolean
     ) {
-        Log.d(
-            TAG,
-            "prepareRequest() called"
-        )
-        Log.d(
-            TAG,
-            "isAll = $isAll"
-        )
         when (isAll) {
             true -> {
-                Log.d(
-                    TAG,
-                    "Preparing request for ALL items"
-                )
                 val items =
                     adapter.getData()
-                Log.d(
-                    TAG,
-                    "Total adapter items count = ${items.size}"
-                )
-                Log.d(
-                    TAG,
-                    "Adapter items = $items"
-                )
                 val requestedItems =
                     convertAdapterDataToRequestItems(
                         items
                     )
-                Log.d(
-                    TAG,
-                    "Converted requested items count = ${requestedItems.size}"
-                )
-                Log.d(
-                    TAG,
-                    "Requested items = $requestedItems"
-                )
-                Log.d(
-                    TAG,
-                    "Calling Save Stock API for ALL items"
-                )
                 callSaveStockAPI(
                     requestedItems
                 )
             }
 
             false -> {
-
-                Log.d(
-                    TAG,
-                    "Preparing request for CHANGED items only"
-                )
-
                 val allItems =
                     adapter.getData()
 
-                Log.d(
-                    TAG,
-                    "Total adapter items count = ${allItems.size}"
-                )
-
                 val items =
                     adapter.getChangedData()
-
-                Log.d(
-                    TAG,
-                    "Changed items count = ${items.size}"
-                )
-
-                Log.d(
-                    TAG,
-                    "Changed item IDs = ${
-                        items.map {
-                            it.inventory_item_id
-                        }
-                    }"
-                )
-
-                Log.d(
-                    TAG,
-                    "Changed items = $items"
-                )
 
                 val requestedItems =
                     convertAdapterDataToRequestItems(
                         items
                     )
-
-                Log.d(
-                    TAG,
-                    "Converted requested items count = ${requestedItems.size}"
-                )
-
-                Log.d(
-                    TAG,
-                    "Requested items = $requestedItems"
-                )
-
-                Log.d(
-                    TAG,
-                    "Calling Save Stock API for CHANGED items"
-                )
 
                 callSaveStockAPI(
                     requestedItems
@@ -308,9 +248,9 @@ class InventoryFragment : Fragment() {
 
     fun callSaveStockAPI(items: List<Item>) {
         lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                Visits2Intent.PromoterSaveStock(
-                    com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq(
+            viewModel.promoterIntent.send(
+                PromoterIntent.PromoterSaveStock(
+                    PromoterSaveStockReq(
                         customerCode,
                         items,
                         customerPartySiteId
@@ -323,8 +263,8 @@ class InventoryFragment : Fragment() {
     private fun checkIn() {
         Log.d("WHATcheckIn", checkIn.toString())
         lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                Visits2Intent.CheckIn(
+            viewModel.promoterIntent.send(
+                PromoterIntent.CheckIn(
                     checkInReq
                 )
             )
@@ -335,10 +275,10 @@ class InventoryFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> dialog.show()
+                    is PromoterStatus.Idle -> {}
+                    is PromoterStatus.Loading -> dialog.show()
 
-                    is Visits2Status.PromoterGetItemData -> {
+                    is PromoterStatus.PromoterGetItemData -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             binding.tvTotalCount.text =
@@ -346,8 +286,8 @@ class InventoryFragment : Fragment() {
                             setupRecyclerView(it.data.data)
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
+                                viewModel.promoterIntent.send(
+                                    PromoterIntent.RefreshToken(
                                         SharedPreferencesHelper.getInstance().getEmployeeId(),
                                         SharedPreferencesHelper.getInstance().getUserToken()
                                     )
@@ -366,7 +306,7 @@ class InventoryFragment : Fragment() {
                         }
                     }
 
-                    is Visits2Status.PromoterSaveStock -> { // PromoterStatus not Visits2Status
+                    is PromoterStatus.PromoterSaveStock -> { // PromoterStatus not Visits2Status
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             DialogUtils.showResultDialog(
@@ -380,8 +320,8 @@ class InventoryFragment : Fragment() {
                             )
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
+                                viewModel.promoterIntent.send(
+                                    PromoterIntent.RefreshToken(
                                         SharedPreferencesHelper.getInstance().getEmployeeId(),
                                         SharedPreferencesHelper.getInstance().getUserToken()
                                     )
@@ -400,7 +340,7 @@ class InventoryFragment : Fragment() {
                         }
                     }
 
-                    is Visits2Status.CheckIn -> {
+                    is PromoterStatus.CheckIn -> {
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             val data =
@@ -409,20 +349,35 @@ class InventoryFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
                                 )
 
-                            findNavController().previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("checkIn", data.check_in)
+                            val navController = findNavController()
 
-                            findNavController().previousBackStackEntry
-                                ?.savedStateHandle
-                                ?.set("currentTime", data.current_time)
+                            val previousBackStackEntry =
+                                navController.previousBackStackEntry
 
-                            findNavController().popBackStack()
+                            if (previousBackStackEntry == null) {
+                                return@collect
+                            }
+
+                            val savedStateHandle =
+                                previousBackStackEntry.savedStateHandle
+
+                            savedStateHandle.set(
+                                "checkIn",
+                                data.check_in
+                            )
+
+                            savedStateHandle.set(
+                                "currentTime",
+                                data.current_time
+                            )
+
+                            val result =
+                                navController.popBackStack()
 
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
+                                viewModel.promoterIntent.send(
+                                    PromoterIntent.RefreshToken(
                                         SharedPreferencesHelper.getInstance().getEmployeeId(),
                                         SharedPreferencesHelper.getInstance().getUserToken()
                                     )
@@ -441,7 +396,7 @@ class InventoryFragment : Fragment() {
                         }
                     }
 
-                    is Visits2Status.RefreshToken -> {
+                    is PromoterStatus.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
@@ -471,7 +426,7 @@ class InventoryFragment : Fragment() {
 
                     }
 
-                    is Visits2Status.Error -> {
+                    is PromoterStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
                         dialog.hide()
 
