@@ -25,8 +25,8 @@ import com.akhnaton.foodvisits.data.model.promoter.CompetitorList
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitor
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitorTypes
 import com.akhnaton.foodvisits.data.model.promoter.GetPromotionTypes
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
@@ -69,7 +69,7 @@ class CompetitorFragment : Fragment() {
 
     private lateinit var imagesAdapter: SelectedImagesAdapter
 
-    private val viewModel: PromoterCompetitorsViewModel by viewModels()
+    private val viewModel: PromoterViewModel by viewModels()
 
     private var selectedCompetitorId: String? = null
     private var selectedTypeId: String? = null
@@ -304,12 +304,12 @@ class CompetitorFragment : Fragment() {
                         is PromoterStatus.GetCompetitorList -> {
                             if (dialog.isShowing) dialog.hide()
                             handleResponse(
-                                code = status.response.status,
+                                code = status.data.status,
                                 message = "",
                                 retry = { getCompetitorList() }
                             ) {
                                 val data = Gson().fromJson(
-                                    status.response.data,
+                                    status.data.data,
                                     CompetitorList::class.java
                                 )
 
