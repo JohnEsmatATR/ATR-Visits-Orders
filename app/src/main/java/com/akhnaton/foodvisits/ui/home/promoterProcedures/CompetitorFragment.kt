@@ -74,12 +74,10 @@ class CompetitorFragment : Fragment() {
     private var hasRetriedAfterRefresh = false
 
     private val pickImagesLauncher = registerForActivityResult(
-        ActivityResultContracts.GetMultipleContents()
-    ) { uris: List<Uri> ->
-        if (uris.isNotEmpty()) {
-            val currentImages = imagesAdapter.getImages().toMutableList()
-            currentImages.addAll(uris)
-            imagesAdapter.setImages(currentImages)
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri != null) {
+            imagesAdapter.setImages(listOf(uri))
             updateImagesVisibility()
         }
     }
@@ -98,7 +96,7 @@ class CompetitorFragment : Fragment() {
 
         setupImagesRecyclerView()
         observeStatus()
-
+        handleTopBottomKeyboard()
         binding.ivBack.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -129,7 +127,6 @@ class CompetitorFragment : Fragment() {
 
     private fun setupImagesRecyclerView() {
         imagesAdapter = SelectedImagesAdapter(
-            onAddMoreClick = { pickImagesLauncher.launch("image/*") },
             onRemoveClick = { position ->
                 val currentImages = imagesAdapter.getImages().toMutableList()
                 currentImages.removeAt(position)
@@ -151,22 +148,16 @@ class CompetitorFragment : Fragment() {
         binding.btnAddImages.visibility = if (hasImages) View.GONE else View.VISIBLE
         binding.rvImages.visibility = if (hasImages) View.VISIBLE else View.GONE
     }
-    private fun setupKeyboardInsets() {
+    private fun handleTopBottomKeyboard() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val imeInsets = insets.getInsets(
-                WindowInsetsCompat.Type.ime()
-            )
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-            )
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
             view.setPadding(
-                view.paddingLeft,
+                systemBars.left,
                 systemBars.top,
-                view.paddingRight,
-                maxOf(
-                    imeInsets.bottom,
-                    systemBars.bottom
-                )
+                systemBars.right,
+                maxOf(imeInsets.bottom, systemBars.bottom)
             )
             insets
         }

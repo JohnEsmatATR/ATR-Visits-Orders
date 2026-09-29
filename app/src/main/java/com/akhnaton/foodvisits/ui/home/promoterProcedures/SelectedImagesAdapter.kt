@@ -4,19 +4,12 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.akhnaton.foodvisits.databinding.ItemAddImageBinding
 import com.akhnaton.foodvisits.databinding.ItemSelectedImageBinding
 import com.bumptech.glide.Glide
 
 class SelectedImagesAdapter(
-    private val onAddMoreClick: () -> Unit,
     private val onRemoveClick: (position: Int) -> Unit
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-
-    companion object {
-        private const val TYPE_ADD = 0
-        private const val TYPE_IMAGE = 1
-    }
+) : RecyclerView.Adapter<SelectedImagesAdapter.ImageViewHolder>() {
 
     private val images = mutableListOf<Uri>()
 
@@ -26,92 +19,32 @@ class SelectedImagesAdapter(
         notifyDataSetChanged()
     }
 
-    fun getImages(): List<Uri> {
-        return images.toList()
+    fun getImages(): List<Uri> = images.toList()
+
+    override fun getItemCount(): Int = images.size
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
+        val binding = ItemSelectedImageBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return ImageViewHolder(binding)
     }
 
-    override fun getItemViewType(position: Int): Int {
-        return if (position == 0) {
-            TYPE_ADD
-        } else {
-            TYPE_IMAGE
-        }
-    }
+    override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
+        Glide.with(holder.binding.root.context)
+            .load(images[position])
+            .centerCrop()
+            .into(holder.binding.ivImage)
 
-    override fun getItemCount(): Int {
-        // +1 because position 0 is "Add More"
-        return images.size + 1
-    }
-
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): RecyclerView.ViewHolder {
-
-        return if (viewType == TYPE_ADD) {
-
-            val binding = ItemAddImageBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
-
-            AddImageViewHolder(binding)
-
-        } else {
-
-            val binding = ItemSelectedImageBinding.inflate(
-                LayoutInflater.from(parent.context),
-                parent,
-                false
-            )
-
-            ImageViewHolder(binding)
-        }
-    }
-
-    override fun onBindViewHolder(
-        holder: RecyclerView.ViewHolder,
-        position: Int
-    ) {
-
-        if (holder is AddImageViewHolder) {
-
-            holder.binding.root.setOnClickListener {
-                onAddMoreClick()
-            }
-
-        } else if (holder is ImageViewHolder) {
-
-            // Position 0 = Add More
-            // Therefore image position = RecyclerView position - 1
-
-            val image = images[position - 1]
-
-            Glide.with(holder.binding.root.context)
-                .load(image)
-                .centerCrop()
-                .into(holder.binding.ivImage)
-
-            holder.binding.ivClose.setOnClickListener {
-
-                val adapterPosition = holder.adapterPosition
-
-                if (adapterPosition != RecyclerView.NO_POSITION) {
-
-                    val imagePosition = adapterPosition - 1
-
-                    if (imagePosition in images.indices) {
-                        onRemoveClick(imagePosition)
-                    }
-                }
+        holder.binding.ivClose.setOnClickListener {
+            val adapterPosition = holder.adapterPosition
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                onRemoveClick(adapterPosition)
             }
         }
     }
-
-    class AddImageViewHolder(
-        val binding: ItemAddImageBinding
-    ) : RecyclerView.ViewHolder(binding.root)
 
     class ImageViewHolder(
         val binding: ItemSelectedImageBinding

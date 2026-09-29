@@ -170,9 +170,9 @@ class UploadPhotosFragment : Fragment() {
     private fun setupImagesRecycler() {
 
         selectedImagesAdapter = SelectedImagesAdapter(
-            onAddMoreClick = {
-                showImageSourceDialog()
-            },
+//            onAddMoreClick = {
+//                showImageSourceDialog()
+//            },
             onRemoveClick = { imagePosition ->
 
                 if (imagePosition in selectedImages.indices) {
