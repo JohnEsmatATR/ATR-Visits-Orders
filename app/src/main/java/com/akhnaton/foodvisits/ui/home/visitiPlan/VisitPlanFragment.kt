@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -43,9 +44,10 @@ class VisitPlanFragment : Fragment() {
     private val viewModel: VisitPlanViewModel by viewModels()
     private lateinit var adapter: VisitsAdapter
 
+    private val todayCalendar: Calendar = Calendar.getInstance()
     private val monthCalendarBase: Calendar = Calendar.getInstance()
     private val weekCalendar: Calendar = Calendar.getInstance()
-    private var isWeeklyView = false
+    private var isWeeklyView = true
     private var selectedCalendar: Calendar = Calendar.getInstance()
 
     private var moveDialogCalendar: Calendar = Calendar.getInstance()
@@ -71,6 +73,7 @@ class VisitPlanFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        handleTopBottomKeyboard()
 
         setupRecycler()
         setupListeners()
@@ -94,11 +97,70 @@ class VisitPlanFragment : Fragment() {
         viewModel.visitIntent.trySend(VisitIntent.GetMonthlyVisits)
     }
 
+    private fun dayKey(c: Calendar): Int =
+        c.get(Calendar.YEAR) * 10000 + (c.get(Calendar.MONTH) + 1) * 100 + c.get(Calendar.DAY_OF_MONTH)
+
+    private fun isDayAllowed(c: Calendar): Boolean {
+        val start = todayCalendar.clone() as Calendar
+        start.set(Calendar.DAY_OF_MONTH, 1)
+        start.add(Calendar.MONTH, -1)
+
+        val end = todayCalendar.clone() as Calendar
+        end.add(Calendar.MONTH, 1)
+        end.set(Calendar.DAY_OF_MONTH, end.getActualMaximum(Calendar.DAY_OF_MONTH))
+
+        return dayKey(c) in dayKey(start)..dayKey(end)
+    }
+
+    private fun isMonthAllowed(c: Calendar): Boolean {
+        val diff = (c.get(Calendar.YEAR) - todayCalendar.get(Calendar.YEAR)) * 12 +
+                c.get(Calendar.MONTH) - todayCalendar.get(Calendar.MONTH)
+        return diff in -1..1
+    }
+
+    private fun isWeekAllowed(c: Calendar): Boolean {
+        val temp = c.clone() as Calendar
+        temp.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        for (i in 0 until 7) {
+            if (isDayAllowed(temp)) return true
+            temp.add(Calendar.DAY_OF_MONTH, 1)
+        }
+        return false
+    }
+
+    private fun actualDirection(direction: Int): Int {
+        val isRtl = ViewCompat.getLayoutDirection(binding.root) == ViewCompat.LAYOUT_DIRECTION_RTL
+        return if (isRtl) -direction else direction
+    }
+
+    private fun canShift(direction: Int): Boolean {
+        val actual = actualDirection(direction)
+        return if (isWeeklyView) {
+            val target = weekCalendar.clone() as Calendar
+            target.add(Calendar.WEEK_OF_YEAR, actual)
+            isWeekAllowed(target)
+        } else {
+            val target = monthCalendarBase.clone() as Calendar
+            target.set(Calendar.DAY_OF_MONTH, 1)
+            target.add(Calendar.MONTH, actual)
+            isMonthAllowed(target)
+        }
+    }
+
+    private fun syncMonthToWeek() {
+        val mid = weekCalendar.clone() as Calendar
+        mid.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
+        mid.add(Calendar.DAY_OF_MONTH, 3)
+        monthCalendarBase.time = mid.time
+    }
+
     private fun setupListeners() {
         binding.fabDuplicate.setOnClickListener {
             showCopyPlanBottomSheet()
         }
-
+        binding.llDeleteSelected.setOnClickListener {
+            showBulkDeleteConfirmDialog()
+        }
         binding.btnBackContainer.setOnClickListener {
             findNavController().popBackStack()
         }
@@ -106,8 +168,8 @@ class VisitPlanFragment : Fragment() {
             findNavController().navigate(R.id.toAddVisitPlan)
         }
         binding.chipWeeklyView.setOnClickListener { toggleView() }
-        binding.ivPrevPeriod.setOnClickListener { shiftWeek(-1) }
-        binding.ivNextPeriod.setOnClickListener { shiftWeek(1) }
+        binding.ivPrevPeriod.setOnClickListener { shiftPeriod(-1) }
+        binding.ivNextPeriod.setOnClickListener { shiftPeriod(1) }
 
         binding.etSearch.addTextChangedListener { text ->
             searchQuery = text?.toString().orEmpty()
@@ -194,11 +256,11 @@ class VisitPlanFragment : Fragment() {
             if (allSelected) R.string.deselect_all_action else R.string.select_all_action
         )
 
-        binding.tvDeleteSelected.visibility = if (isSelectionMode && selectedVisitIds.isNotEmpty()) {
-            View.VISIBLE
-        } else {
-            View.GONE
-        }
+        binding.llDeleteSelected.visibility =
+            if (isSelectionMode && selectedVisitIds.isNotEmpty()) View.VISIBLE else View.GONE
+        binding.tvDeleteSelected.text =
+            getString(R.string.delete_selected_format, selectedVisitIds.size)
+
         binding.tvDeleteSelected.text = getString(R.string.delete_selected_format, selectedVisitIds.size)
 
         adapter.setSelectionMode(isSelectionMode)
@@ -415,6 +477,7 @@ class VisitPlanFragment : Fragment() {
         isWeeklyView = !isWeeklyView
         if (isWeeklyView) {
             weekCalendar.time = selectedCalendar.time
+            syncMonthToWeek()
         }
 
         val transition = AutoTransition().apply {
@@ -424,25 +487,41 @@ class VisitPlanFragment : Fragment() {
         renderCalendar()
     }
 
-    private fun shiftWeek(direction: Int) {
-        val isRtl = ViewCompat.getLayoutDirection(binding.root) == ViewCompat.LAYOUT_DIRECTION_RTL
-        val actualDirection = if (isRtl) -direction else direction
+    private fun shiftPeriod(direction: Int) {
+        if (isWeeklyView) shiftWeek(direction) else shiftMonth(direction)
+    }
 
-        val targetWeek = weekCalendar.clone() as Calendar
-        targetWeek.add(Calendar.WEEK_OF_YEAR, actualDirection)
+    private fun shiftMonth(direction: Int) {
+        if (!canShift(direction)) return
 
-        if (!isWeekInCurrentMonth(targetWeek)) {
-            return
+        monthCalendarBase.set(Calendar.DAY_OF_MONTH, 1)
+        monthCalendarBase.add(Calendar.MONTH, actualDirection(direction))
+
+        val sameAsToday = monthCalendarBase.get(Calendar.MONTH) == todayCalendar.get(Calendar.MONTH) &&
+                monthCalendarBase.get(Calendar.YEAR) == todayCalendar.get(Calendar.YEAR)
+        val newSelected = if (sameAsToday) {
+            todayCalendar.clone() as Calendar
+        } else {
+            monthCalendarBase.clone() as Calendar
         }
 
-        val translationAmount = if (actualDirection > 0) -100f else 100f
+        selectDay(newSelected)
+        renderCalendar()
+    }
+
+    private fun shiftWeek(direction: Int) {
+        if (!canShift(direction)) return
+
+        val actual = actualDirection(direction)
+        val translationAmount = if (actual > 0) -100f else 100f
 
         binding.gridCalendarDays.animate()
             .translationX(translationAmount)
             .alpha(0f)
             .setDuration(120)
             .withEndAction {
-                weekCalendar.add(Calendar.WEEK_OF_YEAR, actualDirection)
+                weekCalendar.add(Calendar.WEEK_OF_YEAR, actual)
+                syncMonthToWeek()
                 renderCalendar()
 
                 binding.gridCalendarDays.translationX = -translationAmount
@@ -455,40 +534,15 @@ class VisitPlanFragment : Fragment() {
             .start()
     }
 
-    private fun isWeekInCurrentMonth(calendar: Calendar): Boolean {
-        val temp = calendar.clone() as Calendar
-        temp.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY)
-
-        val currentMonth = monthCalendarBase.get(Calendar.MONTH)
-        val currentYear = monthCalendarBase.get(Calendar.YEAR)
-
-        for (i in 0 until 7) {
-            if (temp.get(Calendar.MONTH) == currentMonth && temp.get(Calendar.YEAR) == currentYear) {
-                return true
-            }
-            temp.add(Calendar.DAY_OF_MONTH, 1)
-        }
-        return false
-    }
-
     private fun updateArrowsEnabledState() {
-        if (!isWeeklyView) return
+        val canPrev = canShift(-1)
+        val canNext = canShift(1)
 
-        val isRtl = ViewCompat.getLayoutDirection(binding.root) == ViewCompat.LAYOUT_DIRECTION_RTL
+        binding.ivPrevPeriod.isEnabled = canPrev
+        binding.ivPrevPeriod.alpha = if (canPrev) 1.0f else 0.3f
 
-        val prevWeek = weekCalendar.clone() as Calendar
-        prevWeek.add(Calendar.WEEK_OF_YEAR, if (isRtl) 1 else -1)
-        val canGoPrev = isWeekInCurrentMonth(prevWeek)
-
-        val nextWeek = weekCalendar.clone() as Calendar
-        nextWeek.add(Calendar.WEEK_OF_YEAR, if (isRtl) -1 else 1)
-        val canGoNext = isWeekInCurrentMonth(nextWeek)
-
-        binding.ivPrevPeriod.isEnabled = canGoPrev
-        binding.ivPrevPeriod.alpha = if (canGoPrev) 1.0f else 0.3f
-
-        binding.ivNextPeriod.isEnabled = canGoNext
-        binding.ivNextPeriod.alpha = if (canGoNext) 1.0f else 0.3f
+        binding.ivNextPeriod.isEnabled = canNext
+        binding.ivNextPeriod.alpha = if (canNext) 1.0f else 0.3f
     }
 
     private fun renderCalendar() {
@@ -510,9 +564,8 @@ class VisitPlanFragment : Fragment() {
     }
 
     private fun updateArrowsVisibility() {
-        val visibility = if (isWeeklyView) View.VISIBLE else View.GONE
-        binding.ivNextPeriod.visibility = visibility
-        binding.ivPrevPeriod.visibility = visibility
+        binding.ivNextPeriod.visibility = View.VISIBLE
+        binding.ivPrevPeriod.visibility = View.VISIBLE
     }
 
     private fun updateMonthYearLabel() {
@@ -568,10 +621,7 @@ class VisitPlanFragment : Fragment() {
         val day = dayCalendar.get(Calendar.DAY_OF_MONTH)
         tvDay.text = day.toString()
 
-        val currentMonth = monthCalendarBase.get(Calendar.MONTH)
-        val isDayInCurrentMonth = dayCalendar.get(Calendar.MONTH) == currentMonth
-
-        if (!isDayInCurrentMonth) {
+        if (!isDayAllowed(dayCalendar)) {
             dayView.alpha = 0.2f
             tvDay.isSelected = false
             viewDot.visibility = View.INVISIBLE
@@ -600,6 +650,22 @@ class VisitPlanFragment : Fragment() {
         }
 
         return dayView
+    }
+
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                maxOf(imeInsets.bottom, systemBars.bottom)
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
     }
 
     private fun addGridCell(grid: android.widget.GridLayout, view: View) {
@@ -803,6 +869,7 @@ class VisitPlanFragment : Fragment() {
         pendingRetry = null
         _binding = null
     }
+
     private fun String.normalizeArabic(): String {
         return this
             .replace("أ", "ا")
