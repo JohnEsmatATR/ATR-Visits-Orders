@@ -32,7 +32,6 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import com.akhnaton.foodvisits.ui.home.promoter.SelectedImagesAdapter
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.gson.Gson
@@ -84,13 +83,8 @@ class CompetitorFragment : Fragment() {
     private val pickImagesLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        dialog.hide()
-        Log.d("WHATisShowing", dialog.isShowing.toString())
         if (uri != null) {
-            var uris = listOf(uri)
-            val currentImages = imagesAdapter.getImages().toMutableList()
-            currentImages.addAll(uris)
-            imagesAdapter.setImages(currentImages)
+            imagesAdapter.setImages(listOf(uri))
             updateImagesVisibility()
         }
     }
@@ -164,7 +158,6 @@ class CompetitorFragment : Fragment() {
 
     private fun setupImagesRecyclerView() {
         imagesAdapter = SelectedImagesAdapter(
-            onAddMoreClick = { pickImagesLauncher.launch("image/*") },
             onRemoveClick = { position ->
                 val currentImages = imagesAdapter.getImages().toMutableList()
                 currentImages.removeAt(position)
@@ -185,27 +178,6 @@ class CompetitorFragment : Fragment() {
         val hasImages = imagesAdapter.getImages().isNotEmpty()
         binding.btnAddImages.visibility = if (hasImages) View.GONE else View.VISIBLE
         binding.rvImages.visibility = if (hasImages) View.VISIBLE else View.GONE
-    }
-
-    private fun setupKeyboardInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val imeInsets = insets.getInsets(
-                WindowInsetsCompat.Type.ime()
-            )
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-            )
-            view.setPadding(
-                view.paddingLeft,
-                systemBars.top,
-                view.paddingRight,
-                maxOf(
-                    imeInsets.bottom,
-                    systemBars.bottom
-                )
-            )
-            insets
-        }
     }
 
     private fun setupPromotionTypeCheckboxes(items: List<GetPromotionTypes>) {
