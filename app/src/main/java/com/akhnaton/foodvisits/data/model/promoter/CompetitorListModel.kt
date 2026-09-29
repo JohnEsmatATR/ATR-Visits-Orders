@@ -1,6 +1,6 @@
 package com.akhnaton.foodvisits.data.model.promoter
 
-import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
+import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
 import com.google.gson.JsonElement
 
 data class CompetitorListModel(
