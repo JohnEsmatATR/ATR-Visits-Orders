@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.promoterProcedures
 
 import android.Manifest
+import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -21,14 +23,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter.PromoterStatus
 import com.akhnaton.foodvisits.databinding.FragmentUploadPhotosBinding
+import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -43,9 +49,16 @@ import java.util.Locale
 
 class UploadPhotosFragment : Fragment() {
 
+    companion object {
+        private const val TAG = "UploadPhotosFragment"
+    }
+
     private lateinit var binding: FragmentUploadPhotosBinding
     private val selectedImages = mutableListOf<Uri>()
     private lateinit var selectedImagesAdapter: SelectedImagesAdapter
+    private lateinit var dialog: AlertDialog
+
+    private var hasRetriedAfterRefresh = false
 
     private val viewModel: PromoterCompetitorsViewModel by viewModels()
 
@@ -53,13 +66,9 @@ class UploadPhotosFragment : Fragment() {
         registerForActivityResult(
             ActivityResultContracts.GetMultipleContents()
         ) { uris ->
-
             if (uris.isNotEmpty()) {
-
                 selectedImages.addAll(uris)
-
                 selectedImagesAdapter.setImages(selectedImages)
-
                 updateImagesUI()
             }
         }
@@ -70,15 +79,10 @@ class UploadPhotosFragment : Fragment() {
         registerForActivityResult(
             ActivityResultContracts.TakePicture()
         ) { success ->
-
             if (success) {
-
                 cameraImageUri?.let { uri ->
-
                     selectedImages.add(uri)
-
                     selectedImagesAdapter.setImages(selectedImages)
-
                     updateImagesUI()
                 }
             }
@@ -88,34 +92,40 @@ class UploadPhotosFragment : Fragment() {
         registerForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
-
             if (granted) {
                 openCamera()
             }
         }
 
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = DataBindingUtil.inflate(
+            layoutInflater, R.layout.fragment_upload_photos, container, false
+        )
+        return binding.root
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+        dialog.dismiss()
 
-            val systemBars = insets.getInsets(
-                WindowInsetsCompat.Type.systemBars()
-            )
-
-            view.setPadding(
-                view.paddingLeft,
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(
+                v.paddingLeft,
                 systemBars.top,
-                view.paddingRight,
+                v.paddingRight,
                 systemBars.bottom
             )
-
             insets
         }
 
         setupViews()
         observeStatus()
-
     }
 
     private fun observeStatus() {
@@ -123,13 +133,51 @@ class UploadPhotosFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.status.collect { status ->
                     when (status) {
+                        is PromoterStatus.Loading -> dialog.show()
+
                         is PromoterStatus.UploadImages -> {
-                            Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
-                            findNavController().popBackStack()
+                            dialog.dismiss()
+                            handleResponse(
+                                code = status.response.status ?: -1,
+                                message = "",
+                                retry = { uploadImages() }
+                            ) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "تم رفع الصور بنجاح",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                viewModel.resetStatus()
+                                findNavController().popBackStack()
+                            }
+                        }
+
+                        is PromoterStatus.RefreshToken -> {
+                            dialog.dismiss()
+                            if (status.data.status == 200) {
+                                val tokenData = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                viewModel.resetStatus()
+                                uploadImages()
+                            } else {
+                                hasRetriedAfterRefresh = false
+                                viewModel.resetStatus()
+                                showSessionExpired(status.data.message)
+                            }
                         }
 
                         is PromoterStatus.Error -> {
-                            Toast.makeText(requireContext(), status.error ?: "حدث خطأ", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                            Toast.makeText(
+                                requireContext(),
+                                status.error ?: "حدث خطأ",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            viewModel.resetStatus()
                         }
 
                         else -> {}
@@ -139,7 +187,71 @@ class UploadPhotosFragment : Fragment() {
         }
     }
 
+    private fun handleResponse(
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
+        when (code) {
+            200 -> {
+                hasRetriedAfterRefresh = false
+                onSuccess()
+            }
+
+            401 -> {
+                if (hasRetriedAfterRefresh) {
+                    hasRetriedAfterRefresh = false
+                    viewModel.resetStatus()
+                    showSessionExpired(message)
+                } else {
+                    sendRefreshToken()
+                }
+            }
+
+            else -> {
+                hasRetriedAfterRefresh = false
+                viewModel.resetStatus()
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = message,
+                    isSuccess = false,
+                    showOkButton = true,
+                )
+            }
+        }
+    }
+
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
+    }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                requireActivity().finishAffinity()
+            }
+        )
+    }
+
     private fun setupViews() {
+        binding.btnAddMore.setOnClickListener {
+            showImageSourceDialog()
+        }
 
         binding.btnBack.setOnClickListener {
             findNavController().popBackStack()
@@ -158,61 +270,40 @@ class UploadPhotosFragment : Fragment() {
         }
 
         binding.btnUpload.setOnClickListener {
-            Log.d("UPLOAD_DEBUG", "uploadImages called, images count = ${selectedImages.size}")
+            Log.d(TAG, "uploadImages called, images count = ${selectedImages.size}")
             uploadImages()
         }
 
         setupImagesRecycler()
-
         updateImagesUI()
     }
 
     private fun setupImagesRecycler() {
-
         selectedImagesAdapter = SelectedImagesAdapter(
-//            onAddMoreClick = {
-//                showImageSourceDialog()
-//            },
             onRemoveClick = { imagePosition ->
-
                 if (imagePosition in selectedImages.indices) {
                     selectedImages.removeAt(imagePosition)
-
                     selectedImagesAdapter.setImages(selectedImages)
-
                     updateImagesUI()
                 }
             }
         )
 
         binding.recyclerImages.apply {
-
-            layoutManager = LinearLayoutManager(
-                requireContext(),
-                LinearLayoutManager.HORIZONTAL,
-                true
-            )
-
+            layoutManager = GridLayoutManager(requireContext(), 3)
             adapter = selectedImagesAdapter
-
-            setHasFixedSize(true)
-
             clipToPadding = false
         }
     }
 
     private fun updateImagesUI() {
-
         val count = selectedImages.size
         val hasImages = count > 0
 
-        binding.cardUpload.visibility =
-            if (hasImages) View.GONE else View.VISIBLE
+        binding.btnAddMore.visibility = if (hasImages) View.VISIBLE else View.GONE
+        binding.cardUpload.visibility = if (hasImages) View.GONE else View.VISIBLE
+        binding.recyclerImages.visibility = if (hasImages) View.VISIBLE else View.GONE
 
-        binding.recyclerImages.visibility =
-            if (hasImages) View.VISIBLE else View.GONE
-
-        // Update description
         binding.tvDescription.text =
             if (hasImages) {
                 when (count) {
@@ -224,7 +315,6 @@ class UploadPhotosFragment : Fragment() {
                 "يرجى إضافة الصور المطلوبة للمخزون"
             }
 
-        // Upload button
         binding.btnUpload.isEnabled = hasImages
 
         binding.btnUpload.backgroundTintList =
@@ -233,11 +323,6 @@ class UploadPhotosFragment : Fragment() {
             } else {
                 ContextCompat.getColorStateList(requireContext(), R.color.gray)
             }
-
-        // Update adapter
-        if (::selectedImagesAdapter.isInitialized) {
-            selectedImagesAdapter.notifyDataSetChanged()
-        }
     }
 
     private fun openGallery() {
@@ -245,7 +330,6 @@ class UploadPhotosFragment : Fragment() {
     }
 
     private fun uploadImages() {
-
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
         if (selectedImages.isEmpty()) {
@@ -301,26 +385,8 @@ class UploadPhotosFragment : Fragment() {
         return MultipartBody.Part.createFormData("image[$index]", tempFile.name, requestFile)
     }
 
-    private fun updateUploadButton() {
-
-        val hasImages = selectedImages.isNotEmpty()
-
-        binding.btnUpload.isEnabled = hasImages
-
-        binding.btnUpload.backgroundTintList =
-            if (hasImages) {
-                ContextCompat.getColorStateList(requireContext(), R.color.orange)
-            } else {
-                ContextCompat.getColorStateList(requireContext(), R.color.gray)
-            }
-    }
-
     private fun createImageUri(): Uri {
-
-        val timeStamp = SimpleDateFormat(
-            "yyyyMMdd_HHmmss",
-            Locale.getDefault()
-        ).format(Date())
+        val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
 
         val imageFile = File.createTempFile(
             "IMG_${timeStamp}_",
@@ -336,66 +402,39 @@ class UploadPhotosFragment : Fragment() {
     }
 
     private fun openCamera() {
-
         cameraImageUri = createImageUri()
-
         cameraLauncher.launch(cameraImageUri)
     }
 
     private fun showImageSourceDialog() {
-
-        val options = arrayOf(
-            "المعرض",
-            "الكاميرا"
-        )
+        val options = arrayOf("المعرض", "الكاميرا")
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("اختيار الصور")
             .setItems(options) { _, which ->
-
                 when (which) {
-
-                    0 -> {
-                        openGallery()
-                    }
-
-                    1 -> {
-                        checkCameraPermission()
-                    }
+                    0 -> openGallery()
+                    1 -> checkCameraPermission()
                 }
             }
             .show()
     }
 
     private fun checkCameraPermission() {
-
         if (
             ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-
             openCamera()
-
         } else {
-
-            cameraPermissionLauncher.launch(
-                Manifest.permission.CAMERA
-            )
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-
-        binding = DataBindingUtil.inflate(
-            layoutInflater, R.layout.fragment_upload_photos, container, false
-        )
-        return binding.root
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if (::dialog.isInitialized) dialog.dismiss()
     }
-
 }

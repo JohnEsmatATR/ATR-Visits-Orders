@@ -1,35 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="@dimen/_90sdp"
-    android:layout_height="@dimen/_90sdp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/_4sdp"
     app:cardCornerRadius="@dimen/_12sdp"
-    android:layout_marginEnd="@dimen/_8sdp">
+    app:cardElevation="@dimen/_1sdp">
 
-    <!-- ================= IMAGE ================= -->
-
-    <ImageView
-        android:id="@+id/ivImage"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:contentDescription="@null"
-        android:scaleType="centerCrop"
-        android:src="@drawable/ic_logo" />
+        android:layout_height="wrap_content">
 
-    <!-- ================= CLOSE BUTTON ================ -->
+        <ImageView
+            android:id="@+id/ivImage"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:contentDescription="@null"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_logo"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/ivClose"
-        android:layout_width="@dimen/_24sdp"
-        android:layout_height="@dimen/_24sdp"
-        android:layout_gravity="top|end"
-        android:layout_margin="@dimen/_4sdp"
-        android:background="@drawable/bg_rounded_grey"
-        android:contentDescription="@null"
-        android:padding="@dimen/_5sdp"
-        android:backgroundTint="@color/red"
-        android:src="@drawable/ic_close"
-        android:tint="@color/white" />
+        <ImageView
+            android:id="@+id/ivClose"
+            android:layout_width="@dimen/_24sdp"
+            android:layout_height="@dimen/_24sdp"
+            android:layout_margin="@dimen/_4sdp"
+            android:background="@drawable/bg_rounded_grey"
+            android:backgroundTint="@color/red"
+            android:contentDescription="@null"
+            android:padding="@dimen/_5sdp"
+            android:src="@drawable/ic_close"
+            android:tint="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
