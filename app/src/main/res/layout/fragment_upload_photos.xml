@@ -12,8 +12,6 @@
         android:layout_height="match_parent"
         android:background="@color/background">
 
-        <!-- ================= TOP BAR ================= -->
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/appBar"
             android:layout_width="match_parent"
@@ -23,8 +21,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
-            <!-- Back button -->
 
             <ImageView
                 android:id="@+id/btnBack"
@@ -37,8 +33,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Camera icon -->
-
             <ImageView
                 android:id="@+id/ivCamera"
                 android:layout_width="@dimen/_42sdp"
@@ -50,8 +44,6 @@
                 android:tint="@color/orange"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
-
-            <!-- Title -->
 
             <TextView
                 android:id="@+id/tvTitle"
@@ -69,9 +61,6 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-        <!-- ================= DESCRIPTION ================= -->
-
         <TextView
             android:id="@+id/tvDescription"
             android:layout_width="0dp"
@@ -82,11 +71,28 @@
             android:text="يرجى إضافة الصور المطلوبة للمخزون"
             android:textColor="@color/gray"
             android:textSize="@dimen/_12ssp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/btnAddMore"
+            app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/appBar" />
 
-        <!-- ================= UPLOAD AREA ================= -->
+        <TextView
+            android:id="@+id/btnAddMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/_24sdp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/_6sdp"
+            android:text="+ إضافة المزيد"
+            android:textColor="@color/orange"
+            android:textSize="@dimen/_12ssp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/tvDescription"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvDescription" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardUpload"
@@ -112,8 +118,6 @@
                 android:orientation="vertical"
                 android:padding="@dimen/_16sdp">
 
-                <!-- Upload icon -->
-
                 <ImageView
                     android:id="@+id/ivUpload"
                     android:layout_width="@dimen/_60sdp"
@@ -123,8 +127,6 @@
                     android:padding="@dimen/_14sdp"
                     android:src="@drawable/ic_photo_black_48dp"
                     android:tint="@color/orange" />
-
-                <!-- Upload text -->
 
                 <TextView
                     android:id="@+id/tvUpload"
@@ -141,24 +143,19 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-
-        <!-- ================= SELECTED IMAGES ================= -->
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recyclerImages"
             android:layout_width="0dp"
-            android:layout_height="@dimen/_90sdp"
-            android:layout_marginHorizontal="@dimen/_24sdp"
-            android:layout_marginTop="@dimen/_16sdp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="@dimen/_20sdp"
+            android:layout_marginTop="@dimen/_12sdp"
+            android:layout_marginBottom="@dimen/_16sdp"
             android:clipToPadding="false"
-            android:paddingStart="@dimen/_2sdp"
-            android:paddingEnd="@dimen/_2sdp"
             android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/btnUpload"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cardUpload" />
-
-        <!-- ================= BOTTOM BUTTON ================= -->
+            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUpload"
