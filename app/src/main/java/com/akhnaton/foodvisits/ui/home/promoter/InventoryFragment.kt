@@ -306,7 +306,7 @@ class InventoryFragment : Fragment() {
                         }
                     }
 
-                    is Visits2Status.PromoterSaveStock -> { // PromoterStatus not Visits2Status
+                    is PromoterStatus.PromoterSaveStock -> { // PromoterStatus not Visits2Status
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             DialogUtils.showResultDialog(

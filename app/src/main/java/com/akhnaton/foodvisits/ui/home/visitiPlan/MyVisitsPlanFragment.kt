@@ -75,6 +75,7 @@ class MyVisitsPlanFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -87,6 +88,7 @@ class MyVisitsPlanFragment : Fragment() {
         selectDay(selectedCalendar)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onResume() {
         super.onResume()
         if (isFirstLoad) {
@@ -96,6 +98,7 @@ class MyVisitsPlanFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun getData() {
         viewModel.visitIntent.trySend(
             VisitIntent.GetMonthlyVisits(
