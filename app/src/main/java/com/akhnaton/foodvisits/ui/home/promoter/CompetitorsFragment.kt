@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.ui.home.promoter
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -29,7 +28,6 @@ import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
-import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
@@ -76,7 +74,7 @@ class CompetitorFragment : Fragment() {
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
-    private lateinit var dialog: AlertDialog
+ //   private lateinit var dialog: AlertDialog
 
     private val versionName = BuildConfig.VERSION_NAME
 
@@ -101,8 +99,8 @@ class CompetitorFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         handleTopBottomKeyboard()
         setupImagesRecyclerView()
@@ -298,11 +296,11 @@ class CompetitorFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.Loading -> {
-                            if (!dialog.isShowing) dialog.show()
+                            binding.progressLoading.visibility = View.VISIBLE
                         }
 
                         is PromoterStatus.GetCompetitorList -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             handleResponse(
                                 code = status.data.status,
                                 message = "",
@@ -351,7 +349,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.SendCompetitors -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status ?: -1,
                                 message = "",
@@ -368,7 +366,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             Log.d(
                                 TAG,
                                 "refreshToken status=${status.data.status} message=${status.data.message}"
@@ -393,14 +391,14 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.Error -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = status.error.toString(),
                                 isSuccess = false,
                                 showOkButton = true,
                                 onOk = {
-//                                    findNavController().popBackStack()
+//                                findNavController().popBackStack()
                                 }
                             )
                             Log.d(TAG, "observeStatus: ${status.error}")
@@ -408,7 +406,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         else -> {
-                            dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                         }
                     }
                 }
@@ -431,7 +429,14 @@ class CompetitorFragment : Fragment() {
             ).show()
             return
         }
+        val selectedSizeId = itemSizesList
+            .firstOrNull { it.size_name == binding.actvUnitSize.text.toString() }
+            ?.id
 
+        if (selectedSizeId == null) {
+            Toast.makeText(requireContext(), "من فضلك اختر الوحدة", Toast.LENGTH_SHORT).show()
+            return
+        }
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
         val checkedIds = promotionCheckBoxes
@@ -478,8 +483,8 @@ class CompetitorFragment : Fragment() {
                 price = binding.etPriceBefore.text.toString().toBody(),
                 price_after_disc = binding.etPriceAfter.text.toString().toBody(),
                 product_name = binding.etProductName.text.toString().toBody(),
-                weight = binding.actvUnitSize.text.toString().toBody(),
-                product_size = binding.etProductSize.text.toString().toBody(),
+                weight = binding.etProductSize.text.toString().toBody(),
+                product_size = selectedSizeId.toBody(),
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),

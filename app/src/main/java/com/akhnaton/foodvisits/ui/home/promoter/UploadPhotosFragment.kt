@@ -153,8 +153,8 @@ class UploadPhotosFragment : Fragment() {
                         is PromoterStatus.Loading -> dialog.show()
 
                         is PromoterStatus.UploadImages -> {
-                            Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
-                            findNavController().popBackStack()
+//                            Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
+//                            findNavController().popBackStack()
                             dialog.dismiss()
                             handleResponse(
                                 code = status.response.status ?: -1,
