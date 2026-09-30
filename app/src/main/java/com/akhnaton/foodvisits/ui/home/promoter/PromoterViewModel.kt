@@ -49,9 +49,11 @@ class PromoterViewModel : ViewModel() {
                         it.appVersion, it.apiToken, it.image, it.created_by,
                         it.creation_date, it.party_site_id, it.customer_code,
                         it.product_id, it.price, it.price_after_disc,
-                        it.product_name, it.weight, it.discount_rate,
+                        it.product_name, it.weight,
+                        it.product_size, it.discount_rate,
                         it.prom_type, it.prom_date, it.user_type,
-                        it.PromoterCompetitorCompress, it.competitor_id, it.type_id,
+//                        it.PromoterCompetitorCompress,
+                        it.competitor_id, it.type_id,
                     )
 
                     is PromoterIntent.GetCompetitorList -> fetchGetCompetitorList(it.appVersion)
@@ -94,11 +96,12 @@ class PromoterViewModel : ViewModel() {
         price_after_disc: RequestBody,
         product_name: RequestBody,
         weight: RequestBody,
+        product_size: RequestBody,
         discount_rate: RequestBody,
         prom_type: RequestBody,
         prom_date: RequestBody,
         user_type: RequestBody,
-        PromoterCompetitorCompress: RequestBody,
+//        PromoterCompetitorCompress: RequestBody,
         competitor_id: RequestBody,
         type_id: RequestBody,
     ) {
@@ -106,7 +109,7 @@ class PromoterViewModel : ViewModel() {
             _status.value = PromoterStatus.Loading
             _status.value = try {
                 PromoterStatus.SendCompetitors(
-                    PromoterRepository().sendCompetitors(
+                    Promoter2Repository().sendCompetitors(
                         appVersion,
                         apiToken,
                         image,
@@ -119,11 +122,12 @@ class PromoterViewModel : ViewModel() {
                         price_after_disc,
                         product_name,
                         weight,
+                        product_size,
                         discount_rate,
                         prom_type,
                         prom_date,
                         user_type,
-                        PromoterCompetitorCompress,
+//                        PromoterCompetitorCompress,
                         competitor_id,
                         type_id,
                     )
@@ -142,7 +146,7 @@ class PromoterViewModel : ViewModel() {
             _status.value = PromoterStatus.Loading
             _status.value = try {
                 PromoterStatus.GetCompetitorList(
-                    PromoterRepository().getCompetitorList(
+                    Promoter2Repository().getCompetitorList(
                         appVersion,
                     )
                 )
@@ -167,7 +171,7 @@ class PromoterViewModel : ViewModel() {
             _status.value = PromoterStatus.Loading
             _status.value = try {
                 PromoterStatus.UploadImages(
-                    PromoterRepository().uploadImages(
+                    Promoter2Repository().uploadImages(
                         appVersion,
                         apiToken,
                         image,

@@ -62,11 +62,12 @@ interface IPromoter2 {
         @Part("price_after_disc") price_after_disc: RequestBody?,
         @Part("product_name") product_name: RequestBody?,
         @Part("weight") weight: RequestBody?,
+        @Part("product_size") product_size: RequestBody?,
         @Part("discount_rate") discount_rate: RequestBody?,
         @Part("prom_type") prom_type: RequestBody?,
         @Part("prom_date") prom_date: RequestBody?,
         @Part("user_type") user_type: RequestBody?,
-        @Part("PromoterCompetitorCompress") PromoterCompetitorCompress: RequestBody?,
+//        @Part("PromoterCompetitorCompress") PromoterCompetitorCompress: RequestBody?,
         @Part("competitor_id") competitor_id: RequestBody?,
         @Part("type_id") type_id: RequestBody?,
     ): BaseResponse<String>

@@ -53,13 +53,46 @@ class SplashActivity2 : AppCompatActivity() {
                 finishAffinity()
             } else {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    val (username, password) = getUserCredentials(this@SplashActivity2)
-                    if (username != null && password != null) {
-                        startActivity(Intent(this@SplashActivity2, MainActivity::class.java))
+
+                    try {
+                        val (username, password) =
+                            getUserCredentials(this@SplashActivity2)
+
+                        if (username != null && password != null) {
+                            startActivity(
+                                Intent(
+                                    this@SplashActivity2,
+                                    MainActivity::class.java
+                                )
+                            )
+                        } else {
+                            startActivity(
+                                Intent(
+                                    this@SplashActivity2,
+                                    LoginActivity2::class.java
+                                )
+                            )
+                        }
+
                         finishAffinity()
-                    } else {
-//                        startActivity(Intent(this@SplashActivity2, LoginActivity::class.java))
-                        startActivity(Intent(this@SplashActivity2, LoginActivity2::class.java))
+
+                    } catch (e: Exception) {
+
+                        Log.e(
+                            "SplashActivity2",
+                            "Failed to read encrypted credentials",
+                            e
+                        )
+
+                        // Encrypted data/key is invalid.
+                        // Send user to login instead.
+                        startActivity(
+                            Intent(
+                                this@SplashActivity2,
+                                LoginActivity2::class.java
+                            )
+                        )
+
                         finishAffinity()
                     }
                 }
