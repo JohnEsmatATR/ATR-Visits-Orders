@@ -1018,6 +1018,9 @@ class GpsVisitFragment : Fragment() {
                             binding.progressLoading.visibility = View.GONE
                         }
                     }
+                    if (it !is Visits2Status.Loading) {
+                        viewModel.consumeStatus()
+                    }
                 }
             }
         }

@@ -37,7 +37,9 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
     private val _status = MutableStateFlow<Visits2Status>(Visits2Status.Idle)
 
     val status: StateFlow<Visits2Status> get() = _status
-
+    fun consumeStatus() {
+        _status.value = Visits2Status.Idle
+    }
     private val _locationState = MutableStateFlow<Location?>(null)
     val locationState: StateFlow<Location?> = _locationState.asStateFlow()
 
