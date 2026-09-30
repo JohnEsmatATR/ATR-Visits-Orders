@@ -150,6 +150,7 @@ class CompetitorFragment : Fragment() {
         }
     }
 
+
     private fun getCompetitorList() {
         viewModel.promoterIntent.trySend(
             PromoterIntent.GetCompetitorList(appVersion = 1.0)
