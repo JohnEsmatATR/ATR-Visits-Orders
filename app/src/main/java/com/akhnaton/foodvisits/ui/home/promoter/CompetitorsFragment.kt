@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.promoter
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -20,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.activity.OnBackPressedCallback
 import com.akhnaton.foodvisits.data.model.promoter.CompetitorList
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitor
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitorTypes
@@ -27,6 +29,7 @@ import com.akhnaton.foodvisits.data.model.promoter.GetPromotionTypes
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
@@ -78,6 +81,9 @@ class CompetitorFragment : Fragment() {
 
     private val versionName = BuildConfig.VERSION_NAME
 
+    lateinit var checkInReq: CheckInGPSReq
+    var checkIn: String = ""
+    var currentTime: String = ""
     private val pickImagesLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -97,8 +103,24 @@ class CompetitorFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         super.onViewCreated(view, savedInstanceState)
 
+        checkIn = arguments?.getString("checkIn").orEmpty()
+        currentTime = arguments?.getString("currentTime").orEmpty()
+        checkInReq = Gson().fromJson(
+            arguments?.getString("checkInReq").orEmpty(),
+            CheckInGPSReq::class.java
+        )
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    checkIn()
+                }
+            }
+        )
 //        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 //        dialog.hide()
 
@@ -125,6 +147,17 @@ class CompetitorFragment : Fragment() {
 
         binding.layoutOfferDate.setEndIconOnClickListener {
             showOfferDatePicker()
+        }
+    }
+
+    private fun checkIn() {
+        Log.d("WHATcheckIn", checkIn.toString())
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.CheckIn(
+                    checkInReq
+                )
+            )
         }
     }
 
@@ -389,7 +422,61 @@ class CompetitorFragment : Fragment() {
                                 showSessionExpired(status.data.message)
                             }
                         }
+                        is PromoterStatus.CheckIn -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
 
+                                val navController = findNavController()
+
+                                val previousBackStackEntry =
+                                    navController.previousBackStackEntry
+
+                                if (previousBackStackEntry == null) {
+                                    return@collect
+                                }
+
+                                val savedStateHandle =
+                                    previousBackStackEntry.savedStateHandle
+
+                                savedStateHandle.set(
+                                    "checkIn",
+                                    data.check_in
+                                )
+
+                                savedStateHandle.set(
+                                    "currentTime",
+                                    data.current_time
+                                )
+
+                                val result =
+                                    navController.popBackStack()
+
+                            } else if (status.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
                         is PromoterStatus.Error -> {
                             binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
@@ -466,8 +553,8 @@ class CompetitorFragment : Fragment() {
         val partySiteId = arguments?.getString("customerPartySiteId")
             ?: requireActivity().intent?.getStringExtra("party_site") ?: ""
 
-        val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
+        val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date())
+        
         //val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
 
         viewModel.promoterIntent.trySend(
@@ -519,7 +606,7 @@ class CompetitorFragment : Fragment() {
             val calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone("UTC"))
             calendar.timeInMillis = selectionMillis
 
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             offerDateForApi = sdf.format(calendar.time)
 
