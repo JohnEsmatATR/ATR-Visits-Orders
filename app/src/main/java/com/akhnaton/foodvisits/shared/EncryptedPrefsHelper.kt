@@ -25,21 +25,54 @@ object EncryptedPrefsHelper {
         )
     }
 
-    fun saveUserCredentials(context: Context, username: String, password: String) {
-        val sharedPrefs = getEncryptedPrefs(context)
-        with(sharedPrefs.edit()) {
-            putString("username", username)
-            putString("password", password)
-            apply()
+    fun saveUserCredentials(
+        context: Context,
+        username: String,
+        password: String
+    ): Boolean {
+        return try {
+            val sharedPrefs = getEncryptedPrefs(context)
+
+            sharedPrefs.edit()
+                .putString("username", username)
+                .putString("password", password)
+                .commit()
+
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     fun getUserCredentials(context: Context): Pair<String?, String?> {
-        val sharedPrefs = getEncryptedPrefs(context)
-        val username = sharedPrefs.getString("username", null)
-        val password = sharedPrefs.getString("password", null)
-        return Pair(username, password)
+        return try {
+            val sharedPrefs = getEncryptedPrefs(context)
+
+            val username = sharedPrefs.getString("username", null)
+            val password = sharedPrefs.getString("password", null)
+
+            Pair(username, password)
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+            clearEncryptedPrefs(context)
+
+            Pair(null, null)
+        }
     }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun clearEncryptedPrefs(context: Context) {
+        try {
+            context.deleteSharedPreferences("secure_prefs")
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     fun clearUserCredentials(context: Context) {
         val sharedPrefs = getEncryptedPrefs(context)
         sharedPrefs.edit().clear().apply()

@@ -162,7 +162,15 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                             )
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                saveUserCredentials(this@LoginActivity2, username, password)
+                                val saved = saveUserCredentials(
+                                    this@LoginActivity2,
+                                    username,
+                                    password
+                                )
+
+                                if (!saved) {
+                                    Log.e(TAG, "Failed to save encrypted user credentials")
+                                }
                             }
 
                             Log.d(TAG, "makeLogin: " + data.USER_ID)
