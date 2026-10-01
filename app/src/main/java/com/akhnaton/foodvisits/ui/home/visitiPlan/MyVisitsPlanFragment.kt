@@ -656,6 +656,9 @@ class MyVisitsPlanFragment : Fragment() {
 
         dayView.setOnClickListener {
             selectDay(dayCalendar)
+            if (isWeeklyView) {
+                monthCalendarBase.time = dayCalendar.time
+            }
             renderCalendar()
         }
 

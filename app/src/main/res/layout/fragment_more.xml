@@ -292,7 +292,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="@dimen/_8sdp"
                         android:layout_weight="1"
-                        android:text="تكويد عميل"
+                        android:text="تكويد عميل بيع مباشر"
                         android:textAlignment="viewEnd"
                         android:textColor="@color/black"
                         android:textSize="@dimen/_14ssp" />

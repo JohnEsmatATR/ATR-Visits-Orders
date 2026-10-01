@@ -351,6 +351,11 @@ class PhoneVisitStepsFragment : Fragment() {
         binding.rv1.itemAnimator = DefaultItemAnimator()
     }
 
+    private fun updateSaleTypesEmptyState(isEmpty: Boolean) {
+        binding.llEmptySaleTypes.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.rv1.visibility = if (isEmpty) View.GONE else View.VISIBLE
+    }
+
     private fun setRecycler2(
         list: MutableList<com.akhnaton.foodvisits.data.model.customers.Data>
     ) {
@@ -515,7 +520,10 @@ class PhoneVisitStepsFragment : Fragment() {
                                         it.data.data,
                                         Data::class.java
                                     )
-                                setRecycler1(data.sales_types.toMutableList())
+                                val types = data?.sales_types ?: emptyList()
+                                setRecycler1(types.toMutableList())
+                                updateSaleTypesEmptyState(types.isEmpty())
+
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
                                     viewModel.phoneVisitsIntent.send(
@@ -526,6 +534,7 @@ class PhoneVisitStepsFragment : Fragment() {
                                     )
                                 }
                             } else {
+                                updateSaleTypesEmptyState(true)
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = it.data.message,
@@ -796,6 +805,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         is PhoneVisitsStatus.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
                             dialog.hide()
+                            updateSaleTypesEmptyState(true)
                         }
 
                         else -> {}

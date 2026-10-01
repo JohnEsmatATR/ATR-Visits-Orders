@@ -249,6 +249,30 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:columnCount="2" />
+
+                        <LinearLayout
+                            android:id="@+id/ll_sale_types_empty"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:paddingTop="24dp"
+                            android:paddingBottom="8dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="center"
+                                android:alpha="0.7"
+                                android:gravity="center"
+                                android:text="@string/no_sale_types_found"
+                                android:textColor="@color/colorPrimary"
+                                android:textSize="@dimen/_16ssp"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
                     </LinearLayout>
                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
