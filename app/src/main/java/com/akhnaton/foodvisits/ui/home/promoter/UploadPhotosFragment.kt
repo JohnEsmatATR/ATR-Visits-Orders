@@ -60,7 +60,7 @@ class UploadPhotosFragment : Fragment() {
     private lateinit var binding: FragmentUploadPhotosBinding
     private val selectedImages = mutableListOf<Uri>()
     private lateinit var selectedImagesAdapter: SelectedImagesAdapter
-    private lateinit var dialog: AlertDialog
+  //  private lateinit var dialog: AlertDialog
 
     private var hasRetriedAfterRefresh = false
 
@@ -126,8 +126,8 @@ class UploadPhotosFragment : Fragment() {
             CheckInGPSReq::class.java
         )
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.dismiss()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.dismiss()
 
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -149,13 +149,16 @@ class UploadPhotosFragment : Fragment() {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.status.collect { status ->
                     when (status) {
-                        is PromoterStatus.Idle -> {}
-                        is PromoterStatus.Loading -> dialog.show()
+                        is PromoterStatus.Idle -> {
+                            binding.progressLoading.visibility = View.GONE
+                        }
+
+                        is PromoterStatus.Loading -> {
+                            binding.progressLoading.visibility = View.VISIBLE
+                        }
 
                         is PromoterStatus.UploadImages -> {
-                            Toast.makeText(requireContext(), "تم رفع الصور بنجاح", Toast.LENGTH_SHORT).show()
-                            findNavController().popBackStack()
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status ?: -1,
                                 message = "",
@@ -172,7 +175,7 @@ class UploadPhotosFragment : Fragment() {
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
@@ -190,38 +193,24 @@ class UploadPhotosFragment : Fragment() {
                         }
 
                         is PromoterStatus.CheckIn -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             if (status.data.status == 200) {
-                                val data =
-                                    Gson().fromJson(
-                                        status.data.data,
-                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
-                                    )
+                                val data = Gson().fromJson(
+                                    status.data.data,
+                                    com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                )
 
                                 val navController = findNavController()
 
-                                val previousBackStackEntry =
-                                    navController.previousBackStackEntry
+                                val previousBackStackEntry = navController.previousBackStackEntry
+                                    ?: return@collect
 
-                                if (previousBackStackEntry == null) {
-                                    return@collect
-                                }
+                                val savedStateHandle = previousBackStackEntry.savedStateHandle
 
-                                val savedStateHandle =
-                                    previousBackStackEntry.savedStateHandle
+                                savedStateHandle.set("checkIn", data.check_in)
+                                savedStateHandle.set("currentTime", data.current_time)
 
-                                savedStateHandle.set(
-                                    "checkIn",
-                                    data.check_in
-                                )
-
-                                savedStateHandle.set(
-                                    "currentTime",
-                                    data.current_time
-                                )
-
-                                val result =
-                                    navController.popBackStack()
+                                navController.popBackStack()
 
                             } else if (status.data.status == 401) {
                                 lifecycleScope.launch {
@@ -238,34 +227,27 @@ class UploadPhotosFragment : Fragment() {
                                     message = status.data.message,
                                     isSuccess = false,
                                     showOkButton = true,
-                                    onOk = {
-//                                    findNavController().popBackStack()
-                                    }
+                                    onOk = { }
                                 )
                             }
                         }
 
                         is PromoterStatus.Error -> {
-                            dialog.dismiss()
-                            Toast.makeText(
-                                requireContext(),
-                                status.error ?: "حدث خطأ",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            viewModel.resetStatus()
+                            binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = status.error.toString(),
                                 isSuccess = false,
                                 showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
+                                onOk = { }
                             )
+                            Log.d(TAG, "observeStatus: ${status.error}")
                             viewModel.resetStatus()
                         }
 
-                        else -> {}
+                        else -> {
+                            binding.progressLoading.visibility = View.GONE
+                        }
                     }
                 }
             }
@@ -539,7 +521,7 @@ class UploadPhotosFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if (::dialog.isInitialized) dialog.dismiss()
+        //if (::dialog.isInitialized) dialog.dismiss()
     }
 
 }

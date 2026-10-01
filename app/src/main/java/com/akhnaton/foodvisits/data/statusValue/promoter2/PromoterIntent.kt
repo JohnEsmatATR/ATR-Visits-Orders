@@ -13,6 +13,7 @@ sealed class PromoterIntent {
 
     //Competitors
     data class GetItemSizes(
+        val id: String,
         val size_name: String
     )
 

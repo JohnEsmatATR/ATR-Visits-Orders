@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.akhnaton.foodvisits.BuildConfig
@@ -37,6 +38,7 @@ import com.akhnaton.foodvisits.ui.home.inventory.ProductInventoryAdapter
 import com.akhnaton.foodvisits.ui.home.promoter.PromoterViewModel
 import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModel
 import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModelFactory
+import com.bumptech.glide.manager.Lifecycle
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -49,7 +51,7 @@ class InventoryFragment : Fragment() {
 
     private val viewModel: PromoterViewModel by viewModels()
     private lateinit var binding: FragmentInventoryBinding
-    private lateinit var dialog: AlertDialog
+    //private lateinit var dialog: AlertDialog
     private lateinit var adapter: ProductInventoryAdapter
 
     lateinit var customerCode: String
@@ -90,8 +92,8 @@ class InventoryFragment : Fragment() {
 //            Visits2ViewModelFactory(requireContext())
 //        )[Visits2ViewModel::class.java]
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
     }
 
     private fun handleTopBottomKeyboard() {
@@ -272,177 +274,161 @@ class InventoryFragment : Fragment() {
     }
 
     fun observeData() {
-        lifecycleScope.launch {
-            viewModel.status.collect {
-                when (it) {
-                    is PromoterStatus.Idle -> {}
-                    is PromoterStatus.Loading -> dialog.show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(androidx.lifecycle.Lifecycle.State.STARTED) {
+                viewModel.status.collect {
+                    when (it) {
+                        is PromoterStatus.Idle -> {
+                            binding.progressLoading.visibility = View.GONE
+                        }
 
-                    is PromoterStatus.PromoterGetItemData -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            binding.tvTotalCount.text =
-                                "${requireActivity().getString(R.string.item_totals)} : ${it.data.data.size}"
-                            setupRecyclerView(it.data.data)
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.promoterIntent.send(
-                                    PromoterIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                        is PromoterStatus.Loading -> {
+                            binding.progressLoading.visibility = View.VISIBLE
+                        }
+
+                        is PromoterStatus.PromoterGetItemData -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (it.data.status == 200) {
+                                binding.tvTotalCount.text =
+                                    "${requireActivity().getString(R.string.item_totals)} : ${it.data.data.size}"
+                                setupRecyclerView(it.data.data)
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
                                     )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = { }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
                         }
-                    }
 
-                    is PromoterStatus.PromoterSaveStock -> { // PromoterStatus not Visits2Status
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = true,
-                                showOkButton = true,
-                                onOk = {
-                                    findNavController().popBackStack()
-                                }
-                            )
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.promoterIntent.send(
-                                    PromoterIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                        is PromoterStatus.PromoterSaveStock -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (it.data.status == 200) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        findNavController().popBackStack()
+                                    }
+                                )
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
                                     )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = { }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
                         }
-                    }
 
-                    is PromoterStatus.CheckIn -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
+                        is PromoterStatus.CheckIn -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (it.data.status == 200) {
+                                val data = Gson().fromJson(
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
                                 )
 
-                            val navController = findNavController()
+                                val navController = findNavController()
 
-                            val previousBackStackEntry =
-                                navController.previousBackStackEntry
+                                val previousBackStackEntry = navController.previousBackStackEntry
+                                    ?: return@collect
 
-                            if (previousBackStackEntry == null) {
-                                return@collect
-                            }
+                                val savedStateHandle = previousBackStackEntry.savedStateHandle
 
-                            val savedStateHandle =
-                                previousBackStackEntry.savedStateHandle
+                                savedStateHandle.set("checkIn", data.check_in)
+                                savedStateHandle.set("currentTime", data.current_time)
 
-                            savedStateHandle.set(
-                                "checkIn",
-                                data.check_in
-                            )
-
-                            savedStateHandle.set(
-                                "currentTime",
-                                data.current_time
-                            )
-
-                            val result =
                                 navController.popBackStack()
 
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.promoterIntent.send(
-                                    PromoterIntent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
-                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
-                        }
-                    }
-
-                    is PromoterStatus.RefreshToken -> {
-                        dialog.hide()
-                        if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data = Gson().fromJson(
-                                it.data.data,
-                                com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                            )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-//                            getData()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance().logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(), LoginActivity2::class.java
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
                                         )
                                     )
-                                    requireActivity().finishAffinity()
-                                })
-                        }
-//                        binding.tryAgainButtons.root.visibility = View.GONE
-
-                    }
-
-                    is PromoterStatus.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
-
-                        DialogUtils.showResultDialog(
-                            context = requireContext(),
-                            message = it.error.toString(),
-                            isSuccess = false,
-                            showOkButton = true,
-                            onOk = {
-//                                    findNavController().popBackStack()
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = { }
+                                )
                             }
-                        )
-//                        binding.tryAgainButtons.root.visibility = View.VISIBLE
-                    }
+                        }
 
-                    else -> {}
+                        is PromoterStatus.RefreshToken -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (it.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${it.data.message}")
+                                val data = Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                )
+                                SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                // getData()
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(), LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    })
+                            }
+                        }
+
+                        is PromoterStatus.Error -> {
+                            Log.d(TAG, "fetchData: ${it.error}")
+                            binding.progressLoading.visibility = View.GONE
+
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.error.toString(),
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = { }
+                            )
+                        }
+
+                        else -> {
+                            binding.progressLoading.visibility = View.GONE
+                        }
+                    }
                 }
             }
         }

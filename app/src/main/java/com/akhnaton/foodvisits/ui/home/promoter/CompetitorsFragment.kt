@@ -21,6 +21,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.activity.OnBackPressedCallback
 import com.akhnaton.foodvisits.data.model.promoter.CompetitorList
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitor
 import com.akhnaton.foodvisits.data.model.promoter.GetCompetitorTypes
@@ -28,8 +29,8 @@ import com.akhnaton.foodvisits.data.model.promoter.GetPromotionTypes
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
 import com.akhnaton.foodvisits.databinding.FragmentCompetitorsBinding
+import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.shared.DialogUtils
-import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.visits.promoters.promoterCompetitorsActivity.PromoterCompetitorsViewModel
@@ -76,10 +77,13 @@ class CompetitorFragment : Fragment() {
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
-    private lateinit var dialog: AlertDialog
+ //   private lateinit var dialog: AlertDialog
 
     private val versionName = BuildConfig.VERSION_NAME
 
+    lateinit var checkInReq: CheckInGPSReq
+    var checkIn: String = ""
+    var currentTime: String = ""
     private val pickImagesLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -99,10 +103,26 @@ class CompetitorFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+
         super.onViewCreated(view, savedInstanceState)
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+        checkIn = arguments?.getString("checkIn").orEmpty()
+        currentTime = arguments?.getString("currentTime").orEmpty()
+        checkInReq = Gson().fromJson(
+            arguments?.getString("checkInReq").orEmpty(),
+            CheckInGPSReq::class.java
+        )
+
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            object : OnBackPressedCallback(true) {
+                override fun handleOnBackPressed() {
+                    checkIn()
+                }
+            }
+        )
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         handleTopBottomKeyboard()
         setupImagesRecyclerView()
@@ -127,6 +147,17 @@ class CompetitorFragment : Fragment() {
 
         binding.layoutOfferDate.setEndIconOnClickListener {
             showOfferDatePicker()
+        }
+    }
+
+    private fun checkIn() {
+        Log.d("WHATcheckIn", checkIn.toString())
+        lifecycleScope.launch {
+            viewModel.promoterIntent.send(
+                PromoterIntent.CheckIn(
+                    checkInReq
+                )
+            )
         }
     }
 
@@ -299,11 +330,11 @@ class CompetitorFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.Loading -> {
-                            if (!dialog.isShowing) dialog.show()
+                            binding.progressLoading.visibility = View.VISIBLE
                         }
 
                         is PromoterStatus.GetCompetitorList -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             handleResponse(
                                 code = status.data.status,
                                 message = "",
@@ -352,7 +383,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.SendCompetitors -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status ?: -1,
                                 message = "",
@@ -369,7 +400,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             Log.d(
                                 TAG,
                                 "refreshToken status=${status.data.status} message=${status.data.message}"
@@ -392,16 +423,70 @@ class CompetitorFragment : Fragment() {
                                 showSessionExpired(status.data.message)
                             }
                         }
+                        is PromoterStatus.CheckIn -> {
+                            binding.progressLoading.visibility = View.GONE
+                            if (status.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        status.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
 
+                                val navController = findNavController()
+
+                                val previousBackStackEntry =
+                                    navController.previousBackStackEntry
+
+                                if (previousBackStackEntry == null) {
+                                    return@collect
+                                }
+
+                                val savedStateHandle =
+                                    previousBackStackEntry.savedStateHandle
+
+                                savedStateHandle.set(
+                                    "checkIn",
+                                    data.check_in
+                                )
+
+                                savedStateHandle.set(
+                                    "currentTime",
+                                    data.current_time
+                                )
+
+                                val result =
+                                    navController.popBackStack()
+
+                            } else if (status.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.promoterIntent.send(
+                                        PromoterIntent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
                         is PromoterStatus.Error -> {
-                            if (dialog.isShowing) dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = status.error.toString(),
                                 isSuccess = false,
                                 showOkButton = true,
                                 onOk = {
-//                                    findNavController().popBackStack()
+//                                findNavController().popBackStack()
                                 }
                             )
                             Log.d(TAG, "observeStatus: ${status.error}")
@@ -409,7 +494,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         else -> {
-                            dialog.hide()
+                            binding.progressLoading.visibility = View.GONE
                         }
                     }
                 }
@@ -432,7 +517,14 @@ class CompetitorFragment : Fragment() {
             ).show()
             return
         }
+        val selectedSizeId = itemSizesList
+            .firstOrNull { it.size_name == binding.actvUnitSize.text.toString() }
+            ?.id
 
+        if (selectedSizeId == null) {
+            Toast.makeText(requireContext(), "من فضلك اختر الوحدة", Toast.LENGTH_SHORT).show()
+            return
+        }
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
         val checkedIds = promotionCheckBoxes
@@ -462,8 +554,8 @@ class CompetitorFragment : Fragment() {
         val partySiteId = arguments?.getString("customerPartySiteId")
             ?: requireActivity().intent?.getStringExtra("party_site") ?: ""
 
-        val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
-
+        val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date())
+        
         //val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
 
         viewModel.promoterIntent.trySend(
@@ -479,8 +571,8 @@ class CompetitorFragment : Fragment() {
                 price = binding.etPriceBefore.text.toString().toBody(),
                 price_after_disc = binding.etPriceAfter.text.toString().toBody(),
                 product_name = binding.etProductName.text.toString().toBody(),
-                weight = binding.actvUnitSize.text.toString().toBody(),
-                product_size = binding.etProductSize.text.toString().toBody(),
+                weight = binding.etProductSize.text.toString().toBody(),
+                product_size = selectedSizeId.toBody(),
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),
@@ -515,7 +607,7 @@ class CompetitorFragment : Fragment() {
             val calendar = java.util.Calendar.getInstance(TimeZone.getTimeZone("UTC"))
             calendar.timeInMillis = selectionMillis
 
-            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+            val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
             sdf.timeZone = TimeZone.getTimeZone("UTC")
             offerDateForApi = sdf.format(calendar.time)
 
