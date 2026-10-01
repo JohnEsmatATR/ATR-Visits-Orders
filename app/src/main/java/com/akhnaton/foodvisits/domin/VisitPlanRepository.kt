@@ -8,8 +8,7 @@ class VisitPlanRepository {
 
     private val retrofit = RetrofitClient.getInstance(IVisitPlan::class.java)
 
-    suspend fun getMonthlyVisits() = retrofit.getMonthlyVisits()
-
+    suspend fun getMonthlyVisits(from: String, to: String) = retrofit.getMonthlyVisits(from, to)
     suspend fun getPendingVisitsForApproval(page: Int, pageSize: Int) =
         retrofit.getPendingVisitsForApproval(page, pageSize)
 

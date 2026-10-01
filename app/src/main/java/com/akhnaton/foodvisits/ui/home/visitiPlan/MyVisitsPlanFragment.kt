@@ -101,7 +101,19 @@ class MyVisitsPlanFragment : Fragment() {
     }
 
     private fun getData() {
-        viewModel.visitIntent.trySend(VisitIntent.GetMonthlyVisits)
+        val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
+        val start = todayCalendar.clone() as Calendar
+        start.set(Calendar.DAY_OF_MONTH, 1)
+        start.add(Calendar.MONTH, -1)
+
+        val end = todayCalendar.clone() as Calendar
+        end.add(Calendar.MONTH, 1)
+        end.set(Calendar.DAY_OF_MONTH, end.getActualMaximum(Calendar.DAY_OF_MONTH))
+
+        viewModel.visitIntent.trySend(
+            VisitIntent.GetMonthlyVisits(fmt.format(start.time), fmt.format(end.time))
+        )
     }
 
     private fun dayKey(c: Calendar): Int =
@@ -690,6 +702,7 @@ class MyVisitsPlanFragment : Fragment() {
         val btnCancel = view.findViewById<View>(R.id.btn_cancel_move)
         val btnConfirm = view.findViewById<View>(R.id.btn_confirm_move)
 
+
         ivPrevMonth.visibility = View.GONE
         ivNextMonth.visibility = View.GONE
 
@@ -818,7 +831,7 @@ class MyVisitsPlanFragment : Fragment() {
         }
 
         rowTarget.setOnClickListener {
-            showMonthPicker(copyTargetMonth, copyTargetYear) { month, year ->
+            showMonthPicker(copyTargetMonth, copyTargetYear, disablePast = true) { month, year ->
                 copyTargetMonth = month
                 copyTargetYear = year
                 updateLabels()
@@ -830,8 +843,9 @@ class MyVisitsPlanFragment : Fragment() {
         }
 
         btnConfirm.setOnClickListener {
-            val sourceDate = "%02d-%d".format(copySourceMonth, copySourceYear)
-            val targetDate = "%02d-%d".format(copyTargetMonth, copyTargetYear)
+            val sourceDate = String.format(Locale.US, "%02d-%04d", copySourceMonth, copySourceYear)
+            val targetDate = String.format(Locale.US, "%02d-%04d", copyTargetMonth, copyTargetYear)
+            Log.d(TAG, "copyPlan source=$sourceDate target=$targetDate")
             viewModel.visitIntent.trySend(VisitIntent.CopyPlan(sourceDate, targetDate))
             dialog.dismiss()
         }
@@ -842,6 +856,7 @@ class MyVisitsPlanFragment : Fragment() {
     private fun showMonthPicker(
         initialMonth: Int,
         initialYear: Int,
+        disablePast: Boolean = false,
         onMonthSelected: (month: Int, year: Int) -> Unit
     ) {
         val dialog = BottomSheetDialog(requireContext())
@@ -853,13 +868,22 @@ class MyVisitsPlanFragment : Fragment() {
             bottomSheet?.setBackgroundResource(android.R.color.transparent)
         }
 
+        val curMonth = todayCalendar.get(Calendar.MONTH) + 1
+        val curYear = todayCalendar.get(Calendar.YEAR)
+
         var displayedYear = initialYear
         val tvYear = view.findViewById<android.widget.TextView>(R.id.tv_year)
         val gridMonths = view.findViewById<android.widget.GridLayout>(R.id.grid_months)
+        val ivPrevYear = view.findViewById<View>(R.id.iv_prev_year)
+        val ivNextYear = view.findViewById<View>(R.id.iv_next_year)
 
         fun renderMonths() {
             tvYear.text = displayedYear.toString()
             gridMonths.removeAllViews()
+
+            val canGoPrevYear = !disablePast || displayedYear > curYear
+            ivPrevYear.isEnabled = canGoPrevYear
+            ivPrevYear.alpha = if (canGoPrevYear) 1f else 0.3f
 
             for (i in 0 until 12) {
                 val tvMonth = android.widget.TextView(requireContext())
@@ -867,6 +891,9 @@ class MyVisitsPlanFragment : Fragment() {
                 tvMonth.gravity = android.view.Gravity.CENTER
                 tvMonth.setPadding(12, 24, 12, 24)
                 tvMonth.textSize = 14f
+
+                val isDisabled = disablePast &&
+                        (displayedYear < curYear || (displayedYear == curYear && (i + 1) < curMonth))
 
                 val isSelected = (i + 1) == initialMonth && displayedYear == initialYear
                 if (isSelected) {
@@ -877,9 +904,14 @@ class MyVisitsPlanFragment : Fragment() {
                     tvMonth.setTextColor(resources.getColor(R.color.black, null))
                 }
 
-                tvMonth.setOnClickListener {
-                    onMonthSelected(i + 1, displayedYear)
-                    dialog.dismiss()
+                if (isDisabled) {
+                    tvMonth.alpha = 0.3f
+                    tvMonth.isClickable = false
+                } else {
+                    tvMonth.setOnClickListener {
+                        onMonthSelected(i + 1, displayedYear)
+                        dialog.dismiss()
+                    }
                 }
 
                 val params = android.widget.GridLayout.LayoutParams()
@@ -893,11 +925,12 @@ class MyVisitsPlanFragment : Fragment() {
             }
         }
 
-        view.findViewById<View>(R.id.iv_prev_year).setOnClickListener {
+        ivPrevYear.setOnClickListener {
+            if (disablePast && displayedYear <= curYear) return@setOnClickListener
             displayedYear--
             renderMonths()
         }
-        view.findViewById<View>(R.id.iv_next_year).setOnClickListener {
+        ivNextYear.setOnClickListener {
             displayedYear++
             renderMonths()
         }
@@ -918,6 +951,9 @@ class MyVisitsPlanFragment : Fragment() {
 
         val btnCancel = view.findViewById<View>(R.id.btn_cancel_delete)
         val btnConfirm = view.findViewById<View>(R.id.btn_confirm_delete)
+
+        val tvMessage = view.findViewById<android.widget.TextView>(R.id.tv_delete_message)
+        tvMessage?.text = getString(R.string.delete_confirm_count_format, visitIds.size)
 
         btnCancel.setOnClickListener { dialog.dismiss() }
 

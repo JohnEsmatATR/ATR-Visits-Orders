@@ -20,7 +20,10 @@ import retrofit2.http.POST
 
 interface IVisitPlan {
     @GET(ConstantLinks.GET_MONTHLY_VISITS)
-    suspend fun getMonthlyVisits(): VisitListModel
+    suspend fun getMonthlyVisits(
+        @retrofit2.http.Query("from") from: String,
+        @retrofit2.http.Query("to") to: String
+    ): VisitListModel
 
     @GET(ConstantLinks.GET_PENDING_VISITS_ENDPOINT)
     suspend fun getPendingVisitsForApproval(

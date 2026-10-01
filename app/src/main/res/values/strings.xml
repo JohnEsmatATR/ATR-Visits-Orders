@@ -423,4 +423,6 @@
     <string name="copy_plan_date_label">تاريخ الخطة</string>
     <string name="copy_now">نسخ الآن</string>
     <string name="cancel2">إلغاء</string>
+
+    <string name="delete_confirm_count_format">سيتم حذف %d زيارة، هل أنت متأكد؟</string>
 </resources>
