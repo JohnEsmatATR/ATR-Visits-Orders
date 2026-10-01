@@ -414,4 +414,5 @@
 
     <string name="visits_approved_toast">تم الموافقة على %1$d زيارات</string>
     <string name="visits_rejected_toast">تم رفض %1$d زيارات</string>
+    <string name="no_sale_types_found">لا توجد أنواع بيع متاحة</string>
 </resources>

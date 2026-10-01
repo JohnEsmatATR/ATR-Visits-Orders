@@ -478,6 +478,7 @@ class AddVisitPlanFragment : Fragment() {
                         is AddVisitStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
+                            if (salesTypes.isEmpty()) buildSaleTypeGrid()
                         }
 
                         else -> {}
@@ -490,6 +491,10 @@ class AddVisitPlanFragment : Fragment() {
     private fun buildSaleTypeGrid() {
         binding.gridSaleTypes.removeAllViews()
         binding.gridSaleTypes.columnCount = 2
+
+        val isEmpty = salesTypes.isEmpty()
+        binding.llSaleTypesEmpty.visibility = if (isEmpty) View.VISIBLE else View.GONE
+        binding.gridSaleTypes.visibility = if (isEmpty) View.GONE else View.VISIBLE
 
         val inflater = LayoutInflater.from(requireContext())
 
