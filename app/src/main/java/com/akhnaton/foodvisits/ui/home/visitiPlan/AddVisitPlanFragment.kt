@@ -728,7 +728,16 @@ class AddVisitPlanFragment : Fragment() {
         binding.btnBackContainer.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
+        binding.cardCopySalePlan.visibility =
+            if (SharedPreferencesHelper.getInstance().isAllowedToApproveVisit()) View.VISIBLE else View.GONE
 
+        binding.cardCopySalePlan.setOnClickListener {
+            if (allReps.isEmpty()) {
+                getSalesMan()
+            } else {
+                showScheduleBottomSheet()
+            }
+        }
         binding.cardCopySalePlan.setOnClickListener {
             if (allReps.isEmpty()) {
                 getSalesMan()
