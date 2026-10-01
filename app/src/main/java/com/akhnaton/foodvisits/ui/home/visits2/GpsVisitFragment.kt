@@ -172,7 +172,6 @@ class GpsVisitFragment : Fragment() {
 
         askPermission()
         observeDistance()
-
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK) {
                 when (result.resultCode) {
