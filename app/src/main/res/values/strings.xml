@@ -415,4 +415,12 @@
     <string name="visits_approved_toast">تم الموافقة على %1$d زيارات</string>
     <string name="visits_rejected_toast">تم رفض %1$d زيارات</string>
     <string name="no_sale_types_found">لا توجد أنواع بيع متاحة</string>
+
+
+    <string name="copy_plan_title">نسخ خطة زيارات</string>
+    <string name="copy_plan_source_label">اختر الشهر المراد نسخ الخطة منه</string>
+    <string name="copy_plan_target_label">اختر الشهر المراد نسخ الخطة له</string>
+    <string name="copy_plan_date_label">تاريخ الخطة</string>
+    <string name="copy_now">نسخ الآن</string>
+    <string name="cancel2">إلغاء</string>
 </resources>

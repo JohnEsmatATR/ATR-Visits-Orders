@@ -56,4 +56,6 @@
     <color name="tab_switch_bg">#EFEFF4</color>
     <color name="approve_green">#34C759</color>
     <color name="reject_red">#FF3B30</color>
+
+    <color name="blue2">#007AFF</color>
 </resources>
