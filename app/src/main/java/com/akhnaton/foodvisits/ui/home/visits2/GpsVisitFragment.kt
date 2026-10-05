@@ -706,22 +706,23 @@ class GpsVisitFragment : Fragment() {
     }
 
     private fun fetchData() {
-        lifecycleScope.launch {
-            viewModel.status.collect {
-                when (it) {
-                    is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> dialog.show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect {
+                    when (it) {
+                            is Visits2Status.Idle -> {}
+                            is Visits2Status.Loading -> dialog.show()
 
-                    is Visits2Status.SaveVisitGps -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    Data::class.java
-                                )
-                            //VISITS_APK
-                            var message = "${it.data.message}"
+                            is Visits2Status.SaveVisitGps -> {
+                                dialog.dismiss()
+                                if (it.data.status == 200) {
+                                    val data =
+                                        Gson().fromJson(
+                                            it.data.data,
+                                            Data::class.java
+                                        )
+                                    //VISITS_APK
+                                    var message = "${it.data.message}"
 //                            DialogUtils.showResultDialog(
 //                                context = requireContext(),
 //                                message = message,
@@ -749,90 +750,94 @@ class GpsVisitFragment : Fragment() {
 //                                )
 //                                return@collect
 //                            }
-                            if (data.is_suspended == true) {
-                                message = "${data.message}"
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = message,
-                                    isSuccess = true,
-                                    showOkButton = true,
-                                    onOk = {
-                                        MainActivity.binding.navView2.visibility = View.VISIBLE
-                                        findNavController().navigate(
-                                            R.id.toHome
-                                        )
-                                    }
-                                )
-                            } else {
-                                if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            MainActivity.binding.navView2.visibility = View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                } else {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        seconds = 2,
-                                        onAutoDismiss = {
-                                            if (grade == "A") {
-                                                val bundle = Bundle().apply {
-                                                    putString("customerName", customerName)
-                                                    putString("customerCode", customerCode)
-                                                    putString("siteAddress", siteAddress)
-                                                    putString(
-                                                        "customerPartySiteId",
-                                                        customerPartySiteId
-                                                    )
-                                                    putString("saleType", saleType)
-                                                    putString("fragment", "Gps")
-                                                }
-
-                                                findNavController().navigate(
-                                                    R.id.toOrderCreationCycle, bundle
-                                                )
-                                            } else {
+                                    if (data.is_suspended == true) {
+                                        message = "${data.message}"
+                                        DialogUtils.showResultDialog(
+                                            context = requireContext(),
+                                            message = message,
+                                            isSuccess = true,
+                                            showOkButton = true,
+                                            onOk = {
                                                 MainActivity.binding.navView2.visibility =
                                                     View.VISIBLE
                                                 findNavController().navigate(
                                                     R.id.toHome
                                                 )
                                             }
-                                        })
-                                }
-                            }
-                        } else if (it.data.status == 400) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    Data::class.java
-                                )
-                            if (data.wrong_zone == 1) {
-                                checkZoneFlag = "0"
-                                DialogUtils.showResultDialog(
-                                    context = requireContext(),
-                                    message = "خطأ في الموقع",
-                                    description =
-                                        it.data.message,
-                                    isSuccess = false,
-                                    isLocation = true,
-                                    onReport = {
-                                        if (isProm || isSuperProm) {
-                                            saveVisitGPSForPromoters(checkZoneFlag)
+                                        )
+                                    } else {
+                                        if (!SharedPreferencesHelper.getInstance()
+                                                .isAllowedToMakeOrder()
+                                        ) {
+                                            DialogUtils.showResultDialog(
+                                                context = requireContext(),
+                                                message = message,
+                                                isSuccess = true,
+                                                showOkButton = true,
+                                                onOk = {
+                                                    MainActivity.binding.navView2.visibility =
+                                                        View.VISIBLE
+                                                    findNavController().navigate(
+                                                        R.id.toHome
+                                                    )
+                                                }
+                                            )
                                         } else {
-                                            saveVisitGPS(checkZoneFlag)
+                                            DialogUtils.showResultDialog(
+                                                context = requireContext(),
+                                                message = message,
+                                                isSuccess = true,
+                                                seconds = 2,
+                                                onAutoDismiss = {
+                                                    if (grade == "A") {
+                                                        val bundle = Bundle().apply {
+                                                            putString("customerName", customerName)
+                                                            putString("customerCode", customerCode)
+                                                            putString("siteAddress", siteAddress)
+                                                            putString(
+                                                                "customerPartySiteId",
+                                                                customerPartySiteId
+                                                            )
+                                                            putString("saleType", saleType)
+                                                            putString("fragment", "Gps")
+                                                        }
+
+                                                        findNavController().navigate(
+                                                            R.id.toOrderCreationCycle, bundle
+                                                        )
+                                                    } else {
+                                                        MainActivity.binding.navView2.visibility =
+                                                            View.VISIBLE
+                                                        findNavController().navigate(
+                                                            R.id.toHome
+                                                        )
+                                                    }
+                                                })
                                         }
-                                    },
-                                )
+                                    }
+                                } else if (it.data.status == 400) {
+                                    val data =
+                                        Gson().fromJson(
+                                            it.data.data,
+                                            Data::class.java
+                                        )
+                                    if (data.wrong_zone == 1) {
+                                        checkZoneFlag = "0"
+                                        DialogUtils.showResultDialog(
+                                            context = requireContext(),
+                                            message = "خطأ في الموقع",
+                                            description =
+                                                it.data.message,
+                                            isSuccess = false,
+                                            isLocation = true,
+                                            onReport = {
+                                                if (isProm || isSuperProm) {
+                                                    saveVisitGPSForPromoters(checkZoneFlag)
+                                                } else {
+                                                    saveVisitGPS(checkZoneFlag)
+                                                }
+                                            },
+                                        )
 //                                DialogUtils.showResultDialog(
 //                                    context = requireContext(),
 //                                    message = it.data.message,
@@ -846,150 +851,153 @@ class GpsVisitFragment : Fragment() {
 //                                        }
 //                                    }
 //                                )
-                            }
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
-                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
-                        }
-                    }
-
-                    is Visits2Status.VisitsSelect -> {
-                        dialog.dismiss()
-                        binding.tvTimer.visibility = View.VISIBLE
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.visitesSelect.Data::class.java
-                                )
-                            val visitGoal = data.visit_goal
-                            val visabilty = data.visabilty
-                            val sendOrderNote = data.send_order_note
-
-                            val visitGoalStrings = visitGoal.map { it.name }
-                            val visabiltyStrings = visabilty.map { it.name }
-                            val sendOrderNoteStrings = sendOrderNote.map { it.name }
-
-                            val adapter1 = ArrayAdapter(
-                                requireContext(),
-                                android.R.layout.simple_dropdown_item_1line,
-                                visitGoalStrings
-                            )
-                            if (visitGoal.size > 0) {
-                                grade = visitGoal[0].id
-                                binding.etVisitingPosition.setText(visitGoal[0].name)
-                            }
-                            binding.etVisitingPosition.setAdapter(adapter1)
-                            binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
-                                val selectedPosition = visitGoal[position]
-                                grade = selectedPosition.id
-                            }
-
-                            val adapter2 = ArrayAdapter(
-                                requireContext(),
-                                android.R.layout.simple_dropdown_item_1line,
-                                visabiltyStrings
-                            )
-                            binding.etVisibility.setAdapter(adapter2)
-                            binding.etVisibility.setOnItemClickListener { _, _, position, _ ->
-                                val selectedPosition = visabilty[position]
-                                visibility = selectedPosition.id
-                            }
-
-                            val adapter3 = ArrayAdapter(
-                                requireContext(),
-                                android.R.layout.simple_dropdown_item_1line,
-                                sendOrderNoteStrings
-                            )
-                            binding.etSendOrderNote.setAdapter(adapter3)
-                            binding.etSendOrderNote.setOnItemClickListener { _, _, position, _ ->
-                                val selectedPosition = sendOrderNote[position]
-                                anotherOrderType = selectedPosition.id
-                            }
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
-                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                })
-                        }
-                    }
-
-                    is Visits2Status.RefreshToken -> {
-                        dialog.hide()
-                        if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data = Gson().fromJson(
-                                it.data.data,
-                                com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                            )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-//                            getData()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance().logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(), LoginActivity2::class.java
+                                    }
+                                } else if (it.data.status == 401) {
+                                    lifecycleScope.launch {
+                                        viewModel.visitsIntent.send(
+                                            Visits2Intent.RefreshToken(
+                                                SharedPreferencesHelper.getInstance()
+                                                    .getEmployeeId(),
+                                                SharedPreferencesHelper.getInstance().getUserToken()
+                                            )
                                         )
+                                    }
+                                } else {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = it.data.message,
+                                        isSuccess = false,
+                                        showOkButton = true,
+                                        onOk = {
+//                                    findNavController().popBackStack()
+                                        }
                                     )
-                                    requireActivity().finishAffinity()
-                                })
+                                }
+                            }
+
+                            is Visits2Status.VisitsSelect -> {
+                                dialog.dismiss()
+                                binding.tvTimer.visibility = View.VISIBLE
+                                if (it.data.status == 200) {
+                                    val data =
+                                        Gson().fromJson(
+                                            it.data.data,
+                                            com.akhnaton.foodvisits.data.model.visitesSelect.Data::class.java
+                                        )
+                                    val visitGoal = data.visit_goal
+                                    val visabilty = data.visabilty
+                                    val sendOrderNote = data.send_order_note
+
+                                    val visitGoalStrings = visitGoal.map { it.name }
+                                    val visabiltyStrings = visabilty.map { it.name }
+                                    val sendOrderNoteStrings = sendOrderNote.map { it.name }
+
+                                    val adapter1 = ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_dropdown_item_1line,
+                                        visitGoalStrings
+                                    )
+                                    if (visitGoal.size > 0) {
+                                        grade = visitGoal[0].id
+                                        binding.etVisitingPosition.setText(visitGoal[0].name)
+                                    }
+                                    binding.etVisitingPosition.setAdapter(adapter1)
+                                    binding.etVisitingPosition.setOnItemClickListener { _, _, position, _ ->
+                                        val selectedPosition = visitGoal[position]
+                                        grade = selectedPosition.id
+                                    }
+
+                                    val adapter2 = ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_dropdown_item_1line,
+                                        visabiltyStrings
+                                    )
+                                    binding.etVisibility.setAdapter(adapter2)
+                                    binding.etVisibility.setOnItemClickListener { _, _, position, _ ->
+                                        val selectedPosition = visabilty[position]
+                                        visibility = selectedPosition.id
+                                    }
+
+                                    val adapter3 = ArrayAdapter(
+                                        requireContext(),
+                                        android.R.layout.simple_dropdown_item_1line,
+                                        sendOrderNoteStrings
+                                    )
+                                    binding.etSendOrderNote.setAdapter(adapter3)
+                                    binding.etSendOrderNote.setOnItemClickListener { _, _, position, _ ->
+                                        val selectedPosition = sendOrderNote[position]
+                                        anotherOrderType = selectedPosition.id
+                                    }
+                                } else if (it.data.status == 401) {
+                                    lifecycleScope.launch {
+                                        viewModel.visitsIntent.send(
+                                            Visits2Intent.RefreshToken(
+                                                SharedPreferencesHelper.getInstance()
+                                                    .getEmployeeId(),
+                                                SharedPreferencesHelper.getInstance().getUserToken()
+                                            )
+                                        )
+                                    }
+                                } else {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = it.data.message,
+                                        isSuccess = false,
+                                        showOkButton = true,
+                                        onOk = {
+//                                    findNavController().popBackStack()
+                                        })
+                                }
+                            }
+
+                            is Visits2Status.RefreshToken -> {
+                                dialog.hide()
+                                if (it.data.status == 200) {
+                                    Log.d("WHATRefreshToken", "${it.data.message}")
+                                    val data = Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                    )
+                                    SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+//                            getData()
+                                } else {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = it.data.message,
+                                        isSuccess = false,
+                                        showOkButton = true,
+                                        onOk = {
+                                            SharedPreferencesHelper.getInstance().logOut()
+                                            startActivity(
+                                                Intent(
+                                                    requireContext(), LoginActivity2::class.java
+                                                )
+                                            )
+                                            requireActivity().finishAffinity()
+                                        })
+                                }
+                            }
+
+                            is Visits2Status.Error -> {
+                                Log.d(TAG, "fetchData: ${it.error}")
+                                dialog.hide()
+
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.error.toString(),
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                    }
+                                )
+                            }
+
+                            else -> {}
                         }
                     }
-
-                    is Visits2Status.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
-
-                        DialogUtils.showResultDialog(
-                            context = requireContext(),
-                            message = it.error.toString(),
-                            isSuccess = false,
-                            showOkButton = true,
-                            onOk = {
-                            }
-                        )
-                    }
-
-                    else -> {}
                 }
             }
         }
-    }
 
     private fun startTimer() {
         stopTimer()
