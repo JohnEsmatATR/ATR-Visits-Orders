@@ -118,7 +118,7 @@
                             android:gravity="right"
                             android:text="@string/product_name_label"
                             android:textColor="@color/black"
-                            android:textSize="12sp" />
+                            android:textSize="@dimen/_12ssp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/layoutProductName"
@@ -139,6 +139,7 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="right|center_vertical"
                                 android:hint="@string/product_name_hint"
+                                android:textSize="@dimen/_12ssp"
                                 android:inputType="text"
                                 android:maxLines="1" />
 
@@ -150,13 +151,13 @@
                             android:gravity="right"
                             android:text="@string/category_label"
                             android:textColor="@color/black"
-                            android:textSize="10sp" />
+                            android:textSize="@dimen/_12ssp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/layoutCategory"
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/_45sdp"
                             android:layout_marginTop="3dp"
                             android:layout_marginBottom="10dp"
                             app:boxBackgroundColor="@color/input_box_bg"
@@ -170,12 +171,12 @@
                             <AutoCompleteTextView
                                 android:id="@+id/actvCategory"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:gravity="right|center_vertical"
                                 android:hint="@string/category_hint"
+                                android:textSize="@dimen/_12ssp"
                                 android:inputType="text"
-                                android:textColor="@color/black"
-                                android:textStyle="bold" />
+                                android:textColor="@color/black" />
                         </com.google.android.material.textfield.TextInputLayout>
 
                         <TextView
@@ -184,13 +185,13 @@
                             android:gravity="right"
                             android:text="@string/competing_company_label"
                             android:textColor="@color/black"
-                            android:textSize="10sp" />
+                            android:textSize="@dimen/_12ssp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/layoutCompany"
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/_45sdp"
                             android:layout_marginTop="3dp"
                             app:boxBackgroundColor="@color/input_box_bg"
                             app:boxStrokeColor="@color/input_box_stroke"
@@ -203,12 +204,12 @@
                             <AutoCompleteTextView
                                 android:id="@+id/actvCompany"
                                 android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
+                                android:layout_height="match_parent"
                                 android:gravity="right|center_vertical"
                                 android:hint="@string/competing_company_hint"
+                                android:textSize="@dimen/_12ssp"
                                 android:inputType="text"
-                                android:textColor="@color/black"
-                                android:textStyle="bold" />
+                                android:textColor="@color/black" />
 
                         </com.google.android.material.textfield.TextInputLayout>
 
@@ -275,13 +276,13 @@
                                     android:gravity="right"
                                     android:text="@string/unit_size_label"
                                     android:textColor="@color/black"
-                                    android:textSize="10sp" />
+                                    android:textSize="@dimen/_12ssp" />
 
                                 <com.google.android.material.textfield.TextInputLayout
                                     android:id="@+id/layoutUnitSize"
                                     style="@style/OutlinedRoundedBox"
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
+                                    android:layout_height="@dimen/_45sdp"
                                     android:layout_marginTop="3dp"
                                     app:boxBackgroundColor="@color/input_box_bg"
                                     app:boxStrokeColor="@color/input_box_stroke"
@@ -294,11 +295,11 @@
                                     <AutoCompleteTextView
                                         android:id="@+id/actvUnitSize"
                                         android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
+                                        android:layout_height="match_parent"
                                         android:gravity="right|center_vertical"
                                         android:hint="@string/unit_size_hint"
-                                        android:inputType="none"
-                                        android:textColor="@color/black" />
+                                        android:textSize="@dimen/_12ssp"
+                                        android:inputType="none"/>
 
                                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -317,7 +318,7 @@
                                     android:gravity="right"
                                     android:text="@string/product_size_label"
                                     android:textColor="@color/black"
-                                    android:textSize="10sp" />
+                                    android:textSize="@dimen/_12ssp" />
 
                                 <com.google.android.material.textfield.TextInputLayout
                                     android:id="@+id/layoutProductSize"
@@ -337,6 +338,7 @@
                                         android:layout_height="wrap_content"
                                         android:gravity="right|center_vertical"
                                         android:hint="@string/product_size_hint"
+                                        android:textSize="@dimen/_12ssp"
                                         android:inputType="number"
                                         android:maxLines="1" />
 
@@ -365,7 +367,7 @@
                                     android:gravity="right"
                                     android:text="@string/price_after_label"
                                     android:textColor="@color/black"
-                                    android:textSize="10sp" />
+                                    android:textSize="@dimen/_12ssp" />
 
                                 <com.google.android.material.textfield.TextInputLayout
                                     android:id="@+id/layoutPriceAfter"
@@ -385,6 +387,7 @@
                                         android:layout_height="wrap_content"
                                         android:gravity="right|center_vertical"
                                         android:hint="@string/price_after_hint"
+                                        android:textSize="@dimen/_12ssp"
                                         android:inputType="numberDecimal"
                                         android:maxLines="1" />
 
@@ -405,7 +408,7 @@
                                     android:gravity="right"
                                     android:text="@string/price_before_label"
                                     android:textColor="@color/black"
-                                    android:textSize="10sp" />
+                                    android:textSize="@dimen/_12ssp" />
 
                                 <com.google.android.material.textfield.TextInputLayout
                                     android:id="@+id/layoutPriceBefore"
@@ -425,6 +428,7 @@
                                         android:layout_height="wrap_content"
                                         android:gravity="right|center_vertical"
                                         android:hint="@string/price_before_hint"
+                                        android:textSize="@dimen/_12ssp"
                                         android:inputType="numberDecimal"
                                         android:maxLines="1" />
 
@@ -441,7 +445,7 @@
                             android:gravity="right"
                             android:text="@string/discount_label"
                             android:textColor="@color/black"
-                            android:textSize="10sp" />
+                            android:textSize="@dimen/_12ssp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/layoutDiscount"
@@ -473,7 +477,7 @@
                             android:gravity="right"
                             android:text="@string/offer_date_label"
                             android:textColor="@color/black"
-                            android:textSize="10sp" />
+                            android:textSize="@dimen/_12ssp" />
 
                         <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/layoutOfferDate"
