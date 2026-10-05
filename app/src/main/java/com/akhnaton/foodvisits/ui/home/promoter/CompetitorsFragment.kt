@@ -77,7 +77,7 @@ class CompetitorFragment : Fragment() {
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
- //   private lateinit var dialog: AlertDialog
+    //   private lateinit var dialog: AlertDialog
 
     private val versionName = BuildConfig.VERSION_NAME
 
@@ -423,6 +423,7 @@ class CompetitorFragment : Fragment() {
                                 showSessionExpired(status.data.message)
                             }
                         }
+
                         is PromoterStatus.CheckIn -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.data.status == 200) {
@@ -478,6 +479,7 @@ class CompetitorFragment : Fragment() {
                                 )
                             }
                         }
+
                         is PromoterStatus.Error -> {
                             binding.progressLoading.visibility = View.GONE
                             DialogUtils.showResultDialog(
@@ -502,29 +504,85 @@ class CompetitorFragment : Fragment() {
         }
     }
 
+    private fun showDialog(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+        )
+    }
+
     private fun onSaveClicked() {
 
-        if (offerDateForApi.isBlank()) {
-            Toast.makeText(requireContext(), "من فضلك اختر تاريخ العرض", Toast.LENGTH_SHORT).show()
+        if (binding.etProductName.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل اسم المنتج")
             return
         }
 
-        if (selectedTypeId == null || selectedCompetitorId == null) {
-            Toast.makeText(
-                requireContext(),
-                "من فضلك اختر الفئة والشركة المنافسة",
-                Toast.LENGTH_SHORT
-            ).show()
+        if (binding.actvCategory.text.isNullOrBlank()) {
+            showDialog("من فضلك اختر الفئة")
             return
         }
+
+        if (binding.actvCompany.text.isNullOrBlank()) {
+            showDialog("من فضلك اختر الشركة المنافسة")
+            return
+        }
+
+        if (binding.etProductSize.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل حجم المنتج")
+            return
+        }
+
+        if (binding.actvUnitSize.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل حجم الصنف")
+            return
+        }
+
         val selectedSizeId = itemSizesList
             .firstOrNull { it.size_name == binding.actvUnitSize.text.toString() }
             ?.id
 
         if (selectedSizeId == null) {
-            Toast.makeText(requireContext(), "من فضلك اختر الوحدة", Toast.LENGTH_SHORT).show()
+            showDialog("من فضلك اختر الوحدة")
             return
         }
+
+        if (binding.etPriceBefore.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل السعر قبل الخصم")
+            return
+        }
+
+        if (binding.etPriceAfter.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل السعر بعد الخصم")
+            return
+        }
+
+        if (binding.etDiscount.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل نسبة الخصم")
+            return
+        }
+
+        if (binding.etDiscount.text.isNullOrBlank()) {
+            showDialog("من فضلك ادخل نسبة الخصم")
+            return
+        }
+
+        if (offerDateForApi.isBlank()) {
+            showDialog("من فضلك اختر تاريخ العرض")
+            return
+        }
+
+//        if (selectedTypeId == null || selectedCompetitorId == null) {
+//            Toast.makeText(
+//                requireContext(),
+//                "من فضلك اختر الفئة والشركة المنافسة",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//            return
+//        }
+
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
         val checkedIds = promotionCheckBoxes
@@ -555,7 +613,7 @@ class CompetitorFragment : Fragment() {
             ?: requireActivity().intent?.getStringExtra("party_site") ?: ""
 
         val creationDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(Date())
-        
+
         //val combinedWeight = "${binding.etProductSize.text}${binding.actvUnitSize.text}"
 
         viewModel.promoterIntent.trySend(
