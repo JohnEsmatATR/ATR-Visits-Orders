@@ -62,6 +62,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     private lateinit var attachmentAdapter: AttachmentAdapter
     private val attachments = mutableListOf<Uri>()
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -163,19 +164,28 @@ class TicketsFragment : Fragment(), View.OnClickListener {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.P)
     private fun createTicket() {
-        lifecycleScope.launch {
-            viewModel.ticketsIntent.send(
-                TicketsIntent.CreateTicket(
-                    binding.etPhone.text.toString().toRequestBody(),
-                    selectedUsers.toRequestBody(),
-                    binding.etSubtitle.text.toString().toRequestBody(),
-                    binding.etDescription.text.toString().toRequestBody(),
-                    attachments.map { uri ->
-                        uri.toMultipart(requireContext())
-                    }
+        var message = binding.etDescription.text.toString()
+        if (binding.etDescription.text!!.isNotEmpty()) {
+            val messageWithSupportInfo = supportInfo(message)
+            Log.d("WHAT", message)
+            lifecycleScope.launch {
+                viewModel.ticketsIntent.send(
+                    TicketsIntent.CreateTicket(
+                        binding.etPhone.text.toString().toRequestBody(),
+                        selectedUsers.toRequestBody(),
+                        binding.etSubtitle.text.toString().toRequestBody(),
+                        messageWithSupportInfo.toRequestBody(),
+                        attachments.map { uri ->
+                            uri.toMultipart(requireContext())
+                        }
+                    )
                 )
-            )
+            }
+        } else {
+            binding.error.error = "يجب كتابة الرسالة اولا"
+            binding.error.isFocusable = true
         }
     }
 
@@ -350,49 +360,13 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     override fun onClick(p0: View?) {
         var message = binding.etDescription.text.toString()
         if (binding.etDescription.text!!.isNotEmpty()) {
-            val appName = requireContext().applicationInfo
-                .loadLabel(requireContext().packageManager)
-                .toString()
-
-            val context = requireContext()
-
-            val packageInfo =
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                    context.packageManager.getPackageInfo(
-                        context.packageName,
-                        android.content.pm.PackageManager.PackageInfoFlags.of(0)
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    context.packageManager.getPackageInfo(context.packageName, 0)
-                }
-            val versionName = packageInfo.versionName
-            val versionCode = packageInfo.longVersionCode
-            val appVersion = "$versionName ($versionCode)"
-
-            val osInfo =
-                "Android ${android.os.Build.VERSION.RELEASE} (SDK ${android.os.Build.VERSION.SDK_INT})"
-
-            val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
-
-            val formattedMessage = message.replace("\n", "<br>")
-
-            val finalMessage = """
-                $formattedMessage<br><br>
-                --- Support Info ---<br>
-                App: $appName<br>
-                Version: $appVersion<br>
-                OS: $osInfo<br>
-                Device: $deviceModel<br>
-            """.trimIndent()
-
-            message = finalMessage
+            val messageWithSupportInfo = supportInfo(message)
             Log.d("WHAT", message)
             lifecycleScope.launch {
                 viewModel.ticketsIntent.send(
                     TicketsIntent.Tickets(
                         version,
-                        message,
+                        messageWithSupportInfo,
                         SharedPreferencesHelper.getInstance().getUserToken()
                     )
                 )
@@ -401,6 +375,47 @@ class TicketsFragment : Fragment(), View.OnClickListener {
             binding.error.error = "يجب كتابة الرسالة اولا"
             binding.error.isFocusable = true
         }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.P)
+    private fun supportInfo(message: String): String {
+        val appName = requireContext().applicationInfo
+            .loadLabel(requireContext().packageManager)
+            .toString()
+
+        val context = requireContext()
+
+        val packageInfo =
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    android.content.pm.PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
+        val versionName = packageInfo.versionName
+        val versionCode = packageInfo.longVersionCode
+        val appVersion = "$versionName ($versionCode)"
+
+        val osInfo =
+            "Android ${android.os.Build.VERSION.RELEASE} (SDK ${android.os.Build.VERSION.SDK_INT})"
+
+        val deviceModel = "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}"
+
+        val formattedMessage = message.replace("\n", "<br>")
+
+        val finalMessage = """
+                $formattedMessage<br><br>
+                --- Support Info ---<br>
+                App: $appName<br>
+                Version: $appVersion<br>
+                OS: $osInfo<br>
+                Device: $deviceModel<br>
+            """.trimIndent()
+
+        return finalMessage
     }
 
     private fun setupKeyboardInsets() {

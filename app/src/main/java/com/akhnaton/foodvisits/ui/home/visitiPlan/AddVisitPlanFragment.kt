@@ -743,6 +743,7 @@ class AddVisitPlanFragment : Fragment() {
                 showScheduleBottomSheet()
             }
         }
+
         binding.cardCopySalePlan.setOnClickListener {
             if (allReps.isEmpty()) {
                 getSalesMan()
