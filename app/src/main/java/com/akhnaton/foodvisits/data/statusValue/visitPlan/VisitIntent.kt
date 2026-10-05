@@ -2,9 +2,7 @@ package com.akhnaton.foodvisits.data.statusValue.visitPlan
 
 sealed class VisitIntent {
     data class GetMonthlyVisits(val from: String, val to: String) : VisitIntent()
-    data class GetPendingVisits(val page: Int, val pageSize: Int, val isLoadMore: Boolean = false) :
-        VisitIntent()
-
+    data class GetPendingVisits(val page: Int, val pageSize: Int, val isLoadMore: Boolean = false) : VisitIntent()
     data class ApproveVisits(val ids: List<String>, val decision: Int) : VisitIntent()
     data class RefreshToken(val userId: String, val token: String) : VisitIntent()
     data class UpdateVisitDate(val id: String, val newDate: String) : VisitIntent()

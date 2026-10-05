@@ -205,7 +205,7 @@ class GpsVisitFragment : Fragment() {
 //        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 //        dialog.hide()
 
-        MainActivity.binding.navView2.visibility = View.GONE
+//        MainActivity.binding.navView2.visibility = View.GONE
 
         if (isProm || isSuperProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE

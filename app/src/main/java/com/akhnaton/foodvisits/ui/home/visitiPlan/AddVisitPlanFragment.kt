@@ -132,7 +132,8 @@ class AddVisitPlanFragment : Fragment() {
     }
 
     private fun hideKeyboard() {
-        val imm = requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        val imm =
+            requireContext().getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(binding.root.windowToken, 0)
     }
 
@@ -209,7 +210,8 @@ class AddVisitPlanFragment : Fragment() {
 
     private fun buildVisitDayView(dayCalendar: Calendar, today: Calendar): View {
         val inflater = LayoutInflater.from(requireContext())
-        val dayView = inflater.inflate(R.layout.item_calendar_day, binding.gridVisitCalendarDays, false)
+        val dayView =
+            inflater.inflate(R.layout.item_calendar_day, binding.gridVisitCalendarDays, false)
 
         val tvDay = dayView.findViewById<TextView>(R.id.tv_day)
         val viewDot = dayView.findViewById<View>(R.id.view_dot)
@@ -285,13 +287,17 @@ class AddVisitPlanFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val filtered = currentFilteredList(s?.toString().orEmpty())
                 lineAdapter.updateList(filtered)
-                binding.llRoutesEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                binding.llRoutesEmpty.visibility =
+                    if (filtered.isEmpty()) View.VISIBLE else View.GONE
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }
 
-    private fun currentFilteredList(query: String = binding.etSearchRoute.text?.toString().orEmpty()): List<LineItem> {
+    private fun currentFilteredList(
+        query: String = binding.etSearchRoute.text?.toString().orEmpty()
+    ): List<LineItem> {
         val normalizedQuery = query.normalizeArabic()
         if (normalizedQuery.isBlank()) return lines
         return lines.filter {
@@ -300,7 +306,9 @@ class AddVisitPlanFragment : Fragment() {
         }
     }
 
-    private fun currentFilteredCustomers(query: String = binding.etSearchCustomer.text?.toString().orEmpty()): List<CustomerItem> {
+    private fun currentFilteredCustomers(
+        query: String = binding.etSearchCustomer.text?.toString().orEmpty()
+    ): List<CustomerItem> {
         val normalizedQuery = query.normalizeArabic()
         if (normalizedQuery.isBlank()) return customersList
         return customersList.filter {
@@ -422,7 +430,8 @@ class AddVisitPlanFragment : Fragment() {
                                 lines = data?.lines ?: emptyList()
                                 binding.etSearchRoute.text?.clear()
                                 lineAdapter.updateList(currentFilteredList())
-                                binding.llRoutesEmpty.visibility = if (lines.isEmpty()) View.VISIBLE else View.GONE
+                                binding.llRoutesEmpty.visibility =
+                                    if (lines.isEmpty()) View.VISIBLE else View.GONE
                             }
                         }
 
@@ -441,7 +450,8 @@ class AddVisitPlanFragment : Fragment() {
                                 selectedCustomerIds.clear()
                                 binding.etSearchCustomer.text?.clear()
                                 customersAdapter.updateList(customersList)
-                                binding.llCustomersEmpty.visibility = if (customersList.isEmpty()) View.VISIBLE else View.GONE
+                                binding.llCustomersEmpty.visibility =
+                                    if (customersList.isEmpty()) View.VISIBLE else View.GONE
 
                                 updateCustomersCountLabel()
                                 updateSaveButtonState()
@@ -459,7 +469,11 @@ class AddVisitPlanFragment : Fragment() {
                                     status.response.data,
                                     com.akhnaton.foodvisits.data.model.visitPlan.SaveSetupPlanData::class.java
                                 )
-                                Toast.makeText(requireContext(), status.response.message, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    requireContext(),
+                                    status.response.message,
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 if (data?.success == true) {
                                     findNavController().popBackStack()
                                 }
@@ -468,7 +482,10 @@ class AddVisitPlanFragment : Fragment() {
 
                         is AddVisitStatus.RefreshToken -> {
                             binding.progressLoading.visibility = View.GONE
-                            Log.d(TAG, "refreshToken status=${status.response.status} message=${status.response.message}")
+                            Log.d(
+                                TAG,
+                                "refreshToken status=${status.response.status} message=${status.response.message}"
+                            )
                             if (status.response.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.response.data,
@@ -556,6 +573,7 @@ class AddVisitPlanFragment : Fragment() {
                                 )
                             }
                         }
+
                         is AddVisitStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
@@ -734,7 +752,9 @@ class AddVisitPlanFragment : Fragment() {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         binding.cardCopySalePlan.visibility =
-            if (SharedPreferencesHelper.getInstance().isAllowedToApproveVisit()) View.VISIBLE else View.GONE
+            if (SharedPreferencesHelper.getInstance()
+                    .isAllowedToApproveVisit()
+            ) View.VISIBLE else View.GONE
 
         binding.cardCopySalePlan.setOnClickListener {
             if (allReps.isEmpty()) {
@@ -826,8 +846,10 @@ class AddVisitPlanFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 val filtered = currentFilteredCustomers(s?.toString().orEmpty())
                 customersAdapter.updateList(filtered)
-                binding.llCustomersEmpty.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
+                binding.llCustomersEmpty.visibility =
+                    if (filtered.isEmpty()) View.VISIBLE else View.GONE
             }
+
             override fun afterTextChanged(s: Editable?) {}
         })
     }

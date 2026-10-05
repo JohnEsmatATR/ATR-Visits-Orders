@@ -29,12 +29,7 @@ class VisitPlanViewModel : ViewModel() {
             visitIntent.consumeAsFlow().collect {
                 when (it) {
                     is VisitIntent.GetMonthlyVisits -> getMonthlyVisits(it.from, it.to)
-                    is VisitIntent.GetPendingVisits -> getPendingVisits(
-                        it.page,
-                        it.pageSize,
-                        it.isLoadMore
-                    )
-
+                    is VisitIntent.GetPendingVisits -> getPendingVisits(it.page, it.pageSize, it.isLoadMore)
                     is VisitIntent.ApproveVisits -> approveVisits(it.ids, it.decision)
                     is VisitIntent.UpdateVisitDate -> updateVisitDate(it.id, it.newDate)
                     is VisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
@@ -105,7 +100,6 @@ class VisitPlanViewModel : ViewModel() {
             }
         }
     }
-
     private fun deleteVisitPlan(ids: List<Int>) {
         viewModelScope.launch {
             _status.value = VisitStatus.Loading
@@ -117,7 +111,6 @@ class VisitPlanViewModel : ViewModel() {
             }
         }
     }
-
     private fun copyPlan(sourceDate: String, targetDate: String) {
         viewModelScope.launch {
             _status.value = VisitStatus.Loading
