@@ -42,7 +42,7 @@ class PendingVisitsFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: VisitPlanViewModel by viewModels()
     private lateinit var adapter: PendingVisitsAdapter
-
+    private var totalPages = 1
     private var allLoadedVisits: List<PendingVisitItem> = emptyList()
     private var currentPage = 1
     private var totalRows = 0
@@ -94,13 +94,11 @@ class PendingVisitsFragment : Fragment() {
         )
     }
 
-    private fun loadNextPage() {
-        if (isLoadingPage) return
-        if (allLoadedVisits.size >= totalRows) return
-        isLoadingPage = true
-        currentPage += 1
+    private fun goToPage(page: Int) {
+        if (page < 1 || page > totalPages) return
+        currentPage = page
         viewModel.visitIntent.trySend(
-            VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = true)
+            VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = false)
         )
     }
 
@@ -114,22 +112,7 @@ class PendingVisitsFragment : Fragment() {
         binding.rvPendingVisits.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@PendingVisitsFragment.adapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                    val visibleItemCount = layoutManager.childCount
-                    val totalItemCount = layoutManager.itemCount
-                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                    if (!isLoadingPage &&
-                        (visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3 &&
-                        firstVisibleItemPosition >= 0
-                    ) {
-                        loadNextPage()
-                    }
-                }
-            })
         }
     }
 
@@ -142,12 +125,14 @@ class PendingVisitsFragment : Fragment() {
         binding.tvSelectMode.setOnClickListener {
             enterSelectionMode()
         }
-
-        binding.tvCancelSelection.setOnClickListener {
-            exitSelectionMode()
+        binding.btnPrevPage.setOnClickListener {
+            goToPage(currentPage - 1)
         }
 
-        binding.tvSelectAll.setOnClickListener {
+        binding.btnNextPage.setOnClickListener {
+            goToPage(currentPage + 1)
+        }
+        binding.llSelectAll.setOnClickListener {
             val filtered = getFilteredVisits()
             val allSelected = filtered.isNotEmpty() && filtered.all { selectedVisitIds.contains(it.ID) }
             if (allSelected) {
@@ -171,7 +156,7 @@ class PendingVisitsFragment : Fragment() {
         isSelectionMode = true
         selectedVisitIds.clear()
         binding.tvSelectMode.visibility = View.GONE
-        binding.llSelectionControls.visibility = View.VISIBLE
+        binding.llSelectAll.visibility = View.VISIBLE
         adapter.setSelectionMode(true)
         updateSelectionUI()
     }
@@ -180,7 +165,7 @@ class PendingVisitsFragment : Fragment() {
         isSelectionMode = false
         selectedVisitIds.clear()
         binding.tvSelectMode.visibility = View.VISIBLE
-        binding.llSelectionControls.visibility = View.GONE
+        binding.llSelectAll.visibility = View.GONE
         adapter.setSelectionMode(false)
         updateSelectionUI()
     }
@@ -313,12 +298,8 @@ class PendingVisitsFragment : Fragment() {
                                     PendingVisitsData::class.java
                                 )
                                 totalRows = pendingData.pagination.total_rows
-
-                                allLoadedVisits = if (status.isLoadMore) {
-                                    allLoadedVisits + pendingData.visits
-                                } else {
-                                    pendingData.visits
-                                }
+                                totalPages = maxOf(1, (totalRows + PAGE_SIZE - 1) / PAGE_SIZE)
+                                allLoadedVisits = pendingData.visits
                                 applyFilterAndRender()
                             }
                         }
@@ -392,7 +373,9 @@ class PendingVisitsFragment : Fragment() {
         val isEmpty = filtered.isEmpty()
         binding.rvPendingVisits.visibility = if (isEmpty) View.GONE else View.VISIBLE
         binding.tvZeroState.visibility = if (isEmpty) View.VISIBLE else View.GONE
-
+        binding.tvPageInfo.text = getString(R.string.page_info_format, currentPage, totalPages)
+        binding.btnPrevPage.isEnabled = currentPage > 1
+        binding.btnNextPage.isEnabled = currentPage < totalPages
         updateSelectionUI()
     }
 
@@ -401,6 +384,16 @@ class PendingVisitsFragment : Fragment() {
         binding.llBulkActions.visibility = if (isSelectionMode && count > 0) View.VISIBLE else View.GONE
         binding.btnBulkApprove.text = getString(R.string.bulk_approve_format, count)
         binding.btnBulkReject.text = getString(R.string.bulk_reject_format, count)
+
+        binding.tvSelectedCount.text = count.toString()
+        binding.tvSelectedCount.visibility = if (count > 0) View.VISIBLE else View.GONE
+
+        val filtered = getFilteredVisits()
+        val allSelected = filtered.isNotEmpty() && filtered.all { selectedVisitIds.contains(it.ID) }
+        binding.ivSelectAllBox.isSelected = allSelected
+        binding.tvSelectAllLabel.text = getString(
+            if (allSelected) R.string.deselect_all_action else R.string.select_all_action
+        )
     }
 
     override fun onDestroyView() {

@@ -2,7 +2,6 @@ package com.akhnaton.foodvisits.ui.home.visitPlan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.model.deleteVisitPlan.DeleteVisitPlanReq
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitStatus
