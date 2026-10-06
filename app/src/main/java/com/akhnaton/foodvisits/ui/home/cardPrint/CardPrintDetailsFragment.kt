@@ -55,7 +55,7 @@ class CardPrintDetailsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCardPrintDetailsBinding.inflate(inflater, container, false)
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
         binding.lifecycleOwner = viewLifecycleOwner
         return binding.root
     }

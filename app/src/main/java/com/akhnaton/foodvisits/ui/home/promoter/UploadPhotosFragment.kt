@@ -60,7 +60,7 @@ class UploadPhotosFragment : Fragment() {
     private lateinit var binding: FragmentUploadPhotosBinding
     private val selectedImages = mutableListOf<Uri>()
     private lateinit var selectedImagesAdapter: SelectedImagesAdapter
-  //  private lateinit var dialog: AlertDialog
+    //  private lateinit var dialog: AlertDialog
 
     private var hasRetriedAfterRefresh = false
 
@@ -195,10 +195,11 @@ class UploadPhotosFragment : Fragment() {
                         is PromoterStatus.CheckIn -> {
                             binding.progressLoading.visibility = View.GONE
                             if (status.data.status == 200) {
-                                val data = Gson().fromJson(
-                                    status.data.data,
-                                    com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
-                                )
+                                val data =
+                                    Gson().fromJson(
+                                        status.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
 
                                 val navController = findNavController()
 
@@ -227,7 +228,9 @@ class UploadPhotosFragment : Fragment() {
                                     message = status.data.message,
                                     isSuccess = false,
                                     showOkButton = true,
-                                    onOk = { }
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
                             }
                         }
@@ -324,12 +327,13 @@ class UploadPhotosFragment : Fragment() {
                 }
             }
         )
-        binding.btnAddMore.setOnClickListener {
-            showImageSourceDialog()
-        }
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            checkIn()
+        }
+
+        binding.btnAddMore.setOnClickListener {
+            showImageSourceDialog()
         }
 
         binding.cardUpload.setOnClickListener {

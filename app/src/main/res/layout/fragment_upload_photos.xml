@@ -19,7 +19,6 @@
             android:id="@+id/appBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/_24sdp"
             android:paddingTop="@dimen/_16sdp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,12 +26,13 @@
 
             <ImageView
                 android:id="@+id/btnBack"
-                android:layout_width="@dimen/_40sdp"
-                android:layout_height="@dimen/_40sdp"
-                android:background="@drawable/bg_header_icon"
-                android:contentDescription="@null"
-                android:padding="@dimen/_10sdp"
-                android:src="@drawable/ic_arrow_forward"
+                android:layout_width="@dimen/_32sdp"
+                android:layout_height="@dimen/_32sdp"
+                android:layout_alignParentEnd="true"
+                android:layout_marginHorizontal="@dimen/_16sdp"
+                android:background="@drawable/bg_circle_white"
+                android:padding="12dp"
+                android:src="@drawable/ic_arrow_right"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -42,6 +42,7 @@
                 android:layout_height="@dimen/_42sdp"
                 android:background="@drawable/bg_truck_icon"
                 android:contentDescription="@null"
+                android:layout_marginStart="@dimen/_16sdp"
                 android:padding="@dimen/_9sdp"
                 android:src="@drawable/ic_photo_camera_black_48dp"
                 android:tint="@color/orange"
@@ -50,13 +51,13 @@
 
             <TextView
                 android:id="@+id/tvTitle"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/_12sdp"
-                android:gravity="end"
+                android:gravity="center"
                 android:text="رفع الصور"
                 android:textColor="@color/black"
-                android:textSize="@dimen/_20ssp"
+                android:textSize="@dimen/_16ssp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/btnBack"
                 app:layout_constraintEnd_toStartOf="@id/btnBack"

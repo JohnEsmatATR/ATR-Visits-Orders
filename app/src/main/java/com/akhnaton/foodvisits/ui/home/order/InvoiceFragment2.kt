@@ -143,7 +143,7 @@ class InvoiceFragment2 : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
 
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -614,7 +614,7 @@ class InvoiceFragment2 : Fragment() {
                                 Log.d("WHATitemsSummaryList", itemsSummaryList.toString())
                                 setRecycler(itemsSummaryList)
                             } else if (isSend == true) {
-                                MainActivity.binding.navView2.visibility = View.VISIBLE
+                                //MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = it.saveOrderRes.message.firstOrNull().orEmpty(),

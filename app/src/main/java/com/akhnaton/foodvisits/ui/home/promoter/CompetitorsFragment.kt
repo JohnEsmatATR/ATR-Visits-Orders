@@ -121,16 +121,17 @@ class CompetitorFragment : Fragment() {
                 }
             }
         )
+
+        binding.btnBack.setOnClickListener {
+            checkIn()
+        }
+
 //        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 //        dialog.hide()
 
         handleTopBottomKeyboard()
         setupImagesRecyclerView()
         observeStatus()
-
-        binding.ivBack.setOnClickListener {
-            findNavController().popBackStack()
-        }
 
         binding.btnAddImages.setOnClickListener {
             pickImagesLauncher.launch("image/*")
@@ -435,28 +436,15 @@ class CompetitorFragment : Fragment() {
 
                                 val navController = findNavController()
 
-                                val previousBackStackEntry =
-                                    navController.previousBackStackEntry
+                                val previousBackStackEntry = navController.previousBackStackEntry
+                                    ?: return@collect
 
-                                if (previousBackStackEntry == null) {
-                                    return@collect
-                                }
+                                val savedStateHandle = previousBackStackEntry.savedStateHandle
 
-                                val savedStateHandle =
-                                    previousBackStackEntry.savedStateHandle
+                                savedStateHandle.set("checkIn", data.check_in)
+                                savedStateHandle.set("currentTime", data.current_time)
 
-                                savedStateHandle.set(
-                                    "checkIn",
-                                    data.check_in
-                                )
-
-                                savedStateHandle.set(
-                                    "currentTime",
-                                    data.current_time
-                                )
-
-                                val result =
-                                    navController.popBackStack()
+                                navController.popBackStack()
 
                             } else if (status.data.status == 401) {
                                 lifecycleScope.launch {

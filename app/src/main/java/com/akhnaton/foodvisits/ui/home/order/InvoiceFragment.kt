@@ -149,7 +149,7 @@ class InvoiceFragment : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
 
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -484,7 +484,7 @@ class InvoiceFragment : Fragment() {
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
-//                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                        //MainActivity.binding.navView2.visibility = View.VISIBLE
 //                                        findNavController().navigate(
 //                                            R.id.toHome,
 //                                            null,
@@ -495,7 +495,7 @@ class InvoiceFragment : Fragment() {
                                     }
                                 )
                             } else if (isSend == true) {
-                                MainActivity.binding.navView2.visibility = View.VISIBLE
+                                //MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = "it.saveOrderRes.message.firstOrNull().orEmpty()",

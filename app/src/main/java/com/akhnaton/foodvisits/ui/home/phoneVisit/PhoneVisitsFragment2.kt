@@ -95,7 +95,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 //        binding.addVisit.setOnClickListener(this)
 //        binding.tryAgainButtons.tryAgain.setOnClickListener { getData() }
 
-        MainActivity.binding.navView2.visibility = View.VISIBLE
+        //MainActivity.binding.navView2.visibility = View.VISIBLE
 
         getOrderTypeItemClick()
         getCustomerTypeItemClick()

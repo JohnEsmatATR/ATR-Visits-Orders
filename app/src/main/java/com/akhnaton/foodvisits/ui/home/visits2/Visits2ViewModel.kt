@@ -371,9 +371,16 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
 
                 Log.d(
                     "Location",
-                    "Lat: ${currentLocation.latitude}, " +
-                            "Lon: ${currentLocation.longitude}, " +
-                            "Accuracy: ${currentLocation.accuracy}"
+                    "Current Location -> " +
+                            "Lat: ${currentLocation.latitude}, " +
+                            "Lon: ${currentLocation.longitude}"
+                )
+
+                Log.d(
+                    "Location",
+                    "Target Location -> " +
+                            "Lat: $customerLatitude, " +
+                            "Lon: $customerLongitude"
                 )
 
                 _locationState.value = currentLocation
@@ -384,15 +391,17 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
                     targetLng = customerLongitude
                 )
 
+                val distanceMeters = distanceKm * 1000.0
+
                 _distanceKm.value = distanceKm
-                _distanceMeters.value = distanceKm * 1000.0
+                _distanceMeters.value = distanceMeters
 
                 Log.d(
                     "Distance",
                     "Distance: %.2f KM / %.2f meters"
                         .format(
                             distanceKm,
-                            distanceKm * 1000.0
+                            distanceMeters
                         )
                 )
             }

@@ -37,7 +37,7 @@ class MoreFragment : Fragment() {
         binding.tvName.setText(SharedPreferencesHelper.getInstance().getUsername())
         binding.tvVersionName.setText("V ${BuildConfig.VERSION_NAME}")
 
-        MainActivity.binding.navView2.visibility = View.VISIBLE
+        //MainActivity.binding.navView2.visibility = View.VISIBLE
 
         adjustBottomPaddingForNavBar()
 

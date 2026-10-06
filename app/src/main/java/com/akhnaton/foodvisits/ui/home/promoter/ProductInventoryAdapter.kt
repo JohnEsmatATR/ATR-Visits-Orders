@@ -1,12 +1,11 @@
-package com.akhnaton.foodvisits.ui.home.inventory
+package com.akhnaton.foodvisits.ui.home.promoter
 
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
-import android.view.View
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.promoterGetItemData.Data
@@ -160,7 +159,7 @@ class ProductInventoryAdapter(
             isBinding = true
             binding.btnSaveChanges.icon =
                 if (item.hasChanges) {
-                    androidx.core.content.ContextCompat.getDrawable(
+                    ContextCompat.getDrawable(
                         binding.root.context,
                         R.drawable.ic_check_circle2
                     )
@@ -417,12 +416,16 @@ class ProductInventoryAdapter(
                 item.writtenReturned =
                     returned.toString()
 
+                onSaveClick(
+                    item
+                )
+
                 markItemAsChanged(
                     item
                 )
 
                 binding.btnSaveChanges.icon =
-                    androidx.core.content.ContextCompat.getDrawable(
+                    ContextCompat.getDrawable(
                         binding.root.context,
                         R.drawable.ic_check_circle2
                     )

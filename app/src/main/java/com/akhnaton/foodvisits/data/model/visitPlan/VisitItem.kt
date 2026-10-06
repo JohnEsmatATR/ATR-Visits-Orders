@@ -21,6 +21,7 @@ data class VisitItem(
     val site_address: String,
     val party_site: String,
     val sales_man: String,
+    val supervisor: String,
     val approve: String?
 )
 

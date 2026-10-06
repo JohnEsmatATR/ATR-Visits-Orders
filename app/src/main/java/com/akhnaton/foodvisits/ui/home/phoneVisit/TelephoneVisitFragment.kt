@@ -155,6 +155,10 @@ class TelephoneVisitFragment : Fragment() {
                 )
             }"
 
+        if (customerPhoneNumbers?.size == 0) {
+            binding.tvShowPhoneNumbers.visibility = View.GONE
+        }
+
         binding.tvShowPhoneNumbers.setOnClickListener {
             showCustomerPhoneNumbersBottomSheet(
                 customerPhoneNumbers.orEmpty()
@@ -198,7 +202,7 @@ class TelephoneVisitFragment : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
 
         if (isProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE
@@ -438,7 +442,7 @@ class TelephoneVisitFragment : Fragment() {
 //                                isSuccess = true,
 //                                showOkButton = true,
 //                                onOk = {
-//                                    MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                    //MainActivity.binding.navView2.visibility = View.VISIBLE
 //                                    findNavController().navigate(
 //                                        R.id.toHome
 //                                    )
@@ -451,7 +455,7 @@ class TelephoneVisitFragment : Fragment() {
 //                                    isSuccess = true,
 //                                    showOkButton = true,
 //                                    onOk = {
-//                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+//                                        //MainActivity.binding.navView2.visibility = View.VISIBLE
 //                                        findNavController().navigate(
 //                                            R.id.toHome
 //                                        )
@@ -467,7 +471,7 @@ class TelephoneVisitFragment : Fragment() {
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
-                                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        //MainActivity.binding.navView2.visibility = View.VISIBLE
                                         findNavController().navigate(
                                             R.id.toHome
                                         )
@@ -481,7 +485,7 @@ class TelephoneVisitFragment : Fragment() {
                                         isSuccess = true,
                                         showOkButton = true,
                                         onOk = {
-                                            MainActivity.binding.navView2.visibility = View.VISIBLE
+                                            //MainActivity.binding.navView2.visibility = View.VISIBLE
                                             findNavController().navigate(
                                                 R.id.toHome
                                             )

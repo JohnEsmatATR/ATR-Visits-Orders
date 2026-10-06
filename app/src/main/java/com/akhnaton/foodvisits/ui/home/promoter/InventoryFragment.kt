@@ -1,6 +1,5 @@
 package com.akhnaton.foodvisits.ui.home.promoter
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,13 +8,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import android.widget.ArrayAdapter
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
@@ -27,18 +24,10 @@ import com.akhnaton.foodvisits.data.model.promoterSaveStock.Item
 import com.akhnaton.foodvisits.data.model.promoterSaveStock.PromoterSaveStockReq
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterIntent
 import com.akhnaton.foodvisits.data.statusValue.promoter2.PromoterStatus
-import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
-import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
 import com.akhnaton.foodvisits.databinding.FragmentInventoryBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
-import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import com.akhnaton.foodvisits.ui.home.inventory.ProductInventoryAdapter
-import com.akhnaton.foodvisits.ui.home.promoter.PromoterViewModel
-import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModel
-import com.akhnaton.foodvisits.ui.home.visits2.Visits2ViewModelFactory
-import com.bumptech.glide.manager.Lifecycle
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
@@ -51,6 +40,7 @@ class InventoryFragment : Fragment() {
 
     private val viewModel: PromoterViewModel by viewModels()
     private lateinit var binding: FragmentInventoryBinding
+
     //private lateinit var dialog: AlertDialog
     private lateinit var adapter: ProductInventoryAdapter
 
@@ -61,6 +51,7 @@ class InventoryFragment : Fragment() {
     lateinit var checkInReq: CheckInGPSReq
 
     private val versionName = BuildConfig.VERSION_NAME
+    var isAll: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -111,6 +102,7 @@ class InventoryFragment : Fragment() {
         }
         ViewCompat.requestApplyInsets(binding.root)
     }
+
     fun callApis() {
         callGetItemData()
     }
@@ -118,7 +110,8 @@ class InventoryFragment : Fragment() {
     private fun setupRecyclerView(items: List<com.akhnaton.foodvisits.data.model.promoterGetItemData.Data>) {
         adapter = ProductInventoryAdapter { product ->
 //            saveProductChanges(product)
-            prepareRequest(false)
+            isAll = false
+            prepareRequest(isAll)
         }
 
         adapter.setData(items)
@@ -149,7 +142,8 @@ class InventoryFragment : Fragment() {
         }
 
         binding.btnSendInventory.setOnClickListener {
-            prepareRequest(true)
+            isAll = true
+            prepareRequest(isAll)
         }
 
         binding.etSearch.addTextChangedListener { editable ->
@@ -321,7 +315,7 @@ class InventoryFragment : Fragment() {
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
-                                        findNavController().popBackStack()
+                                        if (isAll) findNavController().popBackStack()
                                     }
                                 )
                             } else if (it.data.status == 401) {
@@ -347,10 +341,11 @@ class InventoryFragment : Fragment() {
                         is PromoterStatus.CheckIn -> {
                             binding.progressLoading.visibility = View.GONE
                             if (it.data.status == 200) {
-                                val data = Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
-                                )
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
 
                                 val navController = findNavController()
 
@@ -379,7 +374,9 @@ class InventoryFragment : Fragment() {
                                     message = it.data.message,
                                     isSuccess = false,
                                     showOkButton = true,
-                                    onOk = { }
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
                             }
                         }
@@ -393,7 +390,7 @@ class InventoryFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                                // getData()
+                                callApis()
                             } else {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),

@@ -117,7 +117,7 @@ class PersonCodingFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentPersonCodingBinding.inflate(inflater, container, false)
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
         return binding.root
     }
 

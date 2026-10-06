@@ -92,7 +92,7 @@ class PhoneVisitStepsFragment : Fragment() {
 
         setupKeyboardInsets()
 
-        MainActivity.binding.navView2.visibility = View.VISIBLE
+        //MainActivity.binding.navView2.visibility = View.VISIBLE
 
         isStartVisitDialogShowsUp = false
 

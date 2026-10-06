@@ -36,7 +36,7 @@ class VisitsAdapter(
         with(holder.binding) {
             tvPharmacyName.text = item.customer_name
             tvCodeLocation.text = "كود: ${item.customer_code} • موقع: ${item.party_site}"
-            tvDelegate.text = "المندوب: ${item.sales_man}"
+            tvDelegate.text = "المشرف: ${item.supervisor}"
             tvAddress.text = item.site_address
 
             when (item.approve) {

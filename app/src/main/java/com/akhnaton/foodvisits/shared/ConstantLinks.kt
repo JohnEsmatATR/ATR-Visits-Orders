@@ -7,7 +7,7 @@ object ConstantLinks {
 //   const val BASE_URL = "http://10.42.151.27/" // Old Test
 //    const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
 
-       const val PROD_BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
+    const val PROD_BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
 
     fun isProd(): Boolean {
         return BASE_URL.contains("sales.atr-eg.com/sales_backend")

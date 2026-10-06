@@ -79,7 +79,7 @@ class OrdersMenuFragment : Fragment(),
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        MainActivity.binding.navView2.visibility = View.VISIBLE
+        //MainActivity.binding.navView2.visibility = View.VISIBLE
 
         lifecycleScope.launch {
             viewModel.visitsIntent.send(

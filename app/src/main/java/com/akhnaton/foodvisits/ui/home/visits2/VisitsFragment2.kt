@@ -94,7 +94,7 @@ class VisitsFragment2 : Fragment() {
             Visits2ViewModelFactory(requireContext())
         )[Visits2ViewModel::class.java]
 
-        MainActivity.binding.navView2.visibility = View.VISIBLE
+        //MainActivity.binding.navView2.visibility = View.VISIBLE
 
         isStartVisitDialogShowsUp = false
 

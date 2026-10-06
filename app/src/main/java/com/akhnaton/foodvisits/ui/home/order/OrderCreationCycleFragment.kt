@@ -81,7 +81,7 @@ class OrderCreationCycleFragment : Fragment() {
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
 
         binding.btnBack.setOnClickListener {
             if (fragment == "Telephone")

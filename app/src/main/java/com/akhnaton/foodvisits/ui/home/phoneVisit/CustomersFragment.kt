@@ -59,7 +59,7 @@ class CustomersFragment : Fragment() {
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
-        MainActivity.binding.navView2.visibility = View.GONE
+        //MainActivity.binding.navView2.visibility = View.GONE
 
         binding.ivBack.setOnClickListener {
             findNavController().popBackStack()
