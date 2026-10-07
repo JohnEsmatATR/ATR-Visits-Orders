@@ -35,10 +35,17 @@ class PersonCodingViewModel : ViewModel() {
                     is PersonIntent.GetMainCustomersLine -> getMainCustomersLine(
                         it.lineId, it.orderType, it.customerType
                     )
+
                     is PersonIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     is PersonIntent.GetUserAreas -> getUserAreas()
                     is PersonIntent.GetAreasByGovernorate -> getAreasByGovernorate(it.governorateId)
-                    is PersonIntent.AddCustomer -> addCustomer(it.fields, it.frontImage, it.backImage)
+                    is PersonIntent.AddCustomer -> addCustomer(
+                        it.fields,
+                        it.frontImage,
+                        it.backImage
+                    )
+
+                    is PersonIntent.NationalIdScan -> nationalIdScan(it.frontImage)
                 }
             }
         }
@@ -95,6 +102,7 @@ class PersonCodingViewModel : ViewModel() {
             }
         }
     }
+
     private fun getUserAreas() {
         viewModelScope.launch {
             _status.value = PersonStatus.Loading
@@ -107,6 +115,7 @@ class PersonCodingViewModel : ViewModel() {
             }
         }
     }
+
     private fun getAreasByGovernorate(governorateId: String) {
         viewModelScope.launch {
             _status.value = PersonStatus.Loading
@@ -119,6 +128,7 @@ class PersonCodingViewModel : ViewModel() {
             }
         }
     }
+
     private fun addCustomer(
         fields: Map<String, RequestBody>,
         frontImage: MultipartBody.Part?,
@@ -129,6 +139,36 @@ class PersonCodingViewModel : ViewModel() {
             _status.value = try {
                 PersonStatus.AddCustomer(
                     PersonCodingRepository().addCustomer(fields, frontImage, backImage)
+                )
+            } catch (e: HttpException) {
+                val backendMessage = try {
+                    val errorBodyString = e.response()?.errorBody()?.string()
+                    if (!errorBodyString.isNullOrBlank()) {
+                        com.google.gson.Gson().fromJson(
+                            errorBodyString,
+                            AddCustomerModel::class.java
+                        ).message
+                    } else {
+                        null
+                    }
+                } catch (parseError: Exception) {
+                    null
+                }
+                PersonStatus.Error(backendMessage.toString() ?: e.message())
+            } catch (e: Exception) {
+                PersonStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun nationalIdScan(
+        frontImage: MultipartBody.Part?
+    ) {
+        viewModelScope.launch {
+            _status.value = PersonStatus.Loading
+            _status.value = try {
+                PersonStatus.NationalIdScan(
+                    PersonCodingRepository().nationalIdScan(frontImage)
                 )
             } catch (e: HttpException) {
                 val backendMessage = try {

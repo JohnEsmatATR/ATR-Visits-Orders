@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.data.interfaces.apis
 
+import com.akhnaton.foodvisits.data.model.nationalIdScan.NationalIdScanRes
 import com.akhnaton.foodvisits.data.model.personCoding.AddCustomerModel
 import com.akhnaton.foodvisits.data.model.personCoding.AreasModel
 import com.akhnaton.foodvisits.data.model.personCoding.GovernoratesModel
@@ -49,4 +50,10 @@ interface ICustomer {
         @Part frontImage: MultipartBody.Part?,
         @Part backImage: MultipartBody.Part?
     ): AddCustomerModel
+
+    @Multipart
+    @POST(ConstantLinks.NATIONAL_ID_SCAN)
+    suspend fun nationalIdScan(
+        @Part frontImage: MultipartBody.Part?
+    ): NationalIdScanRes
 }

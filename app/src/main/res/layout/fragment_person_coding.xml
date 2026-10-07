@@ -11,9 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
-        android:orientation="vertical"
-        android:layoutDirection="rtl"
         android:fitsSystemWindows="true"
+        android:layoutDirection="rtl"
+        android:orientation="vertical"
         tools:context=".ui.home.addCustomer.AddCustomerActivity">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -35,10 +35,10 @@
                 app:cardCornerRadius="@dimen/_16sdp"
                 app:cardElevation="2dp"
                 app:cardPreventCornerOverlap="false"
-                app:strokeWidth="0dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                app:strokeWidth="0dp">
 
                 <ImageView
                     android:id="@+id/ivBack"
@@ -106,7 +106,7 @@
                         android:id="@+id/customerLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_45sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
@@ -122,7 +122,7 @@
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/customerType"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="@string/hint_select_customer_type"
                             android:inputType="none"
                             android:textAlignment="viewStart"
@@ -143,7 +143,7 @@
                         android:id="@+id/orderTypeLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_45sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
@@ -159,7 +159,7 @@
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/orderType"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="@string/hint_select_order_type"
                             android:inputType="none"
                             android:textAlignment="viewStart"
@@ -180,7 +180,7 @@
                         android:id="@+id/linesLayout"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_45sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
@@ -196,12 +196,13 @@
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/lines"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="@string/hint_select_customer_line"
                             android:inputType="none"
                             android:textAlignment="viewStart"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -216,7 +217,7 @@
                         android:id="@+id/customers"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_45sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
@@ -232,7 +233,7 @@
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/person_type"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="@string/hint_choose_customers"
                             android:inputType="none"
                             android:textAlignment="viewStart"
@@ -253,7 +254,7 @@
                         android:id="@+id/layout_select_governorate"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_45sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
@@ -269,7 +270,7 @@
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/sp_select_governorate"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="@string/hint_select_governorate"
                             android:inputType="none"
                             android:textAlignment="viewStart"
@@ -290,7 +291,7 @@
                         android:id="@+id/layout_select_area"
                         style="@style/OutlinedRoundedBox"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="@dimen/_45sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
                         android:elevation="3dp"
                         app:boxBackgroundColor="@color/white"
@@ -306,7 +307,7 @@
                         <com.google.android.material.textfield.MaterialAutoCompleteTextView
                             android:id="@+id/sp_select_area"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:hint="@string/hint_select_area"
                             android:inputType="none"
                             android:textAlignment="viewStart"
@@ -451,115 +452,9 @@
                             android:layout_height="wrap_content"
                             android:gravity="right|center_vertical"
                             android:hint="@string/write_customer_mobile"
+                            android:inputType="phone"
                             android:maxLength="11"
                             android:maxLines="1"
-                            android:inputType="phone"
-                            android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_4sdp"
-                        android:text="@string/label_national_id"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12ssp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/customerNationalLayout"
-                        style="@style/OutlinedRoundedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp"
-                        android:elevation="3dp"
-                        app:boxBackgroundColor="@color/white"
-                        app:boxStrokeColor="@color/input_box_stroke"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="2dp"
-                        app:hintEnabled="false"
-                        app:startIconDrawable="@drawable/ic_number"
-                        app:startIconTint="@color/colorPrimary">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/customerNational"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="right|center_vertical"
-                            android:hint="@string/hint_enter_national_id"
-                            android:inputType="number"
-                            android:maxLength="14"
-                            android:maxLines="1"
-                            android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_4sdp"
-                        android:text="@string/customer_card_name"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12ssp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/customerNameCard"
-                        style="@style/OutlinedRoundedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp"
-                        android:elevation="3dp"
-                        app:boxBackgroundColor="@color/white"
-                        app:boxStrokeColor="@color/input_box_stroke"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="2dp"
-                        app:hintEnabled="false"
-                        app:startIconDrawable="@drawable/ic_customer_card"
-                        app:startIconTint="@color/colorPrimary">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/customerCardName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="right|center_vertical"
-                            android:hint="@string/hint_customer_card_name"
-                            android:inputType="text"
-                            android:textColor="@color/black" />
-                    </com.google.android.material.textfield.TextInputLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_4sdp"
-                        android:text="@string/customer_card_number"
-                        android:textAlignment="viewStart"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12ssp"
-                        android:textStyle="bold" />
-
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/customerNumberCard"
-                        style="@style/OutlinedRoundedBox"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/_8sdp"
-                        android:elevation="3dp"
-                        app:boxBackgroundColor="@color/white"
-                        app:boxStrokeColor="@color/input_box_stroke"
-                        app:boxStrokeWidth="1dp"
-                        app:boxStrokeWidthFocused="2dp"
-                        app:hintEnabled="false"
-                        app:startIconDrawable="@drawable/ic_governorate"
-                        app:startIconTint="@color/colorPrimary">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/customerCardNumber"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="right|center_vertical"
-                            android:hint="@string/hint_customer_card_number"
-                            android:inputType="text"
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -603,16 +498,16 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="@dimen/_5sdp"
                         android:layout_marginBottom="@dimen/_8sdp"
+                        app:cardBackgroundColor="@color/white"
                         app:cardCornerRadius="@dimen/_8sdp"
-                        app:cardElevation="@dimen/_1sdp"
-                        app:cardBackgroundColor="@color/white">
+                        app:cardElevation="@dimen/_1sdp">
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
                             android:layoutDirection="rtl"
                             android:orientation="horizontal"
-                            android:gravity="center_vertical"
                             android:paddingHorizontal="@dimen/_10sdp"
                             android:paddingVertical="@dimen/_6sdp">
 
@@ -630,8 +525,8 @@
                                 android:layout_marginStart="@dimen/_3sdp"
                                 android:layout_marginEnd="@dimen/_10sdp"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:textSize="@dimen/_9ssp" />
+                                android:textSize="@dimen/_9ssp"
+                                android:textStyle="bold" />
 
                             <TextView
                                 android:layout_width="wrap_content"
@@ -646,8 +541,8 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/_3sdp"
                                 android:textColor="@color/black"
-                                android:textStyle="bold"
-                                android:textSize="@dimen/_9ssp" />
+                                android:textSize="@dimen/_9ssp"
+                                android:textStyle="bold" />
 
                         </LinearLayout>
 
@@ -663,8 +558,8 @@
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="1"
                             android:layout_marginEnd="@dimen/_6sdp"
+                            android:layout_weight="1"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
@@ -745,8 +640,8 @@
                         <com.google.android.material.card.MaterialCardView
                             android:layout_width="0dp"
                             android:layout_height="match_parent"
-                            android:layout_weight="1"
                             android:layout_marginStart="@dimen/_6sdp"
+                            android:layout_weight="1"
                             android:clickable="true"
                             android:focusable="true"
                             android:foreground="?attr/selectableItemBackground"
@@ -826,19 +721,204 @@
 
                     </LinearLayout>
 
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cameraCard"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_170sdp"
+                        android:layout_marginVertical="16dp"
+                        android:visibility="gone"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="4dp"
+                        app:layout_constraintDimensionRatio="1.586:1">
+
+                        <FrameLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent">
+
+                            <androidx.camera.view.PreviewView
+                                android:id="@+id/previewView"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_gravity="center"
+                                android:background="@android:color/black"
+                                android:scaleType="center"
+                                app:implementationMode="compatible" />
+
+                            <View
+                                android:id="@+id/idGuide"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_margin="2dp"
+                                android:clickable="false"
+                                android:focusable="false" />
+
+                            <TextView
+                                android:id="@+id/tvCameraTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/_4sdp"
+                                android:backgroundTint="@color/white"
+                                android:background="@drawable/bg_rounded_grey"
+                                android:padding="@dimen/_4sdp"
+                                android:textAlignment="center"
+                                android:textColor="@color/orange"
+                                android:textSize="@dimen/_10ssp"
+                                android:textStyle="bold" />
+
+
+                        </FrameLayout>
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/ivCaptureButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="@dimen/_36sdp"
+                        android:layout_gravity="center"
+                        android:layout_marginBottom="16dp"
+                        android:background="@drawable/bg_rounded_grey"
+                        android:backgroundTint="@color/main_color_gold2"
+                        android:contentDescription="@null"
+                        android:drawableStart="@drawable/ic_camera"
+                        android:drawableTint="@color/orange"
+                        android:gravity="center"
+                        android:padding="@dimen/_8sdp"
+                        android:visibility="gone"
+                        android:src="@drawable/ic_camera"
+                        android:drawablePadding="@dimen/_4sdp"
+                        android:text="إلتقاط"
+                        android:textColor="@color/orange"
+                        android:textSize="@dimen/_10ssp"
+                        android:textStyle="bold"
+                        android:tint="@color/colorPrimary" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutNationalID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            android:text="@string/label_national_id"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/customerNationalLayout"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:elevation="3dp"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxStrokeColor="@color/input_box_stroke"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="2dp"
+                            app:hintEnabled="false"
+                            app:startIconDrawable="@drawable/ic_number"
+                            app:startIconTint="@color/colorPrimary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/customerNational"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:enabled="false"
+                                android:gravity="right|center_vertical"
+                                android:hint="@string/hint_enter_national_id"
+                                android:inputType="number"
+                                android:maxLength="14"
+                                android:maxLines="1"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            android:text="@string/customer_card_name"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/customerNameCard"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:elevation="3dp"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxStrokeColor="@color/input_box_stroke"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="2dp"
+                            app:hintEnabled="false"
+                            app:startIconDrawable="@drawable/ic_customer_card"
+                            app:startIconTint="@color/colorPrimary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/customerCardName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="right|center_vertical"
+                                android:hint="@string/hint_customer_card_name"
+                                android:inputType="text"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_4sdp"
+                            android:text="@string/customer_card_number"
+                            android:textAlignment="viewStart"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="bold" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/customerNumberCard"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:elevation="3dp"
+                            app:boxBackgroundColor="@color/white"
+                            app:boxStrokeColor="@color/input_box_stroke"
+                            app:boxStrokeWidth="1dp"
+                            app:boxStrokeWidthFocused="2dp"
+                            app:hintEnabled="false"
+                            app:startIconDrawable="@drawable/ic_governorate"
+                            app:startIconTint="@color/colorPrimary">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/customerCardNumber"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="right|center_vertical"
+                                android:hint="@string/hint_customer_card_number"
+                                android:inputType="text"
+                                android:textColor="@color/black" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                    </LinearLayout>
+
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/addCustomerBtn"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_margin="@dimen/_12sdp"
                         android:backgroundTint="@color/colorPrimary"
                         android:padding="@dimen/_8sdp"
                         android:text="@string/btn_add_customer"
                         android:textAllCaps="false"
                         android:textColor="@color/white"
                         app:cornerRadius="@dimen/_8sdp" />
-
-
 
                 </LinearLayout>
 

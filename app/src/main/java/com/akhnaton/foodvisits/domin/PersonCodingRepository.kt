@@ -1,6 +1,7 @@
 package com.akhnaton.foodvisits.domin
 
 import com.akhnaton.foodvisits.data.interfaces.apis.ICustomer
+import com.akhnaton.foodvisits.data.model.nationalIdScan.NationalIdScanRes
 import com.akhnaton.foodvisits.data.model.personCoding.AddCustomerModel
 import com.akhnaton.foodvisits.data.model.personCoding.AreasModel
 import com.akhnaton.foodvisits.data.model.personCoding.GovernoratesModel
@@ -34,6 +35,7 @@ class PersonCodingRepository {
     suspend fun getUserAreas(): GovernoratesModel {
         return api.getUserAreas()
     }
+
     suspend fun getAreasByGovernorate(governorateId: String): AreasModel {
         return api.getAreasByGovernorate(governorateId)
     }
@@ -44,6 +46,12 @@ class PersonCodingRepository {
         backImage: MultipartBody.Part?
     ): AddCustomerModel {
         return api.addCustomer(fields, frontImage, backImage)
+    }
+
+    suspend fun nationalIdScan(
+        frontImage: MultipartBody.Part?,
+    ): NationalIdScanRes {
+        return api.nationalIdScan(frontImage)
     }
 
 }

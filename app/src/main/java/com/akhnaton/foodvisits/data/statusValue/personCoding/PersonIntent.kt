@@ -19,4 +19,7 @@ sealed class PersonIntent {
         val frontImage: MultipartBody.Part?,
         val backImage: MultipartBody.Part?
     ) : PersonIntent()
+    data class NationalIdScan(
+        val frontImage: MultipartBody.Part?
+    ) : PersonIntent()
 }

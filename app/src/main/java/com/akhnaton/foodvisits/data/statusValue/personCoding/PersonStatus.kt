@@ -1,5 +1,6 @@
 package com.akhnaton.foodvisits.data.statusValue.personCoding
 
+import com.akhnaton.foodvisits.data.model.nationalIdScan.NationalIdScanRes
 import com.akhnaton.foodvisits.data.model.personCoding.AddCustomerModel
 import com.akhnaton.foodvisits.data.model.personCoding.AreasModel
 import com.akhnaton.foodvisits.data.model.personCoding.GovernoratesModel
@@ -18,4 +19,5 @@ sealed class PersonStatus {
     data class GetUserAreas(val response: GovernoratesModel) : PersonStatus()
     data class GetAreasByGovernorate(val response: AreasModel) : PersonStatus()
     data class AddCustomer(val response: AddCustomerModel) : PersonStatus()
+    data class NationalIdScan(val response: NationalIdScanRes) : PersonStatus()
 }
