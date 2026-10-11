@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.location.Geocoder
+import android.location.Location
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -50,6 +51,7 @@ import com.google.android.gms.location.CurrentLocationRequest
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
 import com.google.gson.Gson
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanner
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
@@ -67,6 +69,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 
 class PersonCodingFragment : Fragment() {
 
@@ -93,6 +96,7 @@ class PersonCodingFragment : Fragment() {
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
+    private var isRefreshTokenCalled = false
 
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
@@ -106,6 +110,7 @@ class PersonCodingFragment : Fragment() {
                 backIdImageUri = uri
                 binding.imBackIdImage.setImageURI(uri)
                 binding.imBackIdImage.visibility = View.VISIBLE
+                binding.tvBackRetry.visibility = View.VISIBLE
                 binding.layoutBackPlaceholder.visibility = View.GONE
             }
         }
@@ -119,75 +124,61 @@ class PersonCodingFragment : Fragment() {
 
     private lateinit var documentScanner: GmsDocumentScanner
 
-    private val documentScannerLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.StartIntentSenderForResult()
-        ) { result ->
+    private val documentScannerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
 
-            if (result.resultCode != android.app.Activity.RESULT_OK) {
-                Log.d(TAG, "Document scanner cancelled")
-                return@registerForActivityResult
-            }
-
-            val scannerResult =
-                GmsDocumentScanningResult.fromActivityResultIntent(result.data)
-
-            val page = scannerResult
-                ?.getPages()
-                ?.firstOrNull()
-
-            val imageUri = page?.getImageUri()
-
-            if (imageUri == null) {
-                showError("تعذر الحصول على صورة البطاقة")
-                return@registerForActivityResult
-            }
-
-            handleScannedFrontImage(imageUri)
+        if (result.resultCode != android.app.Activity.RESULT_OK) {
+            Log.d(TAG, "Document scanner cancelled")
+            return@registerForActivityResult
         }
+
+        val scannerResult = GmsDocumentScanningResult.fromActivityResultIntent(result.data)
+
+        val page = scannerResult?.getPages()?.firstOrNull()
+
+        val imageUri = page?.getImageUri()
+
+        if (imageUri == null) {
+            showError("تعذر الحصول على صورة البطاقة")
+            return@registerForActivityResult
+        }
+
+        handleScannedFrontImage(imageUri)
+    }
 
     var name: String = "front_image"
 
     private fun createDocumentScanner() {
 
         val options =
-            GmsDocumentScannerOptions.Builder()
-                .setGalleryImportAllowed(true)
-                .setPageLimit(1)
+            GmsDocumentScannerOptions.Builder().setGalleryImportAllowed(true).setPageLimit(1)
                 .setResultFormats(
                     GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
-                )
-                .setScannerMode(
+                ).setScannerMode(
                     GmsDocumentScannerOptions.SCANNER_MODE_FULL
-                )
-                .build()
+                ).build()
 
-        documentScanner =
-            GmsDocumentScanning.getClient(options)
+        documentScanner = GmsDocumentScanning.getClient(options)
     }
 
     private fun startNationalIdScanner() {
-        documentScanner
-            .getStartScanIntent(requireActivity())
-            .addOnSuccessListener { intentSender ->
+        documentScanner.getStartScanIntent(requireActivity()).addOnSuccessListener { intentSender ->
 
-                documentScannerLauncher.launch(
-                    IntentSenderRequest.Builder(intentSender).build()
-                )
+            documentScannerLauncher.launch(
+                IntentSenderRequest.Builder(intentSender).build()
+            )
 
-            }
-            .addOnFailureListener { exception ->
+        }.addOnFailureListener { exception ->
 
-                Log.e(
-                    TAG,
-                    "Unable to start document scanner",
-                    exception
-                )
+            Log.e(
+                TAG, "Unable to start document scanner", exception
+            )
 
-                showError(
-                    "تعذر تشغيل ماسح البطاقة"
-                )
-            }
+            showError(
+                "تعذر تشغيل ماسح البطاقة"
+            )
+        }
     }
 
     fun callNationalIdScanAPI(frontPart: okhttp3.MultipartBody.Part?) {
@@ -206,27 +197,22 @@ class PersonCodingFragment : Fragment() {
 
         binding.imFrontIdImage.setImageURI(uri)
 
-        binding.imFrontIdImage.visibility =
-            View.VISIBLE
+        binding.imFrontIdImage.visibility = View.VISIBLE
+        binding.tvFrontRetry.visibility = View.VISIBLE
 
-        binding.layoutFrontPlaceholder.visibility =
-            View.GONE
+        binding.layoutFrontPlaceholder.visibility = View.GONE
 
         hideCamera()
 
-        binding.progressLoading.visibility =
-            View.VISIBLE
+        binding.progressLoading.visibility = View.VISIBLE
 
-        val frontPart =
-            uriToMultipartPart(
-                uri = uri,
-                partName = "front_image"
-            )
+        val frontPart = uriToMultipartPart(
+            uri = uri, partName = "front_image"
+        )
 
         if (frontPart == null) {
 
-            binding.progressLoading.visibility =
-                View.GONE
+            binding.progressLoading.visibility = View.GONE
 
             showError(
                 "تعذر تجهيز صورة البطاقة"
@@ -240,20 +226,41 @@ class PersonCodingFragment : Fragment() {
         )
     }
 
-    private val locationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            fetchCurrentLocation()
-        } else {
-            DialogUtils.showResultDialog(
-                context = requireContext(),
-                message = "لازم تسمح بالوصول للموقع عشان نحدد العنوان المقترح",
-                isSuccess = false,
-                showOkButton = true,
-                onOk = {})
+    private val locationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+
+            Log.d(TAG, "Permission callback: $permissions")
+
+            val fineGranted =
+                permissions[Manifest.permission.ACCESS_FINE_LOCATION] == true
+
+            val coarseGranted =
+                permissions[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+
+            Log.d(TAG, "Fine granted: $fineGranted")
+            Log.d(TAG, "Coarse granted: $coarseGranted")
+
+            if (fineGranted || coarseGranted) {
+                Log.d(TAG, "Permission accepted; fetching location")
+                fetchCurrentLocation()
+            } else {
+                Log.e(TAG, "Location permissions denied")
+
+                if (_binding != null) {
+                    binding.progressLoading.visibility = View.GONE
+
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = "لازم تسمح بالوصول للموقع عشان نحدد العنوان المقترح",
+                        isSuccess = false,
+                        showOkButton = true,
+                        onOk = {}
+                    )
+                }
+            }
         }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -291,13 +298,11 @@ class PersonCodingFragment : Fragment() {
     private fun openCamera() {
 
         if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.CAMERA
+                requireContext(), Manifest.permission.CAMERA
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissions(
-                arrayOf(Manifest.permission.CAMERA),
-                CAMERA_PERMISSION_CODE
+                arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE
             )
             return
         }
@@ -336,8 +341,29 @@ class PersonCodingFragment : Fragment() {
             openCamera()
         }
 
+        binding.tvRetry.setOnClickListener {
+            binding.layoutNationalID.visibility = View.GONE
+            binding.tvCameraTitle.text = "الصورة الأمامية"
+            pickingFrontImage = true
+            openCamera()
+        }
+
         binding.imFrontIdImage.setOnClickListener {
             frontIdImageUri?.let { showFullScreenImage(it) }
+        }
+
+        binding.tvFrontRetry.setOnClickListener {
+            binding.layoutNationalID.visibility = View.GONE
+            binding.tvCameraTitle.text = "الصورة الأمامية"
+            pickingFrontImage = true
+            openCamera()
+        }
+
+        binding.tvBackRetry.setOnClickListener {
+//            binding.layoutNationalID.visibility = View.GONE
+            binding.tvCameraTitle.text = "الصورة الخلفية"
+            pickingFrontImage = false
+            openCamera()
         }
 
         binding.layoutBackPlaceholder.setOnClickListener {
@@ -382,57 +408,332 @@ class PersonCodingFragment : Fragment() {
     }
 
     private fun checkLocationPermissionAndFetch() {
-        val fineLocationGranted = ContextCompat.checkSelfPermission(
-            requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+        Log.d(TAG, "========== CHECK LOCATION PERMISSION ==========")
+        Log.d(TAG, "Android SDK: ${android.os.Build.VERSION.SDK_INT}")
+
+        val fineGranted = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
 
-        if (fineLocationGranted) {
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            requireContext(),
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        Log.d(TAG, "Fine location granted: $fineGranted")
+        Log.d(TAG, "Coarse location granted: $coarseGranted")
+
+        if (fineGranted || coarseGranted) {
+            Log.d(TAG, "At least one location permission is granted.")
             fetchCurrentLocation()
         } else {
-            locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            Log.d(TAG, "No location permission. Launching permission request.")
+
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
         }
     }
 
     @Suppress("MissingPermission")
     private fun fetchCurrentLocation() {
+        Log.d(TAG, "========== FETCH LOCATION START ==========")
+
+        val ctx = context ?: run {
+            Log.e(TAG, "STOP: Fragment context is null")
+            return
+        }
+
+        Log.d(TAG, "Android version: ${android.os.Build.VERSION.RELEASE}")
+        Log.d(TAG, "Android SDK: ${android.os.Build.VERSION.SDK_INT}")
+
+        val fineGranted = ContextCompat.checkSelfPermission(
+            ctx,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        val coarseGranted = ContextCompat.checkSelfPermission(
+            ctx,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+
+        Log.d(TAG, "Fine permission: $fineGranted")
+        Log.d(TAG, "Coarse permission: $coarseGranted")
+
+        if (!fineGranted && !coarseGranted) {
+            Log.e(TAG, "STOP: No location permission")
+
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                )
+            )
+            return
+        }
+
+        Log.d(TAG, "Location permission check passed")
+        Log.d(TAG, "Requesting high-accuracy current location")
+
         binding.progressLoading.visibility = View.VISIBLE
 
-        val currentLocationRequest =
-            CurrentLocationRequest.Builder().setPriority(Priority.PRIORITY_HIGH_ACCURACY).build()
+        val tokenSource = CancellationTokenSource()
 
-        fusedLocationClient.getCurrentLocation(currentLocationRequest, null)
+        fusedLocationClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            tokenSource.token
+        )
             .addOnSuccessListener { location ->
+
+                Log.d(TAG, "Current-location task succeeded")
+                Log.d(TAG, "Current location is null: ${location == null}")
+
                 if (location != null) {
-                    binding.fieldLongitude.text = location.longitude.toString()
-                    binding.fieldLatitude.text = location.latitude.toString()
-                    resolveAddressFromLocation(location.latitude, location.longitude)
+                    Log.d(TAG, "Current location received")
+                    onLocationReceived(location)
                 } else {
-                    binding.progressLoading.visibility = View.GONE
-                    showError("تعذر تحديد الموقع الحالي")
+                    Log.w(TAG, "Current location is null; trying lastLocation")
+
+                    fusedLocationClient.lastLocation
+                        .addOnSuccessListener { lastLocation ->
+
+                            Log.d(
+                                TAG,
+                                "Last-location task succeeded; " +
+                                        "location is null: ${lastLocation == null}"
+                            )
+
+                            if (lastLocation != null) {
+                                Log.d(TAG, "Using last known location")
+                                onLocationReceived(lastLocation)
+                            } else {
+                                Log.e(
+                                    TAG,
+                                    "Both current location and lastLocation are null"
+                                )
+                                finishLocationWithError(
+                                    "تعذر تحديد الموقع الحالي. تأكد من تشغيل خدمة الموقع وحاول مرة أخرى."
+                                )
+                            }
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e(
+                                TAG,
+                                "lastLocation failed",
+                                exception
+                            )
+
+                            finishLocationWithError(
+                                "حدث خطأ أثناء تحديد الموقع"
+                            )
+                        }
                 }
-            }.addOnFailureListener {
-                binding.progressLoading.visibility = View.GONE
-                showError("حدث خطأ أثناء تحديد الموقع")
+            }
+            .addOnFailureListener { exception ->
+                Log.e(
+                    TAG,
+                    "getCurrentLocation failed",
+                    exception
+                )
+
+                Log.d(TAG, "Trying lastLocation after request failure")
+
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener { lastLocation ->
+                        Log.d(
+                            TAG,
+                            "Fallback completed; location is null: " +
+                                    "${lastLocation == null}"
+                        )
+
+                        if (lastLocation != null) {
+                            onLocationReceived(lastLocation)
+                        } else {
+                            finishLocationWithError(
+                                "تعذر تحديد الموقع الحالي"
+                            )
+                        }
+                    }
+                    .addOnFailureListener { fallbackException ->
+                        Log.e(
+                            TAG,
+                            "Fallback lastLocation failed",
+                            fallbackException
+                        )
+
+                        finishLocationWithError(
+                            "حدث خطأ أثناء تحديد الموقع"
+                        )
+                    }
             }
     }
 
-    private fun resolveAddressFromLocation(lat: Double, lng: Double) {
+    private fun onLocationReceived(location: Location) {
+        Log.d(TAG, "========== LOCATION RECEIVED ==========")
+
+        Log.d(TAG, "Latitude: ${location.latitude}")
+        Log.d(TAG, "Longitude: ${location.longitude}")
+        Log.d(TAG, "Provider: ${location.provider}")
+        Log.d(TAG, "Accuracy: ${location.accuracy}")
+        Log.d(TAG, "Has accuracy: ${location.hasAccuracy()}")
+        Log.d(TAG, "Timestamp: ${location.time}")
+        Log.d(
+            TAG,
+            "Age seconds: ${(System.currentTimeMillis() - location.time) / 1000}"
+        )
+
+        if (location.latitude !in -90.0..90.0 ||
+            location.longitude !in -180.0..180.0
+        ) {
+            Log.e(TAG, "Invalid coordinates received")
+            finishLocationWithError("الإحداثيات المستلمة غير صحيحة")
+            return
+        }
+
+        binding.fieldLongitude.setText(location.longitude.toString())
+        binding.fieldLatitude.setText(location.latitude.toString())
+
+        Log.d(
+            TAG,
+            "Longitude field after update: ${binding.fieldLongitude.text}"
+        )
+        Log.d(
+            TAG,
+            "Latitude field after update: ${binding.fieldLatitude.text}"
+        )
+
+        Log.d(TAG, "Starting reverse geocoding")
+
+        resolveAddressFromLocation(
+            location.latitude,
+            location.longitude
+        )
+    }
+
+    private fun finishLocationWithError(message: String) {
+        Log.e(TAG, "LOCATION FAILED: $message")
+
+        if (_binding == null) return
+
+        binding.progressLoading.visibility = View.GONE
+        showError(message)
+    }
+
+//    private fun onLocationReceived(location: Location) {
+//        binding.fieldLongitude.setText(location.longitude.toString())
+//        binding.fieldLatitude.setText(location.latitude.toString())
+//
+//        resolveAddressFromLocation(
+//            location.latitude,
+//            location.longitude
+//        )
+//    }
+
+    private fun resolveAddressFromLocation(
+        lat: Double,
+        lng: Double
+    ) {
+        Log.d(TAG, "========== GEOCODING START ==========")
+        Log.d(TAG, "Input latitude: $lat")
+        Log.d(TAG, "Input longitude: $lng")
+
+        val appContext = context?.applicationContext ?: run {
+            Log.e(TAG, "STOP: Application context is null")
+            finishLocationWithError("تعذر الوصول إلى بيانات الموقع")
+            return
+        }
+
         viewLifecycleOwner.lifecycleScope.launch {
             val addressText = withContext(Dispatchers.IO) {
                 try {
-                    val geocoder = Geocoder(requireContext(), Locale("ar"))
+                    Log.d(TAG, "Checking Geocoder availability")
 
-                    @Suppress("DEPRECATION") val addresses = geocoder.getFromLocation(lat, lng, 1)
-                    addresses?.firstOrNull()?.getAddressLine(0)
+                    if (!Geocoder.isPresent()) {
+                        Log.e(TAG, "Geocoder.isPresent() returned false")
+                        return@withContext null
+                    }
+
+                    Log.d(TAG, "Geocoder is present")
+
+                    val geocoder = Geocoder(
+                        appContext,
+                        Locale("ar", "EG")
+                    )
+
+                    val startTime = System.currentTimeMillis()
+
+                    Log.d(TAG, "Calling getFromLocation()")
+
+                    @Suppress("DEPRECATION")
+                    val addresses = geocoder.getFromLocation(
+                        lat,
+                        lng,
+                        1
+                    )
+
+                    val elapsed =
+                        System.currentTimeMillis() - startTime
+
+                    Log.d(TAG, "Geocoder elapsed time: ${elapsed}ms")
+                    Log.d(
+                        TAG,
+                        "Address count: ${addresses?.size ?: 0}"
+                    )
+
+                    val address = addresses?.firstOrNull()
+
+                    if (address == null) {
+                        Log.w(TAG, "Geocoder returned no address")
+                        null
+                    } else {
+                        Log.d(TAG, "Country: ${address.countryName}")
+                        Log.d(TAG, "Locality: ${address.locality}")
+                        Log.d(TAG, "Admin area: ${address.adminArea}")
+                        Log.d(TAG, "Feature name: ${address.featureName}")
+
+                        val line = address.getAddressLine(0)
+
+                        Log.d(TAG, "Address line 0: $line")
+
+                        line
+                    }
+
+                } catch (e: IOException) {
+                    Log.e(TAG, "Geocoder IOException", e)
+                    null
+                } catch (e: IllegalArgumentException) {
+                    Log.e(TAG, "Invalid coordinates passed to Geocoder", e)
+                    null
                 } catch (e: Exception) {
+                    Log.e(TAG, "Unexpected geocoder error", e)
                     null
                 }
             }
 
+            if (_binding == null) {
+                Log.w(TAG, "Fragment view destroyed before UI update")
+                return@launch
+            }
+
+            val finalAddress = addressText
+                ?.takeIf { it.isNotBlank() }
+                ?: getString(R.string.hint_no_suggested_address)
+
+            Log.d(TAG, "Final suggested address: $finalAddress")
+
+            binding.suggestedAddress.setText(finalAddress)
             binding.progressLoading.visibility = View.GONE
-            binding.suggestedAddress.setText(
-                addressText ?: getString(R.string.hint_no_suggested_address)
+
+            Log.d(
+                TAG,
+                "Suggested address field after update: " +
+                        "${binding.suggestedAddress.text}"
             )
+            Log.d(TAG, "========== GEOCODING FINISHED ==========")
         }
     }
 
@@ -449,18 +750,25 @@ class PersonCodingFragment : Fragment() {
     }
 
     private fun sendRefreshToken() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.customerIntent.send(
-                PersonIntent.RefreshToken(
-                    SharedPreferencesHelper.getInstance().getEmployeeId(),
-                    SharedPreferencesHelper.getInstance().getUserToken()
+        if (!isRefreshTokenCalled) {
+            isRefreshTokenCalled = true
+            viewLifecycleOwner.lifecycleScope.launch {
+                viewModel.customerIntent.send(
+                    PersonIntent.RefreshToken(
+                        SharedPreferencesHelper.getInstance().getEmployeeId(),
+                        SharedPreferencesHelper.getInstance().getUserToken()
+                    )
                 )
-            )
+            }
         }
     }
 
     private fun handleResponse(
-        code: Int, message: String, retry: () -> Unit, onSuccess: () -> Unit
+        isRefreshToken: Boolean,
+        code: Int,
+        message: String,
+        retry: () -> Unit,
+        onSuccess: () -> Unit
     ) {
         Log.d(TAG, "response code=$code message=$message retried=$hasRetriedAfterRefresh")
         when (code) {
@@ -470,13 +778,17 @@ class PersonCodingFragment : Fragment() {
             }
 
             401 -> {
-                if (hasRetriedAfterRefresh) {
-                    hasRetriedAfterRefresh = false
-                    pendingRetry = null
-                    showSessionExpired(message)
-                } else {
-                    pendingRetry = retry
+                if (!isRefreshToken) {
+                    Log.d("WHATretry", hasRetriedAfterRefresh.toString())
                     sendRefreshToken()
+//                    if (hasRetriedAfterRefresh) {
+//                        hasRetriedAfterRefresh = false
+//                        pendingRetry = null
+//                        showSessionExpired(message)
+//                    } else {
+//                        pendingRetry = retry
+//                        sendRefreshToken()
+//                    }
                 }
             }
 
@@ -512,6 +824,7 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetSalesAndCustomerTypes -> {
                             binding.progressLoading.visibility = View.GONE
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message,
                                 retry = { getSalesAndCustomerTypes() }) {
@@ -525,6 +838,7 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetLines -> {
                             binding.progressLoading.visibility = View.GONE
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message,
                                 retry = { tryLoadLines() }) {
@@ -535,6 +849,7 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetMainCustomersLine -> {
                             binding.progressLoading.visibility = View.GONE
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message,
                                 retry = { tryLoadMainCustomers() }) {
@@ -547,30 +862,37 @@ class PersonCodingFragment : Fragment() {
 
                         is PersonStatus.RefreshToken -> {
                             binding.progressLoading.visibility = View.GONE
-                            Log.d(
-                                TAG,
-                                "refreshToken status=${status.data.status} message=${status.data.message}"
-                            )
                             if (status.data.status == 200) {
-                                val tokenData = Gson().fromJson(
+                                Log.d("WHATRefreshToken", "${status.data.message}")
+                                val data = Gson().fromJson(
                                     status.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
-                                SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
-                                hasRetriedAfterRefresh = true
-                                val retry = pendingRetry
-                                pendingRetry = null
-                                retry?.invoke()
+                                SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                getSalesAndCustomerTypes()
+                                getUserAreas()
                             } else {
-                                pendingRetry = null
-                                hasRetriedAfterRefresh = false
-                                showSessionExpired(status.data.message)
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = status.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance().logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(), LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    })
                             }
                         }
 
                         is PersonStatus.GetUserAreas -> {
                             binding.progressLoading.visibility = View.GONE
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message,
                                 retry = { getUserAreas() }) {
@@ -584,6 +906,7 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.GetAreasByGovernorate -> {
                             binding.progressLoading.visibility = View.GONE
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message,
                                 retry = {
@@ -601,6 +924,7 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.AddCustomer -> {
                             binding.progressLoading.visibility = View.GONE
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message.firstOrNull().orEmpty(),
                                 retry = { submitAddCustomer() }) {
@@ -619,6 +943,7 @@ class PersonCodingFragment : Fragment() {
                             binding.progressLoading.visibility = View.GONE
 
                             handleResponse(
+                                isRefreshToken = false,
                                 code = status.response.status,
                                 message = status.response.message,
                                 retry = {
@@ -638,11 +963,14 @@ class PersonCodingFragment : Fragment() {
                                         onOk = {
                                             binding.imFrontIdImage.setImageURI(frontIdImageUri)
                                             binding.imFrontIdImage.visibility = View.VISIBLE
+                                            binding.tvFrontRetry.visibility = View.VISIBLE
                                             binding.layoutFrontPlaceholder.visibility = View.GONE
                                             binding.layoutNationalID.visibility = View.VISIBLE
                                             binding.customerNational.setText(status.response.data.national_id)
                                             binding.customerCardName.setText(status.response.data.user_name)
                                             binding.customerCardNumber.setText(status.response.data.address)
+                                            binding.cameraCard.visibility = View.GONE
+                                            binding.ivCaptureButton.visibility = View.GONE
 //                                                requireActivity().onBackPressedDispatcher.onBackPressed()
                                         })
                                 } else if (status.response.status == 400) {
@@ -863,43 +1191,32 @@ class PersonCodingFragment : Fragment() {
 
         val context = requireContext()
 
-        val cameraProviderFuture =
-            ProcessCameraProvider.getInstance(context)
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
 
         cameraProviderFuture.addListener({
 
             try {
 
-                val provider =
-                    cameraProviderFuture.get()
+                val provider = cameraProviderFuture.get()
 
                 cameraProvider = provider
 
                 // Always clear previous camera use cases
                 provider.unbindAll()
 
-                val preview =
-                    Preview.Builder()
-                        .setTargetAspectRatio(
-                            AspectRatio.RATIO_4_3
-                        )
-                        .build()
+                val preview = Preview.Builder().setTargetAspectRatio(
+                    AspectRatio.RATIO_4_3
+                ).build()
 
-                val capture =
-                    ImageCapture.Builder()
-                        .setCaptureMode(
-                            ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-                        )
-                        .setTargetAspectRatio(
-                            AspectRatio.RATIO_4_3
-                        )
-                        .setJpegQuality(95)
-                        .build()
+                val capture = ImageCapture.Builder().setCaptureMode(
+                    ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
+                ).setTargetAspectRatio(
+                    AspectRatio.RATIO_4_3
+                ).setJpegQuality(95).build()
 
                 imageCapture = capture
 
-                val cameraSelector =
-                    CameraSelector.DEFAULT_BACK_CAMERA
+                val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
                 // Connect Preview to PreviewView
                 preview.setSurfaceProvider(
@@ -908,31 +1225,23 @@ class PersonCodingFragment : Fragment() {
 
                 // Bind everything to Fragment lifecycle
                 provider.bindToLifecycle(
-                    viewLifecycleOwner,
-                    cameraSelector,
-                    preview,
-                    capture
+                    viewLifecycleOwner, cameraSelector, preview, capture
                 )
 
                 Log.d(
-                    TAG,
-                    "Camera started successfully"
+                    TAG, "Camera started successfully"
                 )
 
             } catch (e: Exception) {
 
                 Log.e(
-                    TAG,
-                    "Camera binding failed",
-                    e
+                    TAG, "Camera binding failed", e
                 )
 
                 imageCapture = null
 
                 Toast.makeText(
-                    context,
-                    "تعذر تشغيل الكاميرا",
-                    Toast.LENGTH_SHORT
+                    context, "تعذر تشغيل الكاميرا", Toast.LENGTH_SHORT
                 ).show()
             }
 
@@ -943,22 +1252,19 @@ class PersonCodingFragment : Fragment() {
 
         val imageCapture = imageCapture ?: return
 
-        val outputDir =
-            requireContext().externalCacheDir ?: return
+        val outputDir = requireContext().externalCacheDir ?: return
 
         val originalFile = File(
-            outputDir,
-            "national_id_original_${System.currentTimeMillis()}.jpg"
+            outputDir, "national_id_original_${System.currentTimeMillis()}.jpg"
         )
 
-        val outputOptions =
-            ImageCapture.OutputFileOptions.Builder(originalFile)
-                .build()
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(originalFile).build()
 
-        imageCapture.targetRotation =
-            binding.previewView.display.rotation
+        imageCapture.targetRotation = binding.previewView.display.rotation
 
         binding.ivCaptureButton.isEnabled = false
+        binding.cameraCard.visibility = View.GONE
+        binding.ivCaptureButton.visibility = View.GONE
 
         imageCapture.takePicture(
             outputOptions,
@@ -971,11 +1277,9 @@ class PersonCodingFragment : Fragment() {
 
                     try {
 
-                        val croppedFile =
-                            NationalIdImageProcessor.process(
-                                context = requireContext(),
-                                inputFile = originalFile
-                            )
+                        val croppedFile = NationalIdImageProcessor.process(
+                            context = requireContext(), inputFile = originalFile
+                        )
 
                         // Save the final image URI
                         if (name == "front_image") {
@@ -986,17 +1290,14 @@ class PersonCodingFragment : Fragment() {
                                 frontIdImageUri
                             )
 
-                            binding.imFrontIdImage.visibility =
-                                View.VISIBLE
+                            binding.imFrontIdImage.visibility = View.VISIBLE
+                            binding.tvFrontRetry.visibility = View.VISIBLE
 
-                            binding.layoutFrontPlaceholder.visibility =
-                                View.GONE
+                            binding.layoutFrontPlaceholder.visibility = View.GONE
 
-                            val part =
-                                fileToMultipart(
-                                    croppedFile,
-                                    name
-                                )
+                            val part = fileToMultipart(
+                                croppedFile, name
+                            )
 
                             if (!validateNationalIdImage(croppedFile)) {
 
@@ -1018,25 +1319,20 @@ class PersonCodingFragment : Fragment() {
                                 backIdImageUri
                             )
 
-                            binding.imBackIdImage.visibility =
-                                View.VISIBLE
+                            binding.imBackIdImage.visibility = View.VISIBLE
+                            binding.tvBackRetry.visibility = View.VISIBLE
 
-                            binding.layoutBackPlaceholder.visibility =
-                                View.GONE
+                            binding.layoutBackPlaceholder.visibility = View.GONE
                         }
 
                     } catch (e: Exception) {
 
                         Log.e(
-                            "NationalIDCamera",
-                            "Image processing failed",
-                            e
+                            "NationalIDCamera", "Image processing failed", e
                         )
 
                         Toast.makeText(
-                            requireContext(),
-                            "تعذر تجهيز صورة البطاقة",
-                            Toast.LENGTH_SHORT
+                            requireContext(), "تعذر تجهيز صورة البطاقة", Toast.LENGTH_SHORT
                         ).show()
 
                     } finally {
@@ -1055,33 +1351,26 @@ class PersonCodingFragment : Fragment() {
                     binding.ivCaptureButton.isEnabled = true
 
                     Toast.makeText(
-                        requireContext(),
-                        "خطأ في التصوير",
-                        Toast.LENGTH_SHORT
+                        requireContext(), "خطأ في التصوير", Toast.LENGTH_SHORT
                     ).show()
 
                     Log.e(
-                        "NationalIDCamera",
-                        "Capture failed",
-                        exception
+                        "NationalIDCamera", "Capture failed", exception
                     )
                 }
-            }
-        )
+            })
     }
 
     private fun validateNationalIdImage(
         file: File
     ): Boolean {
 
-        val options =
-            BitmapFactory.Options().apply {
-                inJustDecodeBounds = true
-            }
+        val options = BitmapFactory.Options().apply {
+            inJustDecodeBounds = true
+        }
 
         BitmapFactory.decodeFile(
-            file.absolutePath,
-            options
+            file.absolutePath, options
         )
 
         val width = options.outWidth
@@ -1091,27 +1380,21 @@ class PersonCodingFragment : Fragment() {
             return false
         }
 
-        val ratio =
-            maxOf(width, height).toFloat() /
-                    minOf(width, height).toFloat()
+        val ratio = maxOf(width, height).toFloat() / minOf(width, height).toFloat()
 
         return ratio > 1.45f && ratio < 1.75f
     }
 
     private fun fileToMultipart(
-        file: File,
-        name: String
+        file: File, name: String
     ): MultipartBody.Part {
 
-        val requestFile =
-            file.asRequestBody(
-                "image/jpeg".toMediaType()
-            )
+        val requestFile = file.asRequestBody(
+            "image/jpeg".toMediaType()
+        )
 
         return MultipartBody.Part.createFormData(
-            name = name,
-            filename = file.name,
-            body = requestFile
+            name = name, filename = file.name, body = requestFile
         )
     }
 
@@ -1120,9 +1403,7 @@ class PersonCodingFragment : Fragment() {
             cameraProvider?.unbindAll()
         } catch (e: Exception) {
             Log.e(
-                TAG,
-                "Failed to close camera",
-                e
+                TAG, "Failed to close camera", e
             )
         }
         imageCapture = null
@@ -1135,28 +1416,19 @@ class PersonCodingFragment : Fragment() {
     }
 
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(
-            requestCode,
-            permissions,
-            grantResults
+            requestCode, permissions, grantResults
         )
 
         if (requestCode == CAMERA_PERMISSION_CODE) {
 
-            if (
-                grantResults.isNotEmpty() &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED
-            ) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 openCamera()
             } else {
                 Toast.makeText(
-                    requireContext(),
-                    "يجب السماح باستخدام الكاميرا",
-                    Toast.LENGTH_SHORT
+                    requireContext(), "يجب السماح باستخدام الكاميرا", Toast.LENGTH_SHORT
                 ).show()
             }
         }
