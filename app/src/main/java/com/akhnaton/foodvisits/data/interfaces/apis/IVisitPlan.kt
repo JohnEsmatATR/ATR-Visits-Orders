@@ -28,7 +28,9 @@ interface IVisitPlan {
     @GET(ConstantLinks.GET_PENDING_VISITS_ENDPOINT)
     suspend fun getPendingVisitsForApproval(
         @retrofit2.http.Query("page") page: Int,
-        @retrofit2.http.Query("page_size") pageSize: Int
+        @retrofit2.http.Query("page_size") pageSize: Int,
+        @retrofit2.http.Query("date_from") dateFrom: String?,
+        @retrofit2.http.Query("date_to") dateTo: String?
     ): PendingVisitsRes
 
     @POST(ConstantLinks.APPROVE_VISITS_ENDPOINT)

@@ -16,6 +16,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.app.DatePickerDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import android.widget.TextView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.pendingVisits.PendingVisitItem
 import com.akhnaton.foodvisits.data.model.pendingVisits.PendingVisitsData
@@ -36,6 +42,8 @@ class PendingVisitsFragment : Fragment() {
         private const val PAGE_SIZE = 20
         private const val DECISION_APPROVE = 1
         private const val DECISION_REJECT = 0
+        private const val API_DATE_FORMAT = "yyyy-MM-dd"
+        private const val DISPLAY_DATE_FORMAT = "dd-MMM-yy"
     }
 
     private var _binding: FragmentPendingVisitsBinding? = null
@@ -50,6 +58,8 @@ class PendingVisitsFragment : Fragment() {
     private var isFirstLoad = true
 
     private var searchQuery: String = ""
+    private var filterFrom: String = ""
+    private var filterTo: String = ""
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
@@ -90,7 +100,13 @@ class PendingVisitsFragment : Fragment() {
         allLoadedVisits = emptyList()
         exitSelectionMode()
         viewModel.visitIntent.trySend(
-            VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = false)
+            VisitIntent.GetPendingVisits(
+                page = currentPage,
+                pageSize = PAGE_SIZE,
+                isLoadMore = false,
+                dateFrom = filterFrom.ifEmpty { null },
+                dateTo = filterTo.ifEmpty { null }
+            )
         )
     }
 
@@ -98,7 +114,13 @@ class PendingVisitsFragment : Fragment() {
         if (page < 1 || page > totalPages) return
         currentPage = page
         viewModel.visitIntent.trySend(
-            VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = false)
+            VisitIntent.GetPendingVisits(
+                page = currentPage,
+                pageSize = PAGE_SIZE,
+                isLoadMore = false,
+                dateFrom = filterFrom.ifEmpty { null },
+                dateTo = filterTo.ifEmpty { null }
+            )
         )
     }
 
@@ -131,6 +153,9 @@ class PendingVisitsFragment : Fragment() {
 
         binding.btnNextPage.setOnClickListener {
             goToPage(currentPage + 1)
+        }
+        binding.btnFilter.setOnClickListener {
+            showFilterDialog()
         }
         binding.llSelectAll.setOnClickListener {
             val filtered = getFilteredVisits()
@@ -289,7 +314,13 @@ class PendingVisitsFragment : Fragment() {
                                 message = status.response.message,
                                 retry = {
                                     viewModel.visitIntent.trySend(
-                                        VisitIntent.GetPendingVisits(currentPage, PAGE_SIZE, status.isLoadMore)
+                                        VisitIntent.GetPendingVisits(
+                                            currentPage,
+                                            PAGE_SIZE,
+                                            status.isLoadMore,
+                                            filterFrom.ifEmpty { null },
+                                            filterTo.ifEmpty { null }
+                                        )
                                     )
                                 }
                             ) {
@@ -396,6 +427,83 @@ class PendingVisitsFragment : Fragment() {
         )
     }
 
+    private fun showFilterDialog() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_visits_filter, null)
+        dialog.setContentView(view)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        val tvFrom = view.findViewById<TextView>(R.id.tv_date_from_value)
+        val tvTo = view.findViewById<TextView>(R.id.tv_date_to_value)
+        val rowFrom = view.findViewById<View>(R.id.row_date_from)
+        val rowTo = view.findViewById<View>(R.id.row_date_to)
+        val btnApply = view.findViewById<View>(R.id.btn_apply_filter)
+        val btnClear = view.findViewById<View>(R.id.btn_clear_filter)
+
+        var tempFrom = filterFrom
+        var tempTo = filterTo
+
+        fun updateLabels() {
+            tvFrom.text = if (tempFrom.isEmpty()) getString(R.string.select_date_hint) else formatForDisplay(tempFrom)
+            tvTo.text = if (tempTo.isEmpty()) getString(R.string.select_date_hint) else formatForDisplay(tempTo)
+        }
+        updateLabels()
+
+        rowFrom.setOnClickListener {
+            showDatePicker(tempFrom) { picked ->
+                tempFrom = picked
+                updateLabels()
+            }
+        }
+
+        rowTo.setOnClickListener {
+            showDatePicker(tempTo) { picked ->
+                tempTo = picked
+                updateLabels()
+            }
+        }
+        btnApply.setOnClickListener {
+            filterFrom = tempFrom
+            filterTo = tempTo
+            loadFirstPage()
+            dialog.dismiss()
+        }
+
+        btnClear.setOnClickListener {
+            filterFrom = ""
+            filterTo = ""
+            loadFirstPage()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+    private fun showDatePicker(current: String, onPicked: (String) -> Unit) {
+        val format = SimpleDateFormat(API_DATE_FORMAT, Locale.US)
+        val calendar = Calendar.getInstance()
+        if (current.isNotEmpty()) {
+            calendar.time = format.parse(current)!!
+        }
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, day ->
+                calendar.set(year, month, day)
+                onPicked(format.format(calendar.time))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun formatForDisplay(key: String): String {
+        val date = SimpleDateFormat(API_DATE_FORMAT, Locale.US).parse(key)!!
+        return SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.US).format(date).uppercase()
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         pendingRetry = null
