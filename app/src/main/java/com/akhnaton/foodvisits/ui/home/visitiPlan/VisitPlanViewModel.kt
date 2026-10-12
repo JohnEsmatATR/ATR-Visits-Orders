@@ -1,6 +1,8 @@
 package com.akhnaton.foodvisits.ui.home.visitPlan
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import com.akhnaton.foodvisits.data.offline.OfflineDatabase
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
@@ -13,7 +15,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
-class VisitPlanViewModel : ViewModel() {
+class VisitPlanViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val cacheDao = OfflineDatabase.getInstance(application).visitCacheDao()
+    private val pendingCacheDao = OfflineDatabase.getInstance(application).pendingVisitsCacheDao()
+
 
     val visitIntent = Channel<VisitIntent>(Channel.UNLIMITED)
     private val _status = MutableStateFlow<VisitStatus?>(null)
@@ -49,7 +55,7 @@ class VisitPlanViewModel : ViewModel() {
         viewModelScope.launch {
             _status.value = if (isLoadMore) VisitStatus.LoadingMore else VisitStatus.Loading
             _status.value = try {
-                val response = VisitPlanRepository().getPendingVisitsForApproval(
+                val response = VisitPlanRepository(cacheDao, pendingCacheDao).getPendingVisitsForApproval(
                     page,
                     pageSize,
                     dateFrom,
@@ -78,7 +84,7 @@ class VisitPlanViewModel : ViewModel() {
         viewModelScope.launch {
             _status.value = VisitStatus.Loading
             _status.value = try {
-                val response = VisitPlanRepository().getMonthlyVisits(from, to)
+                val response = VisitPlanRepository(cacheDao).getMonthlyVisits(from, to)
                 VisitStatus.GetMonthlyVisits(response)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)
