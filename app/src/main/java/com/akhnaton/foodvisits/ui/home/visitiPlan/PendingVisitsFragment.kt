@@ -16,6 +16,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import android.app.DatePickerDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+import android.widget.TextView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.pendingVisits.PendingVisitItem
 import com.akhnaton.foodvisits.data.model.pendingVisits.PendingVisitsData
@@ -36,13 +42,15 @@ class PendingVisitsFragment : Fragment() {
         private const val PAGE_SIZE = 20
         private const val DECISION_APPROVE = 1
         private const val DECISION_REJECT = 0
+        private const val API_DATE_FORMAT = "yyyy-MM-dd"
+        private const val DISPLAY_DATE_FORMAT = "dd-MMM-yy"
     }
 
     private var _binding: FragmentPendingVisitsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: VisitPlanViewModel by viewModels()
     private lateinit var adapter: PendingVisitsAdapter
-
+    private var totalPages = 1
     private var allLoadedVisits: List<PendingVisitItem> = emptyList()
     private var currentPage = 1
     private var totalRows = 0
@@ -50,6 +58,8 @@ class PendingVisitsFragment : Fragment() {
     private var isFirstLoad = true
 
     private var searchQuery: String = ""
+    private var filterFrom: String = ""
+    private var filterTo: String = ""
 
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
@@ -90,17 +100,27 @@ class PendingVisitsFragment : Fragment() {
         allLoadedVisits = emptyList()
         exitSelectionMode()
         viewModel.visitIntent.trySend(
-            VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = false)
+            VisitIntent.GetPendingVisits(
+                page = currentPage,
+                pageSize = PAGE_SIZE,
+                isLoadMore = false,
+                dateFrom = filterFrom.ifEmpty { null },
+                dateTo = filterTo.ifEmpty { null }
+            )
         )
     }
 
-    private fun loadNextPage() {
-        if (isLoadingPage) return
-        if (allLoadedVisits.size >= totalRows) return
-        isLoadingPage = true
-        currentPage += 1
+    private fun goToPage(page: Int) {
+        if (page < 1 || page > totalPages) return
+        currentPage = page
         viewModel.visitIntent.trySend(
-            VisitIntent.GetPendingVisits(page = currentPage, pageSize = PAGE_SIZE, isLoadMore = true)
+            VisitIntent.GetPendingVisits(
+                page = currentPage,
+                pageSize = PAGE_SIZE,
+                isLoadMore = false,
+                dateFrom = filterFrom.ifEmpty { null },
+                dateTo = filterTo.ifEmpty { null }
+            )
         )
     }
 
@@ -114,22 +134,7 @@ class PendingVisitsFragment : Fragment() {
         binding.rvPendingVisits.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = this@PendingVisitsFragment.adapter
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-                    val layoutManager = recyclerView.layoutManager as LinearLayoutManager
-                    val visibleItemCount = layoutManager.childCount
-                    val totalItemCount = layoutManager.itemCount
-                    val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-                    if (!isLoadingPage &&
-                        (visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 3 &&
-                        firstVisibleItemPosition >= 0
-                    ) {
-                        loadNextPage()
-                    }
-                }
-            })
         }
     }
 
@@ -142,12 +147,17 @@ class PendingVisitsFragment : Fragment() {
         binding.tvSelectMode.setOnClickListener {
             enterSelectionMode()
         }
-
-        binding.tvCancelSelection.setOnClickListener {
-            exitSelectionMode()
+        binding.btnPrevPage.setOnClickListener {
+            goToPage(currentPage - 1)
         }
 
-        binding.tvSelectAll.setOnClickListener {
+        binding.btnNextPage.setOnClickListener {
+            goToPage(currentPage + 1)
+        }
+        binding.btnFilter.setOnClickListener {
+            showFilterDialog()
+        }
+        binding.llSelectAll.setOnClickListener {
             val filtered = getFilteredVisits()
             val allSelected = filtered.isNotEmpty() && filtered.all { selectedVisitIds.contains(it.ID) }
             if (allSelected) {
@@ -171,7 +181,7 @@ class PendingVisitsFragment : Fragment() {
         isSelectionMode = true
         selectedVisitIds.clear()
         binding.tvSelectMode.visibility = View.GONE
-        binding.llSelectionControls.visibility = View.VISIBLE
+        binding.llSelectAll.visibility = View.VISIBLE
         adapter.setSelectionMode(true)
         updateSelectionUI()
     }
@@ -180,7 +190,7 @@ class PendingVisitsFragment : Fragment() {
         isSelectionMode = false
         selectedVisitIds.clear()
         binding.tvSelectMode.visibility = View.VISIBLE
-        binding.llSelectionControls.visibility = View.GONE
+        binding.llSelectAll.visibility = View.GONE
         adapter.setSelectionMode(false)
         updateSelectionUI()
     }
@@ -304,7 +314,13 @@ class PendingVisitsFragment : Fragment() {
                                 message = status.response.message,
                                 retry = {
                                     viewModel.visitIntent.trySend(
-                                        VisitIntent.GetPendingVisits(currentPage, PAGE_SIZE, status.isLoadMore)
+                                        VisitIntent.GetPendingVisits(
+                                            currentPage,
+                                            PAGE_SIZE,
+                                            status.isLoadMore,
+                                            filterFrom.ifEmpty { null },
+                                            filterTo.ifEmpty { null }
+                                        )
                                     )
                                 }
                             ) {
@@ -313,12 +329,8 @@ class PendingVisitsFragment : Fragment() {
                                     PendingVisitsData::class.java
                                 )
                                 totalRows = pendingData.pagination.total_rows
-
-                                allLoadedVisits = if (status.isLoadMore) {
-                                    allLoadedVisits + pendingData.visits
-                                } else {
-                                    pendingData.visits
-                                }
+                                totalPages = maxOf(1, (totalRows + PAGE_SIZE - 1) / PAGE_SIZE)
+                                allLoadedVisits = pendingData.visits
                                 applyFilterAndRender()
                             }
                         }
@@ -392,7 +404,9 @@ class PendingVisitsFragment : Fragment() {
         val isEmpty = filtered.isEmpty()
         binding.rvPendingVisits.visibility = if (isEmpty) View.GONE else View.VISIBLE
         binding.tvZeroState.visibility = if (isEmpty) View.VISIBLE else View.GONE
-
+        binding.tvPageInfo.text = getString(R.string.page_info_format, currentPage, totalPages)
+        binding.btnPrevPage.isEnabled = currentPage > 1
+        binding.btnNextPage.isEnabled = currentPage < totalPages
         updateSelectionUI()
     }
 
@@ -401,8 +415,95 @@ class PendingVisitsFragment : Fragment() {
         binding.llBulkActions.visibility = if (isSelectionMode && count > 0) View.VISIBLE else View.GONE
         binding.btnBulkApprove.text = getString(R.string.bulk_approve_format, count)
         binding.btnBulkReject.text = getString(R.string.bulk_reject_format, count)
+
+        binding.tvSelectedCount.text = count.toString()
+        binding.tvSelectedCount.visibility = if (count > 0) View.VISIBLE else View.GONE
+
+        val filtered = getFilteredVisits()
+        val allSelected = filtered.isNotEmpty() && filtered.all { selectedVisitIds.contains(it.ID) }
+        binding.ivSelectAllBox.isSelected = allSelected
+        binding.tvSelectAllLabel.text = getString(
+            if (allSelected) R.string.deselect_all_action else R.string.select_all_action
+        )
     }
 
+    private fun showFilterDialog() {
+        val dialog = BottomSheetDialog(requireContext())
+        val view = layoutInflater.inflate(R.layout.dialog_visits_filter, null)
+        dialog.setContentView(view)
+
+        dialog.setOnShowListener {
+            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+            bottomSheet?.setBackgroundResource(android.R.color.transparent)
+        }
+
+        val tvFrom = view.findViewById<TextView>(R.id.tv_date_from_value)
+        val tvTo = view.findViewById<TextView>(R.id.tv_date_to_value)
+        val rowFrom = view.findViewById<View>(R.id.row_date_from)
+        val rowTo = view.findViewById<View>(R.id.row_date_to)
+        val btnApply = view.findViewById<View>(R.id.btn_apply_filter)
+        val btnClear = view.findViewById<View>(R.id.btn_clear_filter)
+
+        var tempFrom = filterFrom
+        var tempTo = filterTo
+
+        fun updateLabels() {
+            tvFrom.text = if (tempFrom.isEmpty()) getString(R.string.select_date_hint) else formatForDisplay(tempFrom)
+            tvTo.text = if (tempTo.isEmpty()) getString(R.string.select_date_hint) else formatForDisplay(tempTo)
+        }
+        updateLabels()
+
+        rowFrom.setOnClickListener {
+            showDatePicker(tempFrom) { picked ->
+                tempFrom = picked
+                updateLabels()
+            }
+        }
+
+        rowTo.setOnClickListener {
+            showDatePicker(tempTo) { picked ->
+                tempTo = picked
+                updateLabels()
+            }
+        }
+        btnApply.setOnClickListener {
+            filterFrom = tempFrom
+            filterTo = tempTo
+            loadFirstPage()
+            dialog.dismiss()
+        }
+
+        btnClear.setOnClickListener {
+            filterFrom = ""
+            filterTo = ""
+            loadFirstPage()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+    private fun showDatePicker(current: String, onPicked: (String) -> Unit) {
+        val format = SimpleDateFormat(API_DATE_FORMAT, Locale.US)
+        val calendar = Calendar.getInstance()
+        if (current.isNotEmpty()) {
+            calendar.time = format.parse(current)!!
+        }
+        DatePickerDialog(
+            requireContext(),
+            { _, year, month, day ->
+                calendar.set(year, month, day)
+                onPicked(format.format(calendar.time))
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    private fun formatForDisplay(key: String): String {
+        val date = SimpleDateFormat(API_DATE_FORMAT, Locale.US).parse(key)!!
+        return SimpleDateFormat(DISPLAY_DATE_FORMAT, Locale.US).format(date).uppercase()
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         pendingRetry = null

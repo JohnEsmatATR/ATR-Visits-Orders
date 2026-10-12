@@ -2,7 +2,6 @@ package com.akhnaton.foodvisits.ui.home.visitPlan
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.akhnaton.foodvisits.data.model.deleteVisitPlan.DeleteVisitPlanReq
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitIntent
 import com.akhnaton.foodvisits.data.statusValue.visitPlan.VisitStatus
@@ -29,7 +28,7 @@ class VisitPlanViewModel : ViewModel() {
             visitIntent.consumeAsFlow().collect {
                 when (it) {
                     is VisitIntent.GetMonthlyVisits -> getMonthlyVisits(it.from, it.to)
-                    is VisitIntent.GetPendingVisits -> getPendingVisits(it.page, it.pageSize, it.isLoadMore)
+                    is VisitIntent.GetPendingVisits -> getPendingVisits(it.page, it.pageSize, it.isLoadMore,it.dateFrom,it.dateTo)
                     is VisitIntent.ApproveVisits -> approveVisits(it.ids, it.decision)
                     is VisitIntent.UpdateVisitDate -> updateVisitDate(it.id, it.newDate)
                     is VisitIntent.RefreshToken -> refreshToken(it.userId, it.token)
@@ -40,11 +39,22 @@ class VisitPlanViewModel : ViewModel() {
         }
     }
 
-    private fun getPendingVisits(page: Int, pageSize: Int, isLoadMore: Boolean) {
+    private fun getPendingVisits(
+        page: Int,
+        pageSize: Int,
+        isLoadMore: Boolean,
+        dateFrom: String?,
+        dateTo: String?
+    ) {
         viewModelScope.launch {
             _status.value = if (isLoadMore) VisitStatus.LoadingMore else VisitStatus.Loading
             _status.value = try {
-                val response = VisitPlanRepository().getPendingVisitsForApproval(page, pageSize)
+                val response = VisitPlanRepository().getPendingVisitsForApproval(
+                    page,
+                    pageSize,
+                    dateFrom,
+                    dateTo
+                )
                 VisitStatus.GetPendingVisits(response, isLoadMore)
             } catch (e: Exception) {
                 VisitStatus.Error(e.message)
