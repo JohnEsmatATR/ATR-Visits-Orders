@@ -52,6 +52,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.akhnaton.foodvisits.BuildConfig
 import com.akhnaton.foodvisits.data.interfaces.location.ILocationClient
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
+import com.akhnaton.foodvisits.data.model.getVisitPlan.CustomerVisitPlan
 import com.akhnaton.foodvisits.data.model.saveVisitGps.Data
 import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
@@ -186,22 +187,22 @@ class GpsVisitFragment : Fragment() {
             }
         }
 
-        if (
-            checkIn.isNotBlank() &&
-            currentTime.isNotBlank() &&
-            !checkIn.equals("null", ignoreCase = true) &&
-            !currentTime.equals("null", ignoreCase = true)
-        ) {
-            checkInTimeMillis = parseApiDate(checkIn)
-            val apiCurrentTimeMillis = parseApiDate(currentTime)
-            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
-                serverTimeOffsetMillis =
-                    apiCurrentTimeMillis - System.currentTimeMillis()
-                binding.tvTimer.visibility = View.VISIBLE
-                startTimer()
-            }
-        }
 
+//        if (
+//            checkIn.isNotBlank() &&
+//            currentTime.isNotBlank() &&
+//            !checkIn.equals("null", ignoreCase = true) &&
+//            !currentTime.equals("null", ignoreCase = true)
+//        ) {
+//            checkInTimeMillis = parseApiDate(checkIn)
+//            val apiCurrentTimeMillis = parseApiDate(currentTime)
+//            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
+//                serverTimeOffsetMillis =
+//                    apiCurrentTimeMillis - System.currentTimeMillis()
+//                binding.tvTimer.visibility = View.VISIBLE
+//                startTimer()
+//            }
+//        }
         isProm = SharedPreferencesHelper.getInstance().getProm()
         isSuperProm = SharedPreferencesHelper.getInstance().getSuperProm()
 
@@ -388,6 +389,27 @@ class GpsVisitFragment : Fragment() {
             }
         }
         fetchData()
+    }
+
+    private fun checkIn(insert: Int) {
+        val currentLocation = getCurrentLocationValue()
+        checkInReq = CheckInGPSReq(
+            insert = insert,
+            start_latitude = currentLocation?.latitude.toString(),
+            start_longitude = currentLocation?.longitude.toString(),
+            ord_type = saleType,
+            party_site_id = customerPartySiteId,
+            phone_visit = "0",
+        )
+        Log.d("WHATcheckInReq", checkInReq.toString())
+        binding.tvTimer.text = ""
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.CheckIn(
+                    checkInReq
+                )
+            )
+        }
     }
 
     private fun getData() {
@@ -750,6 +772,59 @@ class GpsVisitFragment : Fragment() {
                             dialog.show()
                         }
 
+                        is Visits2Status.CheckIn -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
+
+                                if (data.check_in != null) {
+                                    checkIn = data.check_in
+                                    currentTime = data.current_time
+
+                                    if (
+                                        checkIn.isNotBlank() &&
+                                        currentTime.isNotBlank() &&
+                                        !checkIn.equals("null", ignoreCase = true) &&
+                                        !currentTime.equals("null", ignoreCase = true)
+                                    ) {
+                                        checkInTimeMillis = parseApiDate(checkIn)
+                                        val apiCurrentTimeMillis = parseApiDate(currentTime)
+                                        if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
+                                            serverTimeOffsetMillis =
+                                                apiCurrentTimeMillis - System.currentTimeMillis()
+                                            binding.tvTimer.visibility = View.VISIBLE
+                                            startTimer()
+                                        }
+                                    }
+                                } else {
+
+                                }
+                            } else if (it.data.status == 401) {
+                                lifecycleScope.launch {
+                                    viewModel.visitsIntent.send(
+                                        Visits2Intent.RefreshToken(
+                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
+                                            SharedPreferencesHelper.getInstance().getUserToken()
+                                        )
+                                    )
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
                         is Visits2Status.SaveVisitGps -> {
                             dialog.dismiss()
                             if (it.data.status == 200) {
@@ -888,6 +963,16 @@ class GpsVisitFragment : Fragment() {
 //                                        }
 //                                    }
 //                                )
+                                }
+                                if (it.data.message.contains("Rate")) {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = it.data.message,
+                                        isSuccess = false,
+                                        showOkButton = true,
+                                        onOk = {
+                                        }
+                                    )
                                 }
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
@@ -1144,32 +1229,34 @@ class GpsVisitFragment : Fragment() {
     )
     override fun onResume() {
         super.onResume()
+        binding.tvTimer.visibility = View.GONE
+        checkIn(insert = 1)
 
-        val savedStateHandle = findNavController()
-            .currentBackStackEntry
-            ?.savedStateHandle
-
-        checkIn = savedStateHandle?.get<String>("checkIn")
-            ?: checkIn
-
-        currentTime = savedStateHandle?.get<String>("currentTime")
-            ?: currentTime
-
-        if (
-            checkIn.isNotBlank() &&
-            currentTime.isNotBlank() &&
-            !checkIn.equals("null", ignoreCase = true) &&
-            !currentTime.equals("null", ignoreCase = true)
-        ) {
-            checkInTimeMillis = parseApiDate(checkIn)
-            val apiCurrentTimeMillis = parseApiDate(currentTime)
-            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
-                serverTimeOffsetMillis =
-                    apiCurrentTimeMillis - System.currentTimeMillis()
-                binding.tvTimer.visibility = View.VISIBLE
-                startTimer()
-            }
-        }
+//        val savedStateHandle = findNavController()
+//            .currentBackStackEntry
+//            ?.savedStateHandle
+//
+//        checkIn = savedStateHandle?.get<String>("checkIn")
+//            ?: checkIn
+//
+//        currentTime = savedStateHandle?.get<String>("currentTime")
+//            ?: currentTime
+//
+//        if (
+//            checkIn.isNotBlank() &&
+//            currentTime.isNotBlank() &&
+//            !checkIn.equals("null", ignoreCase = true) &&
+//            !currentTime.equals("null", ignoreCase = true)
+//        ) {
+//            checkInTimeMillis = parseApiDate(checkIn)
+//            val apiCurrentTimeMillis = parseApiDate(currentTime)
+//            if (checkInTimeMillis > 0L && apiCurrentTimeMillis > 0L) {
+//                serverTimeOffsetMillis =
+//                    apiCurrentTimeMillis - System.currentTimeMillis()
+//                binding.tvTimer.visibility = View.VISIBLE
+//                startTimer()
+//            }
+//        }
 
         RequestPermission().enableLocation(requireActivity())
         requestPermission.permissionCheck(requireActivity())

@@ -52,6 +52,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.Task
 import com.google.gson.Gson
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanner
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
@@ -101,7 +102,7 @@ class PersonCodingFragment : Fragment() {
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        if (uri != null) {
+        if (uri != null && _binding != null) {
             if (pickingFrontImage) {
                 frontIdImageUri = uri
                 val frontPart = frontIdImageUri?.let { uriToMultipartPart(it, "front_image") }
@@ -165,6 +166,7 @@ class PersonCodingFragment : Fragment() {
     private fun startNationalIdScanner() {
         documentScanner.getStartScanIntent(requireActivity()).addOnSuccessListener { intentSender ->
 
+            if (_binding == null) return@addOnSuccessListener
             documentScannerLauncher.launch(
                 IntentSenderRequest.Builder(intentSender).build()
             )
@@ -192,6 +194,7 @@ class PersonCodingFragment : Fragment() {
     private fun handleScannedFrontImage(
         uri: Uri
     ) {
+        if (_binding == null) return
 
         frontIdImageUri = uri
 
@@ -479,6 +482,7 @@ class PersonCodingFragment : Fragment() {
         Log.d(TAG, "Location permission check passed")
         Log.d(TAG, "Requesting high-accuracy current location")
 
+        if (_binding == null) return
         binding.progressLoading.visibility = View.VISIBLE
 
         val tokenSource = CancellationTokenSource()
@@ -573,6 +577,7 @@ class PersonCodingFragment : Fragment() {
     }
 
     private fun onLocationReceived(location: Location) {
+        if (_binding == null) return
         Log.d(TAG, "========== LOCATION RECEIVED ==========")
 
         Log.d(TAG, "Latitude: ${location.latitude}")
@@ -1274,7 +1279,7 @@ class PersonCodingFragment : Fragment() {
                 override fun onImageSaved(
                     output: ImageCapture.OutputFileResults
                 ) {
-
+                    if (_binding == null) return
                     try {
 
                         val croppedFile = NationalIdImageProcessor.process(
@@ -1347,7 +1352,7 @@ class PersonCodingFragment : Fragment() {
                 override fun onError(
                     exception: ImageCaptureException
                 ) {
-
+                    if (_binding == null) return
                     binding.ivCaptureButton.isEnabled = true
 
                     Toast.makeText(
