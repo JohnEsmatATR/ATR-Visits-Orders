@@ -1,12 +1,12 @@
 package com.akhnaton.foodvisits.data.offline.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitItem
 
-@Entity(tableName = "visit_cache")
+@Entity(tableName = "visit_cache", primaryKeys = ["userId", "id"])
 data class VisitCacheEntity(
-    @PrimaryKey val id: String,
+    val userId: String,
+    val id: String,
     val start: String,
     val customer_name: String,
     val customer_code: String,
@@ -17,8 +17,8 @@ data class VisitCacheEntity(
     val approve: String?
 )
 
-fun VisitItem.toCacheEntity() = VisitCacheEntity(
-    id, start, customer_name, customer_code, site_address,
+fun VisitItem.toCacheEntity(userId: String) = VisitCacheEntity(
+    userId, id, start, customer_name, customer_code, site_address,
     party_site, sales_man, supervisor, approve
 )
 

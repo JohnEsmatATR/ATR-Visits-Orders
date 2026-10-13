@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import com.akhnaton.foodvisits.data.offline.OfflineDatabase
 
 class Visits2ViewModel(val context: Context) : ViewModel() {
 
@@ -52,6 +53,9 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
 
     private val _distanceKm = MutableStateFlow<Double?>(null)
     val distanceKm = _distanceKm.asStateFlow()
+    private val visits2Repository = Visits2Repository(
+        OfflineDatabase.getInstance(context).apiCacheDao()
+    )
 
     init {
         getVisits()
@@ -119,8 +123,7 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
             _status.value = try {
                 Log.d("WHAT", "getVisitPlanVIEWMODEL1")
                 Visits2Status.GetVisitPlan(
-                    Visits2Repository().getVisitPlan()
-                )
+                    visits2Repository.getVisitPlan()                )
             } catch (e: Exception) {
                 Log.d("WHAT", "getVisitPlanVIEWMODEL2 ${e.message}")
                 Visits2Status.Error(e.message)
@@ -199,8 +202,7 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
             _status.value = try {
                 Log.d("WHAT", "visitsSelectVIEWMODEL1")
                 Visits2Status.VisitsSelect(
-                    Visits2Repository().visitsSelect(orderType, customerCode)
-                )
+                    visits2Repository.visitsSelect(orderType, customerCode)                )
             } catch (e: Exception) {
                 Log.d("WHAT", "visitsSelectVIEWMODEL2 ${e.message}")
                 Visits2Status.Error(e.message)

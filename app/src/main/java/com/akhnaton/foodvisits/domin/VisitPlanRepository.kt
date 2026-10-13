@@ -5,6 +5,7 @@ import com.akhnaton.foodvisits.data.model.pendingVisits.ApproveVisitsReq
 import com.akhnaton.foodvisits.data.model.pendingVisits.PendingVisitsRes
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitData
 import com.akhnaton.foodvisits.data.model.visitPlan.VisitListModel
+import com.akhnaton.foodvisits.data.offline.OfflineDatabase
 import com.akhnaton.foodvisits.data.offline.dao.PendingVisitsCacheDao
 import com.akhnaton.foodvisits.data.offline.dao.VisitCacheDao
 import com.akhnaton.foodvisits.data.offline.entity.PendingVisitsCacheEntity
@@ -34,10 +35,10 @@ class VisitPlanRepository(
 
     private suspend fun saveToCache(response: VisitListModel) {
         val dao = cacheDao ?: return
+        val userId = OfflineDatabase.currentUserId()
         try {
             val visitData = Gson().fromJson(response.data, VisitData::class.java)
-            val entities = visitData.visits.map { it.toCacheEntity() }
-            dao.replaceAll(entities)
+            dao.replaceAll(userId, visitData.visits.map { it.toCacheEntity(userId) })
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -45,7 +46,7 @@ class VisitPlanRepository(
 
     private suspend fun loadFromCache(): VisitListModel? {
         val dao = cacheDao ?: return null
-        val cached = dao.getAll()
+        val cached = dao.getAll(OfflineDatabase.currentUserId())
         if (cached.isEmpty()) return null
 
         val visitData = VisitData(cached.map { it.toVisitItem() })
@@ -74,7 +75,7 @@ class VisitPlanRepository(
     }
 
     private fun pendingCacheKey(page: Int, pageSize: Int, dateFrom: String?, dateTo: String?) =
-        "$page|$pageSize|${dateFrom.orEmpty()}|${dateTo.orEmpty()}"
+        "${OfflineDatabase.currentUserId()}|$page|$pageSize|${dateFrom.orEmpty()}|${dateTo.orEmpty()}"
 
     private suspend fun savePendingToCache(cacheKey: String, response: PendingVisitsRes) {
         val dao = pendingCacheDao ?: return

@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.akhnaton.foodvisits.data.offline.dao.ApiCacheDao
 import com.akhnaton.foodvisits.data.offline.dao.PendingVisitsCacheDao
 import com.akhnaton.foodvisits.data.offline.dao.VisitCacheDao
+import com.akhnaton.foodvisits.data.offline.entity.ApiCacheEntity
 import com.akhnaton.foodvisits.data.offline.entity.PendingVisitsCacheEntity
 import com.akhnaton.foodvisits.data.offline.entity.VisitCacheEntity
 import kotlinx.coroutines.CoroutineScope
@@ -13,14 +15,19 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [VisitCacheEntity::class, PendingVisitsCacheEntity::class],
-    version = 2,
+    entities = [
+        VisitCacheEntity::class,
+        PendingVisitsCacheEntity::class,
+        ApiCacheEntity::class
+    ],
+    version = 6,
     exportSchema = false
 )
 abstract class OfflineDatabase : RoomDatabase() {
 
     abstract fun visitCacheDao(): VisitCacheDao
     abstract fun pendingVisitsCacheDao(): PendingVisitsCacheDao
+    abstract fun apiCacheDao(): ApiCacheDao
 
     companion object {
         @Volatile
@@ -43,5 +50,8 @@ abstract class OfflineDatabase : RoomDatabase() {
                 getInstance(appContext).clearAllTables()
             }
         }
+        fun currentUserId(): String =
+            com.akhnaton.foodvisits.shared.SharedPreferencesHelper.getInstance().getEmployeeId()
+
     }
 }

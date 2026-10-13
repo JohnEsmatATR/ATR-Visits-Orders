@@ -55,7 +55,9 @@ import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import kotlin.getValue
 import kotlin.toString
-
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 class VisitsFragment2 : Fragment() {
 
     companion object {
@@ -472,30 +474,7 @@ class VisitsFragment2 : Fragment() {
                                         checkInReq = checkInReq
                                     )
                                 } else {
-                                    if (!isStartVisitDialogShowsUp) {
-                                        isStartVisitDialogShowsUp = true
-                                        Log.d(
-                                            "StartVisitDialogShowsUp",
-                                            isStartVisitDialogShowsUp.toString()
-                                        )
-                                        DialogUtils.showResultDialog(
-                                            context = requireContext(),
-                                            message = "هل تريد بدء الزيارة ؟",
-                                            description = "سيبدأ حساب مدة الزيارة الآن مع ${clickedVisit.customer_name} ",
-                                            isSuccess = true,
-                                            isStartVisit = true,
-                                            onStartVisit = {
-                                                checkIn(1, clickedVisit)
-                                            },
-                                            onCancel = {
-                                                isStartVisitDialogShowsUp = false
-                                                Log.d(
-                                                    "StartVisitDialogShowsUp",
-                                                    isStartVisitDialogShowsUp.toString()
-                                                )
-                                            }
-                                        )
-                                    }
+                                    showStartVisitDialog()
                                 }
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
@@ -574,6 +553,10 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun checkIn(insert: Int, item: CustomerVisitPlan) {
+        if (insert == 0 && !isOnline()) {
+            showStartVisitDialog()
+            return
+        }
         val currentLocation = getCurrentLocationValue()
         checkInReq = CheckInGPSReq(
             insert = insert,
@@ -591,6 +574,40 @@ class VisitsFragment2 : Fragment() {
                 )
             )
         }
+    }
+    private fun isOnline(): Boolean {
+        val manager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    }
+
+    private fun showStartVisitDialog() {
+        if (isStartVisitDialogShowsUp) return
+        isStartVisitDialogShowsUp = true
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = "هل تريد بدء الزيارة ؟",
+            description = "سيبدأ حساب مدة الزيارة الآن مع ${clickedVisit.customer_name} ",
+            isSuccess = true,
+            isStartVisit = true,
+            onStartVisit = {
+                if (isOnline()) {
+                    checkIn(1, clickedVisit)
+                } else {
+                    isStartVisitDialogShowsUp = false
+                    DialogUtils.showResultDialog(
+                        context = requireContext(),
+                        message = getString(R.string.no_internet_start_visit),
+                        isSuccess = false,
+                        showOkButton = true
+                    )
+                }
+            },
+            onCancel = {
+                isStartVisitDialogShowsUp = false
+            }
+        )
     }
 
     private fun navigateToGpsVisit(
