@@ -55,22 +55,25 @@ class Visits2Repository(
 
     suspend fun visitsSelect(orderType: String, customerCode: String): VisitsSelectRes {
         val cacheKey = key("$orderType-$customerCode")
+        val generalKey = key("select-general-$orderType")
         try {
             val response = retrofit.visitsSelect(orderType, customerCode)
             val responseData = response.data
             if (response.status == 200 && responseData != null) {
-                apiCacheDao?.insert(
-                    ApiCacheEntity(
-                        cacheKey = cacheKey,
-                        data = responseData.toString(),
-                        message = response.message,
-                        type = response.type
-                    )
+                val entity = ApiCacheEntity(
+                    cacheKey = cacheKey,
+                    data = responseData.toString(),
+                    message = response.message,
+                    type = response.type
                 )
+                apiCacheDao?.insert(entity)
+                apiCacheDao?.insert(entity.copy(cacheKey = generalKey))
             }
             return response
         } catch (e: IOException) {
-            val cached = apiCacheDao?.get(cacheKey) ?: throw e
+            val cached = apiCacheDao?.get(cacheKey)
+                ?: apiCacheDao?.get(generalKey)
+                ?: throw e
             return VisitsSelectRes(
                 data = JsonParser.parseString(cached.data),
                 message = cached.message,

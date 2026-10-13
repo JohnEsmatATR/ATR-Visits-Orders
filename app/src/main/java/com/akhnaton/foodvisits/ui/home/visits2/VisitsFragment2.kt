@@ -58,6 +58,11 @@ import kotlin.toString
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.akhnaton.foodvisits.data.offline.OfflineDatabase
+import com.akhnaton.foodvisits.data.offline.entity.LocalVisitStartEntity
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 class VisitsFragment2 : Fragment() {
 
     companion object {
@@ -465,9 +470,12 @@ class VisitsFragment2 : Fragment() {
                                         it.data.data,
                                         com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
                                     )
+
                                 Log.d("WHAT", "onClick: $clickedVisit")
+                                Log.d("WHAT_TIME", "check_in=${data.check_in} current_time=${data.current_time}")
 
                                 if (data.check_in != null) {
+                                    saveServerStartLocally(clickedVisit, data.check_in.toString(), data.current_time)
                                     navigateToGpsVisit(
                                         clickedVisit, data.check_in.toString(),
                                         data.current_time,
@@ -553,10 +561,6 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun checkIn(insert: Int, item: CustomerVisitPlan) {
-        if (insert == 0 && !isOnline()) {
-            showStartVisitDialog()
-            return
-        }
         val currentLocation = getCurrentLocationValue()
         checkInReq = CheckInGPSReq(
             insert = insert,
@@ -566,13 +570,13 @@ class VisitsFragment2 : Fragment() {
             party_site_id = item.customer_party_site_id,
             phone_visit = "0",
         )
+        if (insert == 0 && !isOnline()) {
+            openOfflineVisitOrAsk(item)
+            return
+        }
         Log.d("WHATcheckInReq", checkInReq.toString())
         lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                Visits2Intent.CheckIn(
-                    checkInReq
-                )
-            )
+            viewModel.visitsIntent.send(Visits2Intent.CheckIn(checkInReq))
         }
     }
     private fun isOnline(): Boolean {
@@ -595,13 +599,7 @@ class VisitsFragment2 : Fragment() {
                 if (isOnline()) {
                     checkIn(1, clickedVisit)
                 } else {
-                    isStartVisitDialogShowsUp = false
-                    DialogUtils.showResultDialog(
-                        context = requireContext(),
-                        message = getString(R.string.no_internet_start_visit),
-                        isSuccess = false,
-                        showOkButton = true
-                    )
+                    startVisitOffline(clickedVisit)
                 }
             },
             onCancel = {
@@ -782,7 +780,77 @@ class VisitsFragment2 : Fragment() {
             requireActivity().startService(this)
         }
     }
+//offline for lllocalll database:
 
+    private val offlineDao by lazy {
+        OfflineDatabase.getInstance(requireContext()).localVisitStartDao()
+    }
+
+    private fun formatTime(millis: Long): String =
+        SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.US).format(Date(millis))
+
+    private fun todayKey(): String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+
+    private fun openOfflineVisitOrAsk(item: CustomerVisitPlan) {
+        lifecycleScope.launch {
+            val saved = offlineDao.get(
+                OfflineDatabase.currentUserId(),
+                item.customer_code,
+                item.customer_party_site_id,
+                todayKey()
+            )
+            if (saved != null) {
+                navigateToGpsVisit(
+                    item,
+                    formatTime(saved.startMillis),
+                    formatTime(System.currentTimeMillis()),
+                    checkInReq = checkInReq
+                )
+            } else {
+                showStartVisitDialog()
+            }
+        }
+    }
+
+    private fun startVisitOffline(item: CustomerVisitPlan) {
+        lifecycleScope.launch {
+            val now = System.currentTimeMillis()
+            offlineDao.insert(
+                LocalVisitStartEntity(
+                    userId = OfflineDatabase.currentUserId(),
+                    customerCode = item.customer_code,
+                    partySiteId = item.customer_party_site_id,
+                    visitDate = todayKey(),
+                    startMillis = now
+                )
+            )
+            isStartVisitDialogShowsUp = false
+            navigateToGpsVisit(item, formatTime(now), formatTime(now), checkInReq = checkInReq)
+        }
+    }
+
+    private fun saveServerStartLocally(item: CustomerVisitPlan, checkIn: String, serverNow: String) {
+        val fmt = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+        val checkInMs = fmt.parse(checkIn)?.time ?: return
+        val serverNowMs = fmt.parse(serverNow)?.time ?: return
+
+        val offset = serverNowMs - System.currentTimeMillis()
+        val startOnPhoneClock = checkInMs - offset
+
+        lifecycleScope.launch {
+            offlineDao.upsert(
+                LocalVisitStartEntity(
+                    userId = OfflineDatabase.currentUserId(),
+                    customerCode = item.customer_code,
+                    partySiteId = item.customer_party_site_id,
+                    visitDate = todayKey(),
+                    startMillis = startOnPhoneClock
+                )
+            )
+        }
+    }
+//offlineeeeeeeeee
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
