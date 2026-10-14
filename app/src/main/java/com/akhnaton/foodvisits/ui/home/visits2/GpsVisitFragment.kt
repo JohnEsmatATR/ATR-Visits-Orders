@@ -835,33 +835,41 @@ class GpsVisitFragment : Fragment() {
                                     )
                                 //VISITS_APK
                                 var message = "${it.data.message}"
-//                            DialogUtils.showResultDialog(
-//                                context = requireContext(),
-//                                message = message,
-//                                isSuccess = true,
-//                                showOkButton = true,
-//                                onOk = {
-//                                    //MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                    findNavController().navigate(
-//                                        R.id.toHome
-//                                    )
-//                                }
-//                            )
-//                            if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
+                                Log.d("WHATorder", data.is_suspended.toString())
+                                Log.d(
+                                    "WHATorder", SharedPreferencesHelper.getInstance()
+                                        .isAllowedToMakeOrder().toString()
+                                )
 //                                DialogUtils.showResultDialog(
 //                                    context = requireContext(),
-//                                    message = "غير مسموح لك بعمل طلبيات , الرجاء التواصل مع الإدارة المالية",
+//                                    message = message,
 //                                    isSuccess = true,
-//                                    showOkButton = true,
-//                                    onOk = {
-//                                        //MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                        findNavController().navigate(
-//                                            R.id.toHome
-//                                        )
-//                                    }
-//                                )
-//                                return@collect
-//                            }
+//                                    seconds = 2,
+//                                    onAutoDismiss = {
+//                                        if (grade == "A") {
+//                                            val bundle = Bundle().apply {
+//                                                putString("customerName", customerName)
+//                                                putString("customerCode", customerCode)
+//                                                putString("siteAddress", siteAddress)
+//                                                putString(
+//                                                    "customerPartySiteId",
+//                                                    customerPartySiteId
+//                                                )
+//                                                putString("saleType", saleType)
+//                                                putString("fragment", "Gps")
+//                                            }
+//
+//                                            findNavController().navigate(
+//                                                R.id.toOrderCreationCycle, bundle
+//                                            )
+//                                        } else {
+//                                            MainActivity.binding.navView2.visibility =
+//                                                View.VISIBLE
+//                                            findNavController().navigate(
+//                                                R.id.toHome
+//                                            )
+//                                        }
+//                                    })
                                 if (data.is_suspended == true) {
                                     message = "${data.message}"
                                     DialogUtils.showResultDialog(
@@ -877,55 +885,53 @@ class GpsVisitFragment : Fragment() {
                                             )
                                         }
                                     )
+                                } else if (!SharedPreferencesHelper.getInstance()
+                                        .isAllowedToMakeOrder()
+                                ) {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = message,
+                                        isSuccess = true,
+                                        showOkButton = true,
+                                        onOk = {
+                                            MainActivity.binding.navView2.visibility =
+                                                View.VISIBLE
+                                            findNavController().navigate(
+                                                R.id.toHome
+                                            )
+                                        }
+                                    )
                                 } else {
-                                    if (!SharedPreferencesHelper.getInstance()
-                                            .isAllowedToMakeOrder()
-                                    ) {
-                                        DialogUtils.showResultDialog(
-                                            context = requireContext(),
-                                            message = message,
-                                            isSuccess = true,
-                                            showOkButton = true,
-                                            onOk = {
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = message,
+                                        isSuccess = true,
+                                        seconds = 2,
+                                        onAutoDismiss = {
+                                            if (grade == "A") {
+                                                val bundle = Bundle().apply {
+                                                    putString("customerName", customerName)
+                                                    putString("customerCode", customerCode)
+                                                    putString("siteAddress", siteAddress)
+                                                    putString(
+                                                        "customerPartySiteId",
+                                                        customerPartySiteId
+                                                    )
+                                                    putString("saleType", saleType)
+                                                    putString("fragment", "Gps")
+                                                }
+
+                                                findNavController().navigate(
+                                                    R.id.toOrderCreationCycle, bundle
+                                                )
+                                            } else {
                                                 MainActivity.binding.navView2.visibility =
                                                     View.VISIBLE
                                                 findNavController().navigate(
                                                     R.id.toHome
                                                 )
                                             }
-                                        )
-                                    } else {
-                                        DialogUtils.showResultDialog(
-                                            context = requireContext(),
-                                            message = message,
-                                            isSuccess = true,
-                                            seconds = 2,
-                                            onAutoDismiss = {
-                                                if (grade == "A") {
-                                                    val bundle = Bundle().apply {
-                                                        putString("customerName", customerName)
-                                                        putString("customerCode", customerCode)
-                                                        putString("siteAddress", siteAddress)
-                                                        putString(
-                                                            "customerPartySiteId",
-                                                            customerPartySiteId
-                                                        )
-                                                        putString("saleType", saleType)
-                                                        putString("fragment", "Gps")
-                                                    }
-
-                                                    findNavController().navigate(
-                                                        R.id.toOrderCreationCycle, bundle
-                                                    )
-                                                } else {
-                                                    MainActivity.binding.navView2.visibility =
-                                                        View.VISIBLE
-                                                    findNavController().navigate(
-                                                        R.id.toHome
-                                                    )
-                                                }
-                                            })
-                                    }
+                                        })
                                 }
                             } else if (it.data.status == 400) {
                                 val data =

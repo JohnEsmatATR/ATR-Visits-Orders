@@ -769,7 +769,7 @@ class InvoiceFragment2 : Fragment() {
                         dialog.hide()
                         DialogUtils.showResultDialog(
                             context = requireContext(),
-                            message = "خطأ",
+                            message = it.error.toString(),
                             isSuccess = true,
                             showOkButton = true,
                         )

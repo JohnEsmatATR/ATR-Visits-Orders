@@ -7,7 +7,7 @@ data class Product(
     val INVENTORY_ITEM_ID: String,
     val ITEM_CODE: String,
     val ITEM_PRICE: String,
-    val MANDATORY_QOUTA: String,
+    val MANDATORY_QOUTA: String?,
     val PERCENTAGE_RATE: String,
     val PRODUCT_NAME: String,
     val QUANTITY: String,

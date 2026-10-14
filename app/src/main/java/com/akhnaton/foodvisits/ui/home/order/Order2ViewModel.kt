@@ -1,10 +1,14 @@
 package com.akhnaton.foodvisits.ui.home.order
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresExtension
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.model.editOrder.EditOrderReq
+import com.akhnaton.foodvisits.data.model.personCoding.AddCustomerModel
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
+import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderRes
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Intent
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Status
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
@@ -18,6 +22,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 class Order2ViewModel : ViewModel() {
 
@@ -96,6 +101,21 @@ class Order2ViewModel : ViewModel() {
                         saveOrderReq
                     )
                 )
+            } catch (e: HttpException) {
+                val backendMessage = try {
+                    val errorBodyString = e.response()?.errorBody()?.string()
+                    if (!errorBodyString.isNullOrBlank()) {
+                        com.google.gson.Gson().fromJson(
+                            errorBodyString,
+                            SaveOrderRes::class.java
+                        ).message
+                    } else {
+                        null
+                    }
+                } catch (parseError: Exception) {
+                    null
+                }
+                Order2Status.Error(backendMessage.toString() ?: e.message())
             } catch (e: Exception) {
                 Order2Status.Error(e.message)
             }
