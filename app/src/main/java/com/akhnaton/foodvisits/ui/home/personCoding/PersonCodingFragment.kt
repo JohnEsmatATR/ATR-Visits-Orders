@@ -29,6 +29,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.akhnaton.foodvisits.R
+import com.akhnaton.foodvisits.data.model.nationalIdScan.Data
 import com.akhnaton.foodvisits.data.model.personCoding.Area
 import com.akhnaton.foodvisits.data.model.personCoding.AreasData
 import com.akhnaton.foodvisits.data.model.personCoding.CustomerType
@@ -960,6 +961,9 @@ class PersonCodingFragment : Fragment() {
                                     callNationalIdScanAPI(frontPart)
                                 }) {
                                 if (status.response.status == 200) {
+                                    val data = Gson().fromJson(
+                                        status.response.data, Data::class.java
+                                    )
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
                                         message = status.response.message,
@@ -971,9 +975,9 @@ class PersonCodingFragment : Fragment() {
                                             binding.tvFrontRetry.visibility = View.VISIBLE
                                             binding.layoutFrontPlaceholder.visibility = View.GONE
                                             binding.layoutNationalID.visibility = View.VISIBLE
-                                            binding.customerNational.setText(status.response.data.national_id)
-                                            binding.customerCardName.setText(status.response.data.user_name)
-                                            binding.customerCardNumber.setText(status.response.data.address)
+                                            binding.customerNational.setText(data.national_id)
+                                            binding.customerCardName.setText(data.user_name)
+                                            binding.customerCardNumber.setText(data.address)
                                             binding.cameraCard.visibility = View.GONE
                                             binding.ivCaptureButton.visibility = View.GONE
 //                                                requireActivity().onBackPressedDispatcher.onBackPressed()
