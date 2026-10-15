@@ -6,10 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.akhnaton.foodvisits.data.offline.dao.ApiCacheDao
 import com.akhnaton.foodvisits.data.offline.dao.LocalVisitStartDao
+import com.akhnaton.foodvisits.data.offline.dao.PendingSaveVisitDao
 import com.akhnaton.foodvisits.data.offline.dao.PendingVisitsCacheDao
 import com.akhnaton.foodvisits.data.offline.dao.VisitCacheDao
 import com.akhnaton.foodvisits.data.offline.entity.ApiCacheEntity
 import com.akhnaton.foodvisits.data.offline.entity.LocalVisitStartEntity
+import com.akhnaton.foodvisits.data.offline.entity.PendingSaveVisitEntity
 import com.akhnaton.foodvisits.data.offline.entity.PendingVisitsCacheEntity
 import com.akhnaton.foodvisits.data.offline.entity.VisitCacheEntity
 import kotlinx.coroutines.CoroutineScope
@@ -21,9 +23,10 @@ import kotlinx.coroutines.launch
         VisitCacheEntity::class,
         PendingVisitsCacheEntity::class,
         ApiCacheEntity::class,
-        LocalVisitStartEntity::class
+        LocalVisitStartEntity::class,
+        PendingSaveVisitEntity::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 abstract class OfflineDatabase : RoomDatabase() {
@@ -32,6 +35,8 @@ abstract class OfflineDatabase : RoomDatabase() {
     abstract fun pendingVisitsCacheDao(): PendingVisitsCacheDao
     abstract fun apiCacheDao(): ApiCacheDao
     abstract fun localVisitStartDao(): LocalVisitStartDao
+    abstract fun pendingSaveVisitDao(): PendingSaveVisitDao
+
 
     companion object {
         @Volatile

@@ -81,6 +81,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import kotlin.text.toDoubleOrNull
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 
 class GpsVisitFragment : Fragment() {
 
@@ -616,27 +619,25 @@ class GpsVisitFragment : Fragment() {
 
         dateVisit = endTimer()
 
-        lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                Visits2Intent.SaveVisitGps(
-                    SaveVisitGpsReq(
-                        party_site_id = customerPartySiteId,
-                        visit_target = visitTarget.toInt(),
-                        ord_type = saleType,
-                        visibility = visibility,
-                        grade = grade,
-                        act_target = if (actTarget.isNotEmpty()) {
-                            actTarget.toInt()
-                        } else {
-                            0
-                        },
-                        another_order_type = anotherOrderType,
-                        comment = comment,
-                        check_in = checkIn,
-                        phone_visit = phoneVisit,
-                        device_type = "Android",
-                        latitude = currentLocation.latitude.toString(),
-                        longitude = currentLocation.longitude.toString(),
+        submitSave(
+            SaveVisitGpsReq(
+                party_site_id = customerPartySiteId,
+                visit_target = visitTarget.toInt(),
+                ord_type = saleType,
+                visibility = visibility,
+                grade = grade,
+                act_target = if (actTarget.isNotEmpty()) {
+                    actTarget.toInt()
+                } else {
+                    0
+                },
+                another_order_type = anotherOrderType,
+                comment = comment,
+                check_in = checkIn,
+                phone_visit = phoneVisit,
+                device_type = "Android",
+                latitude = currentLocation.latitude.toString(),
+                longitude = currentLocation.longitude.toString(),
 
 //                        zone_flag =
 //                            if (currentDistanceMeters <= (validGpsRange ?: 0))
@@ -644,38 +645,36 @@ class GpsVisitFragment : Fragment() {
 //                            else
 //                                "ERROR",
 
-                        rate =
-                            if (binding.cbCompanionYes.isChecked)
-                                selectedRating.toString()
-                            else
-                                "",
+                rate =
+                    if (binding.cbCompanionYes.isChecked)
+                        selectedRating.toString()
+                    else
+                        "",
 
-                        rate_comment =
-                            if (binding.cbCompanionYes.isChecked)
-                                binding.etComment.text.toString()
-                            else
-                                "",
+                rate_comment =
+                    if (binding.cbCompanionYes.isChecked)
+                        binding.etComment.text.toString()
+                    else
+                        "",
 
-                        visit_with_confirmed =
-                            if (binding.cbCompanionYes.isChecked)
-                                "1"
-                            else
-                                "0",
+                visit_with_confirmed =
+                    if (binding.cbCompanionYes.isChecked)
+                        "1"
+                    else
+                        "0",
 
-                        visit_with_user_id =
-                            if (visitWithUserId != null &&
-                                visitWithUserId != "null"
-                            ) {
-                                visitWithUserId
-                            } else {
-                                null
-                            },
+                visit_with_user_id =
+                    if (visitWithUserId != null &&
+                        visitWithUserId != "null"
+                    ) {
+                        visitWithUserId
+                    } else {
+                        null
+                    },
 
-                        check_zone_flag = checkZoneFlag
-                    )
-                )
+                check_zone_flag = checkZoneFlag
             )
-        }
+        )
     }
 
     private fun saveVisitGPSForPromoters(checkZoneFlag: String) {
@@ -717,15 +716,13 @@ class GpsVisitFragment : Fragment() {
             return
         }
 
-        lifecycleScope.launch {
-            viewModel.visitsIntent.send(
-                Visits2Intent.SaveVisitGps(
-                    SaveVisitGpsReq(
-                        party_site_id = customerPartySiteId,
-                        ord_type = saleType,
-                        phone_visit = phoneVisit,
-                        latitude = currentLocation.latitude.toString(),
-                        longitude = currentLocation.longitude.toString(),
+        submitSave(
+            SaveVisitGpsReq(
+                party_site_id = customerPartySiteId,
+                ord_type = saleType,
+                phone_visit = phoneVisit,
+                latitude = currentLocation.latitude.toString(),
+                longitude = currentLocation.longitude.toString(),
 
 //                        zone_flag =
 //                            if (currentDistanceMeters <= (validGpsRange ?: 0))
@@ -733,11 +730,10 @@ class GpsVisitFragment : Fragment() {
 //                            else
 //                                "ERROR",
 
-                        check_zone_flag = checkZoneFlag
-                    )
-                )
+                check_zone_flag = checkZoneFlag
             )
-        }
+        )
+
     }
 
     private fun fetchData() {
@@ -1032,6 +1028,35 @@ class GpsVisitFragment : Fragment() {
                         else -> {}
                     }
                 }
+            }
+        }
+    }
+
+    private fun isOnline(): Boolean {
+        val manager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+    }
+
+    private fun submitSave(req: SaveVisitGpsReq) {
+        lifecycleScope.launch {
+            if (isOnline()) {
+                viewModel.visitsIntent.send(Visits2Intent.SaveVisitGps(req))
+            } else {
+                viewModel.saveVisitOffline(req)
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "تم حفظ الزيارة",
+                    description = "سيتم إرسالها عند عودة الإنترنت",
+                    isSuccess = true,
+                    showOkButton = true,
+                    onOk = {
+                        MainActivity.binding.navView2.visibility = View.VISIBLE
+                        findNavController().popBackStack()
+                    }
+                )
             }
         }
     }

@@ -30,6 +30,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import com.akhnaton.foodvisits.data.offline.OfflineDatabase
+import com.akhnaton.foodvisits.data.offline.entity.PendingSaveVisitEntity
+import com.google.gson.Gson
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 
 class Visits2ViewModel(val context: Context) : ViewModel() {
 
@@ -56,6 +62,7 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
     private val visits2Repository = Visits2Repository(
         OfflineDatabase.getInstance(context).apiCacheDao()
     )
+    private val pendingSaveVisitDao = OfflineDatabase.getInstance(context).pendingSaveVisitDao()
 
     init {
         getVisits()
@@ -337,13 +344,27 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
             }
         }
     }
-
+    suspend fun saveVisitOffline(req: SaveVisitGpsReq) {
+        val today = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+        pendingSaveVisitDao.insert(
+            PendingSaveVisitEntity(
+                userId = OfflineDatabase.currentUserId(),
+                partySiteId = req.party_site_id,
+                ordType = req.ord_type,
+                visitDate = today,
+                requestJson = Gson().toJson(req),
+                createdAt = System.currentTimeMillis()
+            )
+        )
+    }
+    
     @RequiresPermission(
         allOf = [
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         ]
     )
+
     fun getCurrentLocation(
         customerLatitude: Double?,
         customerLongitude: Double?
