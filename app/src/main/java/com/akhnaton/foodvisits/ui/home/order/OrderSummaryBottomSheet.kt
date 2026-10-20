@@ -42,22 +42,22 @@ class OrderSummaryBottomSheet(
         if (beforeTax == null)
             binding.llBeforeTax.visibility = View.GONE
         else
-            binding.tvBeforeTax.text = "${beforeTax} ${context?.getString(R.string.currency)}"
+            binding.tvBeforeTax.text = beforeTax
 
         if (tax == null)
             binding.llTax.visibility = View.GONE
         else
-            binding.tvTax.text = "$tax ${context?.getString(R.string.currency)}"
+            binding.tvTax.text = tax
 
         if (afterTax == null)
             binding.llAfterTax.visibility = View.GONE
         else
-            binding.tvAfterTax.text = "$afterTax ${context?.getString(R.string.currency)}"
+            binding.tvAfterTax.text = afterTax
 
         if (total == null)
             binding.llTotal.visibility = View.GONE
         else
-            binding.tvTotal.text = "$total ${context?.getString(R.string.currency)}"
+            binding.tvTotal.text = total
 
         binding.btnSave.setOnClickListener {
             listener.onSave()

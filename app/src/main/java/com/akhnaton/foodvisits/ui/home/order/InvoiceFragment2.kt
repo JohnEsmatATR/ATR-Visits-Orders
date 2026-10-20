@@ -234,6 +234,13 @@ class InvoiceFragment2 : Fragment() {
         }
 
         binding.cardBottom.setOnClickListener {
+            if (selectedProducts.isEmpty()) {
+                DialogUtils.showResultDialog(
+                    requireContext(), "لا يوجد أصناف في الطلب", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+            }
             if (total == 0.0) {
                 DialogUtils.showResultDialog(
                     requireContext(), "يجب تحديد الكمية لكل صنف", false,
@@ -244,9 +251,9 @@ class InvoiceFragment2 : Fragment() {
             calculateTotals()
             OrderSummaryBottomSheet(
                 selectedCount = selectedProducts.size.toString(),
-                beforeTax = beforeTax.toString(),
-                tax = tax.toString(),
-                afterTax = afterTax.toString(),
+                beforeTax = String.format("%.2f %s", beforeTax, getString(R.string.currency)),
+                tax = String.format("%.2f %s", tax, getString(R.string.currency)),
+                afterTax = String.format("%.2f %s", afterTax, getString(R.string.currency)),
                 listener = object : OrderSummaryBottomSheet.Listener {
 
                     override fun onSave() {

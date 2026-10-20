@@ -622,7 +622,7 @@ class CompetitorFragment : Fragment() {
                 discount_rate = binding.etDiscount.text.toString().toBody(),
                 prom_type = promTypeJson.toBody(),
                 prom_date = offerDateForApi.toBody(),
-                user_type = "".toBody(),
+                user_type = SharedPreferencesHelper.getInstance().getUserCategory().toBody(),
                 // PromoterCompetitorCompress = binding.etProductSize.text.toString().toBody(),
                 competitor_id = selectedCompetitorId!!.toBody(),
                 type_id = selectedTypeId!!.toBody(),

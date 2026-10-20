@@ -685,6 +685,7 @@ class ReturnsFragment : Fragment() {
                                 com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                             )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                            getPriceLists()
                         } else {
                             DialogUtils.showResultDialog(
                                 context = requireContext(),

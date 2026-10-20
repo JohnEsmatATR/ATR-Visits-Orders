@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -64,6 +66,8 @@ class OrderCreationCycleFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        handleTopBottomKeyboard()
 
         customerName =
             arguments?.getString("customerName").toString()
@@ -177,6 +181,26 @@ class OrderCreationCycleFragment : Fragment() {
 
     }
 
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            val imeInsets = insets.getInsets(
+                WindowInsetsCompat.Type.ime()
+            )
+            view.setPadding(
+                view.paddingLeft,
+                systemBars.top,
+                view.paddingRight,
+                maxOf(
+                    imeInsets.bottom,
+                    systemBars.bottom
+                )
+            )
+            insets
+        }
+    }
+
     private fun getStartOrderData() {
         lifecycleScope.launch {
             viewModel.orderIntent.send(
@@ -221,7 +245,7 @@ class OrderCreationCycleFragment : Fragment() {
                         }
                     }
 
-                    is PhoneVisitsStatus.RefreshToken -> {
+                    is Order2Status.RefreshToken -> {
                         dialog.hide()
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
