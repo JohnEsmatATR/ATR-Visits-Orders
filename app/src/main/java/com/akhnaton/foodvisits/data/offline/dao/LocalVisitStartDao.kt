@@ -16,7 +16,8 @@ interface LocalVisitStartDao {
     suspend fun get(
         userId: String, customerCode: String, partySiteId: String, visitDate: String
     ): LocalVisitStartEntity?
-
+    @Query("DELETE FROM local_visit_start WHERE userId = :userId AND customerCode = :customerCode AND partySiteId = :partySiteId AND visitDate = :visitDate")
+    suspend fun delete(userId: String, customerCode: String, partySiteId: String, visitDate: String)
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(entity: LocalVisitStartEntity)
 

@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.visitPlan.LineItem
 import com.akhnaton.foodvisits.databinding.ItemRouteOptionBinding
 
@@ -29,8 +30,14 @@ class LineAdapter(
         val binding = holder.binding
 
         binding.tvRouteName.text = item.LINE_NAME
-        binding.tvRouteCode.text = "المخزن: ${item.STORE_CODE}  •  كود: ${item.LINE_CODE}"
-
+      //  binding.tvRouteCode.text = "المخزن: ${item.STORE_CODE}  •  كود: ${item.LINE_CODE}"
+        val storeCode = item.STORE_CODE
+        binding.tvRouteCode.text =
+            if (storeCode.isNullOrBlank() || storeCode.equals("null", ignoreCase = true)) {
+                binding.root.context.getString(R.string.line_code_only, item.LINE_CODE)
+            } else {
+                binding.root.context.getString(R.string.store_and_line_code, storeCode, item.LINE_CODE)
+            }
         val isSelected = item.LINE_CODE == getSelectedCode()
 
         if (isSelected) {

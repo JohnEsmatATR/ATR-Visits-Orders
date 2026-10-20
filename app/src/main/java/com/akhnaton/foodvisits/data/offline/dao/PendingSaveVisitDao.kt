@@ -15,9 +15,18 @@ interface PendingSaveVisitDao {
     @Query("SELECT * FROM pending_save_visit WHERE userId = :userId ORDER BY createdAt ASC")
     suspend fun getAll(userId: String): List<PendingSaveVisitEntity>
 
+
     @Query(
         "DELETE FROM pending_save_visit WHERE userId = :userId AND partySiteId = :partySiteId " +
                 "AND ordType = :ordType AND visitDate = :visitDate"
     )
     suspend fun delete(userId: String, partySiteId: String, ordType: String, visitDate: String)
+
+    @Query(
+        "SELECT * FROM pending_save_visit WHERE userId = :userId AND partySiteId = :partySiteId " +
+                "AND ordType = :ordType AND visitDate = :visitDate LIMIT 1"
+    )
+    suspend fun get(userId: String, partySiteId: String, ordType: String, visitDate: String): PendingSaveVisitEntity?
+
+
 }

@@ -358,6 +358,17 @@ class Visits2ViewModel(val context: Context) : ViewModel() {
         )
     }
     
+    private fun todayKey() = SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+
+    suspend fun getPendingSave(partySiteId: String, ordType: String): PendingSaveVisitEntity? =
+        pendingSaveVisitDao.get(OfflineDatabase.currentUserId(), partySiteId, ordType, todayKey())
+
+    fun deletePendingSave(partySiteId: String, ordType: String) {
+        viewModelScope.launch {
+            pendingSaveVisitDao.delete(OfflineDatabase.currentUserId(), partySiteId, ordType, todayKey())
+        }
+    }
+
     @RequiresPermission(
         allOf = [
             Manifest.permission.ACCESS_FINE_LOCATION,

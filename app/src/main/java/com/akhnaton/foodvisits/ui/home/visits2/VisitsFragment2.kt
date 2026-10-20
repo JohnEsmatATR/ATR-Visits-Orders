@@ -72,7 +72,7 @@ class VisitsFragment2 : Fragment() {
     //    private val viewModel: Visits2ViewModel by viewModels()
     private lateinit var viewModel: Visits2ViewModel
     private lateinit var binding: FragmentVisits2Binding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     var customerLatitude: Double? = 0.0
@@ -93,8 +93,8 @@ class VisitsFragment2 : Fragment() {
 
         setupKeyboardInsets()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+        //dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         viewModel = ViewModelProvider(
             this,
@@ -331,12 +331,12 @@ class VisitsFragment2 : Fragment() {
                         is Visits2Status.Idle -> {}
                         is Visits2Status.Loading -> {
                             if (!binding.swipeRefresh.isRefreshing) {
-                                dialog.show()
+                                binding.dialogLoading.root.visibility = View.VISIBLE
                             }
                         }
 
                         is Visits2Status.GetVisitPlan -> {
-                            dialog.dismiss()
+                            binding.dialogLoading.root.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 binding.tvDate.setText(DateUtils.getTodayDate())
@@ -378,7 +378,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.GetSalesMan -> {
-                            dialog.dismiss()
+                            binding.dialogLoading.root.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
 //                            binding.btnCopyVisits.isEnabled = true
                             if (it.data.status == 200) {
@@ -412,7 +412,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.CopyDayPlan -> {
-                            dialog.dismiss()
+                            binding.dialogLoading.root.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 val data =
@@ -462,7 +462,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.CheckIn -> {
-                            dialog.dismiss()
+                            binding.dialogLoading.root.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 val data =
@@ -482,7 +482,7 @@ class VisitsFragment2 : Fragment() {
                                         checkInReq = checkInReq
                                     )
                                 } else {
-                                    showStartVisitDialog()
+                                    openOfflineVisitOrAsk(clickedVisit)
                                 }
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {
@@ -507,7 +507,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.RefreshToken -> {
-                            dialog.hide()
+                            binding.dialogLoading.root.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${it.data.message}")
@@ -543,7 +543,7 @@ class VisitsFragment2 : Fragment() {
 
                         is Visits2Status.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            dialog.hide()
+                            binding.dialogLoading.root.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
@@ -612,7 +612,8 @@ class VisitsFragment2 : Fragment() {
         item: CustomerVisitPlan,
         checkIn: String,
         currentTime: String,
-        checkInReq: CheckInGPSReq
+        checkInReq: CheckInGPSReq,
+        needsCheckIn: Boolean = false
     ) {
         val navController = findNavController()
 
@@ -658,6 +659,7 @@ class VisitsFragment2 : Fragment() {
             putLong("seconds", result.seconds)
 
             putString("checkInReq", jsonCheckInReq)
+            putBoolean("needsCheckIn", needsCheckIn)
         }
 
         navController.navigate(
@@ -805,7 +807,8 @@ class VisitsFragment2 : Fragment() {
                     item,
                     formatTime(saved.startMillis),
                     formatTime(System.currentTimeMillis()),
-                    checkInReq = checkInReq
+                    checkInReq = checkInReq,
+                    needsCheckIn = true
                 )
             } else {
                 showStartVisitDialog()
@@ -826,7 +829,8 @@ class VisitsFragment2 : Fragment() {
                 )
             )
             isStartVisitDialogShowsUp = false
-            navigateToGpsVisit(item, formatTime(now), formatTime(now), checkInReq = checkInReq)
+            navigateToGpsVisit(item, formatTime(now), formatTime(now), checkInReq = checkInReq ,
+                needsCheckIn = true)
         }
     }
 
@@ -850,7 +854,9 @@ class VisitsFragment2 : Fragment() {
             )
         }
     }
+
 //offlineeeeeeeeee
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?

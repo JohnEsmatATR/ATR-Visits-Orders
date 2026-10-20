@@ -24,6 +24,8 @@ object DialogUtils {
         isLocation: Boolean = false,
         isStartVisit: Boolean = false,
         okText: String? = "تم",
+        editText: String? = null,
+        backText: String? = null,
         onOk: (() -> Unit)? = null,
         onYes: (() -> Unit)? = null,
         onNo: (() -> Unit)? = null,
@@ -32,7 +34,9 @@ object DialogUtils {
         onStartVisit: (() -> Unit)? = null,
         onCancel2: (() -> Unit)? = null,
         description: String? = null,
-        onAutoDismiss: (() -> Unit)? = null
+        onAutoDismiss: (() -> Unit)? = null,
+        yesText: String? = null,
+        noText: String? = null
     ) {
         val dialog = Dialog(context)
         dialog.setContentView(R.layout.dialog_result)
@@ -133,9 +137,14 @@ object DialogUtils {
         }
 
         if (showYesNoButtons) {
+            editText?.let { btnYes.text = it }
+            backText?.let { btnNo.text = it }
 
             btnYes.visibility = View.VISIBLE
             btnNo.visibility = View.VISIBLE
+
+            yesText?.let { btnYes.text = it }
+            noText?.let { btnNo.text = it }
 
             btnYes.setOnClickListener {
                 dialog.dismiss()

@@ -442,4 +442,13 @@
 
     <string name="no_internet_start_visit">لا يوجد اتصال بالإنترنت، بدء الزيارة يحتاج إنترنت</string>
 
+    <string name="visit_position_detail">موقف الزيارة: %1$s</string>
+    <string name="collect_today_detail">تحصيل اليوم: %1$s</string>
+    <string name="rate_out_of_five">%1$d من 5</string>
+
+    <string name="store_and_line_code">المخزن: %1$s  •  كود: %2$s</string>
+    <string name="line_code_only">كود: %1$s</string>
+
+    <string name="action_back">العودة</string>
+    <string name="action_edit">تعديل</string>
 </resources>

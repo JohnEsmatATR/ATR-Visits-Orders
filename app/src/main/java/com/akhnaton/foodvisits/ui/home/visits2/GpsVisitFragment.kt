@@ -31,8 +31,10 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.openLocationInMap
+import com.akhnaton.foodvisits.data.offline.entity.LocalVisitStartEntity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.home.phoneVisit.PhoneVisitsViewModel
+import com.akhnaton.foodvisits.data.offline.OfflineDatabase
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -84,6 +86,7 @@ import kotlin.text.toDoubleOrNull
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import com.akhnaton.foodvisits.data.offline.entity.PendingSaveVisitEntity
 
 class GpsVisitFragment : Fragment() {
 
@@ -92,7 +95,7 @@ class GpsVisitFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentGpsVisitBinding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
     lateinit var customerName: String
     lateinit var customerCode: String
@@ -140,6 +143,13 @@ class GpsVisitFragment : Fragment() {
     private var checkInTimeMillis = 0L
     private var serverTimeOffsetMillis = 0L
     private var checkZoneFlag = ""
+    private var visitFinished = false
+
+    // id -> name for the visibility (تقييم عرض الصنف) list, used in the pending-visit dialog
+    private var visibilityNames: Map<String, String> = emptyMap()
+    private var visitGoalNames: Map<String, String> = emptyMap()
+    private var sendOrderNoteNames: Map<String, String> = emptyMap()
+    private var pendingReqForForm: SaveVisitGpsReq? = null
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -159,6 +169,8 @@ class GpsVisitFragment : Fragment() {
         visitWithName = arguments?.getString("visitWithName").toString()
         checkIn = arguments?.getString("checkIn").orEmpty()
         currentTime = arguments?.getString("currentTime").orEmpty()
+        Log.d("TIMER", "ARGS checkIn=$checkIn | currentTime=$currentTime | needsCheckIn=$needsCheckIn")
+        needsCheckIn = arguments?.getBoolean("needsCheckIn") ?: false
         checkInReq = Gson().fromJson(
             arguments?.getString("checkInReq").orEmpty(),
             CheckInGPSReq::class.java
@@ -167,8 +179,8 @@ class GpsVisitFragment : Fragment() {
         Log.d("WHATback", checkIn)
         Log.d("WHATback", currentTime)
 
-//        observeInventoryResult()
-//        updateTimerFromLatestServerData()
+        observeInventoryResult()
+        updateTimerFromLatestServerData()
 
         viewModel = ViewModelProvider(
             this,
@@ -208,10 +220,10 @@ class GpsVisitFragment : Fragment() {
         isProm = SharedPreferencesHelper.getInstance().getProm()
         isSuperProm = SharedPreferencesHelper.getInstance().getSuperProm()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
-        //MainActivity.binding.navView2.visibility = View.GONE
+//t3del        //MainActivity.binding.navView2.visibility = View.GONE
 
         if (isProm || isSuperProm) {
             binding.llPromoterProcedures.visibility = View.VISIBLE
@@ -367,6 +379,9 @@ class GpsVisitFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener {
+            // a normal save must never reuse a leftover pending request
+            pendingReqToSend = null
+
 //            if (convertDeveloperModeCheckToInt() == 1) {
 //                DialogUtils.showResultDialog(
 //                    context = requireContext(),
@@ -391,6 +406,7 @@ class GpsVisitFragment : Fragment() {
             }
         }
         fetchData()
+        checkPendingSavedVisit()
     }
 
     private fun getData() {
@@ -743,12 +759,14 @@ class GpsVisitFragment : Fragment() {
                     when (it) {
                         is Visits2Status.Idle -> {}
                         is Visits2Status.Loading -> {
-                            dialog.show()
+                            binding.progressLoading.visibility = View.VISIBLE
                         }
-
                         is Visits2Status.SaveVisitGps -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             if (it.data.status == 200) {
+                                pendingReqToSend = null
+                                viewModel.deletePendingSave(customerPartySiteId, saleType)
+                                clearLocalVisitStart()
                                 val data =
                                     Gson().fromJson(
                                         it.data.data,
@@ -854,6 +872,8 @@ class GpsVisitFragment : Fragment() {
                                         it.data.data,
                                         Data::class.java
                                     )
+                                visitFinished = false
+                                startTimer()
                                 if (data.wrong_zone == 1) {
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
@@ -864,7 +884,14 @@ class GpsVisitFragment : Fragment() {
                                         isLocation = true,
                                         onReport = {
                                             checkZoneFlag = "0"
-                                            if (isProm || isSuperProm) {
+                                            val pendingReq = pendingReqToSend
+                                            if (pendingReq != null) {
+                                                lifecycleScope.launch {
+                                                    viewModel.visitsIntent.send(
+                                                        Visits2Intent.SaveVisitGps(pendingReq.copy(check_zone_flag = "0"))
+                                                    )
+                                                }
+                                            } else if (isProm || isSuperProm) {
                                                 saveVisitGPSForPromoters(checkZoneFlag)
                                             } else {
                                                 saveVisitGPS(checkZoneFlag)
@@ -896,6 +923,8 @@ class GpsVisitFragment : Fragment() {
                                     )
                                 }
                             } else {
+                                visitFinished = false
+                                startTimer()
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = it.data.message,
@@ -909,7 +938,7 @@ class GpsVisitFragment : Fragment() {
                         }
 
                         is Visits2Status.VisitsSelect -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             binding.tvTimer.visibility = View.VISIBLE
                             if (it.data.status == 200) {
                                 val data =
@@ -920,6 +949,10 @@ class GpsVisitFragment : Fragment() {
                                 val visitGoal = data.visit_goal
                                 val visabilty = data.visabilty
                                 val sendOrderNote = data.send_order_note
+
+                                visibilityNames = visabilty.associate { item -> item.id to item.name }
+                                visitGoalNames = visitGoal.associate { item -> item.id to item.name }
+                                sendOrderNoteNames = sendOrderNote.associate { item -> item.id to item.name }
 
                                 val visitGoalStrings = visitGoal.map { it.name }
                                 val visabiltyStrings = visabilty.map { it.name }
@@ -961,7 +994,13 @@ class GpsVisitFragment : Fragment() {
                                     val selectedPosition = sendOrderNote[position]
                                     anotherOrderType = selectedPosition.id
                                 }
-                            } else if (it.data.status == 401) {
+                                pendingReqForForm?.let {
+                                    fillFormFromPending(it)
+                                    pendingReqForForm = null
+                                }
+                            }
+
+                            else if (it.data.status == 401) {
                                 lifecycleScope.launch {
                                     viewModel.visitsIntent.send(
                                         Visits2Intent.RefreshToken(
@@ -984,7 +1023,7 @@ class GpsVisitFragment : Fragment() {
                         }
 
                         is Visits2Status.RefreshToken -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             if (it.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${it.data.message}")
                                 val data = Gson().fromJson(
@@ -1013,8 +1052,9 @@ class GpsVisitFragment : Fragment() {
 
                         is Visits2Status.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            dialog.dismiss()
-
+                            binding.progressLoading.visibility = View.GONE
+                            visitFinished = false
+                            startTimer()
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = it.error.toString(),
@@ -1024,8 +1064,51 @@ class GpsVisitFragment : Fragment() {
                                 }
                             )
                         }
+                        is Visits2Status.CheckIn -> {
+                            if (it.data.status == 200) {
+                                needsCheckIn = false
+                                if (reqAfterCheckIn == null) {
+                                    binding.progressLoading.visibility = View.GONE
+                                    val d = Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.checkInGPS.Data::class.java
+                                    )
+                                    if (d.check_in != null) {
+                                        checkIn = d.current_time
+                                        currentTime = d.current_time
+                                        findNavController().currentBackStackEntry?.savedStateHandle?.apply {
+                                            set("checkIn", checkIn)
+                                            set("currentTime", currentTime)
+                                        }
+                                        checkInTimeMillis = parseApiDate(checkIn)
+                                        Log.d("TIMER", "NEW checkIn=$checkIn | currentTime=$currentTime | checkInMs=$checkInTimeMillis")
+                                        serverTimeOffsetMillis = parseApiDate(currentTime) - System.currentTimeMillis()
+                                        binding.tvTimer.visibility = View.VISIBLE
+                                        startTimer()
+                                    }
+                                }
+                                reqAfterCheckIn?.let { req ->
+                                    reqAfterCheckIn = null
+                                    lifecycleScope.launch {
+                                        viewModel.visitsIntent.send(Visits2Intent.SaveVisitGps(req))
+                                    }
+                                }
+                            } else {
+                                binding.progressLoading.visibility = View.GONE
+                                reqAfterCheckIn = null
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true
+                                )
+                            }
+                        }
 
                         else -> {}
+                    }
+                    if (it !is Visits2Status.Idle && it !is Visits2Status.Loading) {
+                        viewModel.consumeStatus()
                     }
                 }
             }
@@ -1039,11 +1122,30 @@ class GpsVisitFragment : Fragment() {
         return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true &&
                 capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
     }
-
+    private fun sendSave(req: SaveVisitGpsReq) {
+        Log.d("DBG", "sendSave needsCheckIn=$needsCheckIn")
+        lifecycleScope.launch {
+            if (needsCheckIn) {
+                reqAfterCheckIn = req
+                val body = CheckInGPSReq(
+                    insert = 1,
+                    start_latitude = req.latitude?.toString() ?: "",
+                    start_longitude = req.longitude?.toString() ?: "",
+                    ord_type = saleType,
+                    party_site_id = customerPartySiteId,
+                    phone_visit = phoneVisit,
+                )
+                viewModel.visitsIntent.send(Visits2Intent.CheckIn(body))
+            } else {
+                viewModel.visitsIntent.send(Visits2Intent.SaveVisitGps(req))
+            }
+        }
+    }
     private fun submitSave(req: SaveVisitGpsReq) {
+        Log.d("DBG", "submitSave called, online=${isOnline()}")
         lifecycleScope.launch {
             if (isOnline()) {
-                viewModel.visitsIntent.send(Visits2Intent.SaveVisitGps(req))
+                sendSave(req)
             } else {
                 viewModel.saveVisitOffline(req)
                 DialogUtils.showResultDialog(
@@ -1062,7 +1164,10 @@ class GpsVisitFragment : Fragment() {
     }
 
     private fun startTimer() {
+        Log.d("TIMER", "startTimer called | checkInMs=$checkInTimeMillis | pendingShown=$pendingPromptShown")
         stopTimer()
+        if (pendingPromptShown) return
+        if (visitFinished) return
         if (checkInTimeMillis <= 0L) {
             return
         }
@@ -1087,6 +1192,7 @@ class GpsVisitFragment : Fragment() {
     }
 
     private fun updateTimerText(elapsedMillis: Long) {
+        Log.d("TIMER", "updateTimerText elapsed=$elapsedMillis | checkInMs=$checkInTimeMillis | offset=$serverTimeOffsetMillis | pendingShown=$pendingPromptShown | online=${isOnline()}")
         val safeElapsedMillis = elapsedMillis.coerceAtLeast(0L)
         val totalSeconds = safeElapsedMillis / 1000L
         val hours = totalSeconds / 3600L
@@ -1110,6 +1216,7 @@ class GpsVisitFragment : Fragment() {
 
     fun endTimer(): Long {
         dateVisit = System.currentTimeMillis() / 1000
+        visitFinished = true
         stopTimer()
         return dateVisit
     }
@@ -1179,7 +1286,7 @@ class GpsVisitFragment : Fragment() {
 
         currentTime = savedStateHandle?.get<String>("currentTime")
             ?: currentTime
-
+        Log.d("TIMER", "onResume checkIn=$checkIn | currentTime=$currentTime | fromHandle=${savedStateHandle?.get<String>("checkIn")}")
         if (
             checkIn.isNotBlank() &&
             currentTime.isNotBlank() &&
@@ -1246,6 +1353,242 @@ class GpsVisitFragment : Fragment() {
             insets
         }
     }
+
+    //offliiiiiiiiine
+    private var pendingPromptShown = false
+    private var pendingReqToSend: SaveVisitGpsReq? = null
+    private var needsCheckIn = false
+    private var reqAfterCheckIn: SaveVisitGpsReq? = null
+
+    private fun checkPendingSavedVisit() {
+        if (pendingPromptShown) return
+
+        if (!isOnline()) {
+            lifecycleScope.launch {
+                val pending = viewModel.getPendingSave(customerPartySiteId, saleType) ?: return@launch
+                pendingPromptShown = true
+                stopTimer()
+                binding.tvTimer.visibility = View.VISIBLE
+                updateTimerText(pendingElapsedMillis(pending))
+                showPendingData(Gson().fromJson(pending.requestJson, SaveVisitGpsReq::class.java))
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "تم عمل زيارة",
+                    description = "الزيارة محفوظة وسيتم إرسالها عند عودة الإنترنت",
+                    isSuccess = true,
+                    showYesNoButtons = true,
+                    backText = getString(R.string.action_back),
+                    editText = getString(R.string.action_edit),
+                    onNo = {
+                        findNavController().popBackStack()
+                    }
+                )
+            }
+            return
+        }
+
+        lifecycleScope.launch {
+            val pending = viewModel.getPendingSave(customerPartySiteId, saleType) ?: return@launch
+            pendingPromptShown = true
+            stopTimer()
+            binding.tvTimer.visibility = View.VISIBLE
+            updateTimerText(pendingElapsedMillis(pending))
+            val req = Gson().fromJson(pending.requestJson, SaveVisitGpsReq::class.java)
+            showPendingData(req)
+            val details = buildList {
+                req.visit_target?.let { add("هدف الزيارة: $it") }
+                req.grade?.let { add(getString(R.string.visit_position_detail, visitGoalNames[it] ?: it)) }
+                req.visibility?.let { add("تقييم عرض الصنف: ${visibilityNames[it] ?: it}") }
+                req.act_target?.let { add(getString(R.string.collect_today_detail, it.toString())) }
+                add("نوع البيع: ${req.ord_type}")
+            }.joinToString("\n")
+
+            DialogUtils.showResultDialog(
+                context = requireContext(),
+                message = "زيارة محفوظة",
+                description = "يوجد زياره محفوظه هل تريد تأكيدها؟\n\n$details",
+                isSuccess = true,
+                showYesNoButtons = true,
+                yesText = "إرسال الزيارة",
+                noText = "زيارة جديدة",
+                onYes = { sendPendingSavedVisit(pending) },
+                onNo = {
+                    lifecycleScope.launch {
+                        viewModel.deletePendingSave(customerPartySiteId, saleType)
+                        offlineDao.delete(
+                            OfflineDatabase.currentUserId(),
+                            customerCode,
+                            customerPartySiteId,
+                            todayKey()
+                        )
+                        showStartNewVisitDialog()
+                    }
+                }
+            )
+        }
+    }
+    private suspend fun pendingElapsedMillis(pending: PendingSaveVisitEntity): Long {
+        val saved = offlineDao.get(
+            OfflineDatabase.currentUserId(),
+            customerCode,
+            customerPartySiteId,
+            todayKey()
+        )
+        return if (saved != null) {
+            pending.createdAt - saved.startMillis
+        } else {
+            pending.createdAt - (checkInTimeMillis - serverTimeOffsetMillis)
+        }
+    }
+
+    private fun showPendingData(req: SaveVisitGpsReq) {
+        pendingReqForForm = req
+        fillFormFromPending(req)
+        if (visitGoalNames.isNotEmpty()) {
+            pendingReqForForm = null
+        }
+    }
+
+    private fun fillFormFromPending(req: SaveVisitGpsReq) {
+        binding.etObjectiveVisit.setText(req.visit_target?.toString().orEmpty())
+        binding.etCollectToday.setText(req.act_target?.toString().orEmpty())
+        binding.etVisitNotes.setText(req.comment.orEmpty())
+
+        req.grade?.let { value ->
+            grade = value
+            visitGoalNames[value]?.let { binding.etVisitingPosition.setText(it, false) }
+        }
+
+        req.visibility?.let { value ->
+            visibility = value
+            visibilityNames[value]?.let { binding.etVisibility.setText(it, false) }
+        }
+
+        req.another_order_type?.let { value ->
+            anotherOrderType = value
+            sendOrderNoteNames[value]?.let { binding.etSendOrderNote.setText(it, false) }
+        }
+
+        if (req.visit_with_confirmed == "1") {
+            binding.cbCompanionYes.isChecked = true
+            selectedRating = req.rate?.toFloatOrNull() ?: 0f
+            binding.ratingBar.rating = selectedRating
+            binding.tvRate.text = getString(R.string.rate_out_of_five, selectedRating.toInt())
+            binding.etComment.setText(req.rate_comment.orEmpty())
+        } else if (visitWithName != "null") {
+            binding.cbCompanionNo.isChecked = true
+        }
+    }
+    private val offlineDao by lazy {
+        OfflineDatabase.getInstance(requireContext()).localVisitStartDao()
+    }
+
+    private fun todayKey(): String =
+        SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date())
+
+    private fun clearLocalVisitStart() {
+        lifecycleScope.launch {
+            offlineDao.delete(
+                OfflineDatabase.currentUserId(),
+                customerCode,
+                customerPartySiteId,
+                todayKey()
+            )
+        }
+    }
+
+    private fun sendPendingSavedVisit(pending: PendingSaveVisitEntity) {
+        val req = Gson().fromJson(pending.requestJson, SaveVisitGpsReq::class.java)
+        pendingReqToSend = req
+        grade = req.grade.orEmpty()
+        sendSave(req)
+    }
+    private fun showStartNewVisitDialog() {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = "هل تريد بدء الزيارة ؟",
+            description = "سيبدأ حساب مدة الزيارة الآن مع $customerName ",
+            isSuccess = true,
+            isStartVisit = true,
+            onStartVisit = {
+                if (isOnline()) startNewVisitOnline() else startNewVisitOffline()
+            },
+            onCancel = { }
+        )
+    }
+
+    private fun resetForNewVisit() {
+        reqAfterCheckIn = null
+        stopTimer()
+        checkInTimeMillis = 0L
+        checkIn = ""
+        currentTime = ""
+        findNavController().currentBackStackEntry?.savedStateHandle?.apply {
+            remove<String>("checkIn")
+            remove<String>("currentTime")
+        }
+        reqAfterCheckIn = null
+        pendingPromptShown = false
+        visitFinished = false
+        pendingReqToSend = null
+        pendingReqForForm = null
+        binding.etObjectiveVisit.setText("")
+        binding.etCollectToday.setText("")
+        binding.etVisitNotes.setText("")
+        binding.etComment.setText("")
+        binding.etVisibility.setText("", false)
+        binding.etSendOrderNote.setText("", false)
+        visibility = "A"
+        anotherOrderType = ""
+        binding.cbCompanionYes.isChecked = false
+        binding.cbCompanionNo.isChecked = false
+        selectedRating = 0f
+        binding.ratingBar.rating = 0f
+        stopTimer()
+        checkInTimeMillis = 0L
+        checkIn = ""
+        currentTime = ""
+    }
+
+    private fun startNewVisitOnline() {
+        resetForNewVisit()
+        needsCheckIn = false
+        val loc = getCurrentLocationValue()
+        val body = CheckInGPSReq(
+            insert = 1,
+            start_latitude = loc?.latitude?.toString() ?: "",
+            start_longitude = loc?.longitude?.toString() ?: "",
+            ord_type = saleType,
+            party_site_id = customerPartySiteId,
+            phone_visit = phoneVisit,
+        )
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(Visits2Intent.CheckIn(body))
+        }
+    }
+
+    private fun startNewVisitOffline() {
+        resetForNewVisit()
+        needsCheckIn = true
+        lifecycleScope.launch {
+            val now = System.currentTimeMillis()
+            offlineDao.insert(
+                LocalVisitStartEntity(
+                    userId = OfflineDatabase.currentUserId(),
+                    customerCode = customerCode,
+                    partySiteId = customerPartySiteId,
+                    visitDate = todayKey(),
+                    startMillis = now
+                )
+            )
+            checkInTimeMillis = now
+            serverTimeOffsetMillis = 0L
+            binding.tvTimer.visibility = View.VISIBLE
+            startTimer()
+        }
+    }
+
+    //offlineeeeeeeeeeee
 
     override fun onStart() {
         super.onStart()
