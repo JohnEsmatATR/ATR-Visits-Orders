@@ -276,7 +276,7 @@
     <string name="customer_phone_numbers">اختر الرقم للاتصال</string>
     <string name="call">اتصال</string>
     <string name="phone_number">رقم الهاتف</string>
-    <string name="item_totals">إجالي الأصناف</string>
+    <string name="item_totals">إجمالي الأصناف</string>
 
     <string name="search_product_name_code">ابحث باسم المنتج أو الكود...</string>
     <string name="title_add_customer">تكويد عميل بيع مباشر</string>

@@ -390,11 +390,13 @@ class CompetitorFragment : Fragment() {
                                 message = "",
                                 retry = { onSaveClicked() }
                             ) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "تم حفظ المنافس بنجاح",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "تم حفظ المنافس بنجاح",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = { }
+                                )
                                 viewModel.resetStatus()
                                 findNavController().popBackStack()
                             }
@@ -584,7 +586,7 @@ class CompetitorFragment : Fragment() {
             ?.let { uriToMultipart(it) }
 
         if (imagePart == null) {
-            Toast.makeText(requireContext(), "من فضلك اختر صورة", Toast.LENGTH_SHORT).show()
+            showDialog("من فضلك اختر صورة")
             return
         }
 

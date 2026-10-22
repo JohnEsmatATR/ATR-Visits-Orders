@@ -164,11 +164,13 @@ class UploadPhotosFragment : Fragment() {
                                 message = "",
                                 retry = { uploadImages() }
                             ) {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "تم رفع الصور بنجاح",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "تم رفع الصور بنجاح",
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = { }
+                                )
                                 viewModel.resetStatus()
                                 findNavController().popBackStack()
                             }
