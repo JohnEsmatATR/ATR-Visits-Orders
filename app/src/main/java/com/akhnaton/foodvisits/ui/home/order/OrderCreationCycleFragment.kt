@@ -58,7 +58,8 @@ class OrderCreationCycleFragment : Fragment() {
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
     lateinit var fragment: String
-
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
     private var selectLists =
         mutableListOf<SelectLists>()
 
@@ -88,14 +89,16 @@ class OrderCreationCycleFragment : Fragment() {
         //MainActivity.binding.navView2.visibility = View.GONE
 
         binding.btnBack.setOnClickListener {
+            Log.d("BackBtn", "fragment = $fragment")
+
             if (fragment == "Telephone")
                 findNavController().popBackStack(
-                    R.id.toVisitPhone,
+                    R.id.visitPhoneFragment,
                     false
                 )
             else if (fragment == "Gps")
                 findNavController().popBackStack(
-                    R.id.toVisitGps,
+                    R.id.visitsFragment,
                     false
                 )
         }
@@ -247,36 +250,22 @@ class OrderCreationCycleFragment : Fragment() {
 
                     is Order2Status.RefreshToken -> {
                         dialog.hide()
+                        Log.d(TAG, "refreshToken status=${it.data.status} message=${it.data.message}")
                         if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            getStartOrderData()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance()
-                                        .logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(),
-                                            LoginActivity2::class.java
-                                        )
-                                    )
-                                    requireActivity().finishAffinity()
-                                }
+                            val tokenData = Gson().fromJson(
+                                it.data.data,
+                                com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                             )
+                            SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                            hasRetriedAfterRefresh = true
+                            val retry = pendingRetry
+                            pendingRetry = null
+                            retry?.invoke()
+                        } else {
+                            pendingRetry = null
+                            hasRetriedAfterRefresh = false
+                            showSessionExpired(it.data.message)
                         }
-//                        binding.tryAgainButtons.root.visibility = View.GONE
-
                     }
 
                     is Order2Status.Error -> {
@@ -313,6 +302,22 @@ class OrderCreationCycleFragment : Fragment() {
 
         binding.rvOptions.adapter = adapter
         binding.rvOptions.itemAnimator = DefaultItemAnimator()
+    }
+
+    private fun showSessionExpired(message: String?) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message.orEmpty(),
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(
+                    Intent(requireContext(), LoginActivity2::class.java)
+                )
+                requireActivity().finishAffinity()
+            }
+        )
     }
 
     override fun onCreateView(

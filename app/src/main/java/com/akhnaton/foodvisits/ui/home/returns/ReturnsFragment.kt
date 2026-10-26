@@ -500,10 +500,12 @@ class ReturnsFragment : Fragment() {
                         dialog.dismiss()
                         if (it.data.status == 200) {
 //                            setRecycler(it.data.data.products.toMutableList())
+                            Log.d("raw", it.data.data.toString())
                             val data = Gson().fromJson(
                                 it.data.data,
                                 com.akhnaton.foodvisits.data.model.getPriceLists.Data::class.java
                             )
+                            Log.d("damage", data.damage_price_list_id.toString())
                             selectedPriceList = data.price_list_id[0]
                             selectedDamagePriceList = data.damage_price_list_id[0]
                             startReturnData()
