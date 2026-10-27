@@ -535,7 +535,7 @@ class InvoiceFragment2 : Fragment() {
 
             val value = option.opt("id") ?: continue
 
-            // Add the value without assuming any particular key name.
+            // Add the value without assuming any particular key name
             requestJson.add(key, JsonPrimitive(value.toString()))
         }
 
