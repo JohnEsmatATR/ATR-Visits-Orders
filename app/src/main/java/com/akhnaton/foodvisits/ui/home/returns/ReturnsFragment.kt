@@ -49,6 +49,7 @@ class ReturnsFragment : Fragment() {
 
     private val viewModel: ReturnsViewModel by viewModels()
     private var _binding: FragmentReturnsBinding? = null
+    private var fromFragment: String = ""
     private val binding get() = _binding!!
     private lateinit var dialog: AlertDialog
 
@@ -92,6 +93,7 @@ class ReturnsFragment : Fragment() {
         saleType = arguments?.getString("saleType").toString()
         orderId = arguments?.getString("orderId").toString()
         storeId = arguments?.getString("storeId").toString()
+        fromFragment = arguments?.getString("fragment").orEmpty()
 
         selectedPriceList = Gson().fromJson(
             arguments?.getString("priceList"),
@@ -138,7 +140,7 @@ class ReturnsFragment : Fragment() {
                     isSuccess = true,
                     showYesNoButtons = true,
                     onYes = {
-                        findNavController().popBackStack()
+                        goBackToVisits()
                     })
             }
         }
@@ -250,7 +252,7 @@ class ReturnsFragment : Fragment() {
                 isSuccess = true,
                 showYesNoButtons = true,
                 onYes = {
-                    findNavController().popBackStack()
+                    goBackToVisits()
                 })
         }
 
@@ -469,7 +471,6 @@ class ReturnsFragment : Fragment() {
 
     private fun handle401(message: String, retry: () -> Unit) {
         if (hasRetriedAfterRefresh) {
-            // اتعمل refresh والـ token لسه بيرجع 401، يبقى الجلسة انتهت
             hasRetriedAfterRefresh = false
             pendingRetries.clear()
             showSessionExpired(message)
@@ -669,6 +670,18 @@ class ReturnsFragment : Fragment() {
                     }
                 }
                 viewModel.consumeStatus()
+            }
+        }
+    }
+    private fun goBackToVisits() {
+        val nav = findNavController()
+        if (fromFragment == "Telephone") {
+            if (!nav.popBackStack(R.id.visitPhoneFragment, false)) {
+                nav.navigate(R.id.visitPhoneFragment)
+            }
+        } else {
+            if (!nav.popBackStack(R.id.visitsFragment, false)) {
+                nav.navigate(R.id.visitsFragment)
             }
         }
     }

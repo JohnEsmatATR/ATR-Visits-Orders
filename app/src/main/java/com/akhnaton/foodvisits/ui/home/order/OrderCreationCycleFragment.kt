@@ -158,6 +158,7 @@ class OrderCreationCycleFragment : Fragment() {
                 Gson().toJson(selectedOptions)
 
             val bundle = Bundle().apply {
+                putString("fragment", fragment)
                 putString("customerName", customerName)
                 putString("customerCode", customerCode)
                 putString("siteAddress", siteAddress)

@@ -56,6 +56,7 @@ class ReturnOptionsFragment : Fragment() {
     private var selectLists = mutableListOf<SelectLists>()
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
+    private var fromFragment: String = ""
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -66,17 +67,18 @@ class ReturnOptionsFragment : Fragment() {
         saleType = arguments?.getString("saleType").toString()
         orderId = arguments?.getString("orderId").toString()
         storeId = arguments?.getString("storeId").toString()
+        fromFragment = arguments?.getString("fragment").orEmpty()
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
         binding.btnBack.setOnClickListener {
-            findNavController().popBackStack()
+            goBackToVisits()
         }
 
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                findNavController().popBackStack()
+                goBackToVisits()
             }
         }
 
@@ -119,6 +121,7 @@ class ReturnOptionsFragment : Fragment() {
             }
 
             val bundle = Bundle().apply {
+                putString("fragment", fromFragment)
                 putString("customerPartySiteId", customerPartySiteId)
                 putString("saleType", saleType)
                 putString("orderId", orderId)
@@ -295,7 +298,18 @@ class ReturnOptionsFragment : Fragment() {
             }
         )
     }
-
+    private fun goBackToVisits() {
+        val nav = findNavController()
+        if (fromFragment == "Telephone") {
+            if (!nav.popBackStack(R.id.visitPhoneFragment, false)) {
+                nav.navigate(R.id.visitPhoneFragment)
+            }
+        } else {
+            if (!nav.popBackStack(R.id.visitsFragment, false)) {
+                nav.navigate(R.id.visitsFragment)
+            }
+        }
+    }
     private fun setupKeyboardInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())

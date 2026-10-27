@@ -69,6 +69,7 @@ class InvoiceFragment2 : Fragment() {
     var saleTypeId: String? = ""
     var bonus: String? = ""
     private var isEdit: Boolean? = false
+    private var fromFragment: String = ""
     lateinit var OrigSysDocumentRef: String
     lateinit var orderJson: String
     private var getItemsResponse = mutableListOf<com.akhnaton.foodvisits.data.model.getItems.Data>()
@@ -94,7 +95,7 @@ class InvoiceFragment2 : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        fromFragment = arguments?.getString("fragment").orEmpty()
         requireActivity().window.setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         )
@@ -246,6 +247,7 @@ class InvoiceFragment2 : Fragment() {
             }
 
             val bundle = Bundle().apply {
+                putString("fragment", fromFragment)
                 putString("customerPartySiteId", customerPartySiteId)
                 putString("saleType", saleType)
                 putString("orderId", orderId)
