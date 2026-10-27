@@ -202,8 +202,14 @@ class OrderCreationCycleFragment : Fragment() {
     }
     private fun goBackToVisits() {
         val nav = findNavController()
-        if (!nav.popBackStack(R.id.visitsFragment, false)) {
-            nav.navigate(R.id.visitsFragment)
+        if (fragment == "Telephone") {
+            if (!nav.popBackStack(R.id.visitPhoneFragment, false)) {
+                nav.navigate(R.id.visitPhoneFragment)
+            }
+        } else {
+            if (!nav.popBackStack(R.id.visitsFragment, false)) {
+                nav.navigate(R.id.visitsFragment)
+            }
         }
     }
     private fun getStartOrderData() {

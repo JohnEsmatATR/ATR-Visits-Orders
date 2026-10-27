@@ -856,10 +856,17 @@ class InvoiceFragment2 : Fragment() {
     }
     private fun goBackToVisits() {
         val nav = findNavController()
-        if (!nav.popBackStack(R.id.visitsFragment, false)) {
-            nav.navigate(R.id.visitsFragment)
+        if (fromFragment == "Telephone") {
+            if (!nav.popBackStack(R.id.visitPhoneFragment, false)) {
+                nav.navigate(R.id.visitPhoneFragment)
+            }
+        } else {
+            if (!nav.popBackStack(R.id.visitsFragment, false)) {
+                nav.navigate(R.id.visitsFragment)
+            }
         }
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
