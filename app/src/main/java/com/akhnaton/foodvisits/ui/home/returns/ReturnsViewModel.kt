@@ -57,7 +57,7 @@ class ReturnsViewModel : ViewModel() {
                         it.priceList,
                         it.storeId
                     )
-
+                    is ReturnsIntent.RefreshToken -> refreshToken(it.userId, it.token)
                     else -> {}
                 }
             }
@@ -128,6 +128,24 @@ class ReturnsViewModel : ViewModel() {
         }
     }
 
+    private fun refreshToken(userId: String, token: String) {
+        Log.d("WHAT", "refreshTokenVIEWMODEL")
+        viewModelScope.launch {
+            _status.value = ReturnsStatus.Loading
+            _status.value = try {
+                ReturnsStatus.RefreshToken(
+                    PhoneVisitsRepository().refreshToken(userId, token)
+                )
+            } catch (e: Exception) {
+                Log.d("WHAT", "refreshTokenVIEWMODEL2 ${e.message}")
+                ReturnsStatus.Error(e.message)
+            }
+        }
+    }
+
+    fun consumeStatus() {
+        _status.value = ReturnsStatus.Idle
+    }
 }
 
 

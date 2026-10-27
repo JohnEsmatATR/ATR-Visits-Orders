@@ -24,20 +24,23 @@ data class SaveReturnReq(
     @SerializedName("PRICE_LIST_ID")
     val priceListId: Int,
 
+    @SerializedName("payment_id")
+    val paymentId: Int,
+
     @SerializedName("items")
     val items: Map<String, SaveReturnItemReq>
 )
 
 data class SaveReturnItemReq(
-    @SerializedName("inventory_item_id")
+    @SerializedName("INVENTORY_ITEM_ID")
     val inventoryItemId: Int,
 
-    @SerializedName("quantity")
+    @SerializedName("QUANTITY")
     val quantity: Int,
 
     @SerializedName("price")
     val price: Double,
 
-    @SerializedName("customer_price")
+    @SerializedName("CUSTOMER_PRICE")
     val customerPrice: Double
 )

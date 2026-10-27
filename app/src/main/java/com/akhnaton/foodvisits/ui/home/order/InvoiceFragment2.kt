@@ -153,9 +153,7 @@ class InvoiceFragment2 : Fragment() {
                     isSuccess = true,
                     showYesNoButtons = true,
                     onYes = {
-                        findNavController().popBackStack(
-                            R.id.visitPhoneFragment, false
-                        )
+                        goBackToVisits()
                     })
             }
         }
@@ -225,7 +223,7 @@ class InvoiceFragment2 : Fragment() {
             }
 
             findNavController().navigate(
-                R.id.toReturns,
+                R.id.toReturnOptions,
                 bundle,
                 androidx.navigation.NavOptions.Builder().setPopUpTo(
                     findNavController().graph.startDestinationId, true
@@ -276,9 +274,7 @@ class InvoiceFragment2 : Fragment() {
                 isSuccess = true,
                 showYesNoButtons = true,
                 onYes = {
-                    findNavController().popBackStack(
-                        R.id.visitPhoneFragment, false
-                    )
+                    goBackToVisits()
                 })
         }
 
@@ -808,7 +804,12 @@ class InvoiceFragment2 : Fragment() {
             insets
         }
     }
-
+    private fun goBackToVisits() {
+        val nav = findNavController()
+        if (!nav.popBackStack(R.id.visitsFragment, false)) {
+            nav.navigate(R.id.visitsFragment)
+        }
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {

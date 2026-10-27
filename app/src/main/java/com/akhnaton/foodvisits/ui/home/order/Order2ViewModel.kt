@@ -14,6 +14,7 @@ import com.akhnaton.foodvisits.data.statusValue.order2.Order2Status
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
 import com.akhnaton.foodvisits.domin.Order2Repository
+import com.akhnaton.foodvisits.domin.PhoneVisitsRepository
 import com.akhnaton.foodvisits.domin.OrderRepository
 import com.akhnaton.foodvisits.domin.Visits2Repository
 import com.google.gson.JsonElement
@@ -62,7 +63,7 @@ class Order2ViewModel : ViewModel() {
                     is Order2Intent.GetItemDetails -> getItemDetails(
                         it.itemId, it.priceList, it.storeId
                     )
-
+                    is Order2Intent.RefreshToken -> refreshToken(it.userId, it.token)
                     else -> {}
                 }
             }
@@ -154,7 +155,18 @@ class Order2ViewModel : ViewModel() {
             }
         }
     }
-
+    private fun refreshToken(userId: String, token: String) {
+        viewModelScope.launch {
+            _status.value = Order2Status.Loading
+            _status.value = try {
+                Order2Status.RefreshToken(
+                    PhoneVisitsRepository().refreshToken(userId, token)
+                )
+            } catch (e: Exception) {
+                Order2Status.Error(e.message)
+            }
+        }
+    }
     private fun getItemDetails(
         itemId: String,
         priceList: String,
