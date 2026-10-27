@@ -219,10 +219,12 @@ class ProductAdapter(
             if (item.CHECKED) {
                 if (item.IS_BACK_ORDER == true) {
                     tvBackOrder.visibility = View.VISIBLE
-                    val backOrder =
-                        maxOf(0, item.selectedQty - item.TOTAL_QUANTITY)
+//                    val backOrder =
+//                        maxOf(0, item.selectedQty - item.TOTAL_QUANTITY)
+//                    tvBackOrder.text =
+//                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
                     tvBackOrder.text =
-                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
+                        "${binding.root.context.getString(R.string.remaining)}: ${item.selectedQty}"
                 } else {
                     tvBackOrder.visibility = View.GONE
                 }

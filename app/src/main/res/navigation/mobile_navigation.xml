@@ -159,9 +159,12 @@
         <action
             android:id="@+id/toVisitPhone"
             app:destination="@id/visitPhoneFragment" />
+<!--        <action-->
+<!--            android:id="@+id/toReturns"-->
+<!--            app:destination="@id/returnsFragment" />-->
         <action
-            android:id="@+id/toReturns"
-            app:destination="@id/returnsFragment" />
+            android:id="@+id/toReturnOptions"
+            app:destination="@id/returnOptionsFragment" />
     </fragment>
 
     <fragment
@@ -315,5 +318,18 @@
         android:name="com.akhnaton.foodvisits.ui.home.visitPlan.AddVisitPlanFragment"
         android:label="fragment_add_visit_plan"
         tools:layout="@layout/fragment_add_visit_plan" />
+
+    <fragment
+        android:id="@+id/returnOptionsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.returns.ReturnOptionsFragment"
+        android:label="fragment_return_options"
+        tools:layout="@layout/fragment_return_options">
+        <action
+            android:id="@+id/toReturns"
+            app:destination="@id/returnsFragment" />
+        <action
+            android:id="@+id/toInvoice"
+            app:destination="@id/invoiceFragment" />
+    </fragment>
 
 </navigation>

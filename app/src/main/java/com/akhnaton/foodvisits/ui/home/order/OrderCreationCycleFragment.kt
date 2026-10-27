@@ -58,7 +58,8 @@ class OrderCreationCycleFragment : Fragment() {
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
     lateinit var fragment: String
-
+    private var pendingRetry: (() -> Unit)? = null
+    private var hasRetriedAfterRefresh = false
     private var selectLists =
         mutableListOf<SelectLists>()
 
@@ -90,26 +91,22 @@ class OrderCreationCycleFragment : Fragment() {
         binding.btnBack.setOnClickListener {
             if (fragment == "Telephone")
                 findNavController().popBackStack(
-                    R.id.toVisitPhone,
+                    R.id.visitPhoneFragment,
                     false
                 )
             else if (fragment == "Gps")
-                findNavController().popBackStack(
-                    R.id.toVisitGps,
-                    false
-                )
+                goBackToVisits()
         }
 
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (fragment == "Telephone")
-                    findNavController().navigate(
-                        R.id.toVisitPhone
+                    findNavController().popBackStack(
+                        R.id.visitPhoneFragment,
+                        false
                     )
                 else if (fragment == "Gps")
-                    findNavController().navigate(
-                        R.id.toVisitGps
-                    )
+                    goBackToVisits()
             }
         }
 
@@ -202,7 +199,12 @@ class OrderCreationCycleFragment : Fragment() {
             insets
         }
     }
-
+    private fun goBackToVisits() {
+        val nav = findNavController()
+        if (!nav.popBackStack(R.id.visitsFragment, false)) {
+            nav.navigate(R.id.visitsFragment)
+        }
+    }
     private fun getStartOrderData() {
         lifecycleScope.launch {
             viewModel.orderIntent.send(
@@ -225,6 +227,7 @@ class OrderCreationCycleFragment : Fragment() {
 
                     is Order2Status.GetStartOrderData -> {
                         dialog.dismiss()
+                        if (it.data.status != 401) hasRetriedAfterRefresh = false
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -236,52 +239,47 @@ class OrderCreationCycleFragment : Fragment() {
 
                             setRecycler(selectLists)
                         } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.orderIntent.send(
-                                    Order2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
-                                    )
-                                )
+                            if (hasRetriedAfterRefresh) {
+                                hasRetriedAfterRefresh = false
+                                pendingRetry = null
+                                showSessionExpired(it.data.message)
+                            } else {
+                                pendingRetry = { getStartOrderData() }
+                                sendRefreshToken()
                             }
+                        } else {
+                            DialogUtils.showResultDialog(
+                                requireContext(), it.data.message, false,
+                                showOkButton = true,
+                            )
                         }
                     }
 
                     is Order2Status.RefreshToken -> {
                         dialog.hide()
+                        Log.d(TAG, "refreshToken status=${it.data.status} message=${it.data.message}")
                         if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            getStartOrderData()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance()
-                                        .logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(),
-                                            LoginActivity2::class.java
-                                        )
-                                    )
-                                    requireActivity().finishAffinity()
-                                }
-                            )
-                        }
-//                        binding.tryAgainButtons.root.visibility = View.GONE
 
+
+                            val tokenData = Gson().fromJson(
+                                it.data.data,
+                                com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                            )
+                            SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                            hasRetriedAfterRefresh = true
+                            val retry = pendingRetry
+                            pendingRetry = null
+                            retry?.invoke()
+                        } else {
+                            pendingRetry = null
+                            hasRetriedAfterRefresh = false
+                            showSessionExpired(it.data.message)
+                        }
                     }
 
                     is Order2Status.Error -> {
+                        pendingRetry = null
+                        hasRetriedAfterRefresh = false
                         Log.d(TAG, "fetchData: ${it.error}")
                         dialog.hide()
 
@@ -293,7 +291,16 @@ class OrderCreationCycleFragment : Fragment() {
             }
         }
     }
-
+    private fun sendRefreshToken() {
+        lifecycleScope.launch {
+            viewModel.orderIntent.send(
+                Order2Intent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
+    }
     private fun setRecycler(
         list: MutableList<SelectLists>
     ) {
@@ -315,6 +322,22 @@ class OrderCreationCycleFragment : Fragment() {
 
         binding.rvOptions.adapter = adapter
         binding.rvOptions.itemAnimator = DefaultItemAnimator()
+    }
+
+    private fun showSessionExpired(message: String?) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message.orEmpty(),
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(
+                    Intent(requireContext(), LoginActivity2::class.java)
+                )
+                requireActivity().finishAffinity()
+            }
+        )
     }
 
     override fun onCreateView(

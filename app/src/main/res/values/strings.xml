@@ -441,4 +441,8 @@
     <string name="page_info_format">%1$d / %2$d</string>
 
 
+
+    <string name="return_options_title">اختيارات المرتجع</string>
+    <string name="return_options_header">الخيارات المطلوبة للمرتجع</string>
+    <string name="return_options_continue">المتابعة لإضافة المنتجات</string>
 </resources>
