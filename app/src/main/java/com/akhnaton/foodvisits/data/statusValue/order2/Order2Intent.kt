@@ -5,6 +5,7 @@ import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.data.statusValue.phoneVisits.PhoneVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Intent
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 
 sealed class Order2Intent {
 
@@ -15,7 +16,7 @@ sealed class Order2Intent {
     ) : Order2Intent()
 
     data class SaveOrder(
-        val saveOrderReq: SaveOrderReq
+        val saveOrderReq: JsonObject
     ) : Order2Intent()
 
     data class GetItems(val orderId: String) :

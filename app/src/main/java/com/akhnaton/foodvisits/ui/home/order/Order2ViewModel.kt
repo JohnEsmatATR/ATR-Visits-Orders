@@ -17,6 +17,7 @@ import com.akhnaton.foodvisits.domin.Order2Repository
 import com.akhnaton.foodvisits.domin.OrderRepository
 import com.akhnaton.foodvisits.domin.Visits2Repository
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -91,7 +92,7 @@ class Order2ViewModel : ViewModel() {
     }
 
     private fun saveOrder(
-        saveOrderReq: SaveOrderReq
+        saveOrderReq: JsonObject
     ) {
         viewModelScope.launch {
             _status.value = Order2Status.Loading

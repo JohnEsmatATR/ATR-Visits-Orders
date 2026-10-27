@@ -18,14 +18,14 @@ data class SaveOrderReq(
     @SerializedName("send")
     val send: String,
 
-    @SerializedName("warehouse_type")
-    val warehouseType: String,
+//    @SerializedName("warehouse_type")
+//    val warehouseType: String,
 
 //    @SerializedName("login")
 //    val login: Int,
 
-    @SerializedName("payment_id")
-    val paymentId: Int,
+//    @SerializedName("payment_id")
+//    val paymentId: Int,
 
     @SerializedName("items")
     val items: Map<String, SaveOrderItemReq>

@@ -170,6 +170,8 @@ class OrderCreationCycleFragment : Fragment() {
                 putBoolean("isEdit", false)
             }
 
+            Log.d("WHATselectionsJson", selectionsJson.toString())
+
             findNavController().navigate(
                 R.id.toInvoice,
                 bundle

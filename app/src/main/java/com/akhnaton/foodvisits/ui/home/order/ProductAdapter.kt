@@ -226,7 +226,6 @@ class ProductAdapter(
                 } else {
                     tvBackOrder.visibility = View.GONE
                 }
-
             }
             if (qty > 0) {
 

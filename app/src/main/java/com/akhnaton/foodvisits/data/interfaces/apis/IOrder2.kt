@@ -29,6 +29,7 @@ import com.akhnaton.foodvisits.shared.ConstantLinks.SAVED_ORDER_ENDPOINT
 import com.akhnaton.foodvisits.shared.ConstantLinks.SAVE_ORDER_PENDING
 import com.akhnaton.foodvisits.shared.ConstantLinks.SEND_ORDER
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import retrofit2.http.Body
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -48,7 +49,7 @@ interface IOrder2 {
 
     @POST(SAVED_ORDER_ENDPOINT)
     suspend fun saveOrder(
-        @Body saveOrderReq: SaveOrderReq,
+        @Body saveOrderReq: JsonObject,
     ): SaveOrderRes
 
     @GET("$GET_ITEMS/{order_id}")

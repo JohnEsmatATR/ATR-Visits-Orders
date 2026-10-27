@@ -116,6 +116,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 data.ALLOWED_TO_MAKE_RATE,
                                 if (data.USER_CATEGORY == "sprPrmt") true else false,
                                 data.ALLOWED_TO_APPROVE_VISIT,
+                                data.USER_CATEGORY
                             )
                             SharedPreferencesHelper().setDebugUsername(
                                 binding.username.text.toString()
@@ -255,16 +256,15 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun loginIntent() {
+        val username = binding.username.text.toString().lowercase().trim()
+        val password = binding.password.text.toString().trim()
+
         FirebaseMessaging.getInstance().token
             .addOnCompleteListener { task ->
+                val firebaseToken = if (task.isSuccessful) task.result else "Not Available"
                 if (!task.isSuccessful) {
-                    Log.w("FCM", "Fetching FCM registration token failed", task.exception)
-                    return@addOnCompleteListener
+                    Log.w("FCM", "Fetching FCM registration token failed: SERVICE_NOT_AVAILABLE", task.exception)
                 }
-
-                val firebaseToken = task.result
-                val username = binding.username.text.toString().lowercase().trim()
-                val password = binding.password.text.toString().trim()
 
                 Log.d("FCM", ">>> Sending login data:")
                 Log.d("FCM", "Version: $versionName")
@@ -279,10 +279,6 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                             password,
                         )
                     )
-
-//
-//                    val serviceIntent = Intent(this@LoginActivity, RealTimeService::class.java)
-//                    ContextCompat.startForegroundService(this@LoginActivity, serviceIntent)
                 }
             }
             .addOnFailureListener {

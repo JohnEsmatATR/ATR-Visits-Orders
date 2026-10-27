@@ -304,15 +304,14 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun loginIntent() {
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (!task.isSuccessful) {
-                Log.w("FCM", "Fetching FCM registration token failed", task.exception)
-                return@addOnCompleteListener
-            }
+        val username = binding.etUsername.text.toString().trim()
+        val password = binding.etPassword.text.toString().trim()
 
-            val firebaseToken = task.result
-            val username = binding.etUsername.text.toString().trim()
-            val password = binding.etPassword.text.toString().trim()
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            val firebaseToken = if (task.isSuccessful) task.result else "Not Available"
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Fetching FCM registration token failed: SERVICE_NOT_AVAILABLE", task.exception)
+            }
 
             Log.d("FCM", ">>> Sending login data:")
             Log.d("FCM", "Version: $versionName")
@@ -334,6 +333,15 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
             }
         }.addOnFailureListener {
             Log.d("FCM", "Failed to get token", it)
+            // Still proceed even if failure listener is triggered directly
+            lifecycleScope.launch {
+                viewModel.loginIntent.send(
+                    LoginIntent.Login(
+                        username,
+                        password,
+                    )
+                )
+            }
         }
     }
 

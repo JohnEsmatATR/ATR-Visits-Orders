@@ -6,6 +6,7 @@ import com.akhnaton.foodvisits.data.model.editOrder.EditOrderReq
 import com.akhnaton.foodvisits.data.model.saveOrder.SaveOrderReq
 import com.akhnaton.foodvisits.shared.RetrofitClient
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 
 class Order2Repository {
 
@@ -23,7 +24,7 @@ class Order2Repository {
         )
 
     suspend fun saveOrder(
-        saveOrderReq: SaveOrderReq
+        saveOrderReq: JsonObject
     ) =
         retrofit.saveOrder(
             saveOrderReq,

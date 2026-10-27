@@ -37,8 +37,10 @@ import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
 import com.akhnaton.foodvisits.ui.home.order.products.ProductAdapter
 import com.google.gson.Gson
+import com.google.gson.JsonPrimitive
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.launch
+import org.json.JSONArray
 import kotlin.getValue
 
 class InvoiceFragment2 : Fragment() {
@@ -65,6 +67,7 @@ class InvoiceFragment2 : Fragment() {
     var paymentId: String? = ""
     var warehouseId: String? = ""
     var saleTypeId: String? = ""
+    var bonus: String? = ""
     private var isEdit: Boolean? = false
     lateinit var OrigSysDocumentRef: String
     lateinit var orderJson: String
@@ -87,6 +90,8 @@ class InvoiceFragment2 : Fragment() {
     private var isSavedBefore: Boolean? = false
     private var itemsSummaryList = mutableListOf<ItemsSummary>()
 
+    private lateinit var selectedOptionsArray: JSONArray
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -103,21 +108,46 @@ class InvoiceFragment2 : Fragment() {
             siteAddress = arguments?.getString("siteAddress").toString()
             customerPartySiteId = arguments?.getString("customerPartySiteId").toString()
             saleType = arguments?.getString("saleType").toString()
-            selectedOptionsJson = arguments?.getString("selectedOptions").toString()
+//            selectedOptionsJson = arguments?.getString("selectedOptions").toString()
+//
+//            val type = object : TypeToken<List<SelectedOption>>() {}.type
+//            val selectedOptions: List<SelectedOption> = Gson().fromJson(
+//                selectedOptionsJson, type
+//            )
+//            paymentId = selectedOptions.firstOrNull {
+//                it.key == "payment_terms"
+//            }?.id ?: "106014"
+//            warehouseId = selectedOptions.firstOrNull {
+//                it.key == "warehouse_type"
+//            }?.id
+//            saleTypeId = selectedOptions.firstOrNull {
+//                it.key == "sale_type"
+//            }?.id
+//            bonus = selectedOptions.firstOrNull {
+//                it.key == "bonus"
+//            }?.id
 
-            val type = object : TypeToken<List<SelectedOption>>() {}.type
-            val selectedOptions: List<SelectedOption> = Gson().fromJson(
-                selectedOptionsJson, type
-            )
-            paymentId = selectedOptions.firstOrNull {
-                it.key == "payment_terms"
-            }?.id ?: "106014"
-            warehouseId = selectedOptions.firstOrNull {
-                it.key == "warehouse_type"
-            }?.id
-            saleTypeId = selectedOptions.firstOrNull {
-                it.key == "sale_type"
-            }?.id
+            selectedOptionsJson =
+                arguments?.getString("selectedOptions") ?: "[]"
+
+            selectedOptionsArray = JSONArray(selectedOptionsJson)
+
+            // Keep every option, including options with unknown keys.
+            val selectedOptions = (0 until selectedOptionsArray.length()).map { index ->
+                selectedOptionsArray.getJSONObject(index)
+            }
+
+            // Create a dynamic map: option key -> option ID.
+            val optionIds = selectedOptions.associate { option ->
+                option.optString("key") to option.optString("id")
+            }
+
+            // Existing fields, if you still need them:
+            paymentId = optionIds["payment_terms"] ?: "106014"
+            warehouseId = optionIds["warehouse_type"]
+            saleTypeId = optionIds["sale_type"]
+            bonus = optionIds["bonus"]
+
             Log.d("WHATinvoice", paymentId.toString())
             Log.d("WHATinvoice", warehouseId.toString())
             Log.d("WHATinvoice", saleTypeId.toString())
@@ -490,14 +520,32 @@ class InvoiceFragment2 : Fragment() {
             orderType = saleType,
             deviceType = "android",
             send = if (send) "1" else "0",
-            warehouseType = warehouseId ?: "",
-            paymentId = paymentId?.toIntOrNull() ?: 106014,
+//            warehouseType = warehouseId ?: "",
+//            paymentId = paymentId?.toIntOrNull() ?: 106014,
             items = items
         )
 
+        val gson = Gson()
+
+        // Convert the fixed fields to JSON.
+        val requestJson = gson.toJsonTree(request).asJsonObject
+
+        // Add every dynamic option.
+        for (i in 0 until selectedOptionsArray.length()) {
+            val option = selectedOptionsArray.optJSONObject(i) ?: continue
+
+            val key = option.optString("key")
+            if (key.isBlank() || key == "null") continue
+
+            val value = option.opt("id") ?: continue
+
+            // Add the value without assuming any particular key name.
+            requestJson.add(key, JsonPrimitive(value.toString()))
+        }
+
         lifecycleScope.launch {
             viewModel.orderIntent.send(
-                Order2Intent.SaveOrder(request)
+                Order2Intent.SaveOrder(requestJson)
             )
         }
     }
