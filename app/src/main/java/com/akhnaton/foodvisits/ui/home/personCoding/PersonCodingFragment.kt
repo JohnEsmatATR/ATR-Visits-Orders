@@ -266,6 +266,25 @@ class PersonCodingFragment : Fragment() {
             }
         }
 
+    private val cameraPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+
+            if (_binding == null || !isAdded) return@registerForActivityResult
+
+            if (isGranted) {
+                showCameraPreview()
+            } else {
+                // The user denied or canceled the permission dialog.
+                // Keep the existing screen unchanged.
+                hideCamera()
+                if (_binding != null) {
+                    binding.progressLoading.visibility = View.GONE
+                }
+            }
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -300,27 +319,30 @@ class PersonCodingFragment : Fragment() {
     }
 
     private fun openCamera() {
+        val context = context ?: return
 
-        if (ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.CAMERA), CAMERA_PERMISSION_CODE
+        val isCameraGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED
+
+        if (isCameraGranted) {
+            showCameraPreview()
+        } else {
+            cameraPermissionLauncher.launch(
+                Manifest.permission.CAMERA
             )
-            return
         }
+    }
+
+    private fun showCameraPreview() {
+        if (!isAdded || _binding == null) return
 
         binding.cameraCard.visibility = View.VISIBLE
         binding.ivCaptureButton.visibility = View.VISIBLE
 
-        // Important:
-        // Wait until PreviewView/CardView is actually visible and laid out.
         binding.previewView.post {
-
-            if (!isAdded || _binding == null) {
-                return@post
-            }
+            if (!isAdded || _binding == null) return@post
 
             startCamera()
         }
@@ -1424,28 +1446,29 @@ class PersonCodingFragment : Fragment() {
         binding.ivCaptureButton.visibility = View.GONE
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(
-            requestCode, permissions, grantResults
-        )
-
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                openCamera()
-            } else {
-                Toast.makeText(
-                    requireContext(), "يجب السماح باستخدام الكاميرا", Toast.LENGTH_SHORT
-                ).show()
-            }
-        }
-    }
+//    override fun onRequestPermissionsResult(
+//        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+//    ) {
+//        super.onRequestPermissionsResult(
+//            requestCode, permissions, grantResults
+//        )
+//
+//        if (requestCode == CAMERA_PERMISSION_CODE) {
+//
+//            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                openCamera()
+//            } else {
+//                Toast.makeText(
+//                    requireContext(), "يجب السماح باستخدام الكاميرا", Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        }
+//    }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        closeCamera()
         pendingRetry = null
         _binding = null
+        super.onDestroyView()
     }
 }

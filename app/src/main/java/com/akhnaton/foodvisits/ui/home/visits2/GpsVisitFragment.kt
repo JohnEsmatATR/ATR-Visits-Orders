@@ -58,6 +58,7 @@ import com.akhnaton.foodvisits.data.model.saveVisitGps.SaveVisitGpsReq
 import com.akhnaton.foodvisits.data.model.saveVisitPhone.SaveVisitPhoneReq
 import com.akhnaton.foodvisits.data.statusValue.visit.VisitsIntent
 import com.akhnaton.foodvisits.domin.CheckConnection
+import com.akhnaton.foodvisits.shared.ConstantLinks
 import com.akhnaton.foodvisits.shared.LocationService.Companion.startService
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -365,15 +366,15 @@ class GpsVisitFragment : Fragment() {
         }
 
         binding.btnSave.setOnClickListener {
-//            if (convertDeveloperModeCheckToInt() == 1) {
-//                DialogUtils.showResultDialog(
-//                    context = requireContext(),
-//                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
-//                    isSuccess = false,
-//                    showOkButton = true
-//                )
-//                return@setOnClickListener
-//            }
+            if (convertDeveloperModeCheckToInt() == 1 && ConstantLinks.isProd()) {
+                DialogUtils.showResultDialog(
+                    context = requireContext(),
+                    message = "برجاء اغلاق وضع المطور ثم المحاولة مرة اخري",
+                    isSuccess = false,
+                    showOkButton = true
+                )
+                return@setOnClickListener
+            }
 
             //ZoneFlag
 //            checkZoneFlag()
@@ -870,69 +871,83 @@ class GpsVisitFragment : Fragment() {
 //                                            )
 //                                        }
 //                                    })
-                                if (data.is_suspended == true) {
-                                    message = "${data.message}"
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            MainActivity.binding.navView2.visibility =
-                                                View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                } else if (!SharedPreferencesHelper.getInstance()
-                                        .isAllowedToMakeOrder()
-                                ) {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            MainActivity.binding.navView2.visibility =
-                                                View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                } else {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        seconds = 2,
-                                        onAutoDismiss = {
-                                            if (grade == "A") {
-                                                val bundle = Bundle().apply {
-                                                    putString("customerName", customerName)
-                                                    putString("customerCode", customerCode)
-                                                    putString("siteAddress", siteAddress)
-                                                    putString(
-                                                        "customerPartySiteId",
-                                                        customerPartySiteId
-                                                    )
-                                                    putString("saleType", saleType)
-                                                    putString("fragment", "Gps")
-                                                }
-
-                                                findNavController().navigate(
-                                                    R.id.toOrderCreationCycle, bundle
-                                                )
-                                            } else {
-                                                MainActivity.binding.navView2.visibility =
-                                                    View.VISIBLE
-                                                findNavController().navigate(
-                                                    R.id.toHome
-                                                )
-                                            }
-                                        })
-                                }
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = message,
+                                    isSuccess = true,
+                                    showOkButton = true,
+                                    onOk = {
+                                        MainActivity.binding.navView2.visibility =
+                                            View.VISIBLE
+                                        findNavController().navigate(
+                                            R.id.toHome
+                                        )
+                                    }
+                                )
+//                                if (data.is_suspended == true) {
+//                                    message = "${data.message}"
+//                                    DialogUtils.showResultDialog(
+//                                        context = requireContext(),
+//                                        message = message,
+//                                        isSuccess = true,
+//                                        showOkButton = true,
+//                                        onOk = {
+//                                            MainActivity.binding.navView2.visibility =
+//                                                View.VISIBLE
+//                                            findNavController().navigate(
+//                                                R.id.toHome
+//                                            )
+//                                        }
+//                                    )
+//                                }
+//                                else if (!SharedPreferencesHelper.getInstance()
+//                                        .isAllowedToMakeOrder()
+//                                ) {
+//                                    DialogUtils.showResultDialog(
+//                                        context = requireContext(),
+//                                        message = message,
+//                                        isSuccess = true,
+//                                        showOkButton = true,
+//                                        onOk = {
+//                                            MainActivity.binding.navView2.visibility =
+//                                                View.VISIBLE
+//                                            findNavController().navigate(
+//                                                R.id.toHome
+//                                            )
+//                                        }
+//                                    )
+//                                } else {
+//                                    DialogUtils.showResultDialog(
+//                                        context = requireContext(),
+//                                        message = message,
+//                                        isSuccess = true,
+//                                        seconds = 2,
+//                                        onAutoDismiss = {
+//                                            if (grade == "A") {
+//                                                val bundle = Bundle().apply {
+//                                                    putString("customerName", customerName)
+//                                                    putString("customerCode", customerCode)
+//                                                    putString("siteAddress", siteAddress)
+//                                                    putString(
+//                                                        "customerPartySiteId",
+//                                                        customerPartySiteId
+//                                                    )
+//                                                    putString("saleType", saleType)
+//                                                    putString("fragment", "Gps")
+//                                                }
+//
+//                                                findNavController().navigate(
+//                                                    R.id.toOrderCreationCycle, bundle
+//                                                )
+//                                            } else {
+//                                                MainActivity.binding.navView2.visibility =
+//                                                    View.VISIBLE
+//                                                findNavController().navigate(
+//                                                    R.id.toHome
+//                                                )
+//                                            }
+//                                        })
+//                                }
                             } else if (it.data.status == 400) {
                                 val data =
                                     Gson().fromJson(
