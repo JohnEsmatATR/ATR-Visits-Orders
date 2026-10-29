@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -806,6 +808,18 @@ class PhoneVisitStepsFragment : Fragment() {
                             Log.d(TAG, "fetchData: ${it.error}")
                             dialog.hide()
                             updateSaleTypesEmptyState(true)
+                            if (!isOnline()) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "لا يوجد اتصال بالإنترنت",
+                                    description = "يجب الاتصال بالإنترنت",
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        findNavController().navigate(R.id.toHome)
+                                    }
+                                )
+                            }
                         }
 
                         else -> {}
@@ -817,7 +831,12 @@ class PhoneVisitStepsFragment : Fragment() {
 //
 //        }
     }
-
+    private fun isOnline(): Boolean {
+        val manager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    }
     private fun setupKeyboardInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
             val imeInsets = insets.getInsets(

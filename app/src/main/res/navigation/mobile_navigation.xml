@@ -123,6 +123,9 @@
         <action
             android:id="@+id/toVisit2Fragment"
             app:destination="@id/visitsFragment" />
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
     </fragment>
 
     <fragment
@@ -130,6 +133,9 @@
         android:name="com.akhnaton.foodvisits.ui.home.tickets.TicketsFragment"
         android:label="fragment_tickets"
         tools:layout="@layout/fragment_tickets" />
+    <action
+        android:id="@+id/toHome"
+        app:destination="@id/mainFragment" />
 
     <fragment
         android:id="@+id/profileFragment"
@@ -258,6 +264,9 @@
         <action
             android:id="@+id/toTelephoneVisit"
             app:destination="@id/telephoneVisitFragment" />
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
     </fragment>
 
     <fragment
@@ -281,6 +290,9 @@
         <action
             android:id="@+id/toCardPrintDetails"
             app:destination="@id/cardPrintDetailsFragment" />
+        <action
+            android:id="@+id/toHome"
+            app:destination="@id/mainFragment" />
 
     </fragment>
 
@@ -300,7 +312,11 @@
         android:id="@+id/personCodingFragment"
         android:name="com.akhnaton.foodvisits.ui.home.personCoding.PersonCodingFragment"
         android:label="fragment_person_coding"
-        tools:layout="@layout/fragment_person_coding" />
+        tools:layout="@layout/fragment_person_coding">
+    <action
+        android:id="@+id/toHome"
+        app:destination="@id/mainFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/VisitPlanFragment"
@@ -310,6 +326,7 @@
         <action
             android:id="@+id/toAddVisitPlan"
             app:destination="@id/addVisitPlanFragment" />
+
     </fragment>
 
     <fragment

@@ -30,6 +30,8 @@ import com.akhnaton.foodvisits.data.statusValue.chart.ChartStatus
 import com.akhnaton.foodvisits.data.model.chart.ChartInfo
 import com.akhnaton.foodvisits.databinding.FragmentMainBinding
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
+import com.akhnaton.foodvisits.data.offline.OfflineDatabase
+import com.akhnaton.foodvisits.domin.Visits2Repository
 import com.akhnaton.foodvisits.ui.auth.LoginActivity
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
@@ -39,7 +41,11 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import java.util.*
 
 class MainFragment : Fragment() {
@@ -217,7 +223,41 @@ class MainFragment : Fragment() {
 
 
     }
+    //offline chache
+    private fun prefetchVisitData() {
+        val appContext = requireContext().applicationContext
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
+            Log.d(TAG, "prefetch started")
+            val repo = Visits2Repository(
+                OfflineDatabase.getInstance(appContext).apiCacheDao()
+            )
+            try {
+                val plan = repo.getVisitPlan()
+                Log.d(TAG, "plan status=${plan.status}")
+                if (plan.status != 200) return@launch
 
+                val data = Gson().fromJson(
+                    plan.data,
+                    com.akhnaton.foodvisits.data.model.getVisitPlan.Data::class.java
+                )
+                Log.d(TAG, "parsed data=${data != null}, customers=${data?.customer_visit_plan?.size}")
+                if (data == null) return@launch
+
+                data.customer_visit_plan.forEach { customer ->
+                    try {
+                        repo.visitsSelect(customer.customer_order_type, customer.customer_code)
+                        Log.d(TAG, "cached ${customer.customer_order_type}-${customer.customer_code}")
+                    } catch (e: Exception) {
+                        Log.d(TAG, "prefetch select failed: ${e.message}")
+                    }
+                }
+                Log.d(TAG, "prefetch finished")
+            } catch (e: Exception) {
+                Log.d(TAG, "prefetchVisitData failed: ${e.message}")
+            }
+        }
+    }
+    //offline chache
     private fun setAdapterData(data: List<ChartInfo>) {
         mAdapter.setChartDataList(data)
     }
@@ -225,6 +265,7 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         handleTopBottomKeyboard()
+        prefetchVisitData()
 //        (activity as? MainActivity)?.let {
 //            it.findViewById<BottomNavigationView>(R.id.nav_view2).visibility = View.VISIBLE
 //        }

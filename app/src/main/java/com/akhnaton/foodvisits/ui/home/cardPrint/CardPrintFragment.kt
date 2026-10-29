@@ -2,6 +2,9 @@ package com.akhnaton.foodvisits.ui.home.cardPrint
 
 import android.content.Intent
 import android.os.Bundle
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -242,6 +245,18 @@ class CardPrintFragment : Fragment() {
                             Log.d(TAG, "observeStatus: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
+                            if (!isOnline()) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "لا يوجد اتصال بالإنترنت",
+                                    description = "يجب الاتصال بالإنترنت",
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        findNavController().navigate(R.id.toHome)
+                                    }
+                                )
+                            }
                         }
 
                         else -> {}
@@ -250,7 +265,12 @@ class CardPrintFragment : Fragment() {
             }
         }
     }
-
+    private fun isOnline(): Boolean {
+        val manager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    }
     override fun onDestroyView() {
         super.onDestroyView()
         pendingRetry = null

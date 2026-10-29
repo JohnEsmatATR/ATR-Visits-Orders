@@ -8,6 +8,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.activity.result.contract.ActivityResultContracts
@@ -318,9 +321,20 @@ class TicketsFragment : Fragment(), View.OnClickListener {
 
                     is TicketsStatus.Error -> {
                         dialog.hide()
-//                        binding.error.text = it.error.toString()
-//                        binding.error.visibility = View.VISIBLE
                         Log.d(TAG, "fetchData: ${it.error}")
+
+                        if (!isOnline()) {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = "لا يوجد اتصال بالإنترنت",
+                                description = "يجب الاتصال بالإنترنت",
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
+                                    findNavController().navigate(R.id.toHome)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -375,6 +389,13 @@ class TicketsFragment : Fragment(), View.OnClickListener {
             binding.error.error = "يجب كتابة الرسالة اولا"
             binding.error.isFocusable = true
         }
+    }
+
+    private fun isOnline(): Boolean {
+        val manager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
     }
 
     @RequiresApi(Build.VERSION_CODES.P)

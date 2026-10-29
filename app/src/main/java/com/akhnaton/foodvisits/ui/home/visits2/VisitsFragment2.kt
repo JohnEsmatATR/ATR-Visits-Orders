@@ -542,13 +542,16 @@ class VisitsFragment2 : Fragment() {
                             binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
 
-                            if (allCustomers.isEmpty() && !isOnline()) {
+                            if (allCustomers.isEmpty()) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = "لا يوجد اتصال بالإنترنت",
                                     description = "يجب الاتصال بالإنترنت لتحميل الزيارات لأول مرة",
                                     isSuccess = false,
-                                    showOkButton = true
+                                    showOkButton = true,
+                                    onOk = {
+                                        findNavController().navigate(R.id.toHome)
+                                    }
                                 )
                             }
                         }

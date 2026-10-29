@@ -5,6 +5,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.location.Geocoder
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.location.Location
 import android.net.Uri
 import android.os.Bundle
@@ -28,6 +31,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.personCoding.Area
 import com.akhnaton.foodvisits.data.model.personCoding.AreasData
@@ -990,6 +994,18 @@ class PersonCodingFragment : Fragment() {
                         is PersonStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
+                            if (!isOnline()) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "لا يوجد اتصال بالإنترنت",
+                                    description = "يجب الاتصال بالإنترنت",
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        findNavController().navigate(R.id.toHome)
+                                    }
+                                )
+                            }
                         }
 
                         else -> {}
@@ -998,7 +1014,12 @@ class PersonCodingFragment : Fragment() {
             }
         }
     }
-
+    private fun isOnline(): Boolean {
+        val manager =
+            requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val capabilities = manager.getNetworkCapabilities(manager.activeNetwork)
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+    }
     private fun showError(message: String?) {
         DialogUtils.showResultDialog(
             context = requireContext(),
