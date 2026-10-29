@@ -1,7 +1,6 @@
 package com.akhnaton.foodvisits.ui.home.visits2
 
 import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
 import android.location.Location
 import android.os.Bundle
@@ -16,7 +15,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -37,7 +35,6 @@ import com.akhnaton.foodvisits.data.statusValue.visits2.Visits2Status
 import com.akhnaton.foodvisits.databinding.FragmentVisits2Binding
 import com.akhnaton.foodvisits.shared.DateUtils
 import com.akhnaton.foodvisits.shared.DialogUtils
-import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.convertDateToApiFormat
 import com.akhnaton.foodvisits.shared.getDistanceFromCurrentLocation
@@ -46,8 +43,6 @@ import com.akhnaton.foodvisits.shared.location.GetLocationService
 import com.akhnaton.foodvisits.shared.location.RequestPermission
 import com.akhnaton.foodvisits.shared.openLocationInMap
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
-import com.akhnaton.foodvisits.ui.home.MainActivity
-import com.akhnaton.foodvisits.ui.home.visits.VisitsViewModelFactory
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.material.tabs.TabLayout
@@ -58,6 +53,7 @@ import kotlin.toString
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.provider.Settings
 import com.akhnaton.foodvisits.data.offline.OfflineDatabase
 import com.akhnaton.foodvisits.data.offline.entity.LocalVisitStartEntity
 import java.text.SimpleDateFormat
@@ -331,12 +327,12 @@ class VisitsFragment2 : Fragment() {
                         is Visits2Status.Idle -> {}
                         is Visits2Status.Loading -> {
                             if (!binding.swipeRefresh.isRefreshing) {
-                                binding.dialogLoading.root.visibility = View.VISIBLE
+                                binding.progressLoading.visibility = View.VISIBLE
                             }
                         }
 
                         is Visits2Status.GetVisitPlan -> {
-                            binding.dialogLoading.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 binding.tvDate.setText(DateUtils.getTodayDate())
@@ -378,7 +374,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.GetSalesMan -> {
-                            binding.dialogLoading.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
 //                            binding.btnCopyVisits.isEnabled = true
                             if (it.data.status == 200) {
@@ -412,7 +408,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.CopyDayPlan -> {
-                            binding.dialogLoading.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 val data =
@@ -462,7 +458,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.CheckIn -> {
-                            binding.dialogLoading.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 val data =
@@ -507,7 +503,7 @@ class VisitsFragment2 : Fragment() {
                         }
 
                         is Visits2Status.RefreshToken -> {
-                            binding.dialogLoading.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
                             if (it.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${it.data.message}")
@@ -543,10 +539,18 @@ class VisitsFragment2 : Fragment() {
 
                         is Visits2Status.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            binding.dialogLoading.root.visibility = View.GONE
+                            binding.progressLoading.visibility = View.GONE
                             binding.swipeRefresh.isRefreshing = false
 
-//                        binding.tryAgainButtons.root.visibility = View.VISIBLE
+                            if (allCustomers.isEmpty() && !isOnline()) {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = "لا يوجد اتصال بالإنترنت",
+                                    description = "يجب الاتصال بالإنترنت لتحميل الزيارات لأول مرة",
+                                    isSuccess = false,
+                                    showOkButton = true
+                                )
+                            }
                         }
 
                         else -> {}
@@ -561,6 +565,10 @@ class VisitsFragment2 : Fragment() {
     }
 
     private fun checkIn(insert: Int, item: CustomerVisitPlan) {
+        if (!isAutoTimeEnabled()) {
+            AutoTimeDialog()
+            return
+        }
         val currentLocation = getCurrentLocationValue()
         checkInReq = CheckInGPSReq(
             insert = insert,
@@ -854,6 +862,27 @@ class VisitsFragment2 : Fragment() {
             )
         }
     }
+
+    //automatic time
+    private fun isAutoTimeEnabled(): Boolean {
+        val resolver = requireContext().contentResolver
+        val autoTime = Settings.Global.getInt(resolver, Settings.Global.AUTO_TIME, 0) == 1
+        val autoZone = Settings.Global.getInt(resolver, Settings.Global.AUTO_TIME_ZONE, 0) == 1
+        return autoTime && autoZone
+    }
+
+    private fun AutoTimeDialog() {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = "الوقت التلقائي غير مفعّل",
+            description = "برجاء تفعيل \"الوقت التلقائي\" من الإعدادات ثم المحاولة مرة أخرى",
+            isSuccess = false,
+            showOkButton = true,
+            onOk = { startActivity(Intent(Settings.ACTION_DATE_SETTINGS)) }
+        )
+    }
+    //automatic time
+
 
 //offlineeeeeeeeee
 
