@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.pdf.PdfDocument
 import android.os.Bundle
+import android.widget.LinearLayout
 import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
@@ -72,7 +73,7 @@ class CardPrintDetailsFragment : Fragment() {
         binding.tvInvoiceNumber.text = orderSalesNumber
         binding.tvDateTime.text = SimpleDateFormat("dd/MM/yyyy", Locale("ar")).format(Date())
         binding.tvTime.text = SimpleDateFormat("hh:mm:ss a", Locale("ar")).format(Date())
-
+        setupButtons()
         observeStatus()
 
         viewModel.cardPrintIntent.trySend(
@@ -80,26 +81,44 @@ class CardPrintDetailsFragment : Fragment() {
         )
 
         binding.btnPrint.setOnClickListener {
-            binding.tvDateTime.text = SimpleDateFormat("dd/MM/yyyy", Locale("ar")).format(Date())
-            binding.tvTime.text = SimpleDateFormat("hh:mm:ss a", Locale("ar")).format(Date())
             lifecycleScope.launch {
-                delay(400)
-                val bitmap = createBitmapFromView(binding.printMeLayout)
+                val bitmap = captureInvoice()
                 bitmap?.let { fullBitmap ->
-                    if (printMe.isPrinterAvailable()) {
-                        val chunks = splitBitmapIntoChunks(fullBitmap)
-                        printMe.printBitmapChunksSuspend(chunks)
-                        printMe.feedPaperSuspend(4)
-                    } else {
-                        exportBitmapAsPdf(fullBitmap)
-                    }
+                    val chunks = splitBitmapIntoChunks(fullBitmap)
+                    printMe.printBitmapChunksSuspend(chunks)
+                    printMe.feedPaperSuspend(4)
+                }
+            }
+        }
+
+        binding.btnPrintPdf.setOnClickListener {
+            lifecycleScope.launch {
+                val bitmap = captureInvoice()
+                bitmap?.let { fullBitmap ->
+                    exportBitmapAsPdf(fullBitmap)
                 }
             }
         }
     }
 
 
+    private fun setupButtons() {
+        if (printMe.isPrinterAvailable()) {
+            binding.btnPrint.visibility = View.VISIBLE
+        } else {
+            binding.btnPrint.visibility = View.GONE
+            val params = binding.btnPrintPdf.layoutParams as LinearLayout.LayoutParams
+            params.marginStart = 0
+            binding.btnPrintPdf.layoutParams = params
+        }
+    }
 
+    private suspend fun captureInvoice(): Bitmap? {
+        binding.tvDateTime.text = SimpleDateFormat("dd/MM/yyyy", Locale("ar")).format(Date())
+        binding.tvTime.text = SimpleDateFormat("hh:mm:ss a", Locale("ar")).format(Date())
+        delay(400)
+        return createBitmapFromView(binding.printMeLayout)
+    }
 
     private fun splitBitmapIntoChunks(bitmap: Bitmap, chunkHeight: Int = 256): List<Bitmap> {
         val chunks = mutableListOf<Bitmap>()

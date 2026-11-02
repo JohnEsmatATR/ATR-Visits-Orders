@@ -263,7 +263,7 @@
     <string name="value_of_invoice"> 12</string>
     <string name="order_type">نوع الطلب:</string>
     <string name="search_hint">ابحث...</string>
-    <string name="print_button">اطبع</string>
+    <string name="print_button">طباعة فاتورة</string>
 
 
 
@@ -318,4 +318,6 @@
     <string name="customer_card_number">عنوان العميل في البطاقه</string>
     <string name="hint_customer_card_number">ادخل عنوان العميل</string>
     <string name="no_approvals_founded">لا توجد نتائج مطابقة للبحث</string>
+
+    <string name="print_pdf">طباعة PDF</string>
 </resources>
