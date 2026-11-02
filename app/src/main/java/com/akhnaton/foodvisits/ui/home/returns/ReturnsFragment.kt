@@ -207,7 +207,7 @@ class ReturnsFragment : Fragment() {
             }
 
             findNavController().navigate(
-                R.id.toReturns,
+                R.id.toInvoice,
                 bundle,
                 androidx.navigation.NavOptions.Builder().setPopUpTo(
                     findNavController().graph.startDestinationId, true

@@ -93,7 +93,6 @@
                             android:layout_width="wrap_content"
                             android:layout_height="48dp"
                             android:backgroundTint="@color/red"
-                            android:enabled="false"
                             android:clickable="false"
                             android:text="اضافة طلبية"
                             android:textColor="@android:color/white"
