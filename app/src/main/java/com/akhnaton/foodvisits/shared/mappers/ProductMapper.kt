@@ -28,36 +28,58 @@ object ProductMapper {
         }
     }
 
+//    fun mapItemsSummaryToRequest(
+//        itemSummaries: List<ItemsSummary>,
+//        selectedProducts: List<Product>
+//    ): Map<String, SaveOrderItemReq> {
+//
+//        return itemSummaries.mapIndexed { index, summary ->
+//
+//            val selectedQty =
+//                selectedProducts.getOrNull(index)?.selectedQty
+//                    ?: summary.REQUESTED_QUANTITY
+//
+//            val quantity = if (!summary.IS_BACK_ORDER) {
+//                Log.d(
+//                    "WHATmaxOF1",
+//                    "summary.AVAILABLE_QUANTITY: ${summary.AVAILABLE_QUANTITY}, selectedQty: $selectedQty"
+//                )
+////                minOf(summary.AVAILABLE_QUANTITY, selectedQty)
+//                selectedQty
+//            } else {
+//                Log.d(
+//                    "WHATmaxOF2",
+//                    "summary.AVAILABLE_QUANTITY: ${summary.AVAILABLE_QUANTITY}, selectedQty: $selectedQty"
+//                )
+////                maxOf(0, selectedQty)
+//                selectedQty
+//            }
+//
+//            index.toString() to SaveOrderItemReq(
+//                inventoryItemId = summary.PRODUCT_ID.toInt(),
+//                quantity = quantity
+//            )
+//        }.toMap()
+//    }
+
     fun mapItemsSummaryToRequest(
         itemSummaries: List<ItemsSummary>,
         selectedProducts: List<Product>
     ): Map<String, SaveOrderItemReq> {
 
-        return itemSummaries.mapIndexed { index, summary ->
+        val totals = linkedMapOf<Int, Int>()
 
-            val selectedQty =
-                selectedProducts.getOrNull(index)?.selectedQty
-                    ?: summary.REQUESTED_QUANTITY
+        itemSummaries.forEachIndexed { index, summary ->
+            val qty = selectedProducts.getOrNull(index)?.selectedQty
+                ?: summary.REQUESTED_QUANTITY
+            val id = summary.PRODUCT_ID.toInt()
+            totals[id] = (totals[id] ?: 0) + qty
+        }
 
-            val quantity = if (!summary.IS_BACK_ORDER) {
-                Log.d(
-                    "WHATmaxOF1",
-                    "summary.AVAILABLE_QUANTITY: ${summary.AVAILABLE_QUANTITY}, selectedQty: $selectedQty"
-                )
-//                minOf(summary.AVAILABLE_QUANTITY, selectedQty)
-                selectedQty
-            } else {
-                Log.d(
-                    "WHATmaxOF2",
-                    "summary.AVAILABLE_QUANTITY: ${summary.AVAILABLE_QUANTITY}, selectedQty: $selectedQty"
-                )
-//                maxOf(0, selectedQty)
-                selectedQty
-            }
-
+        return totals.entries.mapIndexed { index, entry ->
             index.toString() to SaveOrderItemReq(
-                inventoryItemId = summary.PRODUCT_ID.toInt(),
-                quantity = quantity
+                inventoryItemId = entry.key,
+                quantity = entry.value
             )
         }.toMap()
     }
