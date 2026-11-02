@@ -48,7 +48,7 @@ class OrderCreationCycleFragment : Fragment() {
 
     private val viewModel: Order2ViewModel by viewModels()
     private lateinit var binding: FragmentOrderCreationCycleBinding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
     lateinit var customerName: String
     lateinit var customerCode: String
@@ -78,8 +78,8 @@ class OrderCreationCycleFragment : Fragment() {
         fragment =
             arguments?.getString("fragment").toString()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
@@ -195,10 +195,10 @@ class OrderCreationCycleFragment : Fragment() {
             viewModel.status.collect {
                 when (it) {
                     is Order2Status.Idle -> {}
-                    is Order2Status.Loading -> dialog.show()
+                    is Order2Status.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                     is Order2Status.GetStartOrderData -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -222,7 +222,7 @@ class OrderCreationCycleFragment : Fragment() {
                     }
 
                     is PhoneVisitsStatus.RefreshToken -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
@@ -257,7 +257,7 @@ class OrderCreationCycleFragment : Fragment() {
 
                     is Order2Status.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }

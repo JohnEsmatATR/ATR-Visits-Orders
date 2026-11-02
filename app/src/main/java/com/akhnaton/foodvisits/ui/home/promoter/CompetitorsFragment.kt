@@ -331,11 +331,11 @@ class CompetitorFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is PromoterStatus.GetCompetitorList -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.data.status,
                                 message = "",
@@ -384,7 +384,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.SendCompetitors -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status ?: -1,
                                 message = "",
@@ -401,7 +401,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             Log.d(
                                 TAG,
                                 "refreshToken status=${status.data.status} message=${status.data.message}"
@@ -426,7 +426,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.CheckIn -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -469,7 +469,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         is PromoterStatus.Error -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = status.error.toString(),
@@ -484,7 +484,7 @@ class CompetitorFragment : Fragment() {
                         }
 
                         else -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                         }
                     }
                 }

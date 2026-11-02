@@ -6,7 +6,9 @@
     <data>
 
     </data>
-
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -88,4 +90,10 @@
         </LinearLayout>
 
     </LinearLayout>
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </FrameLayout>
 </layout>

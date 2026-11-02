@@ -26,15 +26,15 @@
 
             <ImageView
                 android:id="@+id/btnBack"
-                android:layout_width="@dimen/_32sdp"
-                android:layout_height="@dimen/_32sdp"
-                android:layout_alignParentEnd="true"
-                android:layout_marginHorizontal="@dimen/_16sdp"
-                android:background="@drawable/bg_circle_white"
-                android:padding="12dp"
-                android:src="@drawable/ic_arrow_right"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="@dimen/_16sdp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@drawable/circle_white_bg"
+                android:padding="10dp"
+                android:src="@drawable/ic_arrow_right" />
 
             <ImageView
                 android:id="@+id/ivCamera"
@@ -47,13 +47,14 @@
                 android:src="@drawable/ic_photo_camera_black_48dp"
                 android:tint="@color/orange"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
 
             <TextView
                 android:id="@+id/tvTitle"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_12sdp"
+                android:layout_marginHorizontal="@dimen/_16sdp"
                 android:gravity="center"
                 android:text="رفع الصور"
                 android:textColor="@color/black"
@@ -61,6 +62,7 @@
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@id/btnBack"
                 app:layout_constraintEnd_toStartOf="@id/btnBack"
+                app:layout_constraintStart_toEndOf="@id/ivCamera"
                 app:layout_constraintTop_toTopOf="@id/btnBack" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -184,51 +186,11 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/progress_loading"
+        <include
+            android:id="@+id/loadingOverlay"
+            layout="@layout/dialog_loading"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clickable="true"
-            android:focusable="true"
-            android:visibility="gone">
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:alpha="0.5"
-                android:background="@color/black"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
-
-                <ProgressBar
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:indeterminateTint="@color/colorPrimary" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/_8sdp"
-                    android:text="Loading..."
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="@dimen/_12ssp"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            android:layout_height="match_parent" />
 
     </FrameLayout>
 </layout>

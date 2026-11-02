@@ -181,10 +181,10 @@ class CardPrintDetailsFragment : Fragment() {
                     when (status) {
                         is CardPrintStatus.Loading -> {
                             binding.tryAgainButtons.root.visibility = View.GONE
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
                         is CardPrintStatus.GetPrintInvoiceDetails -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
 
                             when (status.response.status) {
                                 200 -> {
@@ -260,7 +260,8 @@ class CardPrintDetailsFragment : Fragment() {
                         }
                         is CardPrintStatus.Error -> {
                             Log.d(TAG, "fetchData: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root
+                                .visibility = View.GONE
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
                         }
                         else -> {}

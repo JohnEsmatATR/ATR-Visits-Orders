@@ -56,7 +56,7 @@ class OrdersMenuFragment : Fragment(),
 
     private val viewModel: Visits2ViewModel by viewModels()
     private lateinit var binding: FragmentOrdersMenuBinding
-    private lateinit var dialog: AlertDialog
+  //  private lateinit var dialog: AlertDialog
 
     private val ordersList = mutableListOf<Data>()
     private lateinit var adapter: OrderMenuAdapter
@@ -76,8 +76,8 @@ class OrdersMenuFragment : Fragment(),
 
         setupKeyboardInsets()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         //MainActivity.binding.navView2.visibility = View.VISIBLE
 
@@ -144,10 +144,10 @@ class OrdersMenuFragment : Fragment(),
             viewModel.status.collect {
                 when (it) {
                     is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> dialog.show()
+                    is Visits2Status.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                     is Visits2Status.GetList -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
 //                            val data =
 //                                Gson().fromJson(
@@ -202,7 +202,7 @@ class OrdersMenuFragment : Fragment(),
                     }
 
                     is Visits2Status.DeleteOrder -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
 //                            val data =
 //                                Gson().fromJson(
@@ -236,7 +236,7 @@ class OrdersMenuFragment : Fragment(),
                     }
 
                     is Visits2Status.GetSalesAndCustomerTypes -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -268,7 +268,7 @@ class OrdersMenuFragment : Fragment(),
                     }
 
                     is Visits2Status.GetItems -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             OrderDetailsBottomSheet(
                                 it.data.data
@@ -299,7 +299,7 @@ class OrdersMenuFragment : Fragment(),
                     }
 
                     is Visits2Status.RefreshToken -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
@@ -334,7 +334,7 @@ class OrdersMenuFragment : Fragment(),
 
                     is Visits2Status.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
 
                         DialogUtils.showResultDialog(
                             context = requireContext(),

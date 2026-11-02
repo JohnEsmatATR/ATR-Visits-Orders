@@ -6,11 +6,15 @@
     <data>
 
     </data>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true">
+
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -222,5 +226,12 @@
         </LinearLayout>
 
     </ScrollView>
+
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </FrameLayout>
 
 </layout>

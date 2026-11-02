@@ -268,7 +268,7 @@ class PendingVisitsFragment : Fragment() {
             else -> {
                 hasRetriedAfterRefresh = false
                 isLoadingPage = false
-                binding.progressLoading.visibility = View.GONE
+                binding.loadingOverlay.root.visibility = View.GONE
                 DialogUtils.showResultDialog(
                     context = requireContext(),
                     message = message.orEmpty(),
@@ -299,14 +299,14 @@ class PendingVisitsFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is VisitStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is VisitStatus.LoadingMore -> {
                         }
 
                         is VisitStatus.GetPendingVisits -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             isLoadingPage = false
 
                             handleResponse(
@@ -336,7 +336,7 @@ class PendingVisitsFragment : Fragment() {
                         }
 
                         is VisitStatus.ApproveVisits -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -348,7 +348,7 @@ class PendingVisitsFragment : Fragment() {
                         }
 
                         is VisitStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
@@ -368,7 +368,7 @@ class PendingVisitsFragment : Fragment() {
 
                         is VisitStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             isLoadingPage = false
                             DialogUtils.showResultDialog(
                                 context = requireContext(),

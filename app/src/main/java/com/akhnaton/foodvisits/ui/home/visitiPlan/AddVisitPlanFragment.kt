@@ -397,11 +397,11 @@ class AddVisitPlanFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is AddVisitStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is AddVisitStatus.GetSalesTypes -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -417,7 +417,7 @@ class AddVisitPlanFragment : Fragment() {
                         }
 
                         is AddVisitStatus.GetLines -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -436,7 +436,7 @@ class AddVisitPlanFragment : Fragment() {
                         }
 
                         is AddVisitStatus.GetCustomers -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -459,7 +459,7 @@ class AddVisitPlanFragment : Fragment() {
                         }
 
                         is AddVisitStatus.SaveSetupPlan -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -481,7 +481,7 @@ class AddVisitPlanFragment : Fragment() {
                         }
 
                         is AddVisitStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             Log.d(
                                 TAG,
                                 "refreshToken status=${status.response.status} message=${status.response.message}"
@@ -504,7 +504,7 @@ class AddVisitPlanFragment : Fragment() {
                         }
 
                         is AddVisitStatus.GetSalesMan -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.response.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -536,7 +536,7 @@ class AddVisitPlanFragment : Fragment() {
                         }
 
                         is AddVisitStatus.CopyDayPlan -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.response.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -576,7 +576,7 @@ class AddVisitPlanFragment : Fragment() {
 
                         is AddVisitStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (salesTypes.isEmpty()) buildSaleTypeGrid()
                         }
 
@@ -748,7 +748,7 @@ class AddVisitPlanFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        binding.btnBackContainer.setOnClickListener {
+        binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
         binding.cardCopySalePlan.visibility =
@@ -856,8 +856,20 @@ class AddVisitPlanFragment : Fragment() {
 
     private fun updateCustomersCountLabel() {
         binding.tvStep2Title.text = "2. اختر العملاء (${selectedCustomerIds.size} محدد):"
+        updateSelectAllText()
     }
+    private fun updateSelectAllText() {
+        if (customersList.isEmpty()) {
+            binding.tvSelectAll.visibility = View.GONE
+            return
+        }
 
+        binding.tvSelectAll.visibility = View.VISIBLE
+        val allSelected = selectedCustomerIds.size == customersList.size
+        binding.tvSelectAll.text = getString(
+            if (allSelected) R.string.deselect_all else R.string.select_all
+        )
+    }
     private fun updateSaveButtonState() {
         val isReady = selectedSaleType != null &&
                 selectedLine != null &&

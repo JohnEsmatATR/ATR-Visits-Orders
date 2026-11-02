@@ -208,7 +208,7 @@ class PersonCodingFragment : Fragment() {
 
         hideCamera()
 
-        binding.progressLoading.visibility = View.VISIBLE
+        binding.loadingOverlay.root.visibility = View.VISIBLE
 
         val frontPart = uriToMultipartPart(
             uri = uri, partName = "front_image"
@@ -216,7 +216,7 @@ class PersonCodingFragment : Fragment() {
 
         if (frontPart == null) {
 
-            binding.progressLoading.visibility = View.GONE
+            binding.loadingOverlay.root.visibility = View.GONE
 
             showError(
                 "تعذر تجهيز صورة البطاقة"
@@ -253,7 +253,7 @@ class PersonCodingFragment : Fragment() {
                 Log.e(TAG, "Location permissions denied")
 
                 if (_binding != null) {
-                    binding.progressLoading.visibility = View.GONE
+                    binding.loadingOverlay.root.visibility = View.GONE
 
                     DialogUtils.showResultDialog(
                         context = requireContext(),
@@ -327,7 +327,7 @@ class PersonCodingFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.btnBackContainer.setOnClickListener {
+        binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
@@ -484,7 +484,7 @@ class PersonCodingFragment : Fragment() {
         Log.d(TAG, "Requesting high-accuracy current location")
 
         if (_binding == null) return
-        binding.progressLoading.visibility = View.VISIBLE
+        binding.loadingOverlay.root.visibility = View.VISIBLE
 
         val tokenSource = CancellationTokenSource()
 
@@ -625,7 +625,7 @@ class PersonCodingFragment : Fragment() {
 
         if (_binding == null) return
 
-        binding.progressLoading.visibility = View.GONE
+        binding.loadingOverlay.root.visibility = View.GONE
         showError(message)
     }
 
@@ -732,7 +732,7 @@ class PersonCodingFragment : Fragment() {
             Log.d(TAG, "Final suggested address: $finalAddress")
 
             binding.suggestedAddress.setText(finalAddress)
-            binding.progressLoading.visibility = View.GONE
+            binding.loadingOverlay.root.visibility = View.GONE
 
             Log.d(
                 TAG,
@@ -824,11 +824,11 @@ class PersonCodingFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PersonStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is PersonStatus.GetSalesAndCustomerTypes -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 isRefreshToken = false,
                                 code = status.response.status,
@@ -842,7 +842,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.GetLines -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 isRefreshToken = false,
                                 code = status.response.status,
@@ -853,7 +853,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.GetMainCustomersLine -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 isRefreshToken = false,
                                 code = status.response.status,
@@ -867,7 +867,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${status.data.message}")
                                 val data = Gson().fromJson(
@@ -896,7 +896,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.GetUserAreas -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 isRefreshToken = false,
                                 code = status.response.status,
@@ -910,7 +910,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.GetAreasByGovernorate -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 isRefreshToken = false,
                                 code = status.response.status,
@@ -928,7 +928,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.AddCustomer -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 isRefreshToken = false,
                                 code = status.response.status,
@@ -946,7 +946,7 @@ class PersonCodingFragment : Fragment() {
                         }
 
                         is PersonStatus.NationalIdScan -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
 
                             handleResponse(
                                 isRefreshToken = false,
@@ -998,7 +998,7 @@ class PersonCodingFragment : Fragment() {
 
                         is PersonStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                         }
 
                         else -> {}

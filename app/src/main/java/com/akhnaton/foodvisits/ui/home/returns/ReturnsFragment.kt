@@ -58,7 +58,7 @@ class ReturnsFragment : Fragment() {
 
     private val viewModel: ReturnsViewModel by viewModels()
     private lateinit var binding: FragmentReturnsBinding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
     private lateinit var backPressedCallback: OnBackPressedCallback
 
@@ -98,8 +98,8 @@ class ReturnsFragment : Fragment() {
         orderId = arguments?.getString("orderId").toString()
         storeId = arguments?.getString("storeId").toString()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
@@ -494,10 +494,10 @@ class ReturnsFragment : Fragment() {
             viewModel.status.collect {
                 when (it) {
                     is ReturnsStatus.Idle -> {}
-                    is ReturnsStatus.Loading -> dialog.show()
+                    is ReturnsStatus.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                     is ReturnsStatus.GetPriceLists -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
 //                            setRecycler(it.data.data.products.toMutableList())
                             val data = Gson().fromJson(
@@ -525,7 +525,7 @@ class ReturnsFragment : Fragment() {
                     }
 
                     is ReturnsStatus.StartReturnData -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
 //                            setRecycler(it.data.data.products.toMutableList())
                             val data = Gson().fromJson(
@@ -567,7 +567,7 @@ class ReturnsFragment : Fragment() {
                     }
 
                     is ReturnsStatus.GetItemDetails -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val data = Gson().fromJson(
                                 it.data.data,
@@ -613,7 +613,7 @@ class ReturnsFragment : Fragment() {
                     }
 
                     is ReturnsStatus.SaveReturn -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         val data = Gson().fromJson(
                             it.data.data,
                             com.akhnaton.foodvisits.data.model.saveReturn.Data::class.java
@@ -677,7 +677,7 @@ class ReturnsFragment : Fragment() {
                     }
 
                     is ReturnsStatus.RefreshToken -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data = Gson().fromJson(
@@ -705,7 +705,7 @@ class ReturnsFragment : Fragment() {
 
                     is ReturnsStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         DialogUtils.showResultDialog(
                             context = requireContext(),
                             message = "خطأ",
@@ -745,9 +745,8 @@ class ReturnsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(
-            layoutInflater, R.layout.fragment_returns, container, false
+            inflater, R.layout.fragment_returns, container, false
         )
         return binding.root
     }

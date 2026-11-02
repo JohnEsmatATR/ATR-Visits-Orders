@@ -64,7 +64,7 @@ class CardPrintFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.btnBackContainer.setOnClickListener {
+        binding.btnBack.setOnClickListener {
             requireActivity().onBackPressedDispatcher.onBackPressed()
         }
     }
@@ -203,11 +203,11 @@ class CardPrintFragment : Fragment() {
                         is CardPrintStatus.Loading -> {
                             binding.tryAgainButtons.root.visibility = View.GONE
                             binding.llZeroState.visibility = View.GONE
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is CardPrintStatus.GetPrintInvoicesList -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -219,7 +219,7 @@ class CardPrintFragment : Fragment() {
                         }
 
                         is CardPrintStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
@@ -240,7 +240,7 @@ class CardPrintFragment : Fragment() {
 
                         is CardPrintStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
                         }
 

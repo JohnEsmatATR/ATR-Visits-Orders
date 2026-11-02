@@ -273,15 +273,15 @@ class InventoryFragment : Fragment() {
                 viewModel.status.collect {
                     when (it) {
                         is PromoterStatus.Idle -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                         }
 
                         is PromoterStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is PromoterStatus.PromoterGetItemData -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 binding.tvTotalCount.text =
                                     "${requireActivity().getString(R.string.item_totals)} : ${it.data.data.size}"
@@ -307,7 +307,7 @@ class InventoryFragment : Fragment() {
                         }
 
                         is PromoterStatus.PromoterSaveStock -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -339,7 +339,7 @@ class InventoryFragment : Fragment() {
                         }
 
                         is PromoterStatus.CheckIn -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -382,7 +382,7 @@ class InventoryFragment : Fragment() {
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${it.data.message}")
                                 val data = Gson().fromJson(
@@ -411,7 +411,7 @@ class InventoryFragment : Fragment() {
 
                         is PromoterStatus.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
 
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
@@ -423,7 +423,7 @@ class InventoryFragment : Fragment() {
                         }
 
                         else -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                         }
                     }
                 }

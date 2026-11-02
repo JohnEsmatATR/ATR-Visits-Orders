@@ -40,7 +40,7 @@ class CustomerDetailsFragment : Fragment() {
 
     private val viewModel: PhoneVisitsViewModel by viewModels()
     private lateinit var binding: FragmentCustomerDetailsBinding
-    private lateinit var dialog: AlertDialog
+  //  private lateinit var dialog: AlertDialog
 
     lateinit var saleType: String
     lateinit var customerCode: String
@@ -61,7 +61,7 @@ class CustomerDetailsFragment : Fragment() {
 
         Log.d("WHAT", "SALE_TYPE: $saleType")
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+      //  dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
@@ -96,11 +96,11 @@ class CustomerDetailsFragment : Fragment() {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is PhoneVisitsStatus.Idle -> dialog.show()
-                    is PhoneVisitsStatus.Loading -> dialog.show()
+                    is PhoneVisitsStatus.Idle -> binding.loadingOverlay.root.visibility = View.VISIBLE
+                    is PhoneVisitsStatus.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                     is PhoneVisitsStatus.GetCustomerData -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -131,7 +131,7 @@ class CustomerDetailsFragment : Fragment() {
                     }
 
                     is PhoneVisitsStatus.RefreshToken -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
@@ -166,7 +166,7 @@ class CustomerDetailsFragment : Fragment() {
 
                     is PhoneVisitsStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }

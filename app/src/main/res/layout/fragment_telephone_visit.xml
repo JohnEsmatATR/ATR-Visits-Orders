@@ -5,9 +5,11 @@
     <data>
 
     </data>
-
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <ScrollView
-        android:id="@+id/root"
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/background"
@@ -44,15 +46,15 @@
 
                 <ImageView
                     android:id="@+id/btnBack"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_margin="16dp"
-                    android:background="@drawable/bg_circle_white"
-                    android:padding="12dp"
-                    android:src="@drawable/ic_arrow_right"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="@dimen/_16sdp"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:background="@drawable/circle_white_bg"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_arrow_right" />
 
             </RelativeLayout>
 
@@ -707,5 +709,10 @@
         </LinearLayout>
 
     </ScrollView>
-
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </FrameLayout>
 </layout>

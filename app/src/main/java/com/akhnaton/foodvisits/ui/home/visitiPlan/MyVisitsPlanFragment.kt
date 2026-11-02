@@ -361,11 +361,11 @@ class MyVisitsPlanFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is VisitStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is VisitStatus.GetMonthlyVisits -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -382,7 +382,7 @@ class MyVisitsPlanFragment : Fragment() {
                         }
 
                         is VisitStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             Log.d(TAG, "refreshToken status=${status.data.status} message=${status.data.message}")
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
@@ -402,7 +402,7 @@ class MyVisitsPlanFragment : Fragment() {
                         }
 
                         is VisitStatus.UpdateVisitDate -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -413,7 +413,7 @@ class MyVisitsPlanFragment : Fragment() {
                         }
 
                         is VisitStatus.CopyPlan -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -434,7 +434,7 @@ class MyVisitsPlanFragment : Fragment() {
                         }
 
                         is VisitStatus.DeleteVisitPlan -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status,
                                 message = status.response.message,
@@ -448,7 +448,7 @@ class MyVisitsPlanFragment : Fragment() {
 
                         is VisitStatus.Error -> {
                             Log.d(TAG, "observeStatus: ${status.message}")
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = status.message.orEmpty(),
@@ -879,19 +879,18 @@ class MyVisitsPlanFragment : Fragment() {
         val curMonth = todayCalendar.get(Calendar.MONTH) + 1
         val curYear = todayCalendar.get(Calendar.YEAR)
 
-        var displayedYear = initialYear
+        val displayedYear = curYear
         val tvYear = view.findViewById<android.widget.TextView>(R.id.tv_year)
         val gridMonths = view.findViewById<android.widget.GridLayout>(R.id.grid_months)
         val ivPrevYear = view.findViewById<View>(R.id.iv_prev_year)
         val ivNextYear = view.findViewById<View>(R.id.iv_next_year)
 
+        ivPrevYear.visibility = View.GONE
+        ivNextYear.visibility = View.GONE
+
         fun renderMonths() {
             tvYear.text = displayedYear.toString()
             gridMonths.removeAllViews()
-
-            val canGoPrevYear = !disablePast || displayedYear > curYear
-            ivPrevYear.isEnabled = canGoPrevYear
-            ivPrevYear.alpha = if (canGoPrevYear) 1f else 0.3f
 
             for (i in 0 until 12) {
                 val tvMonth = android.widget.TextView(requireContext())
@@ -900,8 +899,7 @@ class MyVisitsPlanFragment : Fragment() {
                 tvMonth.setPadding(12, 24, 12, 24)
                 tvMonth.textSize = 14f
 
-                val isDisabled = disablePast &&
-                        (displayedYear < curYear || (displayedYear == curYear && (i + 1) < curMonth))
+                val isDisabled = disablePast && (i + 1) < curMonth
 
                 val isSelected = (i + 1) == initialMonth && displayedYear == initialYear
                 if (isSelected) {
@@ -931,16 +929,6 @@ class MyVisitsPlanFragment : Fragment() {
 
                 gridMonths.addView(tvMonth)
             }
-        }
-
-        ivPrevYear.setOnClickListener {
-            if (disablePast && displayedYear <= curYear) return@setOnClickListener
-            displayedYear--
-            renderMonths()
-        }
-        ivNextYear.setOnClickListener {
-            displayedYear++
-            renderMonths()
         }
 
         renderMonths()

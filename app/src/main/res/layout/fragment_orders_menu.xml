@@ -6,7 +6,9 @@
     <data>
 
     </data>
-
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:id="@+id/root"
         android:layout_width="match_parent"
@@ -156,5 +158,10 @@
             tools:listitem="@layout/item_orders_menu" />
 
     </LinearLayout>
-
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </FrameLayout>
 </layout>

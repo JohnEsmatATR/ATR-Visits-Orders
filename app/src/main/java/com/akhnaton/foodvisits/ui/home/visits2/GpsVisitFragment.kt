@@ -90,7 +90,7 @@ class GpsVisitFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentGpsVisitBinding
-    private lateinit var dialog: AlertDialog
+ //   private lateinit var dialog: AlertDialog
 
     lateinit var customerName: String
     lateinit var customerCode: String
@@ -206,8 +206,8 @@ class GpsVisitFragment : Fragment() {
         isProm = SharedPreferencesHelper.getInstance().getProm()
         isSuperProm = SharedPreferencesHelper.getInstance().getSuperProm()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
@@ -769,11 +769,11 @@ class GpsVisitFragment : Fragment() {
                     when (it) {
                         is Visits2Status.Idle -> {}
                         is Visits2Status.Loading -> {
-                            dialog.show()
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is Visits2Status.CheckIn -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -826,7 +826,7 @@ class GpsVisitFragment : Fragment() {
                         }
 
                         is Visits2Status.SaveVisitGps -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -1004,7 +1004,7 @@ class GpsVisitFragment : Fragment() {
                         }
 
                         is Visits2Status.VisitsSelect -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             binding.tvTimer.visibility = View.VISIBLE
                             if (it.data.status == 200) {
                                 val data =
@@ -1079,7 +1079,7 @@ class GpsVisitFragment : Fragment() {
                         }
 
                         is Visits2Status.RefreshToken -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${it.data.message}")
                                 val data = Gson().fromJson(
@@ -1108,7 +1108,7 @@ class GpsVisitFragment : Fragment() {
 
                         is Visits2Status.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
 
                             DialogUtils.showResultDialog(
                                 context = requireContext(),

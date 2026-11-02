@@ -66,7 +66,7 @@ class PhoneVisitStepsFragment : Fragment() {
     private var customerSiteList: List<SitesData> = ArrayList()
     private var customerTypePosition: String = ""
     private var mainCustomerLinePosition: String = ""
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
     private lateinit var mainLineAdapter: MainLineAdapter
 
     private var saleType: String = ""
@@ -88,7 +88,7 @@ class PhoneVisitStepsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+     //   dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
         setupKeyboardInsets()
 
@@ -508,11 +508,11 @@ class PhoneVisitStepsFragment : Fragment() {
             ) {
                 viewModel.status.collect {
                     when (it) {
-                        is PhoneVisitsStatus.Idle -> dialog.show()
-                        is PhoneVisitsStatus.Loading -> dialog.show()
+                        is PhoneVisitsStatus.Idle -> binding.loadingOverlay.root.visibility = View.VISIBLE
+                        is PhoneVisitsStatus.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                         is PhoneVisitsStatus.GetSalesAndCustomerTypes -> {
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             Log.d("WHAT", "${it.data.status}")
                             if (it.data.status == 200) {
                                 val data =
@@ -547,7 +547,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         }
 
                         is PhoneVisitsStatus.GetCustomers -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
 //                            val data =
 //                                Gson().fromJson(
@@ -595,7 +595,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         }
 
                         is PhoneVisitsStatus.GetCustomerData -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -630,7 +630,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         }
 
                         is PhoneVisitsStatus.CheckIn -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -703,7 +703,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         }
 
                         is PhoneVisitsStatus.DialOutbound -> {
-                            dialog.dismiss()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -734,7 +734,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         }
 
                         is PhoneVisitsStatus.RefreshToken -> {
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (it.data.status == 200) {
                                 Log.d("WHATRefreshToken", "${it.data.message}")
                                 val data =
@@ -767,7 +767,7 @@ class PhoneVisitStepsFragment : Fragment() {
                         }
 
                         is PhoneVisitsStatus.GetCustomerType -> {
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             customerType.clear()
                             (customerTypeList as ArrayList).clear()
                             val mCustomerList = it.data.data.user_customer_type
@@ -779,7 +779,7 @@ class PhoneVisitStepsFragment : Fragment() {
 
 
                         is PhoneVisitsStatus.GetLines -> {
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             linesName.clear()
                             linesList = it.data.data.user_lines
                             linesList.forEach { line -> linesName.add(line.line_name) }
@@ -787,7 +787,7 @@ class PhoneVisitStepsFragment : Fragment() {
 
 
                         is PhoneVisitsStatus.GetCustomerLines -> {
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             mainList = it.data.data.main_customer_line
 
                             mainLineAdapter = MainLineAdapter(requireContext(), mainList)
@@ -795,7 +795,7 @@ class PhoneVisitStepsFragment : Fragment() {
 
 
                         is PhoneVisitsStatus.GetCustomersSite -> {
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             val mSitesList: MutableList<String> = ArrayList()
                             customerSiteList = it.data.data.customer_site
 
@@ -804,7 +804,7 @@ class PhoneVisitStepsFragment : Fragment() {
 
                         is PhoneVisitsStatus.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            dialog.hide()
+                            binding.loadingOverlay.root.visibility = View.GONE
                             updateSaleTypesEmptyState(true)
                         }
 
@@ -850,14 +850,13 @@ class PhoneVisitStepsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        binding =
-            DataBindingUtil.inflate(
-                layoutInflater,
-                R.layout.fragment_phone_visit_steps,
-                container,
-                false
-            )
+        binding = DataBindingUtil.inflate(
+            inflater,
+            R.layout.fragment_phone_visit_steps,
+            container,
+            false
+        )
+        Log.d("CRASH_CHECK", "root=${binding.root.javaClass.simpleName}, parent=${binding.root.parent}")
         return binding.root
     }
 }

@@ -61,7 +61,7 @@ class TelephoneVisitFragment : Fragment() {
 
     private val viewModel: PhoneVisitsViewModel by viewModels()
     private lateinit var binding: FragmentTelephoneVisitBinding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
     lateinit var customerName: String
     lateinit var customerCode: String
@@ -199,8 +199,8 @@ class TelephoneVisitFragment : Fragment() {
 
         isProm = SharedPreferencesHelper.getInstance().getProm()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
-        dialog.hide()
+//        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+//        dialog.hide()
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
@@ -424,10 +424,10 @@ class TelephoneVisitFragment : Fragment() {
             viewModel.status.collect {
                 when (it) {
                     is PhoneVisitsStatus.Idle -> {}
-                    is PhoneVisitsStatus.Loading -> dialog.show()
+                    is PhoneVisitsStatus.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                     is PhoneVisitsStatus.SaveVisitPhone -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val data =
                                 Gson().fromJson(
@@ -549,7 +549,7 @@ class TelephoneVisitFragment : Fragment() {
                     }
 
                     is PhoneVisitsStatus.VisitsSelect -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         binding.tvTimer.visibility = View.VISIBLE
                         if (it.data.status == 200) {
                             val data =
@@ -646,7 +646,7 @@ class TelephoneVisitFragment : Fragment() {
 //                    }
 
                     is PhoneVisitsStatus.DialOutbound -> {
-                        dialog.dismiss()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             launchGrandstreamWave(requireContext())
                         } else if (it.data.status == 401) {
@@ -672,7 +672,7 @@ class TelephoneVisitFragment : Fragment() {
                     }
 
                     is PhoneVisitsStatus.RefreshToken -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
@@ -707,7 +707,7 @@ class TelephoneVisitFragment : Fragment() {
 
                     is PhoneVisitsStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         DialogUtils.showResultDialog(
                             context = requireContext(),
                             message = it.error.toString(),

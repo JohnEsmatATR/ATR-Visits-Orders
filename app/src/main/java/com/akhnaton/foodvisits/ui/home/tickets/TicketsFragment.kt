@@ -53,7 +53,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
     private val version = BuildConfig.VERSION_NAME
     private val viewModel: TicketsViewModel by viewModels()
     private lateinit var binding: FragmentTicketsBinding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
     private var selectedUsers: String = ""
 
     private lateinit var cardAdapter: Card4Adapter
@@ -72,7 +72,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
 
         setupKeyboardInsets()
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+     //   dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
@@ -194,15 +194,15 @@ class TicketsFragment : Fragment(), View.OnClickListener {
             viewModel.state.collect {
                 when (it) {
                     is TicketsStatus.Idle -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                     }
 
                     is TicketsStatus.Loading -> {
-                        dialog.show()
+                        binding.loadingOverlay.root.visibility = View.VISIBLE
                     }
 
                     is TicketsStatus.SendTickets -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         binding.error.visibility = View.GONE
 //                        binding.etTitle.text?.clear()
                         binding.etDescription.text?.clear()
@@ -219,7 +219,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                     }
 
                     is TicketsStatus.GetAllUsers -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val users = it.data.data
 
@@ -274,7 +274,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                     }
 
                     is TicketsStatus.CreateTicket -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             val data = Gson().fromJson(
                                 it.data.data, Data::class.java
@@ -317,7 +317,7 @@ class TicketsFragment : Fragment(), View.OnClickListener {
                     }
 
                     is TicketsStatus.Error -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
 //                        binding.error.text = it.error.toString()
 //                        binding.error.visibility = View.VISIBLE
                         Log.d(TAG, "fetchData: ${it.error}")

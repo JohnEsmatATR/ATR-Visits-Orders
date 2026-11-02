@@ -29,7 +29,7 @@ class VisitPlanFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         handleTopBottomKeyboard()
 
-        binding.btnBackContainer.setOnClickListener { findNavController().popBackStack() }
+        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
         val isSuper = SharedPreferencesHelper.getInstance().isSuper()
         binding.llTabs.visibility = if (isSuper) View.VISIBLE else View.GONE

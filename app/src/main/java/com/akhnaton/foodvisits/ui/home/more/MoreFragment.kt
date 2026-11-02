@@ -29,7 +29,7 @@ class MoreFragment : Fragment() {
         private const val TAG = "MoreFragment"
     }
     private lateinit var binding: FragmentMoreBinding
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

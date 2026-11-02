@@ -25,7 +25,7 @@ class FoodFragment : Fragment(), View.OnClickListener {
     private val viewModel: FoodViewModel by viewModels()
     private lateinit var binding: FragmentFoodBinding
     private var mAdapter = FoodAdapter()
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
 
 
     override fun onCreateView(
@@ -38,11 +38,11 @@ class FoodFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        dialog = ProgressDialogHelper().showAlertProgress(
-            requireActivity(),
-            "Loading..."
-        )
+//
+//        dialog = ProgressDialogHelper().showAlertProgress(
+//            requireActivity(),
+//            "Loading..."
+//        )
 
         lifecycleScope.launch {
             viewModel.foodIntent.send(
@@ -66,10 +66,10 @@ class FoodFragment : Fragment(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is FoodStatus.Idle -> dialog.show()
-                    is FoodStatus.Loading -> dialog.show()
+                    is FoodStatus.Idle -> binding.loadingOverlay.root.visibility = View.VISIBLE
+                    is FoodStatus.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
                     is FoodStatus.FoodOrders -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.data.isEmpty()) {
                             binding.imNoData.visibility = View.VISIBLE
                         } else {
@@ -80,7 +80,7 @@ class FoodFragment : Fragment(), View.OnClickListener {
                         binding.tryAgainButtons.root.visibility = View.GONE
                     }
                     is FoodStatus.Error -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }
 

@@ -150,15 +150,15 @@ class UploadPhotosFragment : Fragment() {
                 viewModel.status.collect { status ->
                     when (status) {
                         is PromoterStatus.Idle -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                         }
 
                         is PromoterStatus.Loading -> {
-                            binding.progressLoading.visibility = View.VISIBLE
+                            binding.loadingOverlay.root.visibility = View.VISIBLE
                         }
 
                         is PromoterStatus.UploadImages -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             handleResponse(
                                 code = status.response.status ?: -1,
                                 message = "",
@@ -175,7 +175,7 @@ class UploadPhotosFragment : Fragment() {
                         }
 
                         is PromoterStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.data.status == 200) {
                                 val tokenData = Gson().fromJson(
                                     status.data.data,
@@ -193,7 +193,7 @@ class UploadPhotosFragment : Fragment() {
                         }
 
                         is PromoterStatus.CheckIn -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             if (status.data.status == 200) {
                                 val data =
                                     Gson().fromJson(
@@ -236,7 +236,7 @@ class UploadPhotosFragment : Fragment() {
                         }
 
                         is PromoterStatus.Error -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                             DialogUtils.showResultDialog(
                                 context = requireContext(),
                                 message = status.error.toString(),
@@ -249,7 +249,7 @@ class UploadPhotosFragment : Fragment() {
                         }
 
                         else -> {
-                            binding.progressLoading.visibility = View.GONE
+                            binding.loadingOverlay.root.visibility = View.GONE
                         }
                     }
                 }
@@ -411,7 +411,7 @@ class UploadPhotosFragment : Fragment() {
             if (hasImages) {
                 ContextCompat.getColorStateList(requireContext(), R.color.orange)
             } else {
-                ContextCompat.getColorStateList(requireContext(), R.color.gray)
+                ContextCompat.getColorStateList(requireContext(), R.color.grey2)
             }
     }
 

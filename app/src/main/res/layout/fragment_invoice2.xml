@@ -105,13 +105,14 @@
                             android:gravity="center"
                             android:textStyle="bold" />
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/btnBack"
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
                             android:layout_alignParentEnd="true"
-                            android:background="@drawable/bg_circle_white"
-                            android:padding="15dp"
+                            android:layout_centerVertical="true"
+                            android:background="@drawable/circle_white_bg"
+                            android:padding="10dp"
                             android:src="@drawable/ic_arrow_right" />
 
                     </LinearLayout>
@@ -352,6 +353,12 @@
             </LinearLayout>
 
         </ScrollView>
+
+        <include
+            android:id="@+id/loadingOverlay"
+            layout="@layout/dialog_loading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

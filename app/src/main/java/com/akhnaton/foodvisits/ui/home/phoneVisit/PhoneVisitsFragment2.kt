@@ -73,25 +73,27 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
     private var customerName: String = ""
     private var customerPartySiteId: String = ""
     private var limitArea: Int = 0
-    private lateinit var dialog: AlertDialog
+   // private lateinit var dialog: AlertDialog
     private lateinit var progressBar: SweetAlertDialog
     private lateinit var mainLineAdapter: MainLineAdapter
 
 
     override fun onCreateView(
+
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        Log.d("CRASH_CHECK", "onCreateView: ${javaClass.simpleName}")
         binding =
             DataBindingUtil.inflate(
-                layoutInflater,
+                inflater,
                 R.layout.fragment_phone_visits2,
                 container,
                 false
             )
 
 
-        dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+        //dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
 //        binding.addVisit.setOnClickListener(this)
 //        binding.tryAgainButtons.tryAgain.setOnClickListener { getData() }
 
@@ -125,11 +127,11 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
         lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
-                    is PhoneVisitsStatus.Idle -> dialog.show()
-                    is PhoneVisitsStatus.Loading -> dialog.show()
+                    is PhoneVisitsStatus.Idle -> binding.loadingOverlay.root.visibility = View.VISIBLE
+                    is PhoneVisitsStatus.Loading -> binding.loadingOverlay.root.visibility = View.VISIBLE
 
                     is PhoneVisitsStatus.GetSalesAndCustomerTypes -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         Log.d("WHAT", "${it.data.status}")
                         if (it.data.status == 200) {
                             val data =
@@ -162,7 +164,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
                     }
 
                     is PhoneVisitsStatus.RefreshToken -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         if (it.data.status == 200) {
                             Log.d("WHATRefreshToken", "${it.data.message}")
                             val data =
@@ -196,7 +198,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
                     }
 
                     is PhoneVisitsStatus.GetCustomerType -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         customerType.clear()
                         (customerTypeList as ArrayList).clear()
                         val mCustomerList = it.data.data.user_customer_type
@@ -209,7 +211,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 
 
                     is PhoneVisitsStatus.GetLines -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         linesName.clear()
 //                        binding.lines.text.clear()
                         linesList = it.data.data.user_lines
@@ -219,7 +221,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 
 
                     is PhoneVisitsStatus.GetCustomerLines -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         mainList = it.data.data.main_customer_line
 
                         mainLineAdapter = MainLineAdapter(requireContext(), mainList)
@@ -269,7 +271,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 
 
                     is PhoneVisitsStatus.GetCustomersSite -> {
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
                         val mSitesList: MutableList<String> = ArrayList()
                         customerSiteList = it.data.data.customer_site
 
@@ -286,7 +288,7 @@ class PhoneVisitsFragment2 : Fragment(), View.OnClickListener {
 
                     is PhoneVisitsStatus.Error -> {
                         Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        binding.loadingOverlay.root.visibility = View.GONE
 
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
                     }

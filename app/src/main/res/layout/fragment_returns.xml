@@ -7,6 +7,10 @@
     <data>
 
     </data>
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/root"
@@ -60,13 +64,9 @@
         </com.google.android.material.card.MaterialCardView>
 
         <ScrollView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:fillViewport="true"
-            app:layout_constraintBottom_toTopOf="@id/cardBottom"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -107,14 +107,15 @@
                             android:gravity="center"
                             android:textStyle="bold" />
 
-                        <ImageButton
+                        <ImageView
                             android:id="@+id/btnBack"
-                            android:layout_width="55dp"
-                            android:layout_height="55dp"
-                            android:layout_alignParentEnd="true"
-                            android:background="@drawable/bg_circle_white"
-                            android:padding="15dp"
-                            app:tint="@color/red"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintTop_toTopOf="parent"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            android:background="@drawable/circle_white_bg"
+                            android:padding="10dp"
                             android:src="@drawable/ic_arrow_right" />
 
                     </LinearLayout>
@@ -353,5 +354,11 @@
         </ScrollView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <include
+        android:id="@+id/loadingOverlay"
+        layout="@layout/dialog_loading"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    </FrameLayout>
 
 </layout>
