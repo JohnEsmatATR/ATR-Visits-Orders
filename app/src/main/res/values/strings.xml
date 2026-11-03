@@ -10,7 +10,7 @@
     <string name="learn_more">Learn More</string>
     <string name="welcome_visits">now you can enter visits with an android mobile application very easy to use Choose customer ,order type and Go on..</string>
     <string name="home">Home</string>
-    <string name="order_type">Order Type:</string>
+
     <string name="tickets">Tickets</string>
     <string name="message">الرسالة</string>
     <string name="something_went_wrong">Somthing went wrong</string>
@@ -267,9 +267,12 @@
     <string name="add_images_label">أضف صورا للمنتج</string>
     <string name="save_competitor">حفظ المنافس</string>
     <string name="food_list_title">قائمة الفواتير</string>
-    <string name="food_list_section_title">الفواتير المتاحة</string>
     <string name="total_food_list_section_title">اجمالى الفواتير المتاحة : </string>
     <string name="show_phone_numbers">عرض الأرقام</string>
+    <string name="food_list_section_title"> اجمالي الفواتير المتاحة :</string>
+    <string name="value_of_invoice"> 12</string>
+    <string name="order_type">نوع الطلب:</string>
+
 
     <string name="found">يوجد</string>
     <string name="numbers">أرقام </string>
@@ -445,4 +448,6 @@
     <string name="return_options_title">اختيارات المرتجع</string>
     <string name="return_options_header">الخيارات المطلوبة للمرتجع</string>
     <string name="return_options_continue">المتابعة لإضافة المنتجات</string>
+
+    <string name="print_pdf">طباعة PDF</string>
 </resources>
