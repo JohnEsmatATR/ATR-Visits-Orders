@@ -244,7 +244,8 @@
     <string name="unit_size_label">حجم الصنف</string>
     <string name="unit_size_hint">أدخل حجم الصنف</string>
     <string name="price_before_label">السعر قبل الخصم</string>
-    <string name="print_button">اطبع</string>
+    <string name="print_button">طباعة فاتوره
+    </string>
 
     <string name="images_title">الصور</string>
     <string name="inventory_title">المخزون</string>

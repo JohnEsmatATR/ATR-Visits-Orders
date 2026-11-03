@@ -25,6 +25,7 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.MainActivity
+import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.ui.home.printFood.PrinterManager
 import com.akhnaton.foodvisits.utils.NumberFormatter
 import kotlinx.coroutines.delay
@@ -94,8 +95,10 @@ class CardPrintDetailsFragment : Fragment() {
         }
 
         binding.btnPrintPdf.setOnClickListener {
+            Log.d("WHATpdf", "button clicked")
             lifecycleScope.launch {
                 val bitmap = captureInvoice()
+                Log.d("WHATpdf", "bitmap = $bitmap")
                 bitmap?.let { fullBitmap ->
                     exportBitmapAsPdf(fullBitmap)
                 }
@@ -105,13 +108,24 @@ class CardPrintDetailsFragment : Fragment() {
 
 
     private fun setupButtons() {
+        binding.btnPrint.visibility = View.GONE
+        val params = binding.btnPrintPdf.layoutParams as LinearLayout.LayoutParams
+        params.marginStart = 0
+        binding.btnPrintPdf.layoutParams = params
+
+        printMe.onPrinterConnected = {
+            activity?.runOnUiThread {
+                if (_binding != null) {
+                    binding.btnPrint.visibility = View.VISIBLE
+                    val pdfParams = binding.btnPrintPdf.layoutParams as LinearLayout.LayoutParams
+                    pdfParams.marginStart = resources.getDimensionPixelSize(R.dimen.button_margin)
+                    binding.btnPrintPdf.layoutParams = pdfParams
+                }
+            }
+        }
+
         if (printMe.isPrinterAvailable()) {
-            binding.btnPrint.visibility = View.VISIBLE
-        } else {
-            binding.btnPrint.visibility = View.GONE
-            val params = binding.btnPrintPdf.layoutParams as LinearLayout.LayoutParams
-            params.marginStart = 0
-            binding.btnPrintPdf.layoutParams = params
+            printMe.onPrinterConnected?.invoke()
         }
     }
 
@@ -192,7 +206,7 @@ class CardPrintDetailsFragment : Fragment() {
             startActivity(intent)
         } catch (e: Exception) {
             pdfDocument.close()
-            e.printStackTrace()
+            Log.e("WHATpdf", "error: ${e.message}", e)
         }
     }
 

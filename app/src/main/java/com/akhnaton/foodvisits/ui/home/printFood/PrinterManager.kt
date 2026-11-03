@@ -23,11 +23,12 @@ class PrinterManager(context: Context) {
 
     private lateinit var service: SunmiPrinterService
     private var result: Boolean = false
-
+    var onPrinterConnected: (() -> Unit)? = null
     private val innerPrinterCallback = object : InnerPrinterCallback() {
         override fun onConnected(service: SunmiPrinterService?) {
             this@PrinterManager.service = service!!
             Log.d("Printer Connected", "onConnected")
+            onPrinterConnected?.invoke()
         }
 
         override fun onDisconnected() {
