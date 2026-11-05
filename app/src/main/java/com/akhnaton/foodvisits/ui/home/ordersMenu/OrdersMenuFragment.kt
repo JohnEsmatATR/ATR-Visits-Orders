@@ -8,6 +8,8 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -70,7 +72,9 @@ class OrdersMenuFragment : Fragment(),
     private var fromDate = ""
     private var toDate = ""
     private var orderTypesList: List<String> = emptyList()
-
+    private var isRefreshTokenCalled = false
+    private var hasRetriedAfterRefresh = false
+    private val pendingRetries = mutableListOf<() -> Unit>()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -146,224 +150,265 @@ class OrdersMenuFragment : Fragment(),
 
     private fun fetchData() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.status.collect {
-                when (it) {
-                    is Visits2Status.Idle -> {}
-                    is Visits2Status.Loading -> dialog.show()
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.status.collect {
+                    when (it) {
+                        is Visits2Status.Idle -> {}
+                        is Visits2Status.Loading -> dialog.show()
 
-                    is Visits2Status.GetList -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
+                        is Visits2Status.GetList -> {
+                            dialog.dismiss()
+                            if (it.data.status != 401) hasRetriedAfterRefresh = false
+                            if (it.data.status == 200) {
 //                            val data =
 //                                Gson().fromJson(
 //                                    it.data.data,
 //                                    com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
 //                                )
 
-                            if (it.data.data.isEmpty()) {
-                                binding.llZeroState.visibility = View.VISIBLE
-                                binding.rv.visibility = View.GONE
-                            } else {
-                                binding.llZeroState.visibility = View.GONE
-                                binding.rv.visibility = View.VISIBLE
-                            }
+                                if (it.data.data.isEmpty()) {
+                                    binding.llZeroState.visibility = View.VISIBLE
+                                    binding.rv.visibility = View.GONE
+                                } else {
+                                    binding.llZeroState.visibility = View.GONE
+                                    binding.rv.visibility = View.VISIBLE
+                                }
 
-                            val newItems = it.data.data
-                            Log.d(
-                                "TOTALS",
-                                "status=$currentStatus items=${it.data.data.size} total=${it.data.pagination.total_records} pages=${it.data.pagination.total_pages}"
-                            )
-                            if (newItems.isEmpty()) {
-                                isLastPage = true
-                            } else {
-                                val startPosition = ordersList.size
-                                ordersList.addAll(newItems)
-                                Log.d("WHATordersList", ordersList.toString())
-                                adapter.notifyItemRangeInserted(
-                                    startPosition,
-                                    newItems.size
+                                val newItems = it.data.data
+                                Log.d(
+                                    "TOTALS",
+                                    "status=$currentStatus items=${it.data.data.size} total=${it.data.pagination.total_records} pages=${it.data.pagination.total_pages}"
                                 )
-                                if (newItems.size < pageSize) {
+                                if (newItems.isEmpty()) {
                                     isLastPage = true
-                                }
-                            }
-                            isLoading = false
-                        } else if (it.data.status == 401) {
-                            lifecycleScope.launch {
-                                viewModel.visitsIntent.send(
-                                    Visits2Intent.RefreshToken(
-                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                        SharedPreferencesHelper.getInstance().getUserToken()
+                                } else {
+                                    val startPosition = ordersList.size
+                                    ordersList.addAll(newItems)
+                                    Log.d("WHATordersList", ordersList.toString())
+                                    adapter.notifyItemRangeInserted(
+                                        startPosition,
+                                        newItems.size
                                     )
+                                    if (newItems.size < pageSize) {
+                                        isLastPage = true
+                                    }
+                                }
+                                isLoading = false
+                            } else if (it.data.status == 401) {
+                                val page = currentPage
+                                handle401(it.data.message) { loadPage(page) }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
                             }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
                         }
-                    }
 
-                    is Visits2Status.DeleteOrder -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
+                        is Visits2Status.DeleteOrder -> {
+                            dialog.dismiss()
+                            if (it.data.status != 401) hasRetriedAfterRefresh = false
+                            if (it.data.status == 200) {
 //                            val data =
 //                                Gson().fromJson(
 //                                    it.data.data,
 //                                    com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
 //                                )
-                            ordersList.clear()
-                            currentPage = 1
-                            getData()
+                                ordersList.clear()
+                                currentPage = 1
+                                getData()
 
-                        } else if (it.data.status == 401) {
-//                            lifecycleScope.launch {
-//                                viewModel.visitsIntent.send(
-//                                    Visits2Intent.RefreshToken(
-//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-//                                        SharedPreferencesHelper.getInstance().getUserToken()
-//                                    )
-//                                )
-//                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
+                            } else if (it.data.status == 401) {
+                                val ref = selectedOrder?.ORIG_SYS_DOCUMENT_REF
+                                handle401(it.data.message) {
+                                    ref?.let { r ->
+                                        lifecycleScope.launch {
+                                            viewModel.visitsIntent.send(Visits2Intent.DeleteOrder(r))
+                                        }
+                                    }
                                 }
-                            )
-                        }
-                    }
-
-                    is Visits2Status.GetSalesAndCustomerTypes -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.Data::class.java
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
                                 )
-                            orderTypesList = data.sales_types
-
-                        } else if (it.data.status == 401) {
-//                            lifecycleScope.launch {
-//                                viewModel.visitsIntent.send(
-//                                    Visits2Intent.RefreshToken(
-//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-//                                        SharedPreferencesHelper.getInstance().getUserToken()
-//                                    )
-//                                )
-//                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
+                            }
                         }
-                    }
 
-                    is Visits2Status.GetItems -> {
-                        dialog.dismiss()
-                        if (it.data.status == 200) {
-                            OrderDetailsBottomSheet(
-                                it.data.data,
-                                selectedOrder
-                            ).show(
-                                childFragmentManager,
-                                "details"
-                            )
-                        } else if (it.data.status == 401) {
-//                            lifecycleScope.launch {
-//                                viewModel.visitsIntent.send(
-//                                    Visits2Intent.RefreshToken(
-//                                        SharedPreferencesHelper.getInstance().getEmployeeId(),
-//                                        SharedPreferencesHelper.getInstance().getUserToken()
-//                                    )
-//                                )
-//                            }
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-//                                    findNavController().popBackStack()
-                                }
-                            )
-                        }
-                    }
-
-                    is Visits2Status.RefreshToken -> {
-                        dialog.hide()
-                        if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
-                            val data =
-                                Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
-                                )
-                            SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            getData()
-                        } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance()
-                                        .logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(),
-                                            LoginActivity2::class.java
-                                        )
+                        is Visits2Status.GetSalesAndCustomerTypes -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.getSalesAndCustomerTypes.Data::class.java
                                     )
-                                    requireActivity().finishAffinity()
+                                orderTypesList = data.sales_types
+
+                            } else if (it.data.status == 401) {
+                                handle401(it.data.message) {
+                                    lifecycleScope.launch {
+                                        viewModel.visitsIntent.send(Visits2Intent.GetSalesAndCustomerTypes)
+                                    }
                                 }
-                            )
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
                         }
+
+                        is Visits2Status.GetItems -> {
+                            dialog.dismiss()
+                            if (it.data.status == 200) {
+                                OrderDetailsBottomSheet(
+                                    it.data.data,
+                                    selectedOrder
+                                ).show(
+                                    childFragmentManager,
+                                    "details"
+                                )
+                            } else if (it.data.status == 401) {
+                                val ref = selectedOrder?.ORIG_SYS_DOCUMENT_REF
+                                handle401(it.data.message) {
+                                    ref?.let { r ->
+                                        lifecycleScope.launch {
+                                            viewModel.visitsIntent.send(Visits2Intent.GetItems(r))
+                                        }
+                                    }
+                                }
+                            } else {
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+//                                    findNavController().popBackStack()
+                                    }
+                                )
+                            }
+                        }
+
+                        is Visits2Status.RefreshToken -> {
+                            dialog.hide()
+                            isRefreshTokenCalled = false
+                            if (it.data.status == 200) {
+                                Log.d("WHATRefreshToken", "${it.data.message}")
+                                val data =
+                                    Gson().fromJson(
+                                        it.data.data,
+                                        com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
+                                    )
+                                SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                hasRetriedAfterRefresh = true
+                                val retries = pendingRetries.toList()
+                                pendingRetries.clear()
+                                retries.forEach { r -> r() }
+                            } else {
+                                pendingRetries.clear()
+                                hasRetriedAfterRefresh = false
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = it.data.message,
+                                    isSuccess = false,
+                                    showOkButton = true,
+                                    onOk = {
+                                        SharedPreferencesHelper.getInstance()
+                                            .logOut()
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
+                                        requireActivity().finishAffinity()
+                                    }
+                                )
+                            }
 //                        binding.tryAgainButtons.root.visibility = View.GONE
 
-                    }
+                        }
 
-                    is Visits2Status.Error -> {
-                        Log.d(TAG, "fetchData: ${it.error}")
-                        dialog.hide()
+                        is Visits2Status.Error -> {
+                            Log.d(TAG, "fetchData: ${it.error}")
+                            dialog.hide()
+                            isRefreshTokenCalled = false
+                            hasRetriedAfterRefresh = false
+                            pendingRetries.clear()
+                            isLoading = false
 
-                        DialogUtils.showResultDialog(
-                            context = requireContext(),
-                            message = it.error.toString(),
-                            isSuccess = false,
-                            showOkButton = true,
-                            onOk = {
+                            DialogUtils.showResultDialog(
+                                context = requireContext(),
+                                message = it.error.toString(),
+                                isSuccess = false,
+                                showOkButton = true,
+                                onOk = {
 //                                    findNavController().popBackStack()
-                            }
-                        )
+                                }
+                            )
 //                        binding.tryAgainButtons.root.visibility = View.VISIBLE
-                    }
+                        }
 
-                    else -> {}
+                        else -> {}
+                    }
                 }
             }
         }
     }
+    private fun handle401(message: String, retry: () -> Unit) {
+        if (hasRetriedAfterRefresh) {
+            hasRetriedAfterRefresh = false
+            pendingRetries.clear()
+            showSessionExpired(message)
+            return
+        }
+        pendingRetries.add(retry)
+        sendRefreshToken()
+    }
 
+    private fun sendRefreshToken() {
+        if (isRefreshTokenCalled) return
+        isRefreshTokenCalled = true
+        lifecycleScope.launch {
+            viewModel.visitsIntent.send(
+                Visits2Intent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
+    }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                requireActivity().finishAffinity()
+            }
+        )
+    }
     private fun setupRecycler() {
         Log.d("WHATordersList", ordersList.toString())
 
@@ -467,6 +512,7 @@ class OrdersMenuFragment : Fragment(),
     }
 
     override fun onDelete(order: Data) {
+        selectedOrder = order
 
         Log.d("ORDER", "Delete ${order.ORIG_SYS_DOCUMENT_REF}")
 
