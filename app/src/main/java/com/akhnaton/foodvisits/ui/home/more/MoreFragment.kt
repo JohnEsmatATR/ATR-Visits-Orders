@@ -57,7 +57,9 @@ class MoreFragment : Fragment() {
                 R.id.toPersonCoding
             )
         }
-
+        binding.cardBundleVisits.setOnClickListener {
+            findNavController().navigate(R.id.toBundleVisits)
+        }
         binding.cardOrders.setOnClickListener {
             requireContext().startActivity(Intent(requireActivity(), WebOrderActivity::class.java))
         }

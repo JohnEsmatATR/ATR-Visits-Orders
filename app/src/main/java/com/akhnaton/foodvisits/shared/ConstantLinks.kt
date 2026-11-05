@@ -2,8 +2,8 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-//    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
-       const val BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
+    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
+//       const val BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
 //   const val BASE_URL = "http://10.42.151.27/" // Old Test
 //    const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
 
@@ -58,6 +58,8 @@ object ConstantLinks {
     const val COPY_PLAN = "Visit/copyPlan"
     const val GET_PENDING_VISITS_ENDPOINT = "Visit/getPendingVisitsForApproval"
     const val APPROVE_VISITS_ENDPOINT = "Visit/approveVisits"
+    const val GET_TODAY_UNIFIED_VISITS = "visit/getTodayUnifiedVisits"
+    const val SAVE_UNIFIED_VISIT_RESULT = "visit/saveUnifiedVisitResult"
     //----------------------------------------------------------------------------------------------
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod

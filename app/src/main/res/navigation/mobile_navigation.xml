@@ -19,6 +19,9 @@
         <action
             android:id="@+id/toPersonCoding"
             app:destination="@id/personCodingFragment" />
+        <action
+            android:id="@+id/toBundleVisits"
+            app:destination="@id/bundleVisitsFragment" />
     </fragment>
 
     <fragment
@@ -315,5 +318,19 @@
         android:name="com.akhnaton.foodvisits.ui.home.visitPlan.AddVisitPlanFragment"
         android:label="fragment_add_visit_plan"
         tools:layout="@layout/fragment_add_visit_plan" />
+
+    <fragment
+        android:id="@+id/bundleVisitsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.bundlevisits.BundleVisitsFragment"
+        tools:layout="@layout/fragment_bundle_visits">
+        <action
+            android:id="@+id/toBundleVisitDetails"
+            app:destination="@id/bundleVisitDetailsFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bundleVisitDetailsFragment"
+        android:name="com.akhnaton.foodvisits.ui.home.bundlevisits.BundleVisitDetailsFragment"
+        tools:layout="@layout/fragment_bundle_visit_details" />
 
 </navigation>
