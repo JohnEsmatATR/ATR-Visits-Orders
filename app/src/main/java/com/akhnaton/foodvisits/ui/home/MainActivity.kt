@@ -130,6 +130,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, GooeyMenu.GooeyM
             when (destination.id) {
                 R.id.moreFragment,
                 R.id.visitsFragment,
+                R.id.ordersMenuFragment,
                 R.id.visitPhoneFragment,
                 R.id.mainFragment -> {
                     binding.navView2.visibility = View.VISIBLE

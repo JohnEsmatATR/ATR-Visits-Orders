@@ -6,7 +6,8 @@ import android.location.Location
 import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresPermission
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.akhnaton.foodvisits.data.model.checkInGPS.CheckInGPSReq
 import com.akhnaton.foodvisits.data.model.copyDayPlan.CopyDayPlanReq
@@ -30,7 +31,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 
-class Visits2ViewModel(val context: Context) : ViewModel() {
+class Visits2ViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context: Context = application.applicationContext
 
     val visitsIntent = Channel<Visits2Intent>(Channel.UNLIMITED)
 

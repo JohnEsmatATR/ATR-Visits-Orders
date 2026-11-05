@@ -30,31 +30,17 @@ class ProductPreviewAdapter(
 
     override fun getItemCount() = list.size
 
-    override fun onBindViewHolder(
-        holder: ViewHolder,
-        position: Int
-    ) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = list[position]
 
-        holder.tvItemName.text =
-            list[position].ITEM_NAME
+        holder.tvItemName.text = item.ITEM_NAME
+        holder.tvUnitPrice.text = "السعر: ${item.UNIT_PRICE}"
+        holder.tvTax.text = "الضريبة: ${item.TAX}"
+        holder.tvQuantity.text = "الكمية: ${item.QUANTITY}"
+        holder.tvTotalValue.text = "القيمة الإجمالية: ${item.TOTAL_VALUE} ج.م"
 
-        holder.tvQuantity.text =
-            list[position].QUANTITY.toString()
-
-        holder.tvTax.text =
-            list[position].TAX.toString()
-
-        holder.tvUnitPrice.text =
-            list[position].UNIT_PRICE.toString()
-
-        holder.tvTotalValue.text =
-            list[position].TOTAL_VALUE.toString()
-
-        if (list[position].IS_BACK_ORDER) {
-            holder.tvBackOrder.visibility = View.VISIBLE
-        } else {
-            holder.tvBackOrder.visibility = View.GONE
-        }
+        holder.tvBackOrder.visibility =
+            if (item.IS_BACK_ORDER) View.VISIBLE else View.GONE
     }
 
     class ViewHolder(

@@ -66,7 +66,6 @@ class VisitsFragment2 : Fragment() {
     private lateinit var viewModel: Visits2ViewModel
     private lateinit var binding: FragmentVisits2Binding
     private lateinit var dialog: AlertDialog
-
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     var customerLatitude: Double? = 0.0
     var customerLongitude: Double? = 0.0

@@ -57,7 +57,7 @@ class OrdersMenuFragment : Fragment(),
     private val viewModel: Visits2ViewModel by viewModels()
     private lateinit var binding: FragmentOrdersMenuBinding
     private lateinit var dialog: AlertDialog
-
+    private var selectedOrder: Data? = null
     private val ordersList = mutableListOf<Data>()
     private lateinit var adapter: OrderMenuAdapter
     private var currentPage = 1
@@ -79,7 +79,12 @@ class OrdersMenuFragment : Fragment(),
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-        //MainActivity.binding.navView2.visibility = View.VISIBLE
+        ordersList.clear()
+        currentPage = 1
+        isLastPage = false
+        isLoading = false
+
+        viewModel.consumeStatus()
 
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
@@ -124,13 +129,13 @@ class OrdersMenuFragment : Fragment(),
         }
 
         binding.etSearch.afterTextChangedDelayed {
-            searchText =
-                it.toString()
+            searchText = it.toEnglishDigits()
             resetAndLoad(currentStatus)
         }
 
-        getData()
+        setupRecycler()
         fetchData()
+        loadPage(currentPage)
 
     }
 
@@ -140,7 +145,7 @@ class OrdersMenuFragment : Fragment(),
     }
 
     private fun fetchData() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.status.collect {
                 when (it) {
                     is Visits2Status.Idle -> {}
@@ -164,6 +169,10 @@ class OrdersMenuFragment : Fragment(),
                             }
 
                             val newItems = it.data.data
+                            Log.d(
+                                "TOTALS",
+                                "status=$currentStatus items=${it.data.data.size} total=${it.data.pagination.total_records} pages=${it.data.pagination.total_pages}"
+                            )
                             if (newItems.isEmpty()) {
                                 isLastPage = true
                             } else {
@@ -271,7 +280,8 @@ class OrdersMenuFragment : Fragment(),
                         dialog.dismiss()
                         if (it.data.status == 200) {
                             OrderDetailsBottomSheet(
-                                it.data.data
+                                it.data.data,
+                                selectedOrder
                             ).show(
                                 childFragmentManager,
                                 "details"
@@ -389,6 +399,7 @@ class OrdersMenuFragment : Fragment(),
     }
 
     private fun loadPage(page: Int) {
+        Log.d("PAGING", "loadPage page=$page isLoading=$isLoading isLastPage=$isLastPage")
         isLoading = true
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
@@ -409,6 +420,14 @@ class OrdersMenuFragment : Fragment(),
         currentPage++
         loadPage(currentPage)
     }
+    private fun String.toEnglishDigits(): String =
+        map { c ->
+            when (c) {
+                in '٠'..'٩' -> '0' + (c - '٠')
+                in '۰'..'۹' -> '0' + (c - '۰')
+                else -> c
+            }
+        }.joinToString("")
 
     private fun resetAndLoad(status: String) {
         currentStatus = status
@@ -470,11 +489,10 @@ class OrdersMenuFragment : Fragment(),
     }
 
     override fun onShowDetails(order: Data) {
+        selectedOrder = order
         lifecycleScope.launch {
             viewModel.visitsIntent.send(
-                Visits2Intent.GetItems(
-                    order.ORIG_SYS_DOCUMENT_REF
-                )
+                Visits2Intent.GetItems(order.ORIG_SYS_DOCUMENT_REF)
             )
         }
     }

@@ -79,6 +79,7 @@ class InvoiceFragment2 : Fragment() {
     lateinit var storeId: String
 
     private lateinit var backPressedCallback: OnBackPressedCallback
+    private var pendingInitialLoads = 0
     private var selectedProduct: Product? = null
 
     private lateinit var orderAdapter: ProductAdapter
@@ -160,10 +161,16 @@ class InvoiceFragment2 : Fragment() {
                 orderJson, com.akhnaton.foodvisits.data.model.getList.Data::class.java
             )
             paymentId = orderData.PAYMENT_TERM_ID
+            selectedOptionsArray = JSONArray().put(
+                org.json.JSONObject()
+                    .put("key", "payment_id")
+                    .put("id", orderData.PAYMENT_TERM_ID)
+            )
 //            paymentId = "106014"
             customerCode = orderData.CUSTOMER_CODE
             customerPartySiteId = orderData.PARTY_SITE_ID
             saleType = orderData.ORDER_TYPE
+            pendingInitialLoads = 2
 
             getItems()
 
@@ -407,6 +414,11 @@ class InvoiceFragment2 : Fragment() {
         fetchData()
     }
 
+    private fun finishInitialLoad() {
+        if (pendingInitialLoads > 0) pendingInitialLoads--
+        if (pendingInitialLoads == 0) dialog.dismiss()
+    }
+
     private fun updateEmptyView() {
         if (selectedProducts.isEmpty()) {
             binding.llZeroState.visibility = View.VISIBLE
@@ -607,7 +619,7 @@ class InvoiceFragment2 : Fragment() {
                     is Order2Status.Loading -> dialog.show()
 
                     is Order2Status.GetStartOrderData -> {
-                        dialog.dismiss()
+                        finishInitialLoad()
                         if (it.data.status == 200) {
 //                            setRecycler(it.data.data.products.toMutableList())
                             val data = Gson().fromJson(
@@ -735,7 +747,8 @@ class InvoiceFragment2 : Fragment() {
                     }
 
                     is Order2Status.GetItems -> {
-                        dialog.dismiss()
+                        finishInitialLoad()
+
                         if (it.data.status == 200) {
                             getItemsResponse = it.data.data.toMutableList()
                             prefillOrderSelections()
@@ -854,7 +867,12 @@ class InvoiceFragment2 : Fragment() {
             insets
         }
     }
+
     private fun goBackToVisits() {
+        if (isEdit == true) {
+            findNavController().popBackStack()
+            return
+        }
         val nav = findNavController()
         if (fromFragment == "Telephone") {
             if (!nav.popBackStack(R.id.visitPhoneFragment, false)) {
