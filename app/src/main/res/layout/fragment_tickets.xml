@@ -333,7 +333,7 @@
                                 android:drawablePadding="@dimen/_12sdp"
                                 android:drawableTint="@color/black"
                                 android:gravity="top"
-                                android:hint="@string/visit_notes"
+                                android:hint="شرح المشكلة بالتفصيل"
                                 android:inputType="textMultiLine"
                                 android:textAlignment="viewEnd"
                                 android:textSize="@dimen/_12ssp" />
