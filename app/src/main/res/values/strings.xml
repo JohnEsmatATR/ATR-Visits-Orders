@@ -89,7 +89,9 @@
     <string name="promoter">Promoter</string>
     <string name="save">save</string>
     <string name="order_source">Order Source</string>
-    <string name="pending">Pending</string>
+    <string name="pending">قيد الإنتظار</string>
+    <string name="done">تم القبول</string>
+    <string name="reject">تم الرفض</string>
     <string name="send">Send</string>
     <string name="price_list">Price List</string>
 <!--    <string name="no_approvals_founded">No Approvals founded</string>-->

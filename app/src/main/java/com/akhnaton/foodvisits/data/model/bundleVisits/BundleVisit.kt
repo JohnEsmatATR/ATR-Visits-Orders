@@ -8,16 +8,19 @@ data class Data(
 )
 
 data class BundleVisit(
-    @SerializedName("VISIT_DETAIL_ID") val visitDetailId: String,
-    @SerializedName("CUSTOMER_PARTY_SITE_ID") val customerPartySiteId: String,
-    @SerializedName("CUSTOMER_NAME") val customerName: String,
-    @SerializedName("CUSTOMER_ADDRESS") val customerAddress: String,
-    @SerializedName("CUSTOMER_CODE") val customerCode: String,
-    @SerializedName("CUSTOMER_ORDER_TYPE") val customerOrderType: String,
-    @SerializedName("CUSTOMER_LATITUDE") val customerLatitude: String?,
-    @SerializedName("CUSTOMER_LONGITUDE") val customerLongitude: String?,
-    @SerializedName("DATE_OF_VISIT") val dateOfVisit: String,
-    @SerializedName("COUNT_OF_VISITS") val countOfVisits: String
+    @SerializedName("VISIT_ID") val visitId: String,
+    @SerializedName("CUST_ID") val custId: String,
+    @SerializedName("PERSON_ID") val personId: String,
+    @SerializedName("VISIT_DATE") val visitDate: String,
+    @SerializedName("SUPER_ID") val superId: String,
+    @SerializedName("STATUS") val status: Int,
+    @SerializedName("REASON_ID") val reasonId: String,
+    @SerializedName("CUSTNAME") val custName: String,
+    @SerializedName("CUST_ADDRESS") val custAddress: String,
+    @SerializedName("DISTRICT") val district: String,
+    @SerializedName("LATITUDE") val latitude: String,
+    @SerializedName("LONGITUDE") val longitude: String,
+    @SerializedName("IMAGES_PATH") val imagesPath: String
 ) : java.io.Serializable
 
 data class RejectReason(

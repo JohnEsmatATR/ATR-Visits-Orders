@@ -255,53 +255,6 @@
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:text="نوع الطلب"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="#B0B0B0"
-                                    android:textSize="@dimen/_8ssp" />
-
-                                <TextView
-                                    android:id="@+id/tvOrderType"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="@color/black"
-                                    android:textSize="@dimen/_10ssp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <FrameLayout
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
-                                android:background="@drawable/bg_circle_light_orange">
-
-                                <ImageView
-                                    android:layout_width="@dimen/_14sdp"
-                                    android:layout_height="@dimen/_14sdp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="@null"
-                                    android:src="@drawable/ic_tag"
-                                    app:tint="@color/colorPrimary" />
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_8sdp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/_6sdp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
                                     android:text="تاريخ الزيارة"
                                     android:textAlignment="viewEnd"
                                     android:textColor="#B0B0B0"
@@ -332,52 +285,6 @@
                             </FrameLayout>
                         </LinearLayout>
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_8sdp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/_6sdp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="عدد الزيارات السابقة"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="#B0B0B0"
-                                    android:textSize="@dimen/_8ssp" />
-
-                                <TextView
-                                    android:id="@+id/tvPrevCount"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="@color/black"
-                                    android:textSize="@dimen/_10ssp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <FrameLayout
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
-                                android:background="@drawable/bg_circle_light_orange">
-
-                                <ImageView
-                                    android:layout_width="@dimen/_14sdp"
-                                    android:layout_height="@dimen/_14sdp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="@null"
-                                    android:src="@drawable/ic_repeat"
-                                    app:tint="@color/colorPrimary" />
-                            </FrameLayout>
-                        </LinearLayout>
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 

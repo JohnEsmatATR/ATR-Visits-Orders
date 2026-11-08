@@ -93,9 +93,9 @@ class BundleVisitsFragment : Fragment() {
     private fun filterVisits(keyword: String) {
         val filtered = allVisits.filter {
             keyword.isBlank() ||
-                    it.customerName.contains(keyword, true) ||
-                    it.customerCode.contains(keyword, true) ||
-                    it.customerAddress.contains(keyword, true)
+                    it.custName.contains(keyword, true) ||
+                    it.custId.contains(keyword, true) ||
+                    it.custAddress.contains(keyword, true)
         }
         adapter.setList(filtered)
         binding.llZeroState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
@@ -104,7 +104,7 @@ class BundleVisitsFragment : Fragment() {
 
     private fun openDetails(item: BundleVisit) {
         val bundle = Bundle().apply {
-            putString("visitId", item.visitDetailId)
+            putString("visitId", item.visitId)
         }
         findNavController().navigate(R.id.toBundleVisitDetails, bundle)
     }

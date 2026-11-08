@@ -130,8 +130,8 @@ class BundleVisitDetailsFragment : Fragment() {
         binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
         binding.btnOpenMap.setOnClickListener {
-            val lat = visit?.customerLatitude?.toDoubleOrNull()
-            val lng = visit?.customerLongitude?.toDoubleOrNull()
+            val lat = visit?.latitude?.toDoubleOrNull()
+            val lng = visit?.longitude?.toDoubleOrNull()
             if (lat != null && lng != null) openLocationInMap(requireContext(), lat, lng)
         }
 
@@ -149,16 +149,16 @@ class BundleVisitDetailsFragment : Fragment() {
     }
 
     private fun fillData(visit: BundleVisit) {
-        binding.tvCustomerName.text = visit.customerName
-        binding.tvCustomerCode.text = visit.customerCode
-        binding.tvSiteAddress.text = visit.customerAddress.trim()
-        binding.tvOrderType.text = visit.customerOrderType
-        binding.tvVisitDate.text = visit.dateOfVisit
-        binding.tvPrevCount.text = visit.countOfVisits
-        binding.tvReceiveQuestion.text = "هل استلم ${visit.customerName} البندل؟"
+        binding.tvCustomerName.text = visit.custName
+        binding.tvCustomerCode.text = visit.custId
+        binding.tvSiteAddress.text = visit.custAddress.trim()
+//        binding.tvOrderType.text = visit.customerOrderType
+        binding.tvVisitDate.text = visit.visitDate
+//        binding.tvPrevCount.text = visit.countOfVisits
+        binding.tvReceiveQuestion.text = "هل استلم ${visit.custName} البندل؟"
 
-        val hasLocation = visit.customerLatitude?.toDoubleOrNull() != null &&
-                visit.customerLongitude?.toDoubleOrNull() != null
+        val hasLocation = visit.latitude?.toDoubleOrNull() != null &&
+                visit.longitude?.toDoubleOrNull() != null
         binding.btnOpenMap.visibility = if (hasLocation) View.VISIBLE else View.GONE
     }
 
@@ -454,7 +454,7 @@ private fun setupImages() {
                                     com.akhnaton.foodvisits.data.model.bundleVisits.Data::class.java
                                 )
                                 reasons = data.rejectReasons
-                                val found = data.visits.firstOrNull { v -> v.visitDetailId == visitId }
+                                val found = data.visits.firstOrNull { v -> v.visitId == visitId }
                                 if (found != null) {
                                     visit = found
                                     fillData(found)
