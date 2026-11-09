@@ -8,6 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -45,6 +47,15 @@ class BundleVisitsFragment : Fragment() {
     private var rejectReasons = listOf<RejectReason>()
     private lateinit var adapter: BundleVisitsAdapter
 
+    private enum class VisitFilter {
+        ALL,
+        PENDING,
+        ACCEPTED,
+        REJECTED
+    }
+
+    private var selectedFilter = VisitFilter.ALL
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -56,6 +67,8 @@ class BundleVisitsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        handleTopBottomKeyboard()
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
@@ -80,8 +93,147 @@ class BundleVisitsFragment : Fragment() {
             filterVisits(it.toString().trim())
         }
 
+        setupFilters()
+
         fetchData()
         loadVisits()
+    }
+
+    private fun setupFilters() {
+
+        binding.chipAll.setOnClickListener {
+            selectedFilter = VisitFilter.ALL
+            updateFilterChips()
+            filterVisits(binding.etSearch.text.toString().trim())
+        }
+
+        binding.chipPending.setOnClickListener {
+            selectedFilter = VisitFilter.PENDING
+            updateFilterChips()
+            filterVisits(binding.etSearch.text.toString().trim())
+        }
+
+        binding.chipAccepted.setOnClickListener {
+            selectedFilter = VisitFilter.ACCEPTED
+            updateFilterChips()
+            filterVisits(binding.etSearch.text.toString().trim())
+        }
+
+        binding.chipRejected.setOnClickListener {
+            selectedFilter = VisitFilter.REJECTED
+            updateFilterChips()
+            filterVisits(binding.etSearch.text.toString().trim())
+        }
+
+        updateFilterChips()
+    }
+
+    private fun updateFilterChips() {
+
+        binding.chipAll.isChecked =
+            selectedFilter == VisitFilter.ALL
+
+        binding.chipPending.isChecked =
+            selectedFilter == VisitFilter.PENDING
+
+        binding.chipAccepted.isChecked =
+            selectedFilter == VisitFilter.ACCEPTED
+
+        binding.chipRejected.isChecked =
+            selectedFilter == VisitFilter.REJECTED
+
+        updateChipColors()
+    }
+
+    private fun updateChipColors() {
+
+        // All
+        applyChipColors(
+            chip = binding.chipAll,
+            selected = selectedFilter == VisitFilter.ALL,
+            selectedColor = R.color.orange,
+            unselectedColor = R.color.orange_bg
+        )
+
+        // Pending
+        applyChipColors(
+            chip = binding.chipPending,
+            selected = selectedFilter == VisitFilter.PENDING,
+            selectedColor = R.color.orange,
+            unselectedColor = R.color.orange_bg
+        )
+
+        // Accepted
+        applyChipColors(
+            chip = binding.chipAccepted,
+            selected = selectedFilter == VisitFilter.ACCEPTED,
+            selectedColor = R.color.green,
+            unselectedColor = R.color.green_bg
+        )
+
+        // Rejected
+        applyChipColors(
+            chip = binding.chipRejected,
+            selected = selectedFilter == VisitFilter.REJECTED,
+            selectedColor = R.color.red,
+            unselectedColor = R.color.red_bg
+        )
+    }
+
+    private fun applyChipColors(
+        chip: com.google.android.material.chip.Chip,
+        selected: Boolean,
+        selectedColor: Int,
+        unselectedColor: Int
+    ) {
+
+        val backgroundColor = ContextCompat.getColor(
+            requireContext(),
+            if (selected) selectedColor else unselectedColor
+        )
+
+        val textColor = ContextCompat.getColor(
+            requireContext(),
+            if (selected) {
+                R.color.white
+            } else {
+                when (selectedColor) {
+                    R.color.orange ->
+                        R.color.orange
+
+                    R.color.green ->
+                        R.color.green
+
+                    R.color.red ->
+                        R.color.red
+
+                    else ->
+                        R.color.black
+                }
+            }
+        )
+
+        chip.setChipBackgroundColor(
+            android.content.res.ColorStateList.valueOf(backgroundColor)
+        )
+
+        chip.setTextColor(textColor)
+    }
+
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                maxOf(imeInsets.bottom, systemBars.bottom)
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
     }
 
     private fun loadVisits() {
@@ -91,15 +243,32 @@ class BundleVisitsFragment : Fragment() {
     }
 
     private fun filterVisits(keyword: String) {
-        val filtered = allVisits.filter {
-            keyword.isBlank() ||
-                    it.custName.contains(keyword, true) ||
-                    it.custId.contains(keyword, true) ||
-                    it.custAddress.contains(keyword, true)
+
+        val filtered = allVisits.filter { visit ->
+
+            val matchesStatus = when (selectedFilter) {
+                VisitFilter.ALL -> true
+                VisitFilter.PENDING -> visit.status == 0
+                VisitFilter.ACCEPTED -> visit.status == 1
+                VisitFilter.REJECTED -> visit.status == 2
+            }
+
+            val matchesSearch =
+                keyword.isBlank() ||
+                        visit.custName.contains(keyword, true) ||
+                        visit.custId.contains(keyword, true) ||
+                        visit.custAddress.contains(keyword, true)
+
+            matchesStatus && matchesSearch
         }
+
         adapter.setList(filtered)
-        binding.llZeroState.visibility = if (filtered.isEmpty()) View.VISIBLE else View.GONE
-        binding.rv.visibility = if (filtered.isEmpty()) View.GONE else View.VISIBLE
+
+        binding.llZeroState.visibility =
+            if (filtered.isEmpty()) View.VISIBLE else View.GONE
+
+        binding.rv.visibility =
+            if (filtered.isEmpty()) View.GONE else View.VISIBLE
     }
 
     private fun openDetails(item: BundleVisit) {
@@ -107,6 +276,30 @@ class BundleVisitsFragment : Fragment() {
             putString("visitId", item.visitId)
         }
         findNavController().navigate(R.id.toBundleVisitDetails, bundle)
+    }
+
+    private fun updateFilterCounts() {
+
+        val pendingCount =
+            allVisits.count { it.status == 0 }
+
+        val acceptedCount =
+            allVisits.count { it.status == 1 }
+
+        val rejectedCount =
+            allVisits.count { it.status == 2 }
+
+        binding.chipAll.text =
+            "${context?.getString(R.string.all)} ${allVisits.size}"
+
+        binding.chipPending.text =
+            "${context?.getString(R.string.pending)} $pendingCount"
+
+        binding.chipAccepted.text =
+            "${context?.getString(R.string.done)} $acceptedCount"
+
+        binding.chipRejected.text =
+            "${context?.getString(R.string.reject)} $rejectedCount"
     }
 
     private fun fetchData() {
@@ -127,7 +320,8 @@ class BundleVisitsFragment : Fragment() {
                                 val data = Gson().fromJson(it.data.data, BundleData::class.java)
                                 allVisits = data.visits
                                 rejectReasons = data.rejectReasons
-                                binding.tvVisitsCount.text = "إجمالي الزيارات: ${allVisits.size}"
+//                                binding.tvVisitsCount.text = "إجمالي الزيارات: ${allVisits.size}"
+                                updateFilterCounts()
                                 filterVisits(binding.etSearch.text.toString().trim())
                             } else if (it.data.status == 401) {
                                 lifecycleScope.launch {

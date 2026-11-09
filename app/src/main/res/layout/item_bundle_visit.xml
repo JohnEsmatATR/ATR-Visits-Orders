@@ -137,8 +137,8 @@
                     android:layout_height="@dimen/_12sdp"
                     android:layout_marginStart="@dimen/_4sdp"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_tag"
-                    app:tint="@color/colorPrimary" />
+                    android:src="@drawable/ic_calendar"
+                    app:tint="@color/grey2" />
 
                 <TextView
                     android:id="@+id/tvCustomerCode"

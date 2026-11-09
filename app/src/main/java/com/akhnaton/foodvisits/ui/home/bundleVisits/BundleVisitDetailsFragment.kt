@@ -116,7 +116,7 @@ class BundleVisitDetailsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setupKeyboardInsets()
+        handleTopBottomKeyboard()
 
         visitId = arguments?.getString("visitId").orEmpty()
 
@@ -539,6 +539,22 @@ private fun setupImages() {
             )
             insets
         }
+    }
+
+    private fun handleTopBottomKeyboard() {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+
+            view.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                maxOf(imeInsets.bottom, systemBars.bottom)
+            )
+            insets
+        }
+        ViewCompat.requestApplyInsets(binding.root)
     }
     private fun loadVisit() {
         lifecycleScope.launch {

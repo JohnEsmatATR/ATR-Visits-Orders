@@ -105,41 +105,67 @@
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <com.google.android.material.card.MaterialCardView
-                    android:layout_width="wrap_content"
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="end"
                     android:layout_marginTop="@dimen/_10sdp"
-                    app:cardBackgroundColor="#FFF1E5"
-                    app:cardCornerRadius="@dimen/_14sdp"
-                    app:cardElevation="0dp">
+                    android:fillViewport="false"
+                    android:scrollbars="none">
 
                     <LinearLayout
+                        android:id="@+id/llFilters"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
                         android:orientation="horizontal"
-                        android:paddingHorizontal="@dimen/_10sdp"
-                        android:paddingVertical="@dimen/_6sdp">
+                        android:layout_gravity="end"
+                        android:paddingVertical="@dimen/_2sdp">
 
-                        <TextView
-                            android:id="@+id/tvVisitsCount"
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipRejected"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="إجمالي الزيارات: 0"
-                            android:textColor="@color/black"
+                            android:checkable="true"
+                            android:layout_marginEnd="@dimen/_6sdp"
+                            android:text="مرفوض"
                             android:textSize="@dimen/_10ssp"
-                            android:textStyle="bold" />
+                            app:checkedIconVisible="false"
+                            app:chipCornerRadius="@dimen/_12sdp" />
 
-                        <ImageView
-                            android:layout_width="@dimen/_14sdp"
-                            android:layout_height="@dimen/_14sdp"
-                            android:layout_marginStart="@dimen/_6sdp"
-                            android:contentDescription="@null"
-                            android:src="@drawable/ic_bundle"
-                            app:tint="@color/colorPrimary" />
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipAccepted"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/_6sdp"
+                            android:checkable="true"
+                            android:text="مقبول"
+                            android:textSize="@dimen/_10ssp"
+                            app:checkedIconVisible="false"
+                            app:chipCornerRadius="@dimen/_12sdp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipPending"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/_6sdp"
+                            android:checkable="true"
+                            android:text="قيد الانتظار"
+                            android:textSize="@dimen/_10ssp"
+                            app:checkedIconVisible="false"
+                            app:chipCornerRadius="@dimen/_12sdp" />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/chipAll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="الكل"
+                            android:textSize="@dimen/_10ssp"
+                            app:checkedIconVisible="false"
+                            app:chipCornerRadius="@dimen/_12sdp" />
+
                     </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+
+                </HorizontalScrollView>
 
                 <FrameLayout
                     android:layout_width="match_parent"
