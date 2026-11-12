@@ -152,12 +152,14 @@
         </LinearLayout>
 
         <FrameLayout
+            android:id="@+id/flStatusCircle"
             android:layout_width="@dimen/_42sdp"
             android:layout_height="@dimen/_42sdp"
             android:background="@drawable/bg_circle_light_orange"
             android:backgroundTint="@color/colorPrimary">
 
             <ImageView
+                android:id="@+id/ivStatusIcon"
                 android:layout_width="@dimen/_22sdp"
                 android:layout_height="@dimen/_22sdp"
                 android:layout_gravity="center"

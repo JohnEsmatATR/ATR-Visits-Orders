@@ -82,6 +82,42 @@ class BundleVisitsAdapter(
                 )
             }
         }
+        val card = holder.itemView as com.google.android.material.card.MaterialCardView
+        val ctx = holder.itemView.context
+        val strokePx = (1 * ctx.resources.displayMetrics.density).toInt()
+        val grey = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.grey_color))
+
+        when (item.status) {
+            1 -> {
+                card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.card_done_bg))
+                card.strokeColor = ContextCompat.getColor(ctx, R.color.card_done_stroke)
+                card.strokeWidth = strokePx
+                card.alpha = 0.6f
+                holder.tvCustomerName.setTextColor(ContextCompat.getColor(ctx, R.color.grey_color))
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_check_done)
+                holder.flStatusCircle.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.green))
+            }
+            2 -> {
+                card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.card_reject_bg))
+                card.strokeColor = ContextCompat.getColor(ctx, R.color.card_reject_stroke)
+                card.strokeWidth = strokePx
+                card.alpha = 0.6f
+                holder.tvCustomerName.setTextColor(ContextCompat.getColor(ctx, R.color.grey_color))
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_close_done)
+                holder.flStatusCircle.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.red))
+            }
+            else -> {
+                card.setCardBackgroundColor(ContextCompat.getColor(ctx, R.color.white))
+                card.strokeWidth = 0
+                card.alpha = 1f
+                holder.tvCustomerName.setTextColor(ContextCompat.getColor(ctx, R.color.black))
+                holder.ivStatusIcon.setImageResource(R.drawable.ic_bundle)
+                holder.flStatusCircle.backgroundTintList =
+                    android.content.res.ColorStateList.valueOf(ContextCompat.getColor(ctx, R.color.colorPrimary))
+            }
+        }
         //    holder.tvVisitsCount.text = "الزيارات: ${item.countOfVisits}"
     }
 
@@ -100,6 +136,8 @@ class BundleVisitsAdapter(
         val tvCustomerCode: TextView = itemView.findViewById(R.id.tvCustomerCode)
         val tvVisitDate: TextView = itemView.findViewById(R.id.tvVisitDate)
         val tvStatus: TextView = itemView.findViewById(R.id.tvStatus)
+        val flStatusCircle: android.widget.FrameLayout = itemView.findViewById(R.id.flStatusCircle)
+        val ivStatusIcon: ImageView = itemView.findViewById(R.id.ivStatusIcon)
         //   val tvVisitsCount: TextView = itemView.findViewById(R.id.tvVisitsCount)
 
         init {

@@ -70,4 +70,8 @@
     <color name="reject_red">#FF3B30</color>
 
     <color name="blue2">#007AFF</color>
+    <color name="card_done_bg">#F1FBF3</color>
+    <color name="card_done_stroke">#BFE8C8</color>
+    <color name="card_reject_bg">#FFF1F1</color>
+    <color name="card_reject_stroke">#F5C2C2</color>
 </resources>
