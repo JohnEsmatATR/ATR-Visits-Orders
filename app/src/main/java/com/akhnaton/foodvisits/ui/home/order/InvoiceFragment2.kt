@@ -161,11 +161,12 @@ class InvoiceFragment2 : Fragment() {
                 orderJson, com.akhnaton.foodvisits.data.model.getList.Data::class.java
             )
             paymentId = orderData.PAYMENT_TERM_ID
-            selectedOptionsArray = JSONArray().put(
-                org.json.JSONObject()
-                    .put("key", "payment_id")
-                    .put("id", orderData.PAYMENT_TERM_ID)
-            )
+            selectedOptionsArray = loadOptionsLocally(OrigSysDocumentRef)
+                ?: JSONArray().put(
+                    org.json.JSONObject()
+                        .put("key", "payment_id")
+                        .put("id", orderData.PAYMENT_TERM_ID)
+                )
 //            paymentId = "106014"
             customerCode = orderData.CUSTOMER_CODE
             customerPartySiteId = orderData.PARTY_SITE_ID
@@ -666,6 +667,7 @@ class InvoiceFragment2 : Fragment() {
                                 it.saveOrderRes.data,
                                 com.akhnaton.foodvisits.data.model.saveOrder.Data::class.java
                             )
+                            saveOptionsLocally(orderId, selectedOptionsArray.toString())
                             if (isSend == false) {
                                 isSavedBefore = true
                                 DialogUtils.showResultDialog(
@@ -884,7 +886,20 @@ class InvoiceFragment2 : Fragment() {
             }
         }
     }
+    private fun saveOptionsLocally(orderRef: String, optionsJson: String) {
+        requireContext()
+            .getSharedPreferences("order_options", android.content.Context.MODE_PRIVATE)
+            .edit()
+            .putString(orderRef, optionsJson)
+            .apply()
+    }
 
+    private fun loadOptionsLocally(orderRef: String): JSONArray? {
+        val json = requireContext()
+            .getSharedPreferences("order_options", android.content.Context.MODE_PRIVATE)
+            .getString(orderRef, null) ?: return null
+        return JSONArray(json)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
