@@ -110,7 +110,6 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="8dp"
                 android:padding="@dimen/_8sdp"
-                android:visibility="gone"
                 android:src="@drawable/ic_filter"
                 android:tint="@color/grey_color" />
 

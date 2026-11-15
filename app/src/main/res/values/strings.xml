@@ -445,4 +445,8 @@
     <string name="return_options_title">اختيارات المرتجع</string>
     <string name="return_options_header">الخيارات المطلوبة للمرتجع</string>
     <string name="return_options_continue">المتابعة لإضافة المنتجات</string>
+
+
+    <string name="return_price">سعر مرتجع</string>
+    <string name="customer_price">سعر الجمهور</string>
 </resources>

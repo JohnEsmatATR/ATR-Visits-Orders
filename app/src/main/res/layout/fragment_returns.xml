@@ -146,13 +146,12 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_8sdp">
+                        android:padding="@dimen/_16sdp">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="end"
-                            android:layout_marginEnd="@dimen/_8sdp"
                             android:text="اختر الصنف"
                             android:textColor="#666"
                             android:textSize="@dimen/_10ssp"
@@ -162,7 +161,6 @@
                             style="@style/OutlinedRoundedBox"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="@dimen/_8sdp"
                             android:layout_marginTop="@dimen/_4sdp"
                             android:layout_marginBottom="@dimen/_8sdp"
                             app:boxBackgroundColor="@color/background"
@@ -190,89 +188,102 @@
 
                         </com.google.android.material.textfield.TextInputLayout>
 
+                        <TextView
+                            android:id="@+id/tvChooseProduct"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:text="اختر الصنف"
+                            android:visibility="gone"
+                            android:textColor="#666"
+                            android:textSize="@dimen/_10ssp"
+                            android:textStyle="bold" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rvPrices"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            tools:listitem="@layout/item_price"
+                            tools:itemCount="2"
+                            android:visibility="gone"
+                            android:nestedScrollingEnabled="false" />
+
+                        <LinearLayout
+                            android:id="@+id/layoutAdd"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/_4sdp"
+                                android:orientation="horizontal">
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnMinus"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:layout_gravity="center"
+                                    app:backgroundTint="@color/red"
+                                    android:background="@drawable/bg_circle_orange"
+                                    android:text="-"
+                                    android:textSize="@dimen/_12sdp"
+                                    android:textStyle="bold" />
+
+                                <EditText
+                                    android:id="@+id/etQty"
+                                    android:layout_width="@dimen/_40sdp"
+                                    android:layout_height="@dimen/_40sdp"
+                                    android:layout_gravity="center"
+                                    android:layout_marginHorizontal="@dimen/_4sdp"
+                                    android:background="@drawable/bg_rounded_grey"
+                                    android:backgroundTint="@color/white"
+                                    android:hint="الكمية"
+                                    android:gravity="center"
+                                    android:inputType="number"
+                                    android:textColor="@color/black"
+                                    android:textSize="@dimen/_12ssp"
+                                    android:textStyle="bold" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnPlus"
+                                    android:layout_width="40dp"
+                                    android:layout_height="40dp"
+                                    android:layout_gravity="center"
+                                    app:backgroundTint="@color/red"
+                                    android:background="@drawable/bg_circle_orange"
+                                    android:text="+"
+                                    android:textSize="@dimen/_12sdp"
+                                    android:textStyle="bold" />
+
+                                <View
+                                    android:layout_width="0dp"
+                                    android:layout_height="@dimen/_1sdp"
+                                    android:layout_gravity="center"
+                                    android:layout_weight="1" />
+
+                                <com.google.android.material.button.MaterialButton
+                                    android:id="@+id/btnAdd"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="match_parent"
+                                    android:layout_gravity="center"
+                                    android:text="إضافة"
+                                    app:icon="@drawable/ic_plus"
+                                    app:iconSize="@dimen/_16sdp"
+                                    app:backgroundTint="@color/red"
+                                    android:textSize="@dimen/_12sdp"
+                                    android:textStyle="bold"
+                                    app:cornerRadius="@dimen/_8sdp" />
+
+                            </LinearLayout>
+
+                        </LinearLayout>
+
                     </LinearLayout>
 
                 </com.google.android.material.card.MaterialCardView>
-
-                <LinearLayout
-                    android:id="@+id/layoutAdd"
-                    android:layout_width="wrap_content"
-                    android:layout_marginHorizontal="@dimen/_8sdp"
-                    android:layout_height="wrap_content"
-                    android:visibility="visible"
-                    android:orientation="vertical">
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvPrices"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:listitem="@layout/item_price"
-                        tools:itemCount="2"
-                        android:visibility="visible"
-                        android:nestedScrollingEnabled="false" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_4sdp"
-                        android:orientation="horizontal">
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnMinus"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="center"
-                            app:backgroundTint="@color/red"
-                            android:background="@drawable/bg_circle_orange"
-                            android:text="-"
-                            android:textSize="@dimen/_12sdp"
-                            android:textStyle="bold" />
-
-                        <EditText
-                            android:id="@+id/etQty"
-                            android:layout_width="@dimen/_40sdp"
-                            android:layout_height="@dimen/_40sdp"
-                            android:layout_gravity="center"
-                            android:layout_marginHorizontal="@dimen/_4sdp"
-                            android:background="@drawable/bg_rounded_grey"
-                            android:backgroundTint="@color/white"
-                            android:gravity="center"
-                            android:inputType="number"
-                            android:textColor="@color/black"
-                            android:textSize="@dimen/_12ssp"
-                            android:textStyle="bold" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnPlus"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_gravity="center"
-                            app:backgroundTint="@color/red"
-                            android:background="@drawable/bg_circle_orange"
-                            android:text="+"
-                            android:textSize="@dimen/_12sdp"
-                            android:textStyle="bold" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="@dimen/_1sdp"
-                            android:layout_gravity="center"
-                            android:layout_weight="1" />
-
-                        <com.google.android.material.button.MaterialButton
-                            android:id="@+id/btnAdd"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:layout_gravity="center"
-                            android:text="Add"
-                            app:backgroundTint="@color/red"
-                            android:textSize="@dimen/_12sdp"
-                            android:textStyle="bold"
-                            app:cornerRadius="@dimen/_8sdp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

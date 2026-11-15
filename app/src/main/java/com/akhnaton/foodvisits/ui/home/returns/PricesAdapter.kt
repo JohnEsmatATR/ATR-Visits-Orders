@@ -47,12 +47,15 @@ class PricesAdapter(
 
             val binding = ItemPriceBinding.bind(this)
 
-            binding.rbPrice.text =
-                "${item.OPERAND}    (${item.CUST_PRICE} ${context.getString(R.string.currency)})"
+            binding.rbOperand.text =
+                "${context.getString(R.string.return_price)} ${item.OPERAND} ${context.getString(R.string.currency)}"
 
-            binding.rbPrice.isChecked = item.isSelected
+            binding.tvCustPrice.text =
+                "${context.getString(R.string.customer_price)} ${item.CUST_PRICE} ${context.getString(R.string.currency)}"
 
-            binding.rbPrice.setOnClickListener {
+            binding.rbOperand.isChecked = item.isSelected
+
+            binding.rbOperand.setOnClickListener {
 
                 prices.forEach { it.isSelected = false }
 

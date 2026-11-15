@@ -320,16 +320,16 @@ class ReturnsFragment : Fragment() {
                 )
                 return@setOnClickListener
             }
-            val product = selectedProduct ?: return@setOnClickListener
+            Log.d("WHATproduct", selectedProduct.toString())
             val qty =
                 binding.etQty.text.toString().toIntOrNull() ?: 1
             val existing =
                 selectedProducts.firstOrNull {
-                    it.ITEM_CODE == product.ITEM_CODE
+                    it.ITEM_CODE == selectedProduct?.ITEM_CODE
                 }
             if (existing == null) {
-                product.selectedQty = qty
-                selectedProducts.add(product)
+                selectedProduct?.selectedQty = qty
+                selectedProducts.add(selectedProduct!!)
                 orderAdapter.notifyItemInserted(selectedProducts.lastIndex)
             } else {
                 DialogUtils.showResultDialog(
@@ -530,13 +530,25 @@ class ReturnsFragment : Fragment() {
                                 product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
                                 binding.etQty.hint =
                                     "${product?.TOTAL_QUANTITY ?: 0}"
+                                binding.tvChooseProduct.visibility = View.VISIBLE
+                                binding.rvPrices.visibility = View.VISIBLE
+                                binding.layoutAdd.visibility = View.VISIBLE
                                 binding.rvPrices.adapter = PricesAdapter(
                                     data.PRICES.toMutableList(),
                                     object : PricesAdapter.OnPriceSelected {
                                         override fun onPriceSelected(price: PRICES) {
+                                            Log.d("WHATselectedPrice", selectedPrice?.CUST_PRICE.toString())
+                                            Log.d("WHATselectedPrice", selectedPrice?.OPERAND.toString())
+
                                             selectedPrice = price
                                             product?.cust_price = selectedPrice?.CUST_PRICE!!
                                             product?.price = selectedPrice?.OPERAND!!
+                                            selectedProduct?.cust_price =
+                                                selectedPrice?.CUST_PRICE!!
+                                            selectedProduct?.price = selectedPrice?.OPERAND!!
+                                            Log.d("WHATselectedPrice", selectedPrice?.CUST_PRICE.toString())
+                                            Log.d("WHATselectedPrice", selectedPrice?.OPERAND.toString())
+
                                         }
                                     })
                                 binding.rvPrices.apply {
@@ -632,7 +644,10 @@ class ReturnsFragment : Fragment() {
                         }
 
                         is ReturnsStatus.RefreshToken -> {
-                            Log.d(TAG, "RefreshToken status=${it.data.status} message=${it.data.message}")
+                            Log.d(
+                                TAG,
+                                "RefreshToken status=${it.data.status} message=${it.data.message}"
+                            )
                             dialog.hide()
                             isRefreshTokenCalled = false
                             if (it.data.status == 200) {
@@ -673,6 +688,7 @@ class ReturnsFragment : Fragment() {
             }
         }
     }
+
     private fun goBackToVisits() {
         val nav = findNavController()
         if (fromFragment == "Telephone") {
@@ -716,6 +732,7 @@ class ReturnsFragment : Fragment() {
         )
         return binding.root
     }
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

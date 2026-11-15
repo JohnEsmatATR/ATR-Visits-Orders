@@ -1,18 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layoutDirection="ltr"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp">
+    android:layout_marginVertical="4dp"
+    android:layoutDirection="ltr"
+    app:cardCornerRadius="@dimen/_8sdp"
+    app:strokeColor="@color/red"
+    app:strokeWidth="@dimen/_1sdp">
 
-    <RadioButton
-        android:id="@+id/rbPrice"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layoutDirection="rtl"
-        android:background="@color/main_color_gold2"
         android:layout_height="wrap_content"
-        android:padding="12dp"/>
+        android:background="@color/main_color_gold2"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvCustPrice"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="0 أصناف"
+            android:textAlignment="viewEnd"
+            android:textColor="#777"
+            android:textSize="@dimen/_9ssp" />
+
+        <RadioButton
+            android:id="@+id/rbOperand"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layoutDirection="rtl"
+            android:padding="12dp"
+            android:textSize="@dimen/_9ssp"
+            android:textAlignment="viewStart"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+    </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>

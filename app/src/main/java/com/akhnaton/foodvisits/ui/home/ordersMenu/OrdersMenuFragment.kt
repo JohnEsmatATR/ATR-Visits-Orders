@@ -246,7 +246,7 @@ class OrdersMenuFragment : Fragment(),
                         }
 
                         is Visits2Status.GetSalesAndCustomerTypes -> {
-                            dialog.dismiss()
+//                            dialog.dismiss()
                             if (it.data.status == 200) {
                                 val data =
                                     Gson().fromJson(

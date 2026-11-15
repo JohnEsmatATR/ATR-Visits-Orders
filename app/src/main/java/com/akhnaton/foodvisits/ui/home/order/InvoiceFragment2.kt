@@ -156,6 +156,7 @@ class InvoiceFragment2 : Fragment() {
 
         } else {
             OrigSysDocumentRef = arguments?.getString("OrigSysDocumentRef").toString()
+            orderId = arguments?.getString("OrigSysDocumentRef").toString()
             orderJson = arguments?.getString("orderJson").toString()
             orderData = Gson().fromJson(
                 orderJson, com.akhnaton.foodvisits.data.model.getList.Data::class.java
@@ -245,7 +246,7 @@ class InvoiceFragment2 : Fragment() {
 
         binding.btnAddReturn.setOnClickListener {
             Log.d("WHATisSavedBefore", isSavedBefore.toString())
-            if (isSavedBefore == false) {
+            if (isSavedBefore == false && !isEdit!!) {
                 DialogUtils.showResultDialog(
                     requireContext(), "يجب اضافة طلبية أولا", false,
                     showOkButton = true,
@@ -625,10 +626,10 @@ class InvoiceFragment2 : Fragment() {
                             val data = Gson().fromJson(
                                 it.data.data, Data::class.java
                             )
-                            orderId = data.invoice_number
+                            if (!isEdit!!) orderId = data.invoice_number
                             priceListId = data.price_list_id
                             storeId = data.store_id
-                            val ltrNumber = "\u200E${data.invoice_number}\u200E"
+                            val ltrNumber = "\u200E${orderId}\u200E"
 
                             binding.tvInvoice.text = "${getString(R.string.invoice)}: $ltrNumber"
 
@@ -785,7 +786,7 @@ class InvoiceFragment2 : Fragment() {
                             }
                             product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
                             binding.etQty.hint =
-                                "${product?.TOTAL_QUANTITY ?: 0}"
+                                "${product?.TOTAL_QUANTITY}" ?: ""
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
