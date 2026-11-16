@@ -2,8 +2,8 @@ package com.akhnaton.foodvisits.shared
 
 object ConstantLinks {
 
-//    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
-       const val BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
+    const val BASE_URL = "https://preweb.atr-eg.com/sales_backend/" //OUTSIDE_COMPANY
+//       const val BASE_URL = "https://sales.atr-eg.com/sales_backend/" // Prod
 //   const val BASE_URL = "http://10.42.151.27/" // Old Test
 //    const val BASE_URL = "http://10.42.151.27/sales_backend/" //Test
 
@@ -47,6 +47,7 @@ object ConstantLinks {
     const val GET_MAIN_CUSTOMERS_LINE = "visit/getMainCustomersLine"
     const val GET_USER_AREAS = "visit/getUserAreas"
     const val POST_PERSON_CODING = "Customer/createNewCustomer"
+    const val GET_CHART_INFO = "chartInfo/getChartInfo"
 
     //----------------------------------------------------------------------------------------------
 
