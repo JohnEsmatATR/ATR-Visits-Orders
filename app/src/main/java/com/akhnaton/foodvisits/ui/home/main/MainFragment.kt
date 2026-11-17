@@ -125,18 +125,22 @@ class MainFragment : Fragment() {
                                 val list = data?.user_chart_info.orEmpty()
                                 Log.d(TAG, "chart list size=${list.size} -> $list")
                                 if (list.isEmpty()) {
-                                    binding.chartCard.visibility = View.GONE
+                                    binding.chartCard.visibility = View.VISIBLE
+                                    binding.piechart.visibility = View.GONE
+                                    binding.layoutZeroState.visibility = View.VISIBLE
                                     binding.tvOrderTypeTitle.visibility = View.GONE
                                     binding.details.visibility = View.GONE
-                                    binding.layoutZeroState.visibility = View.VISIBLE
                                 } else {
                                     binding.chartCard.visibility = View.VISIBLE
+                                    binding.piechart.visibility = View.VISIBLE
+                                    binding.layoutZeroState.visibility = View.GONE
                                     binding.tvOrderTypeTitle.visibility = View.VISIBLE
                                     binding.details.visibility = View.VISIBLE
-                                    binding.layoutZeroState.visibility = View.GONE
+                                    setChart(list)
+                                    setAdapterData(list)
                                 }
-                                setChart(list)
-                                 setAdapterData(list)  // بعد ما نظبط الـ adapter
+//                                setChart(list)
+//                                 setAdapterData(list)  // بعد ما نظبط الـ adapter
                             }
 
                             401 -> {
@@ -190,17 +194,19 @@ class MainFragment : Fragment() {
     private fun setChart(mList: List<ChartInfoItem>) {
         val colors = ArrayList<Int>()
         for (c in ColorTemplate.MATERIAL_COLORS) colors.add(c)
-        for (c in ColorTemplate.JOYFUL_COLORS) colors.add(c)
-        for (c in ColorTemplate.COLORFUL_COLORS) colors.add(c)
-        for (c in ColorTemplate.LIBERTY_COLORS) colors.add(c)
         for (c in ColorTemplate.PASTEL_COLORS) colors.add(c)
         colors.add(ColorTemplate.getHoloBlue())
+        val totalSell = mList.sumOf { it.sell_value.toDouble() }
         val entries: MutableList<PieEntry> = ArrayList()
-        for (item in mList) {
-            if (item.percentage > 0) {
-                entries.add(PieEntry(item.percentage.toFloat(), item.order_type))
+        if (totalSell > 0) {
+            for (item in mList) {
+                val percentage = item.sell_value.toDouble() / totalSell * 100.0
+                if (percentage > 0) {
+                    entries.add(PieEntry(percentage.toFloat(), item.order_type))
+                }
             }
         }
+
         val set = PieDataSet(entries, "")
         val data = PieData(set)
         data.setValueFormatter(PercentFormatter(binding.piechart))

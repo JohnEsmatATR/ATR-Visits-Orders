@@ -17,78 +17,131 @@
         android:layout_marginTop="@dimen/_6sdp"
         android:layout_marginEnd="@dimen/_12sdp"
         android:layout_marginBottom="@dimen/_6sdp"
-        app:cardBackgroundColor="@color/chart_row_background"
-        app:cardCornerRadius="@dimen/_12sdp"
-        app:cardElevation="0dp">
+        android:layoutDirection="ltr"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/_16sdp"
+        app:cardElevation="2dp">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="@dimen/_14sdp">
 
-            <View
-                android:id="@+id/accentBar"
-                android:layout_width="@dimen/_5sdp"
-                android:layout_height="0dp"
-                android:background="@color/colorPrimary"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/orderType"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_16sdp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/percentage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/_12sdp"
+                    android:paddingTop="@dimen/_4sdp"
+                    android:paddingEnd="@dimen/_12sdp"
+                    android:paddingBottom="@dimen/_4sdp"
+                    android:textSize="@dimen/_12ssp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/orderType"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/_8sdp"
+                    android:paddingEnd="@dimen/_8sdp"
+                    android:text="@{model.order_type}"
+                    android:textColor="@color/chart_text_primary"
+                    android:textSize="@dimen/_14ssp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:id="@+id/dot"
+                    android:layout_width="@dimen/_10sdp"
+                    android:layout_height="@dimen/_10sdp" />
+
+            </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/_6sdp"
+                    android:layout_marginTop="@dimen/_12sdp"
+                    android:layoutDirection="rtl"
+                    android:max="100" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/_12sdp"
-                android:layout_marginEnd="@dimen/_8sdp"
-                android:text="@{model.order_type}"
-                android:textColor="@color/chart_text_primary"
-                android:textSize="@dimen/_14ssp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toStartOf="@+id/percentage"
-                app:layout_constraintStart_toEndOf="@+id/accentBar"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <TextView
-                android:id="@+id/percentage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_12sdp"
-                android:background="@drawable/bg_chart_chip"
-                android:paddingStart="@dimen/_10sdp"
-                android:paddingTop="@dimen/_4sdp"
-                android:paddingEnd="@dimen/_10sdp"
-                android:paddingBottom="@dimen/_4sdp"
-                android:textColor="@color/colorPrimary"
-                android:textSize="@dimen/_12ssp"
-                android:textStyle="bold"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/orderType" />
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="@dimen/_4sdp"
+                    android:layout_weight="1"
+                    android:background="#F8F8FA"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_10sdp">
 
-            <TextView
-                android:id="@+id/sellValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/_16sdp"
-                android:layout_marginTop="@dimen/_8sdp"
-                android:layout_marginBottom="@dimen/_12sdp"
-                android:textColor="@color/chart_text_secondary"
-                android:textSize="@dimen/_11ssp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/accentBar"
-                app:layout_constraintTop_toBottomOf="@+id/orderType" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="المستهدف"
+                        android:textColor="@color/chart_text_secondary"
+                        android:textSize="@dimen/_11ssp" />
 
-            <TextView
-                android:id="@+id/planValue"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/_12sdp"
-                android:textColor="@color/chart_text_secondary"
-                android:textSize="@dimen/_11ssp"
-                app:layout_constraintBottom_toBottomOf="@+id/sellValue"
-                app:layout_constraintEnd_toEndOf="parent" />
+                    <TextView
+                        android:id="@+id/planValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:gravity="end"
+                        android:textColor="@color/chart_text_primary"
+                        android:textSize="@dimen/_13ssp"
+                        android:textStyle="bold" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/_4sdp"
+                    android:layout_weight="1"
+                    android:background="#F8F8FA"
+                    android:orientation="vertical"
+                    android:padding="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="المحقق"
+                        android:textColor="@color/chart_text_secondary"
+                        android:textSize="@dimen/_11ssp" />
+
+                    <TextView
+                        android:id="@+id/sellValue"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_4sdp"
+                        android:gravity="end"
+                        android:textColor="@color/chart_text_primary"
+                        android:textSize="@dimen/_13ssp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
 
     </androidx.cardview.widget.CardView>
 </layout>

@@ -47,7 +47,7 @@ object ConstantLinks {
     const val GET_MAIN_CUSTOMERS_LINE = "visit/getMainCustomersLine"
     const val GET_USER_AREAS = "visit/getUserAreas"
     const val POST_PERSON_CODING = "Customer/createNewCustomer"
-    const val GET_CHART_INFO = "chartInfo/getChartInfo"
+    const val GET_CHART_INFO = "chartInfo/GetUserSellAndPlanValue"
 
     //----------------------------------------------------------------------------------------------
 
