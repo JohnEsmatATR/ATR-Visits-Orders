@@ -26,6 +26,8 @@ data class SaveOrderReq(
 
 //    @SerializedName("payment_id")
 //    val paymentId: Int,
+    @SerializedName("visit_id")
+    val visitId: String,
 
     @SerializedName("items")
     val items: Map<String, SaveOrderItemReq>
@@ -37,4 +39,5 @@ data class SaveOrderItemReq(
 
     @SerializedName("QUANTITY")
     val quantity: Int
+
 )

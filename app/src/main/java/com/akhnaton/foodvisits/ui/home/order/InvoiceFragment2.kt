@@ -58,6 +58,7 @@ class InvoiceFragment2 : Fragment() {
     lateinit var siteAddress: String
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
+    var visitId: String = ""
     lateinit var selectedOptionsJson: String
     private var allProducts = mutableListOf<Product>()
 
@@ -104,6 +105,7 @@ class InvoiceFragment2 : Fragment() {
         setupKeyboardInsets()
 
         isEdit = arguments?.getBoolean("isEdit", false)
+        visitId = arguments?.getString("visitId").orEmpty()
         if (!isEdit!!) {
             customerName = arguments?.getString("customerName").toString()
             customerCode = arguments?.getString("customerCode").toString()
@@ -534,7 +536,8 @@ class InvoiceFragment2 : Fragment() {
             send = if (send) "1" else "0",
 //            warehouseType = warehouseId ?: "",
 //            paymentId = paymentId?.toIntOrNull() ?: 106014,
-            items = items
+            items = items,
+            visitId = visitId
         )
 
         val gson = Gson()

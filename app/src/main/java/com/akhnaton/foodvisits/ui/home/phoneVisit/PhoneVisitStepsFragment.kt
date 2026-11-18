@@ -177,7 +177,8 @@ class PhoneVisitStepsFragment : Fragment() {
         customerPartySiteId: String,
         saleType: String,
         checkIn: String,
-        currentTime: String
+        currentTime: String,
+        visitId: String
     ) {
         val navController = findNavController()
 
@@ -206,6 +207,7 @@ class PhoneVisitStepsFragment : Fragment() {
             putString("checkIn", checkIn)
             putString("currentTime", currentTime)
             putString("customerPhoneNumbers", jsonCustomerPhoneNumbers)
+            putString("visitId", visitId)
 
             // Keep these if you still need them
             putLong("hours", result.hours)
@@ -647,7 +649,8 @@ class PhoneVisitStepsFragment : Fragment() {
                                         customerPartySiteId,
                                         saleType,
                                         data.check_in.toString(),
-                                        data.current_time
+                                        data.current_time,
+                                        data.visit_id?.toString().orEmpty()
                                     )
                                 } else {
                                     if (!isStartVisitDialogShowsUp) {

@@ -80,6 +80,7 @@ class TelephoneVisitFragment : Fragment() {
     var dateVisit: Long = 0
     var visitTarget: String = ""
     var actTarget: String = ""
+    var visitId: String = ""
     var checkIn: String = ""
     var currentTime: String = ""
     var jsonCustomerPhoneNumbers: String = ""
@@ -136,6 +137,7 @@ class TelephoneVisitFragment : Fragment() {
             arguments?.getString("checkIn").toString()
         currentTime =
             arguments?.getString("currentTime").toString()
+        visitId = arguments?.getString("visitId").orEmpty()
         jsonCustomerPhoneNumbers =
             arguments?.getString("customerPhoneNumbers") ?: ""
 
@@ -509,6 +511,7 @@ class TelephoneVisitFragment : Fragment() {
                                                     )
                                                     putString("saleType", saleType)
                                                     putString("fragment", "Telephone")
+                                                    putString("visitId", visitId)
                                                 }
 
                                                 findNavController().navigate(

@@ -112,6 +112,7 @@ class GpsVisitFragment : Fragment() {
     var dateVisit: Long = 0
     var visitTarget: String = ""
     var actTarget: String = ""
+    var visitId: String = ""
     var checkIn: String = ""
     var currentTime: String = ""
 
@@ -782,6 +783,7 @@ class GpsVisitFragment : Fragment() {
                                     )
 
                                 if (data.check_in != null) {
+                                    visitId = data.visit_id?.toString().orEmpty()
                                     checkIn = data.check_in
                                     currentTime = data.current_time
 
@@ -919,6 +921,7 @@ class GpsVisitFragment : Fragment() {
                                                     )
                                                     putString("saleType", saleType)
                                                     putString("fragment", "Gps")
+                                                    putString("visitId", visitId)
                                                 }
 
                                                 findNavController().navigate(

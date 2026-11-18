@@ -58,6 +58,7 @@ class OrderCreationCycleFragment : Fragment() {
     lateinit var customerPartySiteId: String
     lateinit var saleType: String
     lateinit var fragment: String
+    var visitId: String = ""
     private var pendingRetry: (() -> Unit)? = null
     private var hasRetriedAfterRefresh = false
     private var selectLists =
@@ -82,6 +83,7 @@ class OrderCreationCycleFragment : Fragment() {
             arguments?.getString("saleType").toString()
         fragment =
             arguments?.getString("fragment").toString()
+        visitId = arguments?.getString("visitId").orEmpty()
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
@@ -166,6 +168,7 @@ class OrderCreationCycleFragment : Fragment() {
                 putString("saleType", saleType)
                 putString("selectedOptions", selectionsJson)
                 putBoolean("isEdit", false)
+                putString("visitId", visitId)
             }
 
             Log.d("WHATselectionsJson", selectionsJson.toString())
