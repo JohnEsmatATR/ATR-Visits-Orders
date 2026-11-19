@@ -2,92 +2,57 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layoutDirection="ltr"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:layoutDirection="rtl"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_bottom_sheet_top_rounded"
+        android:clipToOutline="true"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="20dp">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="4dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_drag_handle" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="20dp"
             android:text="بحث عن طريق"
             android:textColor="@android:color/black"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:textStyle="bold" />
-
-        <!-- Status -->
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="@dimen/_4sdp"
+            android:layout_marginBottom="8dp"
             android:text="الحالة"
+            android:textColor="@android:color/black"
+            android:textSize="14sp"
             android:textStyle="bold" />
 
-        <RadioGroup
-            android:id="@+id/rgStatus"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end">
-
-            <RadioButton
-                android:id="@+id/rbAll"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/bg_rounded_grey"
-                android:backgroundTint="@color/background"
-                android:layoutDirection="rtl"
-                android:paddingHorizontal="@dimen/_8sdp"
-                android:text="الكل" />
-
-            <RadioButton
-                android:id="@+id/rbSaved"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginVertical="@dimen/_4sdp"
-                android:background="@drawable/bg_rounded_grey"
-                android:backgroundTint="@color/background"
-                android:layoutDirection="rtl"
-                android:paddingHorizontal="@dimen/_8sdp"
-                android:text="محفوظة" />
-
-            <RadioButton
-                android:id="@+id/rbSent"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:background="@drawable/bg_rounded_grey"
-                android:backgroundTint="@color/background"
-                android:layoutDirection="rtl"
-                android:paddingHorizontal="@dimen/_8sdp"
-                android:text="مرسلة" />
-
-        </RadioGroup>
-
-        <!-- From Date -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/OutlinedRoundedBox"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
+            android:layout_marginBottom="16dp"
             app:boxBackgroundColor="@color/background"
-            app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
-            app:boxCornerRadiusBottomStart="@dimen/_12sdp"
-            app:boxCornerRadiusTopEnd="@dimen/_12sdp"
-            app:boxCornerRadiusTopStart="@dimen/_12sdp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusTopStart="14dp"
             app:boxStrokeColor="@android:color/transparent"
-            android:layout_marginTop="@dimen/_16sdp"
-            app:boxStrokeWidth="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
+            app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etFromDate"
@@ -98,25 +63,22 @@
                 android:focusable="false"
                 android:hint="من تاريخ"
                 android:inputType="textEmailAddress"
-                android:textAlignment="viewEnd" />
+                android:textAlignment="viewStart" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- To Date -->
         <com.google.android.material.textfield.TextInputLayout
             style="@style/OutlinedRoundedBox"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
+            android:layout_marginBottom="16dp"
             app:boxBackgroundColor="@color/background"
-            app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
-            app:boxCornerRadiusBottomStart="@dimen/_12sdp"
-            app:boxCornerRadiusTopEnd="@dimen/_12sdp"
-            app:boxCornerRadiusTopStart="@dimen/_12sdp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusTopStart="14dp"
             app:boxStrokeColor="@android:color/transparent"
-            app:boxStrokeWidth="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
+            app:boxStrokeWidth="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etToDate"
@@ -127,24 +89,23 @@
                 android:focusable="false"
                 android:hint="إلى تاريخ"
                 android:inputType="textEmailAddress"
-                android:textAlignment="viewEnd" />
+                android:textAlignment="viewStart" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Order Type -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilVisitingPosition"
             style="@style/OutlinedRoundedBox"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
-            android:layout_marginBottom="@dimen/_8sdp"
+            android:layout_marginBottom="24dp"
             android:backgroundTint="@color/background"
             android:layoutDirection="rtl"
             app:boxBackgroundColor="@color/background"
-            app:boxCornerRadiusBottomEnd="@dimen/_12sdp"
-            app:boxCornerRadiusBottomStart="@dimen/_12sdp"
-            app:boxCornerRadiusTopEnd="@dimen/_12sdp"
-            app:boxCornerRadiusTopStart="@dimen/_12sdp"
+            app:boxCornerRadiusBottomEnd="14dp"
+            app:boxCornerRadiusBottomStart="14dp"
+            app:boxCornerRadiusTopEnd="14dp"
+            app:boxCornerRadiusTopStart="14dp"
             app:boxStrokeColor="@android:color/transparent"
             app:boxStrokeWidth="0dp"
             app:endIconMode="dropdown_menu">
@@ -158,47 +119,45 @@
                 android:focusable="false"
                 android:hint="نوع الطلب"
                 android:inputType="none"
-                android:text=""
                 android:paddingEnd="@dimen/_12sdp"
+                android:text=""
                 android:textAlignment="viewStart"
                 android:textColor="@color/black"
                 android:textSize="@dimen/_12ssp" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Buttons -->
-
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/_50sdp"
-            android:layout_marginTop="@dimen/_24sdp"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnClear"
-                android:layout_width="0dp"
-                android:layout_height="@dimen/_52sdp"
-                android:textSize="@dimen/_16ssp"
-                android:layout_weight="1"
-                android:backgroundTint="@color/background"
-                android:text="مسح"
-                android:textColor="@color/black"
-                app:cornerRadius="@dimen/_12sdp" />
-
-            <Space
-                android:layout_width="12dp"
-                android:layout_height="1dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnApply"
                 android:layout_width="0dp"
-                android:layout_height="@dimen/_52sdp"
+                android:layout_height="52dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/colorPrimary"
-                android:textSize="@dimen/_16ssp"
                 android:text="تطبيق"
                 android:textColor="@color/white"
-                app:cornerRadius="@dimen/_12sdp" />
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="14dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnClear"
+                android:layout_width="0dp"
+                android:layout_height="52dp"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/background"
+                android:text="مسح"
+                android:textColor="@color/black"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:cornerRadius="14dp"
+                app:strokeWidth="0dp" />
 
         </LinearLayout>
 

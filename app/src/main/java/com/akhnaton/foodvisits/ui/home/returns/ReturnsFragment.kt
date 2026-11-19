@@ -46,7 +46,6 @@ class ReturnsFragment : Fragment() {
     companion object {
         private const val TAG = "ReturnsFragment"
     }
-
     private val viewModel: ReturnsViewModel by viewModels()
     private var _binding: FragmentReturnsBinding? = null
     private var fromFragment: String = ""
@@ -67,6 +66,8 @@ class ReturnsFragment : Fragment() {
     private lateinit var orderAdapter: ReturnsAdapter
     private var selectedProduct: Product? = null
     private var selectedProducts = mutableListOf<Product>()
+
+    val MESSAGE: String? = null
 
     var totalQty = 0
     var beforeTax = 0.0
@@ -204,6 +205,8 @@ class ReturnsFragment : Fragment() {
                 putString("saleType", saleType)
                 putString("orderId", orderId)
                 putString("storeId", storeId)
+                putString("fragment", fromFragment)
+                putBoolean("restoreOrder", true)
             }
 
             findNavController().navigate(
@@ -261,12 +264,13 @@ class ReturnsFragment : Fragment() {
                 allProducts,
                 object : ProductReturnsBottomSheet.OnProductSelected {
                     override fun onSelected(product: Product) {
+                        selectedPrice = null
                         binding.etQty.requestFocus()
                         selectedProduct = product
                         binding.etSearch.setText(product.DESCRIPTION)
                         getItemDetails(
                             product.INVENTORY_ITEM_ID,
-                            selectedPriceList.PRICE_LIST_ID,
+                            selectedDamagePriceList.PRICE_LIST_ID,
                             storeId
                         )
                         binding.layoutAdd.visibility = View.VISIBLE
@@ -285,7 +289,7 @@ class ReturnsFragment : Fragment() {
                         binding.etSearch.setText(product.DESCRIPTION)
                         getItemDetails(
                             product.INVENTORY_ITEM_ID,
-                            selectedPriceList.PRICE_LIST_ID,
+                            selectedDamagePriceList.PRICE_LIST_ID,
                             storeId
                         )
                         binding.layoutAdd.visibility = View.VISIBLE
@@ -312,6 +316,22 @@ class ReturnsFragment : Fragment() {
 
         binding.btnAdd.setOnClickListener {
             Log.d("WHATexist", selectedProducts.size.toString())
+
+            if (selectedProduct == null) {
+                DialogUtils.showResultDialog(
+                    requireContext(), "يجب اختيار منتج", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+            }
+
+            if (selectedPrice == null) {
+                DialogUtils.showResultDialog(
+                    requireContext(), "يجب اختيار السعر", false,
+                    showOkButton = true,
+                )
+                return@setOnClickListener
+            }
 
             if (binding.etQty.text.toString().isEmpty()) {
                 DialogUtils.showResultDialog(
@@ -345,11 +365,14 @@ class ReturnsFragment : Fragment() {
             updateTotal()
             updateEmptyView()
             calculateTotals()
-//            updateTotal()
+
             binding.etSearch.text = ""
             binding.etQty.text?.clear()
             binding.layoutAdd.visibility = View.GONE
+            binding.rvPrices.visibility = View.GONE
+            binding.tvChooseProduct.visibility = View.GONE
             selectedProduct = null
+            selectedPrice = null
         }
 
         orderAdapter.notifyDataSetChanged()
@@ -391,7 +414,7 @@ class ReturnsFragment : Fragment() {
             comment = "",
             partySiteId = customerPartySiteId,
             send = if (send) "1" else "0",
-            priceListId = selectedPriceList.PRICE_LIST_ID.toInt(),
+            priceListId = selectedDamagePriceList.PRICE_LIST_ID.toInt(),
             paymentId = paymentId,
             items = items,
         )
@@ -528,8 +551,6 @@ class ReturnsFragment : Fragment() {
                                     pro.INVENTORY_ITEM_ID == data.INVENTORY_ITEM_ID
                                 }
                                 product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
-                                binding.etQty.hint =
-                                    "${product?.TOTAL_QUANTITY ?: 0}"
                                 binding.tvChooseProduct.visibility = View.VISIBLE
                                 binding.rvPrices.visibility = View.VISIBLE
                                 binding.layoutAdd.visibility = View.VISIBLE
@@ -564,7 +585,7 @@ class ReturnsFragment : Fragment() {
                                     product?.let { p ->
                                         getItemDetails(
                                             p.INVENTORY_ITEM_ID,
-                                            selectedPriceList.PRICE_LIST_ID,
+                                            selectedDamagePriceList.PRICE_LIST_ID,
                                             storeId
                                         )
                                     }
@@ -579,7 +600,12 @@ class ReturnsFragment : Fragment() {
 
                         is ReturnsStatus.SaveReturn -> {
                             dialog.dismiss()
+                            //message
+                            Log.d(TAG, "raw messages: ${it.data.message}")
+
                             val message = it.data.message.asMessage()
+                            Log.d(TAG, "after asMessage: $message")
+
                             Log.d(TAG, "SaveReturn status=${it.data.status} message=$message")
                             if (it.data.status != 401) hasRetriedAfterRefresh = false
 
@@ -604,6 +630,7 @@ class ReturnsFragment : Fragment() {
                                                 )
                                             })
                                     } else {
+                                        //response
 //                                itemsSummaryList = data.items_summary.toMutableList()
 //                                Log.d("WHATitemsSummaryList", itemsSummaryList.toString())
 //                                setRecycler(itemsSummaryList)

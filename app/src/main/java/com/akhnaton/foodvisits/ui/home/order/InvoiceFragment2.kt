@@ -63,6 +63,9 @@ class InvoiceFragment2 : Fragment() {
     private var allProducts = mutableListOf<Product>()
 
     private var selectedProducts = mutableListOf<Product>()
+    private var isRefreshTokenCalled = false
+    private var hasRetriedAfterRefresh = false
+    private val pendingRetries = mutableListOf<() -> Unit>()
 
     lateinit var orderId: String
     var paymentId: String? = ""
@@ -91,9 +94,11 @@ class InvoiceFragment2 : Fragment() {
     var afterTax = 0.0
     var total = 0.0
     private var isSavedBefore: Boolean? = false
+    private var restoreOrder = false
     private var itemsSummaryList = mutableListOf<ItemsSummary>()
 
     private lateinit var selectedOptionsArray: JSONArray
+    private var orderSelects = mutableMapOf<String, String>()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -106,12 +111,36 @@ class InvoiceFragment2 : Fragment() {
 
         isEdit = arguments?.getBoolean("isEdit", false)
         visitId = arguments?.getString("visitId").orEmpty()
-        if (!isEdit!!) {
+        restoreOrder = arguments?.getBoolean("restoreOrder", false) == true &&
+                OrderStateHolder.orderId != null
+        Log.d("WHATrestore", "restoreOrder=$restoreOrder isEdit=$isEdit holderOrderId=${OrderStateHolder.orderId} argRestore=${arguments?.getBoolean("restoreOrder", false)}")
+        if (restoreOrder) {
+            orderId = OrderStateHolder.orderId!!
+            customerPartySiteId = OrderStateHolder.customerPartySiteId!!
+            customerCode = OrderStateHolder.customerCode.orEmpty()
+            saleType = OrderStateHolder.saleType!!
+            storeId = OrderStateHolder.storeId.orEmpty()
+            priceListId = OrderStateHolder.priceListId.orEmpty()
+            visitId = OrderStateHolder.visitId
+            isSavedBefore = OrderStateHolder.isSavedBefore
+            orderSelects = OrderStateHolder.orderSelects.toMutableMap()
+            selectedProducts.clear()
+            selectedProducts.addAll(OrderStateHolder.selectedProducts)
+            customerName = ""
+            siteAddress = ""
+        } else if (!isEdit!!) {
+            OrderStateHolder.clear()
             customerName = arguments?.getString("customerName").toString()
             customerCode = arguments?.getString("customerCode").toString()
             siteAddress = arguments?.getString("siteAddress").toString()
             customerPartySiteId = arguments?.getString("customerPartySiteId").toString()
             saleType = arguments?.getString("saleType").toString()
+
+            selectedOptionsJson = arguments?.getString("selectedOptions") ?: "[]"
+
+
+
+
 //            selectedOptionsJson = arguments?.getString("selectedOptions").toString()
 //
 //            val type = object : TypeToken<List<SelectedOption>>() {}.type
@@ -131,26 +160,37 @@ class InvoiceFragment2 : Fragment() {
 //                it.key == "bonus"
 //            }?.id
 
-            selectedOptionsJson =
-                arguments?.getString("selectedOptions") ?: "[]"
+            selectedOptionsJson = arguments?.getString("selectedOptions") ?: "[]"
 
-            selectedOptionsArray = JSONArray(selectedOptionsJson)
 
-            // Keep every option, including options with unknown keys.
-            val selectedOptions = (0 until selectedOptionsArray.length()).map { index ->
-                selectedOptionsArray.getJSONObject(index)
-            }
 
-            // Create a dynamic map: option key -> option ID.
-            val optionIds = selectedOptions.associate { option ->
-                option.optString("key") to option.optString("id")
-            }
+           // selectedOptionsArray = JSONArray(selectedOptionsJson)
+
+//             Keep every option, including options with unknown keys.
+//            val selectedOptions = (0 until selectedOptionsArray.length()).map { index ->
+//                selectedOptionsArray.getJSONObject(index)
+//            }
+//            // Create a dynamic map: option key -> option ID.
+//            val optionIds = selectedOptions.associate { option ->
+//                option.optString("key") to option.optString("id")
+//            }
 
             // Existing fields, if you still need them:
-            paymentId = optionIds["payment_terms"] ?: "106014"
-            warehouseId = optionIds["warehouse_type"]
-            saleTypeId = optionIds["sale_type"]
-            bonus = optionIds["bonus"]
+//            paymentId = optionIds["payment_terms"] ?: "106014"
+//            warehouseId = optionIds["warehouse_type"]
+//            saleTypeId = optionIds["sale_type"]
+//            bonus = optionIds["bonus"]
+
+
+            val listsJson = arguments?.getString("selectLists")
+            if (!listsJson.isNullOrBlank()) {
+                val type = object : TypeToken<List<SelectLists>>() {}.type
+                val lists: List<SelectLists> = Gson().fromJson(listsJson, type)
+                lists.forEach { list ->
+                    val id = list.selectedId
+                    if (!id.isNullOrBlank()) orderSelects[list.select] = id
+                }
+            }
 
             Log.d("WHATinvoice", paymentId.toString())
             Log.d("WHATinvoice", warehouseId.toString())
@@ -164,13 +204,15 @@ class InvoiceFragment2 : Fragment() {
                 orderJson, com.akhnaton.foodvisits.data.model.getList.Data::class.java
             )
             paymentId = orderData.PAYMENT_TERM_ID
-            selectedOptionsArray = loadOptionsLocally(OrigSysDocumentRef)
-                ?: JSONArray().put(
-                    org.json.JSONObject()
-                        .put("key", "payment_id")
-                        .put("id", orderData.PAYMENT_TERM_ID)
-                )
+
+//            selectedOptionsArray = loadOptionsLocally(OrigSysDocumentRef)
+//                ?: JSONArray().put(
+//                    org.json.JSONObject()
+//                        .put("key", "payment_id")
+//                        .put("id", orderData.PAYMENT_TERM_ID)
+//                )
 //            paymentId = "106014"
+
             customerCode = orderData.CUSTOMER_CODE
             customerPartySiteId = orderData.PARTY_SITE_ID
             saleType = orderData.ORDER_TYPE
@@ -263,7 +305,9 @@ class InvoiceFragment2 : Fragment() {
                 putString("saleType", saleType)
                 putString("orderId", orderId)
                 putString("storeId", storeId)
+                putString("customerCode", customerCode)
             }
+            persistOrderState()
 
             findNavController().navigate(
                 R.id.toReturnOptions,
@@ -414,10 +458,27 @@ class InvoiceFragment2 : Fragment() {
             binding.layoutAdd.visibility = View.GONE
             selectedProduct = null
         }
+        if (restoreOrder) {
+            binding.tvInvoice.text = "${getString(R.string.invoice)}: \u200E${orderId}\u200E"
+            refreshUi()
+        }
         getStartOrderData()
         fetchData()
     }
-
+    private fun persistOrderState() {
+        OrderStateHolder.apply {
+            this.orderId = this@InvoiceFragment2.orderId
+            this.customerPartySiteId = this@InvoiceFragment2.customerPartySiteId
+            this.customerCode = this@InvoiceFragment2.customerCode
+            this.saleType = this@InvoiceFragment2.saleType
+            this.storeId = this@InvoiceFragment2.storeId
+            this.priceListId = this@InvoiceFragment2.priceListId
+            this.visitId = this@InvoiceFragment2.visitId
+            this.isSavedBefore = true
+            this.selectedProducts = this@InvoiceFragment2.selectedProducts.toMutableList()
+            this.orderSelects = this@InvoiceFragment2.orderSelects.toMutableMap()
+        }
+    }
     private fun finishInitialLoad() {
         if (pendingInitialLoads > 0) pendingInitialLoads--
         if (pendingInitialLoads == 0) dialog.dismiss()
@@ -440,6 +501,7 @@ class InvoiceFragment2 : Fragment() {
         }
         binding.tvProductsCount.text =
             "${selectedProducts.size} أصناف"
+
         binding.tvTotal.text =
             String.format("%.2f %s", total, getString(R.string.currency))
     }
@@ -453,7 +515,12 @@ class InvoiceFragment2 : Fragment() {
             )
         }
     }
-
+    private fun refreshUi() {
+        orderAdapter.notifyDataSetChanged()
+        updateTotal()
+        updateEmptyView()
+        calculateTotals()
+    }
     private fun getItems() {
         lifecycleScope.launch {
             viewModel.orderIntent.send(
@@ -466,25 +533,17 @@ class InvoiceFragment2 : Fragment() {
 
     private fun prefillOrderSelections() {
         getItemsResponse.forEach { preview ->
-            Log.d(
-                "MATCH", "Searching for: ${preview.ITEM_NAME}"
-            )
+            Log.d("MATCH", "Searching for: ${preview.ITEM_NAME}")
             val matchedProduct = allProducts.firstOrNull {
                 it.PRODUCT_NAME.trim().replace("'", "") == preview.ITEM_NAME.trim().replace("'", "")
             }
-            Log.d(
-                "MATCH", "Found: ${matchedProduct?.PRODUCT_NAME}"
-            )
+            Log.d("MATCH", "Found: ${matchedProduct?.PRODUCT_NAME}")
             matchedProduct?.let {
                 it.selectedQty = preview.QUANTITY.toInt()
                 selectedProducts.add(it)
             }
-
-            orderAdapter.notifyDataSetChanged()
-            updateTotal()
-            updateEmptyView()
-            calculateTotals()
         }
+        refreshUi()
     }
 
     private fun calculateTotals() {
@@ -513,20 +572,27 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun saveOrder(send: Boolean) {
+
+//        val items = if (isSavedBefore == false) {
+//            selectedProducts.mapIndexed { index, product ->
+//                (index + 1).toString() to SaveOrderItemReq(
+//                    inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
+//                    quantity = product.selectedQty
+//                )
+//            }.toMap()
+//        } else {
+//            ProductMapper.mapItemsSummaryToRequest(
+//                itemsSummaryList,
+//                selectedProducts
+//            )
+//        }
         Log.d("WHATmap", selectedProducts.toString())
-        val items = if (isSavedBefore == false) {
-            selectedProducts.mapIndexed { index, product ->
-                (index + 1).toString() to SaveOrderItemReq(
-                    inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
-                    quantity = product.selectedQty
-                )
-            }.toMap()
-        } else {
-            ProductMapper.mapItemsSummaryToRequest(
-                itemsSummaryList,
-                selectedProducts
+        val items = selectedProducts.mapIndexed { index, product ->
+            (index + 1).toString() to SaveOrderItemReq(
+                inventoryItemId = product.INVENTORY_ITEM_ID.toInt(),
+                quantity = product.selectedQty
             )
-        }
+        }.toMap()
 
         val request = SaveOrderReq(
             orderId = orderId,
@@ -546,18 +612,21 @@ class InvoiceFragment2 : Fragment() {
         val requestJson = gson.toJsonTree(request).asJsonObject
 
         // Add every dynamic option.
-        for (i in 0 until selectedOptionsArray.length()) {
-            val option = selectedOptionsArray.optJSONObject(i) ?: continue
-
-            val key = option.optString("key")
-            if (key.isBlank() || key == "null") continue
-
-            val value = option.opt("id") ?: continue
-
-            // Add the value without assuming any particular key name
-            requestJson.add(key, JsonPrimitive(value.toString()))
+//        for (i in 0 until selectedOptionsArray.length()) {
+//            val option = selectedOptionsArray.optJSONObject(i) ?: continue
+//
+//            val key = option.optString("key")
+//            if (key.isBlank() || key == "null") continue
+//
+//            val value = option.opt("id") ?: continue
+//
+//            requestJson.add(key, JsonPrimitive(value.toString()))
+//        }
+//selects map =>
+        orderSelects.forEach { (key, value) ->
+            requestJson.add(key, JsonPrimitive(value))
         }
-
+        Log.d("WHATrequest", requestJson.toString())
         lifecycleScope.launch {
             viewModel.orderIntent.send(
                 Order2Intent.SaveOrder(requestJson)
@@ -593,9 +662,10 @@ class InvoiceFragment2 : Fragment() {
 //                                    storeId
 //                                )
                     }
-                    updateTotal()
                     updateEmptyView()
+                    updateTotal()
                     calculateTotals()
+
                 }
 
                 override fun onDeleteClicked(item: Product) {
@@ -614,6 +684,8 @@ class InvoiceFragment2 : Fragment() {
             adapter = orderAdapter
         }
         updateEmptyView()
+        updateTotal()
+        calculateTotals()
     }
 
     private fun fetchData() {
@@ -630,7 +702,7 @@ class InvoiceFragment2 : Fragment() {
                             val data = Gson().fromJson(
                                 it.data.data, Data::class.java
                             )
-                            if (!isEdit!!) orderId = data.invoice_number
+                            if (!isEdit!! && !restoreOrder) orderId = data.invoice_number
                             priceListId = data.price_list_id
                             storeId = data.store_id
                             val ltrNumber = "\u200E${orderId}\u200E"
@@ -642,11 +714,8 @@ class InvoiceFragment2 : Fragment() {
                             if (isEdit == true) {
                                 prefillOrderSelections()
                             }
+                            refreshUi()
 
-                            orderAdapter.notifyDataSetChanged()
-                            updateEmptyView()
-                            updateTotal()
-                            calculateTotals()
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -671,7 +740,7 @@ class InvoiceFragment2 : Fragment() {
                                 it.saveOrderRes.data,
                                 com.akhnaton.foodvisits.data.model.saveOrder.Data::class.java
                             )
-                            saveOptionsLocally(orderId, selectedOptionsArray.toString())
+//                            saveOptionsLocally(orderId, selectedOptionsArray.toString())
                             if (isSend == false) {
                                 isSavedBefore = true
                                 DialogUtils.showResultDialog(
@@ -684,7 +753,9 @@ class InvoiceFragment2 : Fragment() {
                                 itemsSummaryList = data.items_summary.toMutableList()
                                 Log.d("WHATitemsSummaryList", itemsSummaryList.toString())
                                 setRecycler(itemsSummaryList)
+                                persistOrderState()
                             } else if (isSend == true) {
+                                OrderStateHolder.clear()
                                 //MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -756,12 +827,21 @@ class InvoiceFragment2 : Fragment() {
                         finishInitialLoad()
 
                         if (it.data.status == 200) {
+                            Log.d("WHATorderSelects", "reached ${it.data.order_summary}")
                             getItemsResponse = it.data.data.toMutableList()
+                            if (visitId.isEmpty()) {
+                                visitId = it.data.order_summary?.visit_id.orEmpty()
+                            }
+                            it.data.order_summary?.selects?.forEach { select ->
+                                val key = select.key
+                                val value = select.value
+                                if (!key.isNullOrBlank() && value != null) {
+                                    orderSelects[key] = value
+                                }
+                            }
+                            Log.d("WHATorderSelects", orderSelects.toString())
                             prefillOrderSelections()
-                            orderAdapter.notifyDataSetChanged()
-                            updateTotal()
-                            updateEmptyView()
-                            calculateTotals()
+                            refreshUi()
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -790,8 +870,8 @@ class InvoiceFragment2 : Fragment() {
                                 pro.INVENTORY_ITEM_ID == data.INVENTORY_ITEM_ID
                             }
                             product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
-                            binding.etQty.hint =
-                                "${product?.TOTAL_QUANTITY}" ?: ""
+                            binding.etQty.hint = "${product?.TOTAL_QUANTITY}" ?: ""
+                            updateTotal()
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -811,28 +891,21 @@ class InvoiceFragment2 : Fragment() {
 
                     is Order2Status.RefreshToken -> {
                         dialog.hide()
+                        isRefreshTokenCalled = false
                         if (it.data.status == 200) {
-                            Log.d("WHATRefreshToken", "${it.data.message}")
                             val data = Gson().fromJson(
                                 it.data.data,
                                 com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                             )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                            hasRetriedAfterRefresh = true
+                            val retries = pendingRetries.toList()
+                            pendingRetries.clear()
+                            retries.forEach { r -> r() }
                         } else {
-                            DialogUtils.showResultDialog(
-                                context = requireContext(),
-                                message = it.data.message,
-                                isSuccess = false,
-                                showOkButton = true,
-                                onOk = {
-                                    SharedPreferencesHelper.getInstance().logOut()
-                                    startActivity(
-                                        Intent(
-                                            requireContext(), LoginActivity2::class.java
-                                        )
-                                    )
-                                    requireActivity().finishAffinity()
-                                })
+                            pendingRetries.clear()
+                            hasRetriedAfterRefresh = false
+                            showSessionExpired(it.data.message)
                         }
                     }
 
@@ -852,6 +925,20 @@ class InvoiceFragment2 : Fragment() {
             }
         }
     }
+
+    private fun showSessionExpired(message: String) {
+        DialogUtils.showResultDialog(
+            context = requireContext(),
+            message = message,
+            isSuccess = false,
+            showOkButton = true,
+            onOk = {
+                SharedPreferencesHelper.getInstance().logOut()
+                startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                requireActivity().finishAffinity()
+            })
+    }
+
 
     private fun setupKeyboardInsets() {
         ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->

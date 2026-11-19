@@ -447,6 +447,6 @@
     <string name="return_options_continue">المتابعة لإضافة المنتجات</string>
 
 
-    <string name="return_price">سعر مرتجع</string>
+    <string name="return_price">السعر</string>
     <string name="customer_price">سعر الجمهور</string>
 </resources>

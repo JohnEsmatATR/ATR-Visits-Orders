@@ -166,7 +166,7 @@ class OrderCreationCycleFragment : Fragment() {
                 putString("siteAddress", siteAddress)
                 putString("customerPartySiteId", customerPartySiteId)
                 putString("saleType", saleType)
-                putString("selectedOptions", selectionsJson)
+                putString("selectLists", Gson().toJson(selectLists))
                 putBoolean("isEdit", false)
                 putString("visitId", visitId)
             }

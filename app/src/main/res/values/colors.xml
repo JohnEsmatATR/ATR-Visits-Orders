@@ -70,4 +70,7 @@
     <color name="reject_red">#FF3B30</color>
     <color name="return_options_background">#F7F7FA</color>
     <color name="blue2">#007AFF</color>
+
+    <color name="light_green">#E8F5E7</color>
+    <color name="gray2">#9E9E9E</color>
 </resources>

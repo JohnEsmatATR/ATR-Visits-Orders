@@ -214,11 +214,11 @@ class OrdersMenuFragment : Fragment(),
                             dialog.dismiss()
                             if (it.data.status != 401) hasRetriedAfterRefresh = false
                             if (it.data.status == 200) {
-//                            val data =
-//                                Gson().fromJson(
-//                                    it.data.data,
-//                                    com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
-//                                )
+                            val data =
+                                Gson().fromJson(
+                                    it.data.data,
+                                    com.akhnaton.foodvisits.data.model.deleteOrder.Data::class.java
+                                )
                                 ordersList.clear()
                                 currentPage = 1
                                 getData()

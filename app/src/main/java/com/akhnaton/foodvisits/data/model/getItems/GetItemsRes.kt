@@ -5,6 +5,7 @@ data class GetItemsRes(
     val message: String,
     val pagination: Pagination,
     val params: Params,
+    val order_summary: OrderSummary?,
     val status: Int,
     val type: String
 )
