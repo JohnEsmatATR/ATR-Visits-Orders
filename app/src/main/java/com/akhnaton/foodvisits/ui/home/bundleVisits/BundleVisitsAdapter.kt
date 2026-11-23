@@ -62,6 +62,12 @@ class BundleVisitsAdapter(
                         R.color.green2
                     )
                 )
+                holder.tvVisitDate.setTextColor(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.green2
+                    )
+                )
                 holder.tvStatus.setBackgroundResource(R.drawable.bg_chip_green_light)
                 holder.tvStatus.setCompoundDrawablesWithIntrinsicBounds(
                     R.drawable.ic_dot_green, 0, 0, 0
@@ -71,6 +77,12 @@ class BundleVisitsAdapter(
             2 -> {
                 holder.tvStatus.text = holder.itemView.context.getString(R.string.reject)
                 holder.tvStatus.setTextColor(
+                    ContextCompat.getColor(
+                        holder.itemView.context,
+                        R.color.red
+                    )
+                )
+                holder.tvVisitDate.setTextColor(
                     ContextCompat.getColor(
                         holder.itemView.context,
                         R.color.red
