@@ -520,6 +520,7 @@ class InvoiceFragment2 : Fragment() {
         updateTotal()
         updateEmptyView()
         calculateTotals()
+        Log.d("WHATcount", "products=${selectedProducts.size} adapter=${orderAdapter.itemCount}")
     }
     private fun getItems() {
         lifecycleScope.launch {
@@ -686,6 +687,7 @@ class InvoiceFragment2 : Fragment() {
         updateEmptyView()
         updateTotal()
         calculateTotals()
+        Log.d("WHATcount", "products=${selectedProducts.size} adapter=${orderAdapter.itemCount}")
     }
 
     private fun fetchData() {
