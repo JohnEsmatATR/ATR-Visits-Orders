@@ -53,6 +53,12 @@ class ProductAdapter(
         val item = list[position]
         with(holder.binding) {
             tvProductName.text = item.PRODUCT_NAME
+            if (item.EXPIRATION_DATE == null) {
+                tvExpDate.visibility = View.GONE
+            } else {
+                tvExpDate.visibility = View.VISIBLE
+                tvExpDate.text = "تاريخ إنتهاء الصلاحية : ${item.EXPIRATION_DATE}"
+            }
             holder.binding.tvQuota.text = if (item.MANDATORY_QOUTA == "1") {
                 holder.binding.tvQuota.setTextColor(holder.binding.root.resources.getColor(R.color.red))
                 "كوتة إجبارية : ${item.QUOTA_QTY}"

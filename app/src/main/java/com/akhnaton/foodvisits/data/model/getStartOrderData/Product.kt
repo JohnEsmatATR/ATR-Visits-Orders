@@ -4,6 +4,7 @@ data class Product(
     val CATEGORY_ID: String,
     val CUST_PRICE: String,
     val DESCRIPTION: String,
+    val EXPIRATION_DATE: String?,
     val INVENTORY_ITEM_ID: String,
     val ITEM_CODE: String,
     val ITEM_PRICE: String,
