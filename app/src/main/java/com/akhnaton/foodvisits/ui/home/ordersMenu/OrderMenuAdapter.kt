@@ -46,6 +46,7 @@ class OrderMenuAdapter(
         } else {
             ""
         }
+        //
         val ltrNumber = "\u200E${list[position].ORIG_SYS_DOCUMENT_REF}\u200E"
         holder.tvInfo.text = "${holder.itemView.context.getString(R.string.code)}: " +
                 "${list[position].CUSTOMER_CODE} • " +
