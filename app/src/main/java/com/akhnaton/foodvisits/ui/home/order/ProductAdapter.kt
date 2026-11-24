@@ -93,7 +93,7 @@ class ProductAdapter(
             tvMessage.text = item.MESSAGE
 
             if (item.MESSAGE != null) {
-                if (item.MESSAGE.isNotEmpty())
+                if (item.MESSAGE!!.isNotEmpty())
                     tvMessage.visibility = View.VISIBLE
                 else
                     tvMessage.visibility = View.GONE
@@ -222,18 +222,16 @@ class ProductAdapter(
                 item.QUANTITY.toIntOrNull() ?: 0
 
         with(binding) {
-            if (item.CHECKED) {
-                if (item.IS_BACK_ORDER == true) {
-                    tvBackOrder.visibility = View.VISIBLE
-//                    val backOrder =
-//                        maxOf(0, item.selectedQty - item.TOTAL_QUANTITY)
-//                    tvBackOrder.text =
-//                        "${binding.root.context.getString(R.string.remaining)}: $backOrder"
-                    tvBackOrder.text =
-                        "${binding.root.context.getString(R.string.remaining)}: ${item.selectedQty}"
-                } else {
-                    tvBackOrder.visibility = View.GONE
-                }
+            if (item.CHECKED && item.IS_BACK_ORDER == true) {
+
+                tvBackOrder.visibility = View.VISIBLE
+
+                tvBackOrder.text =
+                    "${root.context.getString(R.string.remaining)}: ${item.selectedQty}"
+
+            } else {
+
+                tvBackOrder.visibility = View.GONE
             }
             if (qty > 0) {
 

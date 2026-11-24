@@ -23,7 +23,7 @@ data class Product(
     var selectedQty: Int = 0,
     var clicked: Boolean = false,
     var TOTAL_QUANTITY: Int = -1,
-    var IS_BACK_ORDER: Boolean? = false,
-    var MESSAGE: String =  "",
+    var IS_BACK_ORDER: Boolean? = null,
+    var MESSAGE: String? =  "",
     var CHECKED: Boolean = false,
 )

@@ -57,7 +57,7 @@ interface IOrder2 {
         @Path("order_id") orderId: String
     ): GetItemsRes
 
-    @POST(EDIT_ORDER)
+    @POST(SAVED_ORDER_ENDPOINT)
     suspend fun editOrder(
         @Body editOrderReq: EditOrderReq,
     ): EditOrderRes

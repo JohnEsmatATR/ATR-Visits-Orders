@@ -113,7 +113,15 @@ class InvoiceFragment2 : Fragment() {
         visitId = arguments?.getString("visitId").orEmpty()
         restoreOrder = arguments?.getBoolean("restoreOrder", false) == true &&
                 OrderStateHolder.orderId != null
-        Log.d("WHATrestore", "restoreOrder=$restoreOrder isEdit=$isEdit holderOrderId=${OrderStateHolder.orderId} argRestore=${arguments?.getBoolean("restoreOrder", false)}")
+        Log.d(
+            "WHATrestore",
+            "restoreOrder=$restoreOrder isEdit=$isEdit holderOrderId=${OrderStateHolder.orderId} argRestore=${
+                arguments?.getBoolean(
+                    "restoreOrder",
+                    false
+                )
+            }"
+        )
         if (restoreOrder) {
             orderId = OrderStateHolder.orderId!!
             customerPartySiteId = OrderStateHolder.customerPartySiteId!!
@@ -128,6 +136,7 @@ class InvoiceFragment2 : Fragment() {
             selectedProducts.addAll(OrderStateHolder.selectedProducts)
             customerName = ""
             siteAddress = ""
+            getStartOrderData()
         } else if (!isEdit!!) {
             OrderStateHolder.clear()
             customerName = arguments?.getString("customerName").toString()
@@ -138,7 +147,7 @@ class InvoiceFragment2 : Fragment() {
 
             selectedOptionsJson = arguments?.getString("selectedOptions") ?: "[]"
 
-
+            getStartOrderData()
 
 
 //            selectedOptionsJson = arguments?.getString("selectedOptions").toString()
@@ -163,8 +172,7 @@ class InvoiceFragment2 : Fragment() {
             selectedOptionsJson = arguments?.getString("selectedOptions") ?: "[]"
 
 
-
-           // selectedOptionsArray = JSONArray(selectedOptionsJson)
+            // selectedOptionsArray = JSONArray(selectedOptionsJson)
 
 //             Keep every option, including options with unknown keys.
 //            val selectedOptions = (0 until selectedOptionsArray.length()).map { index ->
@@ -218,8 +226,7 @@ class InvoiceFragment2 : Fragment() {
             saleType = orderData.ORDER_TYPE
             pendingInitialLoads = 2
 
-            getItems()
-
+            getStartOrderData()
             Log.d("WHAT", orderJson.toString())
             Log.d("WHAT", orderData.toString())
         }
@@ -462,9 +469,10 @@ class InvoiceFragment2 : Fragment() {
             binding.tvInvoice.text = "${getString(R.string.invoice)}: \u200E${orderId}\u200E"
             refreshUi()
         }
-        getStartOrderData()
+
         fetchData()
     }
+
     private fun persistOrderState() {
         OrderStateHolder.apply {
             this.orderId = this@InvoiceFragment2.orderId
@@ -479,6 +487,7 @@ class InvoiceFragment2 : Fragment() {
             this.orderSelects = this@InvoiceFragment2.orderSelects.toMutableMap()
         }
     }
+
     private fun finishInitialLoad() {
         if (pendingInitialLoads > 0) pendingInitialLoads--
         if (pendingInitialLoads == 0) dialog.dismiss()
@@ -515,6 +524,7 @@ class InvoiceFragment2 : Fragment() {
             )
         }
     }
+
     private fun refreshUi() {
         orderAdapter.notifyDataSetChanged()
         updateTotal()
@@ -522,6 +532,7 @@ class InvoiceFragment2 : Fragment() {
         calculateTotals()
         Log.d("WHATcount", "products=${selectedProducts.size} adapter=${orderAdapter.itemCount}")
     }
+
     private fun getItems() {
         lifecycleScope.launch {
             viewModel.orderIntent.send(
@@ -533,17 +544,67 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun prefillOrderSelections() {
+
+        selectedProducts.clear()
+
         getItemsResponse.forEach { preview ->
-            Log.d("MATCH", "Searching for: ${preview.ITEM_NAME}")
+
+            Log.d(
+                "MATCH",
+                "Searching for: ${preview.ITEM_NAME}, " +
+                        "qty=${preview.QUANTITY}, " +
+                        "backOrder=${preview.IS_BACK_ORDER}"
+            )
+
             val matchedProduct = allProducts.firstOrNull {
-                it.PRODUCT_NAME.trim().replace("'", "") == preview.ITEM_NAME.trim().replace("'", "")
+                it.PRODUCT_NAME
+                    .trim()
+                    .replace("'", "") ==
+                        preview.DESCRIPTION
+                            .trim()
+                            .replace("'", "")
             }
-            Log.d("MATCH", "Found: ${matchedProduct?.PRODUCT_NAME}")
-            matchedProduct?.let {
-                it.selectedQty = preview.QUANTITY.toInt()
-                selectedProducts.add(it)
+
+            Log.d(
+                "MATCH",
+                "Found: ${matchedProduct?.PRODUCT_NAME}"
+            )
+
+            matchedProduct?.let { product ->
+
+                val selectedProduct = product.copy(
+                    selectedQty = preview.QUANTITY.toInt(),
+                    IS_BACK_ORDER = preview.IS_BACK_ORDER,
+                    CHECKED = true
+                )
+
+                Log.d(
+                    "MATCH",
+                    "Adding product: " +
+                            "name=${selectedProduct.PRODUCT_NAME}, " +
+                            "qty=${selectedProduct.selectedQty}, " +
+                            "backOrder=${selectedProduct.IS_BACK_ORDER}"
+                )
+
+                selectedProducts.add(selectedProduct)
             }
         }
+
+        Log.d(
+            "MATCH",
+            "selectedProducts size = ${selectedProducts.size}"
+        )
+
+        selectedProducts.forEachIndexed { index, product ->
+            Log.d(
+                "MATCH",
+                "selectedProducts[$index] = " +
+                        "${product.PRODUCT_NAME}, " +
+                        "qty=${product.selectedQty}, " +
+                        "backOrder=${product.IS_BACK_ORDER}"
+            )
+        }
+
         refreshUi()
     }
 
@@ -704,6 +765,7 @@ class InvoiceFragment2 : Fragment() {
                             val data = Gson().fromJson(
                                 it.data.data, Data::class.java
                             )
+                            if (isEdit!!) getItems()
                             if (!isEdit!! && !restoreOrder) orderId = data.invoice_number
                             priceListId = data.price_list_id
                             storeId = data.store_id
@@ -716,7 +778,6 @@ class InvoiceFragment2 : Fragment() {
                             if (isEdit == true) {
                                 prefillOrderSelections()
                             }
-                            refreshUi()
 
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
@@ -831,6 +892,7 @@ class InvoiceFragment2 : Fragment() {
                         if (it.data.status == 200) {
                             Log.d("WHATorderSelects", "reached ${it.data.order_summary}")
                             getItemsResponse = it.data.data.toMutableList()
+                            Log.d("WHATgetItemsResponse", "reached ${getItemsResponse}")
                             if (visitId.isEmpty()) {
                                 visitId = it.data.order_summary?.visit_id.orEmpty()
                             }
@@ -843,7 +905,6 @@ class InvoiceFragment2 : Fragment() {
                             }
                             Log.d("WHATorderSelects", orderSelects.toString())
                             prefillOrderSelections()
-                            refreshUi()
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(
@@ -979,6 +1040,7 @@ class InvoiceFragment2 : Fragment() {
             }
         }
     }
+
     private fun saveOptionsLocally(orderRef: String, optionsJson: String) {
         requireContext()
             .getSharedPreferences("order_options", android.content.Context.MODE_PRIVATE)
@@ -993,6 +1055,7 @@ class InvoiceFragment2 : Fragment() {
             .getString(orderRef, null) ?: return null
         return JSONArray(json)
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {

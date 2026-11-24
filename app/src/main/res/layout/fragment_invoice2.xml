@@ -95,6 +95,7 @@
                             android:backgroundTint="@color/colorPrimary"
                             android:textSize="@dimen/_12ssp"
                             android:text="اضافة مرتجع"
+                            android:visibility="gone"
                             android:textColor="@android:color/white"
                             app:cornerRadius="@dimen/_8sdp" />
 
