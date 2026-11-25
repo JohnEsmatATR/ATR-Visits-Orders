@@ -269,7 +269,7 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
                                     android:layout_gravity="center"
-                                    android:text="إضافة"
+                                    android:text="@string/add"
                                     app:icon="@drawable/ic_plus"
                                     app:iconSize="@dimen/_16sdp"
                                     app:backgroundTint="@color/red"

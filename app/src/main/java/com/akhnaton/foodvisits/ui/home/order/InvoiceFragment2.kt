@@ -93,6 +93,7 @@ class InvoiceFragment2 : Fragment() {
     var tax = 0.0
     var afterTax = 0.0
     var total = 0.0
+    var totalFromApi = 0.0
     private var isSavedBefore: Boolean? = false
     private var restoreOrder = false
     private var itemsSummaryList = mutableListOf<ItemsSummary>()
@@ -272,8 +273,16 @@ class InvoiceFragment2 : Fragment() {
 //                                    storeId
 //                                )
                     }
-
-                    updateTotal()
+                    selectedProducts.firstOrNull { product ->
+                        product.ITEM_CODE == item.ITEM_CODE
+                    }?.let { product ->
+                        val updatedProduct = product.copy(
+                            selectedQty = item.selectedQty
+                        )
+                        val index = selectedProducts.indexOf(product)
+                        selectedProducts[index] = updatedProduct
+                    }
+                    updateTotal(false)
                     updateEmptyView()
                     calculateTotals()
                 }
@@ -284,7 +293,7 @@ class InvoiceFragment2 : Fragment() {
                         selectedProducts.removeAt(index)
                         orderAdapter.notifyItemRemoved(index)
                     }
-                    updateTotal()
+                    updateTotal(false)
                     updateEmptyView()
                     calculateTotals()
                 }
@@ -441,9 +450,12 @@ class InvoiceFragment2 : Fragment() {
                 selectedProducts.firstOrNull {
                     it.ITEM_CODE == product.ITEM_CODE
                 }
+            Log.d("WHATexist", existing.toString())
+            Log.d("WHATexist", selectedProducts.size.toString())
             if (existing == null) {
                 product.selectedQty = qty
                 selectedProducts.add(product)
+                Log.d("WHATexist", selectedProducts.size.toString())
                 orderAdapter.notifyItemInserted(selectedProducts.lastIndex)
             } else {
                 DialogUtils.showResultDialog(
@@ -456,7 +468,8 @@ class InvoiceFragment2 : Fragment() {
 //                    selectedProducts.indexOf(existing)
 //                )
             }
-            updateTotal()
+
+            updateTotal(false)
             updateEmptyView()
             calculateTotals()
 //            updateTotal()
@@ -503,11 +516,21 @@ class InvoiceFragment2 : Fragment() {
         }
     }
 
-    private fun updateTotal() {
-        total = 0.0
-        selectedProducts.forEach {
-            total += it.selectedQty * it.ITEM_PRICE.toDouble()
+    private fun updateTotal(isFromApi: Boolean) {
+        Log.d("isFromAPi", isFromApi.toString())
+        if (isFromApi) total = totalFromApi
+        else {
+            if (selectedProducts.isNotEmpty()) Log.d(
+                "WHATselectedProducts",
+                selectedProducts.last().toString()
+            )
+            total = 0.0
+            selectedProducts.forEach {
+                if (it.IS_BACK_ORDER == false || it.IS_BACK_ORDER == null)
+                    total += it.selectedQty * it.ITEM_PRICE.toDouble()
+            }
         }
+
         binding.tvProductsCount.text =
             "${selectedProducts.size} أصناف"
 
@@ -527,7 +550,7 @@ class InvoiceFragment2 : Fragment() {
 
     private fun refreshUi() {
         orderAdapter.notifyDataSetChanged()
-        updateTotal()
+        updateTotal(false)
         updateEmptyView()
         calculateTotals()
         Log.d("WHATcount", "products=${selectedProducts.size} adapter=${orderAdapter.itemCount}")
@@ -544,18 +567,14 @@ class InvoiceFragment2 : Fragment() {
     }
 
     private fun prefillOrderSelections() {
-
         selectedProducts.clear()
-
         getItemsResponse.forEach { preview ->
-
             Log.d(
                 "MATCH",
                 "Searching for: ${preview.ITEM_NAME}, " +
                         "qty=${preview.QUANTITY}, " +
                         "backOrder=${preview.IS_BACK_ORDER}"
             )
-
             val matchedProduct = allProducts.firstOrNull {
                 it.PRODUCT_NAME
                     .trim()
@@ -564,20 +583,16 @@ class InvoiceFragment2 : Fragment() {
                             .trim()
                             .replace("'", "")
             }
-
             Log.d(
                 "MATCH",
                 "Found: ${matchedProduct?.PRODUCT_NAME}"
             )
-
             matchedProduct?.let { product ->
-
                 val selectedProduct = product.copy(
                     selectedQty = preview.QUANTITY.toInt(),
                     IS_BACK_ORDER = preview.IS_BACK_ORDER,
                     CHECKED = true
                 )
-
                 Log.d(
                     "MATCH",
                     "Adding product: " +
@@ -585,16 +600,13 @@ class InvoiceFragment2 : Fragment() {
                             "qty=${selectedProduct.selectedQty}, " +
                             "backOrder=${selectedProduct.IS_BACK_ORDER}"
                 )
-
                 selectedProducts.add(selectedProduct)
             }
         }
-
         Log.d(
             "MATCH",
             "selectedProducts size = ${selectedProducts.size}"
         )
-
         selectedProducts.forEachIndexed { index, product ->
             Log.d(
                 "MATCH",
@@ -604,7 +616,6 @@ class InvoiceFragment2 : Fragment() {
                         "backOrder=${product.IS_BACK_ORDER}"
             )
         }
-
         refreshUi()
     }
 
@@ -613,12 +624,14 @@ class InvoiceFragment2 : Fragment() {
         beforeTax = 0.0
         tax = 0.0
         selectedProducts.forEach {
-            totalQty += it.selectedQty
-            beforeTax +=
-                it.selectedQty * it.ITEM_PRICE.toDouble()
-            tax +=
-                it.selectedQty * it.TAX_AMOUNT.toDouble()
-            afterTax = beforeTax + tax
+            if (it.IS_BACK_ORDER == false || it.IS_BACK_ORDER == null) {
+                totalQty += it.selectedQty
+                beforeTax +=
+                    it.selectedQty * it.ITEM_PRICE.toDouble()
+                tax +=
+                    it.selectedQty * it.TAX_AMOUNT.toDouble()
+                afterTax = beforeTax + tax
+            }
         }
 //        tax = (beforeTax * .14).toInt()
     }
@@ -724,8 +737,19 @@ class InvoiceFragment2 : Fragment() {
 //                                    storeId
 //                                )
                     }
+
+                    selectedProducts.firstOrNull { product ->
+                        product.ITEM_CODE == item.ITEM_CODE
+                    }?.let { product ->
+                        val updatedProduct = product.copy(
+                            selectedQty = item.selectedQty
+                        )
+                        val index = selectedProducts.indexOf(product)
+                        selectedProducts[index] = updatedProduct
+                    }
+
                     updateEmptyView()
-                    updateTotal()
+                    updateTotal(false)
                     calculateTotals()
 
                 }
@@ -736,7 +760,7 @@ class InvoiceFragment2 : Fragment() {
                         selectedProducts.removeAt(index)
                         orderAdapter.notifyItemRemoved(index)
                     }
-                    updateTotal()
+                    updateTotal(true)
                     updateEmptyView()
                     calculateTotals()
                 }
@@ -746,7 +770,7 @@ class InvoiceFragment2 : Fragment() {
             adapter = orderAdapter
         }
         updateEmptyView()
-        updateTotal()
+        updateTotal(true)
         calculateTotals()
         Log.d("WHATcount", "products=${selectedProducts.size} adapter=${orderAdapter.itemCount}")
     }
@@ -798,21 +822,29 @@ class InvoiceFragment2 : Fragment() {
 
                     is Order2Status.SaveOrder -> {
                         dialog.dismiss()
+                        val message =
+                            if (it.saveOrderRes.message.size > 1) it.saveOrderRes.message.joinToString(
+                                "\n"
+                            ) { msg ->
+                                "- $msg"
+                            } else it.saveOrderRes.message.firstOrNull().orEmpty()
                         if (it.saveOrderRes.status == 200) {
                             val data = Gson().fromJson(
                                 it.saveOrderRes.data,
                                 com.akhnaton.foodvisits.data.model.saveOrder.Data::class.java
                             )
 //                            saveOptionsLocally(orderId, selectedOptionsArray.toString())
+
                             if (isSend == false) {
                                 isSavedBefore = true
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                    message = message,
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
                                     })
+                                totalFromApi = data.order_total
                                 itemsSummaryList = data.items_summary.toMutableList()
                                 Log.d("WHATitemsSummaryList", itemsSummaryList.toString())
                                 setRecycler(itemsSummaryList)
@@ -822,7 +854,7 @@ class InvoiceFragment2 : Fragment() {
                                 //MainActivity.binding.navView2.visibility = View.VISIBLE
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
-                                    message = it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                    message = message,
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
@@ -848,7 +880,7 @@ class InvoiceFragment2 : Fragment() {
                         } else {
                             DialogUtils.showResultDialog(
                                 requireContext(),
-                                it.saveOrderRes.message.firstOrNull().orEmpty(),
+                                message,
                                 false,
                                 showOkButton = true,
                             )
@@ -934,7 +966,7 @@ class InvoiceFragment2 : Fragment() {
                             }
                             product?.TOTAL_QUANTITY = data.QUANTITY.toInt()
                             binding.etQty.hint = "${product?.TOTAL_QUANTITY}" ?: ""
-                            updateTotal()
+                            updateTotal(false)
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
                                 viewModel.orderIntent.send(

@@ -212,8 +212,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="@dimen/_8sdp"
                     android:layout_marginTop="@dimen/_4sdp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
+                    android:orientation="horizontal">
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnMinus"
@@ -271,7 +270,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
                         android:layout_gravity="center"
-                        android:text="Add"
+                        android:text="@string/add"
                         android:textSize="@dimen/_12sdp"
                         android:textStyle="bold"
                         app:cornerRadius="@dimen/_8sdp" />

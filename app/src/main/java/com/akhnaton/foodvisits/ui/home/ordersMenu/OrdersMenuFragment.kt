@@ -256,11 +256,11 @@ class OrdersMenuFragment : Fragment(),
                                 orderTypesList = data.sales_types
 
                             } else if (it.data.status == 401) {
-                                handle401(it.data.message) {
-                                    lifecycleScope.launch {
-                                        viewModel.visitsIntent.send(Visits2Intent.GetSalesAndCustomerTypes)
-                                    }
-                                }
+//                                handle401(it.data.message) {
+//                                    lifecycleScope.launch {
+//                                        viewModel.visitsIntent.send(Visits2Intent.GetSalesAndCustomerTypes)
+//                                    }
+//                                }
                             } else {
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
