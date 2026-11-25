@@ -238,6 +238,10 @@ class InvoiceFragment2 : Fragment() {
 
         //MainActivity.binding.navView2.visibility = View.GONE
 
+        if (SharedPreferencesHelper.getInstance().isAllowedToMakeReturn())
+            binding.btnAddReturn.visibility = View.VISIBLE
+        else
+            binding.btnAddReturn.visibility = View.GONE
         backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 DialogUtils.showResultDialog(

@@ -113,6 +113,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
                                 true,
                                 if (data.USER_CATEGORY == "super" || data.USER_CATEGORY == "gsuper") true else false,
                                 data.ALLOWED_TO_MAKE_ORDER,
+                                data.ALLOWED_TO_MAKE_RETURN,
                                 data.ALLOWED_TO_MAKE_RATE,
                                 if (data.USER_CATEGORY == "sprPrmt") true else false,
                                 data.ALLOWED_TO_APPROVE_VISIT,

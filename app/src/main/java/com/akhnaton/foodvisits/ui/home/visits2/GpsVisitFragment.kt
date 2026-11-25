@@ -903,6 +903,20 @@ class GpsVisitFragment : Fragment() {
                                             )
                                         }
                                     )
+                                } else if (!data.has_open_order) {
+                                    Log.d("WHATtele", "4")
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = message,
+                                        isSuccess = true,
+                                        showOkButton = true,
+                                        onOk = {
+                                            //MainActivity.binding.navView2.visibility = View.VISIBLE
+                                            findNavController().navigate(
+                                                R.id.toHome
+                                            )
+                                        }
+                                    )
                                 } else {
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),

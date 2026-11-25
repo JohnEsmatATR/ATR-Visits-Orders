@@ -466,6 +466,7 @@ class TelephoneVisitFragment : Fragment() {
 //                                return@collect
 //                            }
                             if (data.is_suspended == true) {
+                                Log.d("WHATtele", "1")
                                 message = "${data.message}"
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -480,7 +481,24 @@ class TelephoneVisitFragment : Fragment() {
                                     }
                                 )
                             } else {
+                                Log.d("WHATtele", "2")
                                 if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
+                                    Log.d("WHATtele", "3")
+                                    DialogUtils.showResultDialog(
+                                        context = requireContext(),
+                                        message = message,
+                                        isSuccess = true,
+                                        showOkButton = true,
+                                        onOk = {
+                                            //MainActivity.binding.navView2.visibility = View.VISIBLE
+                                            findNavController().navigate(
+                                                R.id.toHome
+                                            )
+                                        }
+                                    )
+                                }
+                                if (!data.has_open_order) {
+                                    Log.d("WHATtele", "4")
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
                                         message = message,
@@ -494,6 +512,7 @@ class TelephoneVisitFragment : Fragment() {
                                         }
                                     )
                                 } else {
+                                    Log.d("WHATtele", "5")
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
                                         message = message,
