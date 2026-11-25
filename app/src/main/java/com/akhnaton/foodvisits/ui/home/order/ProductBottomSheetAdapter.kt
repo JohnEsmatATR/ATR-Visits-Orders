@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getStartOrderData.Product
 import com.akhnaton.foodvisits.databinding.ItemProductBottomSheetBinding
+import com.akhnaton.foodvisits.shared.NumberUtils
 
 class ProductBottomSheetAdapter(
     private val list: MutableList<Product>, private val click: (Product) -> Unit
@@ -43,8 +44,8 @@ class ProductBottomSheetAdapter(
             "كوتة : ${item.QUOTA_QTY}"
         }
         holder.binding.tvCategory.text = item.SEGMENT2
-        holder.binding.tvPrice.text = "السعر : ${item.CUST_PRICE}"
-        holder.binding.tvCustPrice.text = "جمهور : ${item.ITEM_PRICE}"
+        holder.binding.tvPrice.text = "السعر : ${NumberUtils.money(item.CUST_PRICE.toDoubleOrNull() ?: 0.0)} ج.م "
+        holder.binding.tvCustPrice.text = "جمهور : ${NumberUtils.money(item.ITEM_PRICE.toDoubleOrNull() ?: 0.0)}ج.م "
         holder.binding.tvItemCode.text = "كود : ${item.ITEM_CODE}"
         holder.itemView.setOnClickListener {
             click(item)

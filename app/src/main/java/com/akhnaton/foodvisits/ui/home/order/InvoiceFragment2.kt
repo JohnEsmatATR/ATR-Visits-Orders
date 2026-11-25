@@ -30,6 +30,7 @@ import com.akhnaton.foodvisits.data.statusValue.order2.Order2Intent
 import com.akhnaton.foodvisits.data.statusValue.order2.Order2Status
 import com.akhnaton.foodvisits.databinding.FragmentInvoice2Binding
 import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.NumberUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.mappers.ProductMapper
@@ -352,9 +353,9 @@ class InvoiceFragment2 : Fragment() {
             calculateTotals()
             OrderSummaryBottomSheet(
                 selectedCount = selectedProducts.size.toString(),
-                beforeTax = String.format("%.2f %s", beforeTax, getString(R.string.currency)),
-                tax = String.format("%.2f %s", tax, getString(R.string.currency)),
-                afterTax = String.format("%.2f %s", afterTax, getString(R.string.currency)),
+                beforeTax = "${NumberUtils.money(beforeTax)} ${getString(R.string.currency)}",
+                tax = "${NumberUtils.money(tax)} ${getString(R.string.currency)}",
+                afterTax = "${NumberUtils.money(afterTax)} ${getString(R.string.currency)}",
                 listener = object : OrderSummaryBottomSheet.Listener {
 
                     override fun onSave() {
@@ -535,7 +536,7 @@ class InvoiceFragment2 : Fragment() {
             "${selectedProducts.size} أصناف"
 
         binding.tvTotal.text =
-            String.format("%.2f %s", total, getString(R.string.currency))
+            "${NumberUtils.money(total)} ${getString(R.string.currency)}"
     }
 
     private fun getStartOrderData() {

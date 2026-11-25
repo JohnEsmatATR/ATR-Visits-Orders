@@ -7,6 +7,7 @@ import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getStartOrderData.Product
 import com.akhnaton.foodvisits.databinding.ItemProductBinding
 import com.akhnaton.foodvisits.databinding.ItemProductBottomSheetBinding
+import com.akhnaton.foodvisits.shared.NumberUtils
 
 class OrderProductsAdapter(
     private val list: MutableList<Product>
@@ -37,10 +38,10 @@ class OrderProductsAdapter(
             "الكمية: ${item.selectedQty}"
 
         holder.binding.tvCustPrice.text =
-            "الجمهور: ${item.CUST_PRICE}"
+            "الجمهور: ${NumberUtils.money(item.CUST_PRICE.toDoubleOrNull() ?: 0.0)}ج.م"
 
         holder.binding.tvPrice.text =
-            "السعر: ${item.CUST_PRICE}"
+            "السعر: ${NumberUtils.money(item.CUST_PRICE.toDoubleOrNull() ?: 0.0)}ج.م"
 
         holder.binding.tvItemCode.text =
             "الكود: ${item.CUST_PRICE}"

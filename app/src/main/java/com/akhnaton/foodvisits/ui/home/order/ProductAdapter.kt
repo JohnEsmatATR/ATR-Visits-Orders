@@ -13,6 +13,7 @@ import com.akhnaton.foodvisits.data.model.getStartOrderData.Product
 import com.akhnaton.foodvisits.data.model.getStartOrderData.SelectLists
 import com.akhnaton.foodvisits.databinding.ItemProductBinding
 import com.akhnaton.foodvisits.shared.DialogUtils
+import com.akhnaton.foodvisits.shared.NumberUtils
 
 class ProductAdapter(
     private val list: MutableList<Product>,
@@ -69,11 +70,11 @@ class ProductAdapter(
             tvItemCode.text =
                 "كود: ${item.ITEM_CODE}"
             tvPrice.text =
-                "${holder.itemView.context.getString(R.string.price2)}: ${item.ITEM_PRICE} ${
+                "${holder.itemView.context.getString(R.string.price2)}: ${NumberUtils.money(item.ITEM_PRICE.toDoubleOrNull() ?: 0.0)} ${
                     holder.itemView.context.getString(R.string.currency)
                 }"
             tvCustPrice.text =
-                "${holder.itemView.context.getString(R.string.cust_price)}: ${item.CUST_PRICE} ${
+                "${holder.itemView.context.getString(R.string.cust_price)}: ${NumberUtils.money(item.CUST_PRICE.toDoubleOrNull() ?: 0.0)} ${
                     holder.itemView.context.getString(R.string.currency)
                 }"
             tvSegment2.text =
@@ -244,7 +245,7 @@ class ProductAdapter(
                     "${binding.root.context.getString(R.string.requested)}: $qty"
 
                 val totalPrice =
-                    "${binding.root.context.getString(R.string.total)}: %.2f".format(qty * item.ITEM_PRICE.toDouble())
+                    "${binding.root.context.getString(R.string.total)}: ${NumberUtils.money(qty * item.ITEM_PRICE.toDouble())}"
 
 //                val totalPrice =
 //                    "${binding.root.context.getString(R.string.total)}: ${qty * item.ITEM_PRICE.toDouble()}"

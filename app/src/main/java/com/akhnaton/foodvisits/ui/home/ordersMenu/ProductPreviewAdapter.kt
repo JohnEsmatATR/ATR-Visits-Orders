@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getItems.Data
 import com.akhnaton.foodvisits.data.model.getList.ITEMSPREVIEW
+import com.akhnaton.foodvisits.shared.NumberUtils
 
 class ProductPreviewAdapter(
     private val list: List<Data>
@@ -34,10 +35,10 @@ class ProductPreviewAdapter(
         val item = list[position]
 
         holder.tvItemName.text = item.ITEM_NAME
-        holder.tvUnitPrice.text = "السعر: ${item.UNIT_PRICE}"
-        holder.tvTax.text = "الضريبة: ${item.TAX}"
+        holder.tvUnitPrice.text = "السعر : ${NumberUtils.money(item.UNIT_PRICE.toDoubleOrNull() ?: 0.0)} ج.م"
+        holder.tvTax.text = "الضريبة: ${NumberUtils.money(item.TAX.toDoubleOrNull() ?: 0.0)}ج.م"
         holder.tvQuantity.text = "الكمية: ${item.QUANTITY}"
-        holder.tvTotalValue.text = "القيمة الإجمالية: ${item.TOTAL_VALUE} ج.م"
+        holder.tvTotalValue.text = "القيمة الإجمالية: ${NumberUtils.money(item.TOTAL_VALUE.toDoubleOrNull() ?: 0.0)} ج.م"
 
         holder.tvBackOrder.visibility =
             if (item.IS_BACK_ORDER) View.VISIBLE else View.GONE

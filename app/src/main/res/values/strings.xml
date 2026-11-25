@@ -188,6 +188,7 @@
     <string name="sale_type">نوع الطلب</string>
     <string name="invoice">الفاتورة</string>
     <string name="_return">المرتجع</string>
+    <string name="_return2">رقم المرتجع</string>
     <string name="currency">ج.م</string>
     <string name="cust_price">جمهور</string>
     <string name="quantity">الكمية</string>

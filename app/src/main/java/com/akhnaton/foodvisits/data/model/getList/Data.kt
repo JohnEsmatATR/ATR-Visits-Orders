@@ -15,4 +15,6 @@ data class Data(
     val RNUM: String,
     val TOTAL_QUANTITY: String,
     val TOTAL_VALUE: String,
+    val RETURN_ID: String? = null,
+    val HAS_RETURN: Boolean = false,
 )

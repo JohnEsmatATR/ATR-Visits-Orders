@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getItems.Data
 import com.akhnaton.foodvisits.data.model.getList.ITEMSPREVIEW
+import com.akhnaton.foodvisits.shared.NumberUtils
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class OrderDetailsBottomSheet(
@@ -49,7 +50,7 @@ class OrderDetailsBottomSheet(
             view.findViewById<TextView>(R.id.tvDate).text = "التاريخ: ${it.ORDER_DATE}"
             view.findViewById<TextView>(R.id.tvOrderType).text = "النوع: ${it.ORDER_TYPE}"
             view.findViewById<TextView>(R.id.tvTotalQty).text = "${it.TOTAL_QUANTITY} قطعة"
-            view.findViewById<TextView>(R.id.tvTotalValue).text = "${it.TOTAL_VALUE} ج.م"
+            view.findViewById<TextView>(R.id.tvTotalValue).text = "${NumberUtils.money(it.TOTAL_VALUE.toDoubleOrNull() ?: 0.0)} ج.م"
         }
     }
 

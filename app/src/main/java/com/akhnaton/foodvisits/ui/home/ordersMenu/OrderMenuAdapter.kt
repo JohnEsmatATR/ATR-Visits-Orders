@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.getList.Data
+import com.akhnaton.foodvisits.shared.NumberUtils
 
 class OrderMenuAdapter(
     private val list: MutableList<Data>,
@@ -46,6 +47,34 @@ class OrderMenuAdapter(
         } else {
             ""
         }
+        if (list[position].ORDER_STATUS == "saved") {
+            holder.tvStatus.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#FFF8E1"))
+            holder.tvStatus.setTextColor(android.graphics.Color.parseColor("#F9A825"))
+        } else {
+            holder.tvStatus.backgroundTintList =
+                android.content.res.ColorStateList.valueOf(
+                    androidx.core.content.ContextCompat.getColor(
+                        holder.itemView.context, R.color.light_green
+                    )
+                )
+            holder.tvStatus.setTextColor(
+                androidx.core.content.ContextCompat.getColor(
+                    holder.itemView.context, R.color.green
+                )
+            )
+        }
+        holder.tvReturn.visibility =
+            if (list[position].HAS_RETURN) View.VISIBLE else View.GONE
+        val returnId = list[position].RETURN_ID
+        if (list[position].HAS_RETURN && !returnId.isNullOrBlank()) {
+            holder.tvReturnLabel.text =
+                holder.itemView.context.getString(R.string._return2)
+            holder.tvReturnId.text = "\u200E$returnId\u200E"
+            holder.layoutReturnId.visibility = View.VISIBLE
+        } else {
+            holder.layoutReturnId.visibility = View.GONE
+        }
         //
         val ltrNumber = "\u200E${list[position].ORIG_SYS_DOCUMENT_REF}\u200E"
         holder.tvInfo.text = "${holder.itemView.context.getString(R.string.code)}: " +
@@ -58,7 +87,7 @@ class OrderMenuAdapter(
                 "(${list[position].TOTAL_QUANTITY} " +
                 "${holder.itemView.context.getString(R.string.piece)})"
         holder.tvAmount.text =
-            "${list[position].TOTAL_VALUE} ${holder.itemView.context.getString(R.string.currency)}"
+            "${NumberUtils.money(list[position].TOTAL_VALUE.toDoubleOrNull() ?: 0.0)} ${holder.itemView.context.getString(R.string.currency)}"
         holder.tvMoreProducts.text = "+${list[position].ITEMS_COUNT.toInt() - 3}"
         val expanded =
             expandedItems.contains(position)
@@ -156,6 +185,15 @@ class OrderMenuAdapter(
         val tvStatus: TextView =
             itemView.findViewById(R.id.tvStatus)
 
+        val tvReturn: TextView =
+            itemView.findViewById(R.id.tvReturn)
+        val tvReturnId: TextView =
+            itemView.findViewById(R.id.tvReturnId)
+        val tvReturnLabel: TextView =
+            itemView.findViewById(R.id.tvReturnLabel)
+
+        val layoutReturnId: LinearLayout =
+            itemView.findViewById(R.id.layoutReturnId)
         val tvInfo: TextView =
             itemView.findViewById(R.id.tvInfo)
 
