@@ -21,7 +21,7 @@
             app:destination="@id/personCodingFragment" />
         <action
             android:id="@+id/toBundleVisits"
-            app:destination="@id/bundleVisitsFragment" />
+            app:destination="@id/bundleVisitDetailsFragment" />
     </fragment>
 
     <fragment

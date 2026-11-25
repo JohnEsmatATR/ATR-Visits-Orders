@@ -6,7 +6,9 @@
     <data>
 
     </data>
-
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -73,228 +75,209 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
-                        android:padding="@dimen/_10sdp">
+                        android:padding="@dimen/_12sdp">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:text="بيانات الزيارة"
+                            android:text="@string/customer_is_coded_question"
+                            android:textAlignment="viewEnd"
                             android:textColor="@color/black"
-                            android:textSize="@dimen/_12ssp"
+                            android:textSize="@dimen/_11ssp"
                             android:textStyle="bold" />
 
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_8sdp"
-                            android:gravity="center_vertical"
+                            android:layout_marginTop="@dimen/_10sdp"
                             android:orientation="horizontal">
 
-                            <LinearLayout
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/cardNotCoded"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/_6sdp"
+                                android:layout_height="@dimen/_38sdp"
+                                android:layout_marginEnd="@dimen/_4sdp"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                app:cardBackgroundColor="@color/box_unselected"
+                                app:cardCornerRadius="@dimen/_10sdp"
+                                app:cardElevation="0dp">
 
-                                <TextView
+                                <LinearLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="اسم العميل"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="#B0B0B0"
-                                    android:textSize="@dimen/_8ssp" />
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
 
-                                <TextView
-                                    android:id="@+id/tvCustomerName"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="@color/black"
-                                    android:textSize="@dimen/_10ssp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
+                                    <TextView
+                                        android:id="@+id/tvNotCoded"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/customer_not_coded"
+                                        android:textColor="@color/black"
+                                        android:textSize="@dimen/_12ssp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
 
-                            <FrameLayout
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
-                                android:background="@drawable/bg_circle_light_orange">
-
-                                <ImageView
-                                    android:layout_width="@dimen/_14sdp"
-                                    android:layout_height="@dimen/_14sdp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="@null"
-                                    android:src="@drawable/ic_person"
-                                    app:tint="@color/colorPrimary" />
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_8sdp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
+                            <com.google.android.material.card.MaterialCardView
+                                android:id="@+id/cardCoded"
                                 android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/_6sdp"
+                                android:layout_height="@dimen/_38sdp"
+                                android:layout_marginStart="@dimen/_4sdp"
                                 android:layout_weight="1"
-                                android:orientation="vertical">
+                                app:cardBackgroundColor="@color/box_unselected"
+                                app:cardCornerRadius="@dimen/_10sdp"
+                                app:cardElevation="0dp">
 
-                                <TextView
+                                <LinearLayout
                                     android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="كود العميل"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="#B0B0B0"
-                                    android:textSize="@dimen/_8ssp" />
+                                    android:layout_height="match_parent"
+                                    android:gravity="center"
+                                    android:orientation="horizontal">
 
-                                <TextView
-                                    android:id="@+id/tvCustomerCode"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="@color/black"
-                                    android:textSize="@dimen/_10ssp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <FrameLayout
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
-                                android:background="@drawable/bg_circle_light_orange">
-
-                                <ImageView
-                                    android:layout_width="@dimen/_14sdp"
-                                    android:layout_height="@dimen/_14sdp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="@null"
-                                    android:src="@drawable/ic_barcode"
-                                    app:tint="@color/colorPrimary" />
-                            </FrameLayout>
+                                    <TextView
+                                        android:id="@+id/tvCoded"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@string/customer_coded"
+                                        android:textColor="@color/black"
+                                        android:textSize="@dimen/_12ssp"
+                                        android:textStyle="bold" />
+                                </LinearLayout>
+                            </com.google.android.material.card.MaterialCardView>
                         </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_8sdp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <com.google.android.material.button.MaterialButton
-                                android:id="@+id/btnOpenMap"
-                                android:layout_width="wrap_content"
-                                android:layout_height="@dimen/_24sdp"
-                                android:backgroundTint="@color/colorPrimary"
-                                android:insetTop="0dp"
-                                android:insetBottom="0dp"
-                                android:paddingHorizontal="@dimen/_8sdp"
-                                android:text="الخريطة"
-                                android:textColor="@android:color/white"
-                                android:textSize="@dimen/_8ssp"
-                                app:cornerRadius="@dimen/_12sdp" />
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="@dimen/_6sdp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="العنوان"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="#B0B0B0"
-                                    android:textSize="@dimen/_8ssp" />
-
-                                <TextView
-                                    android:id="@+id/tvSiteAddress"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="@color/black"
-                                    android:textSize="@dimen/_10ssp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <FrameLayout
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
-                                android:background="@drawable/bg_circle_light_orange">
-
-                                <ImageView
-                                    android:layout_width="@dimen/_14sdp"
-                                    android:layout_height="@dimen/_14sdp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="@null"
-                                    android:src="@drawable/ic_location_small"
-                                    app:tint="@color/colorPrimary" />
-                            </FrameLayout>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/_8sdp"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <LinearLayout
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_marginEnd="@dimen/_6sdp"
-                                android:layout_weight="1"
-                                android:orientation="vertical">
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="تاريخ الزيارة"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="#B0B0B0"
-                                    android:textSize="@dimen/_8ssp" />
-
-                                <TextView
-                                    android:id="@+id/tvVisitDate"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:textAlignment="viewEnd"
-                                    android:textColor="@color/black"
-                                    android:textSize="@dimen/_10ssp"
-                                    android:textStyle="bold" />
-                            </LinearLayout>
-
-                            <FrameLayout
-                                android:layout_width="@dimen/_28sdp"
-                                android:layout_height="@dimen/_28sdp"
-                                android:background="@drawable/bg_circle_light_orange">
-
-                                <ImageView
-                                    android:layout_width="@dimen/_14sdp"
-                                    android:layout_height="@dimen/_14sdp"
-                                    android:layout_gravity="center"
-                                    android:contentDescription="@null"
-                                    android:src="@drawable/ic_calendar"
-                                    app:tint="@color/colorPrimary" />
-                            </FrameLayout>
-                        </LinearLayout>
-
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardCustomerInput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_10sdp"
+                    android:visibility="gone"
                     app:cardBackgroundColor="@color/white"
                     app:cardCornerRadius="@dimen/_12sdp"
-                    app:cardElevation="0dp">
+                    app:cardElevation="0dp"
+                    tools:visibility="visible">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/_12sdp">
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layoutCode"
+                            style="@style/OutlinedRoundedBox"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_50sdp"
+                            android:layout_marginBottom="@dimen/_8sdp"
+                            android:backgroundTint="@color/background"
+                            app:boxBackgroundColor="@color/background"
+                            app:boxCornerRadiusBottomEnd="12dp"
+                            app:boxCornerRadiusBottomStart="12dp"
+                            app:boxCornerRadiusTopEnd="12dp"
+                            app:boxCornerRadiusTopStart="12dp"
+                            app:boxStrokeColor="@android:color/transparent"
+                            app:boxStrokeWidth="0dp">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCode"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:digits="0123456789"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:hint="@string/customer_code_hint"
+                                android:inputType="number"
+                                android:textAlignment="viewEnd"
+                                android:textSize="@dimen/_12ssp" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                        <TextView
+                            android:id="@+id/tvCodeError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/_4sdp"
+                            android:textAlignment="viewEnd"
+                            android:textColor="@color/red"
+                            android:textSize="@dimen/_9ssp"
+                            android:visibility="gone"
+                            tools:text="كود العميل غير مخصص لك أو غير موجود"
+                            tools:visibility="visible" />
+
+                        <LinearLayout
+                            android:id="@+id/llNameAddress"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:visibility="gone"
+                            tools:visibility="visible">
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/OutlinedRoundedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/_50sdp"
+                                android:layout_marginBottom="@dimen/_8sdp"
+                                android:backgroundTint="@color/background"
+                                app:boxBackgroundColor="@color/background"
+                                app:boxCornerRadiusBottomEnd="12dp"
+                                app:boxCornerRadiusBottomStart="12dp"
+                                app:boxCornerRadiusTopEnd="12dp"
+                                app:boxCornerRadiusTopStart="12dp"
+                                app:boxStrokeColor="@android:color/transparent"
+                                app:boxStrokeWidth="0dp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCustomerName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/_8sdp"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:hint="@string/customer_name_hint"
+                                android:inputType="text"
+                                android:textAlignment="viewEnd"
+                                android:textSize="@dimen/_12ssp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/OutlinedRoundedBox"
+                                android:layout_width="match_parent"
+                                android:layout_height="@dimen/_50sdp"
+                                android:layout_marginBottom="@dimen/_8sdp"
+                                android:backgroundTint="@color/background"
+                                app:boxBackgroundColor="@color/background"
+                                app:boxCornerRadiusBottomEnd="12dp"
+                                app:boxCornerRadiusBottomStart="12dp"
+                                app:boxCornerRadiusTopEnd="12dp"
+                                app:boxCornerRadiusTopStart="12dp"
+                                app:boxStrokeColor="@android:color/transparent"
+                                app:boxStrokeWidth="0dp"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toBottomOf="@+id/somethingWrong">
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etCustomerAddress"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="@dimen/_8sdp"
+                                android:drawablePadding="@dimen/_12sdp"
+                                android:hint="@string/customer_address_hint"
+                                android:inputType="text"
+                                android:textAlignment="viewEnd"
+                                android:textSize="@dimen/_12ssp" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/cardReceive"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/white"
+                    app:cardCornerRadius="@dimen/_12sdp"
+                    app:cardElevation="0dp"
+                    tools:visibility="visible">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -311,7 +294,7 @@
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:text="استلام البندل"
+                                android:text="@string/receive_bundle_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_13ssp"
                                 android:textStyle="bold" />
@@ -330,6 +313,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_8sdp"
+                            android:text="@string/receive_question"
                             android:textAlignment="viewEnd"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_11ssp"
@@ -347,7 +331,7 @@
                                 android:layout_height="@dimen/_38sdp"
                                 android:layout_marginEnd="@dimen/_4sdp"
                                 android:layout_weight="1"
-                                app:cardBackgroundColor="#F1F1F4"
+                                app:cardBackgroundColor="@color/box_unselected"
                                 app:cardCornerRadius="@dimen/_10sdp"
                                 app:cardElevation="0dp">
 
@@ -361,7 +345,7 @@
                                         android:id="@+id/tvNo"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="لا"
+                                        android:text="@string/answer_no"
                                         android:textColor="@color/black"
                                         android:textSize="@dimen/_12ssp"
                                         android:textStyle="bold" />
@@ -374,7 +358,7 @@
                                 android:layout_height="@dimen/_38sdp"
                                 android:layout_marginStart="@dimen/_4sdp"
                                 android:layout_weight="1"
-                                app:cardBackgroundColor="#F1F1F4"
+                                app:cardBackgroundColor="@color/box_unselected"
                                 app:cardCornerRadius="@dimen/_10sdp"
                                 app:cardElevation="0dp">
 
@@ -388,7 +372,7 @@
                                         android:id="@+id/tvYes"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
-                                        android:text="نعم"
+                                        android:text="@string/answer_yes"
                                         android:textColor="@color/black"
                                         android:textSize="@dimen/_12ssp"
                                         android:textStyle="bold" />
@@ -432,7 +416,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/_4sdp"
-                                android:text="إثبات استلام البندل"
+                                android:text="@string/photo_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_13ssp"
                                 android:textStyle="bold" />
@@ -450,7 +434,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_4sdp"
-                            android:text="يرجى التقاط أو رفع صورة لإثبات تسليم واستلام البندل:"
+                            android:text="@string/photo_hint"
                             android:textAlignment="viewEnd"
                             android:textColor="#A0A0A0"
                             android:textSize="@dimen/_9ssp" />
@@ -544,10 +528,11 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="@dimen/_4sdp"
-                                android:text="سبب عدم استلام البندل"
+                                android:text="@string/reasons_title"
                                 android:textColor="@color/black"
                                 android:textSize="@dimen/_13ssp"
                                 android:textStyle="bold" />
+
                             <ImageView
                                 android:layout_width="@dimen/_16sdp"
                                 android:layout_height="@dimen/_16sdp"
@@ -561,7 +546,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_4sdp"
-                            android:text="يرجى تحديد سبب عدم استلام العميل للبندل من القائمة:"
+                            android:text="@string/reasons_hint"
                             android:textAlignment="viewEnd"
                             android:textColor="#A0A0A0"
                             android:textSize="@dimen/_9ssp" />
@@ -572,7 +557,6 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="@dimen/_6sdp"
                             android:orientation="vertical" />
-
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
@@ -598,4 +582,24 @@
             app:cornerRadius="@dimen/_12sdp" />
 
     </LinearLayout>
+        <FrameLayout
+            android:id="@+id/progressLoading"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#80000000"
+            android:clickable="true"
+            android:focusable="true"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:indeterminateTint="@color/colorPrimary" />
+
+        </FrameLayout>
+
+    </FrameLayout>
 </layout>
+

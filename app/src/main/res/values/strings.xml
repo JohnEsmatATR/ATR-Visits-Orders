@@ -443,5 +443,22 @@
     <string name="clear_filter">مسح</string>
     <string name="page_info_format">%1$d / %2$d</string>
 
+    <string name="customer_is_coded_question">هل العميل مكود ام لا ؟</string>
+    <string name="customer_coded">مكود</string>
+    <string name="customer_not_coded">غير مكود</string>
+    <string name="customer_code_hint">كود العميل</string>
+    <string name="customer_name_hint">اسم العميل</string>
+    <string name="customer_address_hint">العنوان</string>
+    <string name="receive_bundle_title">استلام البندل</string>
+    <string name="receive_question">هل استلم العميل البندل؟</string>
+    <string name="answer_yes">نعم</string>
+    <string name="answer_no">لا</string>
+    <string name="photo_title">إثبات استلام البندل</string>
+    <string name="photo_hint">يرجى التقاط أو رفع صورة لإثبات تسليم واستلام البندل:</string>
+    <string name="reasons_title">سبب عدم استلام البندل</string>
+    <string name="reasons_hint">يرجى تحديد سبب عدم استلام العميل للبندل من القائمة:</string>
+    <string name="error_choose_coded">برجاء اختيار مكود أو غير مكود</string>
+    <string name="error_enter_valid_code">برجاء كتابة كود عميل صحيح</string>
+    <string name="error_enter_name_address">برجاء كتابة اسم العميل والعنوان</string>
 
 </resources>

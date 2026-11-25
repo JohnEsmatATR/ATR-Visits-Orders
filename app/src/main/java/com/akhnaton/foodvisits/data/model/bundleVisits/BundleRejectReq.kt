@@ -1,8 +1,9 @@
 package com.akhnaton.foodvisits.data.model.bundleVisits
 
 data class BundleRejectReq(
-    val visit_id: String,
-    val status: Int = 0,
+    val is_coded: Int,
+    val cust_code: String?,
+    val takes_bundle: Int = 0,
     val reject_reason_id: Int,
     val latitude: Double,
     val longitude: Double,

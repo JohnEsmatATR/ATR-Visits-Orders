@@ -6,7 +6,8 @@ import com.akhnaton.foodvisits.data.model.refreshToken.RefreshTokenRes
 sealed class BundleVisitsStatus {
     object Idle : BundleVisitsStatus()
     object Loading : BundleVisitsStatus()
-    data class GetTodayVisits(val data: BundleVisitsRes) : BundleVisitsStatus()
+    data class SearchCustomer(val data: BundleVisitsRes) : BundleVisitsStatus()
+    data class GetRejectReasons(val data: BundleVisitsRes) : BundleVisitsStatus()
     data class SaveDone(val data: BundleVisitsRes) : BundleVisitsStatus()
     data class SaveReject(val data: BundleVisitsRes) : BundleVisitsStatus()
     data class RefreshToken(val data: RefreshTokenRes) : BundleVisitsStatus()

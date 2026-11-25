@@ -3,6 +3,7 @@ package com.akhnaton.foodvisits.ui.home.bundlevisits
 import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.net.Uri
@@ -12,32 +13,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
-import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import android.widget.RadioGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import android.content.pm.PackageManager
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.akhnaton.foodvisits.R
 import com.akhnaton.foodvisits.data.model.bundleVisits.BundleRejectReq
-import com.akhnaton.foodvisits.data.model.bundleVisits.BundleVisit
+import com.akhnaton.foodvisits.data.model.bundleVisits.BundleVisitsRes
+import com.akhnaton.foodvisits.data.model.bundleVisits.ReasonsData
 import com.akhnaton.foodvisits.data.model.bundleVisits.RejectReason
+import com.akhnaton.foodvisits.data.model.bundleVisits.SearchCustomerData
 import com.akhnaton.foodvisits.data.statusValue.bundlevisits.BundleVisitsIntent
 import com.akhnaton.foodvisits.data.statusValue.bundlevisits.BundleVisitsStatus
 import com.akhnaton.foodvisits.databinding.FragmentBundleVisitDetailsBinding
@@ -45,11 +42,15 @@ import com.akhnaton.foodvisits.shared.DialogUtils
 import com.akhnaton.foodvisits.shared.ProgressDialogHelper
 import com.akhnaton.foodvisits.shared.SharedPreferencesHelper
 import com.akhnaton.foodvisits.shared.location.RequestPermission
-import com.akhnaton.foodvisits.shared.openLocationInMap
 import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.promoter.SelectedImagesAdapter
+import com.bumptech.glide.Glide
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -57,6 +58,9 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class BundleVisitDetailsFragment : Fragment() {
 
@@ -68,12 +72,12 @@ class BundleVisitDetailsFragment : Fragment() {
     private lateinit var dialog: AlertDialog
     private val viewModel: BundleVisitsViewModel by viewModels()
 
-    private var visitId: String = ""
-    private var visit: BundleVisit? = null
     private var reasons = listOf<RejectReason>()
     private lateinit var imagesAdapter: SelectedImagesAdapter
 
     private var received: Boolean? = null
+    private var isCoded: Boolean? = null
+    private var customerFound = false
     private var selectedReasonId: String? = null
     private var pendingRetry: (() -> Unit)? = null
 
@@ -103,6 +107,7 @@ class BundleVisitDetailsFragment : Fragment() {
     ) { granted ->
         if (granted) openCamera()
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
@@ -118,25 +123,26 @@ class BundleVisitDetailsFragment : Fragment() {
 
         handleTopBottomKeyboard()
 
-        visitId = arguments?.getString("visitId").orEmpty()
-
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
         dialog.hide()
 
-//        fillData()
-//        setupReasons()
         setupImages()
-
-        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
-
-        binding.btnOpenMap.setOnClickListener {
-            val lat = visit?.latitude?.toDoubleOrNull()
-            val lng = visit?.longitude?.toDoubleOrNull()
-            if (lat != null && lng != null) openLocationInMap(requireContext(), lat, lng)
+        binding.progressLoading.visibility = View.VISIBLE
+        viewLifecycleOwner.lifecycleScope.launch {
+            delay(1000)
+            withTimeoutOrNull(5000) {
+                viewModel.locationState.first { it != null }
+            }
+            binding.progressLoading.visibility = View.GONE
         }
+        binding.btnBack.setOnClickListener { findNavController().popBackStack() }
 
         binding.cardYes.setOnClickListener { selectAnswer(true) }
         binding.cardNo.setOnClickListener { selectAnswer(false) }
+
+        binding.cardCoded.setOnClickListener { selectCoded(true) }
+        binding.cardNotCoded.setOnClickListener { selectCoded(false) }
+        binding.etCode.addTextChangedListener { onCodeChanged(it.toString().trim()) }
 
         binding.btnAddImages.setOnClickListener {
             showImageSourceDialog()
@@ -145,21 +151,85 @@ class BundleVisitDetailsFragment : Fragment() {
         binding.btnSave.setOnClickListener { onSaveClicked() }
 
         fetchData()
-        loadVisit()
     }
 
-    private fun fillData(visit: BundleVisit) {
-        binding.tvCustomerName.text = visit.custName
-        binding.tvCustomerCode.text = visit.custId
-        binding.tvSiteAddress.text = visit.custAddress.trim()
-//        binding.tvOrderType.text = visit.customerOrderType
-        binding.tvVisitDate.text = visit.visitDate
-//        binding.tvPrevCount.text = visit.countOfVisits
-        binding.tvReceiveQuestion.text = "هل استلم ${visit.custName} البندل؟"
+    private fun selectCoded(coded: Boolean) {
+        isCoded = coded
+        customerFound = false
 
-        val hasLocation = visit.latitude?.toDoubleOrNull() != null &&
-                visit.longitude?.toDoubleOrNull() != null
-        binding.btnOpenMap.visibility = if (hasLocation) View.VISIBLE else View.GONE
+        binding.etCode.text?.clear()
+        binding.etCustomerName.text?.clear()
+        binding.etCustomerAddress.text?.clear()
+
+        val selected = ContextCompat.getColor(requireContext(), R.color.colorPrimary)
+        val normal = ContextCompat.getColor(requireContext(), R.color.box_unselected)
+
+        binding.cardCoded.setCardBackgroundColor(if (coded) selected else normal)
+        binding.cardNotCoded.setCardBackgroundColor(if (!coded) selected else normal)
+        binding.tvCoded.setTextColor(if (coded) Color.WHITE else Color.BLACK)
+        binding.tvNotCoded.setTextColor(if (!coded) Color.WHITE else Color.BLACK)
+
+        binding.cardCustomerInput.visibility = View.VISIBLE
+        binding.cardReceive.visibility = View.VISIBLE
+        binding.layoutCode.visibility = if (coded) View.VISIBLE else View.GONE
+        binding.tvCodeError.visibility = View.GONE
+        binding.llNameAddress.visibility = if (coded) View.GONE else View.VISIBLE
+        binding.etCustomerName.isEnabled = !coded
+        binding.etCustomerAddress.isEnabled = !coded
+    }
+    private fun onCodeChanged(code: String) {
+        customerFound = false
+        binding.tvCodeError.visibility = View.GONE
+        binding.llNameAddress.visibility = View.GONE
+        if (code.isNotBlank()) searchCustomer(code)
+    }
+
+    private fun searchCustomer(code: String) {
+        lifecycleScope.launch {
+            viewModel.intent.send(BundleVisitsIntent.SearchCustomer(code))
+        }
+    }
+
+    private fun loadReasons() {
+        lifecycleScope.launch {
+            viewModel.intent.send(BundleVisitsIntent.GetRejectReasons)
+        }
+    }
+
+    private fun refreshToken() {
+        lifecycleScope.launch {
+            viewModel.intent.send(
+                BundleVisitsIntent.RefreshToken(
+                    SharedPreferencesHelper.getInstance().getEmployeeId(),
+                    SharedPreferencesHelper.getInstance().getUserToken()
+                )
+            )
+        }
+    }
+
+    private fun handleSearchResponse(res: BundleVisitsRes) {
+        when (res.status) {
+            200 -> {
+                val data = Gson().fromJson(res.data, SearchCustomerData::class.java)
+                binding.etCustomerName.setText(data.customerName.orEmpty().trim())
+                binding.etCustomerAddress.setText(data.customerAddress.orEmpty().trim())
+                binding.tvCodeError.visibility = View.GONE
+                binding.llNameAddress.visibility = View.VISIBLE
+                customerFound = true
+            }
+
+            401 -> {
+                pendingRetry = { searchCustomer(binding.etCode.text.toString().trim()) }
+                refreshToken()
+            }
+
+            else -> {
+                customerFound = false
+                binding.llNameAddress.visibility = View.GONE
+                binding.tvCodeError.text = res.message
+                binding.tvCodeError.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun setupReasons() {
@@ -178,53 +248,44 @@ class BundleVisitDetailsFragment : Fragment() {
         }
     }
 
-//    private fun setupImages() {
-//        imagesAdapter = SelectedImagesAdapter(
-//            onRemoveClick = {
-//                imagesAdapter.setImages(emptyList())
-//                updateImagesVisibility()
-//            }
-//        )
-//        binding.rvImages.layoutManager = LinearLayoutManager(
-//            requireContext(), LinearLayoutManager.HORIZONTAL, false
-//        )
-//        binding.rvImages.adapter = imagesAdapter
-//    }
-private fun setupImages() {
-    imagesAdapter = SelectedImagesAdapter(
-        onRemoveClick = {
-            imagesAdapter.setImages(emptyList())
-            updateImagesVisibility()
-        }
-    )
-    binding.rvImages.layoutManager = LinearLayoutManager(
-        requireContext(), LinearLayoutManager.HORIZONTAL, false
-    )
-    binding.rvImages.adapter = imagesAdapter
-
-    binding.rvImages.addOnItemTouchListener(
-        object : RecyclerView.SimpleOnItemTouchListener() {
-            private val detector = android.view.GestureDetector(
-                requireContext(),
-                object : android.view.GestureDetector.SimpleOnGestureListener() {
-                    override fun onSingleTapUp(e: android.view.MotionEvent) = true
-                }
-            )
-
-            override fun onInterceptTouchEvent(rv: RecyclerView, e: android.view.MotionEvent): Boolean {
-                if (detector.onTouchEvent(e)) {
-                    val child = rv.findChildViewUnder(e.x, e.y)
-                    val close = child?.findViewById<View>(R.id.ivClose)
-                    val onClose = close != null && isTouchInside(close, e)
-                    if (child != null && !onClose) {
-                        imagesAdapter.getImages().firstOrNull()?.let { showImagePreview(it) }
-                    }
-                }
-                return false
+    private fun setupImages() {
+        imagesAdapter = SelectedImagesAdapter(
+            onRemoveClick = {
+                imagesAdapter.setImages(emptyList())
+                updateImagesVisibility()
             }
-        }
-    )
-}
+        )
+        binding.rvImages.layoutManager = LinearLayoutManager(
+            requireContext(), LinearLayoutManager.HORIZONTAL, false
+        )
+        binding.rvImages.adapter = imagesAdapter
+
+        binding.rvImages.addOnItemTouchListener(
+            object : RecyclerView.SimpleOnItemTouchListener() {
+                private val detector = android.view.GestureDetector(
+                    requireContext(),
+                    object : android.view.GestureDetector.SimpleOnGestureListener() {
+                        override fun onSingleTapUp(e: android.view.MotionEvent) = true
+                    }
+                )
+
+                override fun onInterceptTouchEvent(
+                    rv: RecyclerView,
+                    e: android.view.MotionEvent
+                ): Boolean {
+                    if (detector.onTouchEvent(e)) {
+                        val child = rv.findChildViewUnder(e.x, e.y)
+                        val close = child?.findViewById<View>(R.id.ivClose)
+                        val onClose = close != null && isTouchInside(close, e)
+                        if (child != null && !onClose) {
+                            imagesAdapter.getImages().firstOrNull()?.let { showImagePreview(it) }
+                        }
+                    }
+                    return false
+                }
+            }
+        )
+    }
 
     private fun isTouchInside(view: View, e: android.view.MotionEvent): Boolean {
         val loc = IntArray(2)
@@ -246,6 +307,7 @@ private fun setupImages() {
         previewDialog.setContentView(imageView)
         previewDialog.show()
     }
+
     private fun showImageSourceDialog() {
         val options = arrayOf("المعرض", "الكاميرا")
         MaterialAlertDialogBuilder(requireContext())
@@ -284,6 +346,7 @@ private fun setupImages() {
             imageFile
         )
     }
+
     private fun updateImagesVisibility() {
         val hasImages = imagesAdapter.getImages().isNotEmpty()
         binding.btnAddImages.visibility = if (hasImages) View.GONE else View.VISIBLE
@@ -292,21 +355,20 @@ private fun setupImages() {
 
     private fun selectAnswer(yes: Boolean) {
         received = yes
-        val green = Color.parseColor("#34C759")
-        val red = Color.parseColor("#FF3B30")
-        val grey = Color.parseColor("#F1F1F4")
+        val green = ContextCompat.getColor(requireContext(), R.color.green)
+        val red = ContextCompat.getColor(requireContext(), R.color.red)
+        val grey = ContextCompat.getColor(requireContext(), R.color.box_unselected)
 
         binding.cardYes.setCardBackgroundColor(if (yes) green else grey)
         binding.cardNo.setCardBackgroundColor(if (!yes) red else grey)
 
         binding.tvYes.setTextColor(if (yes) Color.WHITE else Color.BLACK)
         binding.tvNo.setTextColor(if (!yes) Color.WHITE else Color.BLACK)
-//
-//        setIcon(binding.ivYes, yes, R.drawable.ic_check_circle2).
-//        setIcon(binding.ivNo, !yes, R.drawable.ic_close)
 
         binding.cardPhoto.visibility = if (yes) View.VISIBLE else View.GONE
         binding.cardReasons.visibility = if (yes) View.GONE else View.VISIBLE
+
+        if (!yes && reasons.isEmpty()) loadReasons()
     }
 
     private fun setIcon(iv: android.widget.ImageView, selected: Boolean, selectedRes: Int) {
@@ -329,6 +391,22 @@ private fun setupImages() {
     }
 
     private fun onSaveClicked() {
+        val coded = isCoded
+        if (coded == null) {
+            showError(getString(R.string.error_choose_coded))
+            return
+        }
+        if (coded && !customerFound) {
+            showError(getString(R.string.error_enter_valid_code))
+            return
+        }
+        if (!coded && (binding.etCustomerName.text.isNullOrBlank() ||
+                    binding.etCustomerAddress.text.isNullOrBlank())
+        ) {
+            showError(getString(R.string.error_enter_name_address))
+            return
+        }
+
         val answer = received
         if (answer == null) {
             showError("برجاء اختيار نعم أو لا")
@@ -355,13 +433,19 @@ private fun setupImages() {
 
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
+        val codedValue = if (isCoded == true) "1" else "0"
+        val codeBody = if (isCoded == true) {
+            binding.etCode.text.toString().trim().toBody()
+        } else null
+
         val send = {
             lifecycleScope.launch {
                 viewModel.intent.send(
                     BundleVisitsIntent.SaveDone(
                         photo = photoPart,
-                        visitId = this@BundleVisitDetailsFragment.visitId.toBody(),
-                        status = "1".toBody(),
+                        isCoded = codedValue.toBody(),
+                        custCode = codeBody,
+                        takesBundle = "1".toBody(),
                         latitude = lat.toString().toBody(),
                         longitude = lng.toString().toBody(),
                     )
@@ -385,7 +469,8 @@ private fun setupImages() {
                 viewModel.intent.send(
                     BundleVisitsIntent.SaveReject(
                         BundleRejectReq(
-                            visit_id = visitId,
+                            is_coded = if (isCoded == true) 1 else 0,
+                            cust_code = if (isCoded == true) binding.etCode.text.toString().trim() else null,
                             reject_reason_id = reasonId,
                             latitude = lat,
                             longitude = lng,
@@ -404,7 +489,7 @@ private fun setupImages() {
         val tempFile = File.createTempFile("bundle_img_", ".jpg", requireContext().cacheDir)
         FileOutputStream(tempFile).use { output -> inputStream.copyTo(output) }
         val requestFile = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
-        return MultipartBody.Part.createFormData("photo", tempFile.name, requestFile)
+        return MultipartBody.Part.createFormData("bundle_image", tempFile.name, requestFile)
     }
 
     private fun handleSaveResponse(status: Int, message: String) {
@@ -421,14 +506,7 @@ private fun setupImages() {
             }
 
             401 -> {
-                lifecycleScope.launch {
-                    viewModel.intent.send(
-                        BundleVisitsIntent.RefreshToken(
-                            SharedPreferencesHelper.getInstance().getEmployeeId(),
-                            SharedPreferencesHelper.getInstance().getUserToken()
-                        )
-                    )
-                }
+                refreshToken()
             }
 
             else -> {
@@ -445,49 +523,40 @@ private fun setupImages() {
                     when (it) {
                         is BundleVisitsStatus.Idle -> {}
 
-                        is BundleVisitsStatus.Loading -> dialog.show()
-                        is BundleVisitsStatus.GetTodayVisits -> {
-                            dialog.dismiss()
+                        is BundleVisitsStatus.Loading -> binding.progressLoading.visibility = View.VISIBLE
+
+                        is BundleVisitsStatus.SearchCustomer -> {
+                            binding.progressLoading.visibility = View.GONE
+
+                            handleSearchResponse(it.data)
+                        }
+
+                        is BundleVisitsStatus.GetRejectReasons -> {
+                            binding.progressLoading.visibility = View.GONE
                             if (it.data.status == 200) {
-                                val data = Gson().fromJson(
-                                    it.data.data,
-                                    com.akhnaton.foodvisits.data.model.bundleVisits.Data::class.java
-                                )
-                                reasons = data.rejectReasons
-                                val found = data.visits.firstOrNull { v -> v.visitId == visitId }
-                                if (found != null) {
-                                    visit = found
-                                    fillData(found)
-                                    setupReasons()
-                                } else {
-                                    showError("الزيارة غير موجودة")
-                                }
+                                val data = Gson().fromJson(it.data.data, ReasonsData::class.java)
+                                reasons = data.reasons
+                                setupReasons()
                             } else if (it.data.status == 401) {
-                                pendingRetry = { loadVisit() }
-                                lifecycleScope.launch {
-                                    viewModel.intent.send(
-                                        BundleVisitsIntent.RefreshToken(
-                                            SharedPreferencesHelper.getInstance().getEmployeeId(),
-                                            SharedPreferencesHelper.getInstance().getUserToken()
-                                        )
-                                    )
-                                }
+                                pendingRetry = { loadReasons() }
+                                refreshToken()
                             } else {
                                 showError(it.data.message)
                             }
                         }
+
                         is BundleVisitsStatus.SaveDone -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             handleSaveResponse(it.data.status, it.data.message)
                         }
 
                         is BundleVisitsStatus.SaveReject -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             handleSaveResponse(it.data.status, it.data.message)
                         }
 
                         is BundleVisitsStatus.RefreshToken -> {
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             if (it.data.status == 200) {
                                 val data = Gson().fromJson(
                                     it.data.data,
@@ -516,7 +585,7 @@ private fun setupImages() {
 
                         is BundleVisitsStatus.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
-                            dialog.dismiss()
+                            binding.progressLoading.visibility = View.GONE
                             showError(it.error.toString())
                         }
 
@@ -556,11 +625,7 @@ private fun setupImages() {
         }
         ViewCompat.requestApplyInsets(binding.root)
     }
-    private fun loadVisit() {
-        lifecycleScope.launch {
-            viewModel.intent.send(BundleVisitsIntent.GetTodayVisits)
-        }
-    }
+
     @RequiresPermission(
         allOf = [
             Manifest.permission.ACCESS_FINE_LOCATION,

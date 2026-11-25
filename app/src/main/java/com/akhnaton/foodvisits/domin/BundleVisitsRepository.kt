@@ -10,15 +10,18 @@ class BundleVisitsRepository {
 
     private val retrofit = RetrofitClient.getInstance(IBundleVisits::class.java)
 
-    suspend fun getTodayVisits() = retrofit.getTodayVisits()
+    suspend fun searchCustomer(code: String) = retrofit.searchCustomer(code)
+
+    suspend fun getRejectReasons() = retrofit.getRejectReasons()
 
     suspend fun saveDone(
-        photo: MultipartBody.Part,
-        visitId: RequestBody,
-        status: RequestBody,
+        bundleImage: MultipartBody.Part,
+        isCoded: RequestBody,
+        custCode: RequestBody?,
+        takesBundle: RequestBody,
         latitude: RequestBody,
         longitude: RequestBody,
-    ) = retrofit.saveDone(photo, visitId, status, latitude, longitude)
+    ) = retrofit.saveDone(bundleImage, isCoded, custCode, takesBundle, latitude, longitude)
 
     suspend fun saveReject(req: BundleRejectReq) = retrofit.saveReject(req)
 }

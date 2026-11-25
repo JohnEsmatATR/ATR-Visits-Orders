@@ -6,12 +6,15 @@ import okhttp3.RequestBody
 
 sealed class BundleVisitsIntent {
 
-    object GetTodayVisits : BundleVisitsIntent()
+    data class SearchCustomer(val code: String) : BundleVisitsIntent()
+
+    object GetRejectReasons : BundleVisitsIntent()
 
     data class SaveDone(
         val photo: MultipartBody.Part,
-        val visitId: RequestBody,
-        val status: RequestBody,
+        val isCoded: RequestBody,
+        val custCode: RequestBody?,
+        val takesBundle: RequestBody,
         val latitude: RequestBody,
         val longitude: RequestBody,
     ) : BundleVisitsIntent()

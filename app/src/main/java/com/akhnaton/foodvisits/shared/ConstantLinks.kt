@@ -60,6 +60,11 @@ object ConstantLinks {
     const val APPROVE_VISITS_ENDPOINT = "Visit/approveVisits"
     const val GET_TODAY_UNIFIED_VISITS = "visit/getTodayUnifiedVisits"
     const val SAVE_UNIFIED_VISIT_RESULT = "visit/saveUnifiedVisitResult"
+
+    const val SEARCH_CUSTOMERS = "visit/searchCustomers"
+    const val GET_BUNDLE_REJECT_REASONS = "visit/getBundleRejectReasons"
+    const val SAVE_BUNDLE_VISIT = "visit/saveBundleVisit"
+
     //----------------------------------------------------------------------------------------------
 
     private const val ROUTS_API = "web_food_visit/routes.php" // prod

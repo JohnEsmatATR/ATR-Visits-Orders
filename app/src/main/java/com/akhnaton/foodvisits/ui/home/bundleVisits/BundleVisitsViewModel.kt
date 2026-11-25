@@ -47,7 +47,8 @@ class BundleVisitsViewModel(application: Application) : AndroidViewModel(applica
         viewModelScope.launch {
             intent.consumeAsFlow().collect {
                 when (it) {
-                    is BundleVisitsIntent.GetTodayVisits -> getTodayVisits()
+                    is BundleVisitsIntent.SearchCustomer -> searchCustomer(it.code)
+                    is BundleVisitsIntent.GetRejectReasons -> getRejectReasons()
                     is BundleVisitsIntent.SaveDone -> saveDone(it)
                     is BundleVisitsIntent.SaveReject -> saveReject(it.req)
                     is BundleVisitsIntent.RefreshToken -> refreshToken(it.userId, it.token)
@@ -56,11 +57,21 @@ class BundleVisitsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    private fun getTodayVisits() {
+    private fun searchCustomer(code: String) {
+        viewModelScope.launch {
+            _status.value = try {
+                BundleVisitsStatus.SearchCustomer(BundleVisitsRepository().searchCustomer(code))
+            } catch (e: Exception) {
+                BundleVisitsStatus.Error(e.message)
+            }
+        }
+    }
+
+    private fun getRejectReasons() {
         viewModelScope.launch {
             _status.value = BundleVisitsStatus.Loading
             _status.value = try {
-                BundleVisitsStatus.GetTodayVisits(BundleVisitsRepository().getTodayVisits())
+                BundleVisitsStatus.GetRejectReasons(BundleVisitsRepository().getRejectReasons())
             } catch (e: Exception) {
                 BundleVisitsStatus.Error(e.message)
             }
@@ -73,7 +84,7 @@ class BundleVisitsViewModel(application: Application) : AndroidViewModel(applica
             _status.value = try {
                 BundleVisitsStatus.SaveDone(
                     BundleVisitsRepository().saveDone(
-                        req.photo, req.visitId, req.status, req.latitude, req.longitude
+                        req.photo, req.isCoded, req.custCode, req.takesBundle, req.latitude, req.longitude
                     )
                 )
             } catch (e: Exception) {
