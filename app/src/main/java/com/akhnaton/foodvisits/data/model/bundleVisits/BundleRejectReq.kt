@@ -4,7 +4,9 @@ data class BundleRejectReq(
     val is_coded: Int,
     val cust_code: String?,
     val takes_bundle: Int = 0,
-    val reject_reason_id: Int,
+    val reject_reason_id: Int?,
     val latitude: Double,
     val longitude: Double,
+    val customer_name: String?,
+    val customer_address: String?
 )

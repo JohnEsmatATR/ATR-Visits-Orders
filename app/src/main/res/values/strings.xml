@@ -458,7 +458,10 @@
     <string name="reasons_title">سبب عدم استلام البندل</string>
     <string name="reasons_hint">يرجى تحديد سبب عدم استلام العميل للبندل من القائمة:</string>
     <string name="error_choose_coded">برجاء اختيار مكود أو غير مكود</string>
+    <string name="error_enter_code">برجاء كتابة كود العميل</string>
     <string name="error_enter_valid_code">برجاء كتابة كود عميل صحيح</string>
     <string name="error_enter_name_address">برجاء كتابة اسم العميل والعنوان</string>
+    <string name="error_enter_name">برجاء كتابة اسم العميل </string>
+    <string name="error_enter_address">برجاء كتابة العنوان</string>
 
 </resources>

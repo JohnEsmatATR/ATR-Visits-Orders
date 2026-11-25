@@ -15,13 +15,16 @@ class BundleVisitsRepository {
     suspend fun getRejectReasons() = retrofit.getRejectReasons()
 
     suspend fun saveDone(
-        bundleImage: MultipartBody.Part,
+        bundleImage: MultipartBody.Part?,
         isCoded: RequestBody,
         custCode: RequestBody?,
+        customerName: RequestBody?,
+        customerAddress: RequestBody?,
         takesBundle: RequestBody,
         latitude: RequestBody,
         longitude: RequestBody,
-    ) = retrofit.saveDone(bundleImage, isCoded, custCode, takesBundle, latitude, longitude)
-
+    ) = retrofit.saveDone(
+        bundleImage, isCoded, custCode, customerName, customerAddress, takesBundle, latitude, longitude
+    )
     suspend fun saveReject(req: BundleRejectReq) = retrofit.saveReject(req)
 }

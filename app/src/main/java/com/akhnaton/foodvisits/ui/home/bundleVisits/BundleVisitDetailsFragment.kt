@@ -13,6 +13,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.os.CountDownTimer
+import android.text.Editable
+import android.text.TextWatcher
+import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
@@ -46,6 +50,7 @@ import com.akhnaton.foodvisits.ui.auth.LoginActivity2
 import com.akhnaton.foodvisits.ui.home.promoter.SelectedImagesAdapter
 import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -61,6 +66,7 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.log
 
 class BundleVisitDetailsFragment : Fragment() {
 
@@ -79,8 +85,10 @@ class BundleVisitDetailsFragment : Fragment() {
     private var isCoded: Boolean? = null
     private var customerFound = false
     private var selectedReasonId: String? = null
-    private var pendingRetry: (() -> Unit)? = null
-
+    private val pendingRetries = mutableListOf<() -> Unit>()
+    private var lastSaveRetry: (() -> Unit)? = null
+    private var isRefreshing = false
+    private var handledSearch: Any? = null
     private val pickImageLauncher = registerForActivityResult(
         ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -142,7 +150,17 @@ class BundleVisitDetailsFragment : Fragment() {
 
         binding.cardCoded.setOnClickListener { selectCoded(true) }
         binding.cardNotCoded.setOnClickListener { selectCoded(false) }
-        binding.etCode.addTextChangedListener { onCodeChanged(it.toString().trim()) }
+        binding.etCode.addTextChangedListener { onCodeTyping() }
+        binding.etCode.afterTextChangedDelayed { onCodeChanged(it.trim()) }
+        binding.etCustomerName.addTextChangedListener {
+            Log.d("RESETX", "name changed: ${it}")
+            resetReceiveSection()
+            updateReceiveVisibility()
+        }
+        binding.etCustomerAddress.addTextChangedListener {
+            resetReceiveSection()
+            updateReceiveVisibility()
+        }
 
         binding.btnAddImages.setOnClickListener {
             showImageSourceDialog()
@@ -152,7 +170,14 @@ class BundleVisitDetailsFragment : Fragment() {
 
         fetchData()
     }
-
+    private fun onCodeTyping() {
+        Log.d("RESETX", "onCodeTyping: ${binding.etCode.text}")
+        customerFound = false
+        binding.tvCodeError.visibility = View.GONE
+        binding.llNameAddress.visibility = View.GONE
+        resetReceiveSection()
+        updateReceiveVisibility()
+    }
     private fun selectCoded(coded: Boolean) {
         isCoded = coded
         customerFound = false
@@ -170,7 +195,7 @@ class BundleVisitDetailsFragment : Fragment() {
         binding.tvNotCoded.setTextColor(if (!coded) Color.WHITE else Color.BLACK)
 
         binding.cardCustomerInput.visibility = View.VISIBLE
-        binding.cardReceive.visibility = View.VISIBLE
+        updateReceiveVisibility()
         binding.layoutCode.visibility = if (coded) View.VISIBLE else View.GONE
         binding.tvCodeError.visibility = View.GONE
         binding.llNameAddress.visibility = if (coded) View.GONE else View.VISIBLE
@@ -178,25 +203,45 @@ class BundleVisitDetailsFragment : Fragment() {
         binding.etCustomerAddress.isEnabled = !coded
     }
     private fun onCodeChanged(code: String) {
-        customerFound = false
-        binding.tvCodeError.visibility = View.GONE
-        binding.llNameAddress.visibility = View.GONE
         if (code.isNotBlank()) searchCustomer(code)
     }
 
     private fun searchCustomer(code: String) {
-        lifecycleScope.launch {
-            viewModel.intent.send(BundleVisitsIntent.SearchCustomer(code))
-        }
+    viewModel.intent.trySend(BundleVisitsIntent.SearchCustomer(code))
     }
+    private fun TextInputEditText.afterTextChangedDelayed(afterTextChanged: (String) -> Unit) {
+        this.addTextChangedListener(object : TextWatcher {
+            var timer: CountDownTimer? = null
 
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {}
+
+            override fun afterTextChanged(editable: Editable?) {
+                timer?.cancel()
+                timer = object : CountDownTimer(1000, 1500) {
+                    override fun onTick(millisUntilFinished: Long) {}
+                    override fun onFinish() {
+                        afterTextChanged.invoke(editable.toString())
+                    }
+                }.start()
+            }
+        })
+    }
     private fun loadReasons() {
         lifecycleScope.launch {
             viewModel.intent.send(BundleVisitsIntent.GetRejectReasons)
         }
     }
 
+    private fun refreshThenRetry(retry: () -> Unit) {
+        pendingRetries.add(retry)
+        refreshToken()
+    }
+
     private fun refreshToken() {
+        if (isRefreshing) return
+        isRefreshing = true
         lifecycleScope.launch {
             viewModel.intent.send(
                 BundleVisitsIntent.RefreshToken(
@@ -206,28 +251,29 @@ class BundleVisitDetailsFragment : Fragment() {
             )
         }
     }
-
     private fun handleSearchResponse(res: BundleVisitsRes) {
+        if (isCoded != true) return
         when (res.status) {
             200 -> {
                 val data = Gson().fromJson(res.data, SearchCustomerData::class.java)
-                binding.etCustomerName.setText(data.customerName.orEmpty().trim())
-                binding.etCustomerAddress.setText(data.customerAddress.orEmpty().trim())
+                val name = data.customerName.orEmpty().trim()
+                val address = data.customerAddress.orEmpty().trim()
+                if (binding.etCustomerName.text.toString() != name) binding.etCustomerName.setText(name)
+                if (binding.etCustomerAddress.text.toString() != address) binding.etCustomerAddress.setText(address)
                 binding.tvCodeError.visibility = View.GONE
                 binding.llNameAddress.visibility = View.VISIBLE
                 customerFound = true
+                updateReceiveVisibility()
             }
-
             401 -> {
-                pendingRetry = { searchCustomer(binding.etCode.text.toString().trim()) }
-                refreshToken()
+                refreshThenRetry { searchCustomer(binding.etCode.text.toString().trim()) }
             }
 
             else -> {
                 customerFound = false
                 binding.llNameAddress.visibility = View.GONE
-                binding.tvCodeError.text = res.message
-                binding.tvCodeError.visibility = View.VISIBLE
+                updateReceiveVisibility()
+                showError(res.message)
             }
         }
     }
@@ -367,20 +413,35 @@ class BundleVisitDetailsFragment : Fragment() {
 
         binding.cardPhoto.visibility = if (yes) View.VISIBLE else View.GONE
         binding.cardReasons.visibility = if (yes) View.GONE else View.VISIBLE
-
+        if (!yes) {
+            imagesAdapter.setImages(emptyList())
+            updateImagesVisibility()
+        }
+        if (yes) {
+            selectedReasonId = null
+            binding.rgReasons.clearCheck()
+        }
         if (!yes && reasons.isEmpty()) loadReasons()
     }
 
-    private fun setIcon(iv: android.widget.ImageView, selected: Boolean, selectedRes: Int) {
-        if (selected) {
-            iv.setImageResource(selectedRes)
-            iv.imageTintList = ColorStateList.valueOf(Color.WHITE)
-        } else {
-            iv.setImageResource(android.R.drawable.radiobutton_off_background)
-            iv.imageTintList = null
-        }
+    private fun resetReceiveSection() {
+        Log.d("RESETX", "resetReceiveSection", Throwable())
+        received = null
+        selectedReasonId = null
+        binding.rgReasons.clearCheck()
+        imagesAdapter.setImages(emptyList())
+        updateImagesVisibility()
+        binding.cardPhoto.visibility = View.GONE
+        binding.cardReasons.visibility = View.GONE
+        binding.cardYes.setCardBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.box_unselected)
+        )
+        binding.cardNo.setCardBackgroundColor(
+            ContextCompat.getColor(requireContext(), R.color.box_unselected)
+        )
+        binding.tvYes.setTextColor(Color.BLACK)
+        binding.tvNo.setTextColor(Color.BLACK)
     }
-
     private fun showError(message: String) {
         DialogUtils.showResultDialog(
             context = requireContext(),
@@ -391,25 +452,43 @@ class BundleVisitDetailsFragment : Fragment() {
     }
 
     private fun onSaveClicked() {
+
         val coded = isCoded
+
         if (coded == null) {
             showError(getString(R.string.error_choose_coded))
+            return
+        }
+        if(coded && (binding.etCode.text.isNullOrBlank())){
+            showError(getString(R.string.error_enter_code))
             return
         }
         if (coded && !customerFound) {
             showError(getString(R.string.error_enter_valid_code))
             return
         }
-        if (!coded && (binding.etCustomerName.text.isNullOrBlank() ||
+        if (!coded && (binding.etCustomerName.text.isNullOrBlank() &&
                     binding.etCustomerAddress.text.isNullOrBlank())
         ) {
             showError(getString(R.string.error_enter_name_address))
             return
         }
-
+        if(!coded && (binding.etCustomerName.text.isNullOrBlank())){
+            showError(getString(R.string.error_enter_name))
+            return
+        }
+        if(!coded && (binding.etCustomerAddress.text.isNullOrBlank())){
+            showError(getString(R.string.error_enter_address))
+            return
+        }
         val answer = received
         if (answer == null) {
             showError("برجاء اختيار نعم أو لا")
+            return
+        }
+
+        if (answer && imagesAdapter.getImages().isEmpty()) {
+            showError("برجاء رفع صورة إثبات الاستلام")
             return
         }
 
@@ -418,18 +497,15 @@ class BundleVisitDetailsFragment : Fragment() {
             showError("الموقع الحالي غير متاح، برجاء الانتظار حتى يتم تحديده")
             return
         }
-
-        if (answer) saveDone(location.latitude, location.longitude)
-        else saveReject(location.latitude, location.longitude)
+        if (received == false) saveReject(location.latitude, location.longitude)
+        else saveDone(location.latitude, location.longitude)
     }
 
     private fun saveDone(lat: Double, lng: Double) {
+
         val uri = imagesAdapter.getImages().firstOrNull()
         val photoPart = uri?.let { uriToMultipart(it) }
-        if (photoPart == null) {
-            showError("برجاء رفع صورة إثبات الاستلام")
-            return
-        }
+
 
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -437,7 +513,10 @@ class BundleVisitDetailsFragment : Fragment() {
         val codeBody = if (isCoded == true) {
             binding.etCode.text.toString().trim().toBody()
         } else null
-
+        val nameBody = if (isCoded == true) null else
+            binding.etCustomerName.text.toString().trim().toBody()
+        val addressBody = if (isCoded == true) null else
+            binding.etCustomerAddress.text.toString().trim().toBody()
         val send = {
             lifecycleScope.launch {
                 viewModel.intent.send(
@@ -445,7 +524,9 @@ class BundleVisitDetailsFragment : Fragment() {
                         photo = photoPart,
                         isCoded = codedValue.toBody(),
                         custCode = codeBody,
-                        takesBundle = "1".toBody(),
+                        customerName = nameBody,
+                        customerAddress = addressBody,
+                        takesBundle = (if (received == true) "1" else "0").toBody(),
                         latitude = lat.toString().toBody(),
                         longitude = lng.toString().toBody(),
                     )
@@ -453,17 +534,16 @@ class BundleVisitDetailsFragment : Fragment() {
             }
             Unit
         }
-        pendingRetry = send
+        lastSaveRetry = send
         send()
     }
-
     private fun saveReject(lat: Double, lng: Double) {
+
         val reasonId = selectedReasonId?.toIntOrNull()
         if (reasonId == null) {
             showError("برجاء اختيار سبب عدم الاستلام")
             return
         }
-
         val send = {
             lifecycleScope.launch {
                 viewModel.intent.send(
@@ -471,6 +551,8 @@ class BundleVisitDetailsFragment : Fragment() {
                         BundleRejectReq(
                             is_coded = if (isCoded == true) 1 else 0,
                             cust_code = if (isCoded == true) binding.etCode.text.toString().trim() else null,
+                            customer_name = if (isCoded == true) null else binding.etCustomerName.text.toString().trim(),
+                            customer_address = if (isCoded == true) null else binding.etCustomerAddress.text.toString().trim(),
                             reject_reason_id = reasonId,
                             latitude = lat,
                             longitude = lng,
@@ -480,7 +562,7 @@ class BundleVisitDetailsFragment : Fragment() {
             }
             Unit
         }
-        pendingRetry = send
+        lastSaveRetry = send
         send()
     }
 
@@ -495,7 +577,7 @@ class BundleVisitDetailsFragment : Fragment() {
     private fun handleSaveResponse(status: Int, message: String) {
         when (status) {
             200 -> {
-                pendingRetry = null
+                lastSaveRetry = null
                 DialogUtils.showResultDialog(
                     context = requireContext(),
                     message = message,
@@ -506,11 +588,11 @@ class BundleVisitDetailsFragment : Fragment() {
             }
 
             401 -> {
-                refreshToken()
+                lastSaveRetry?.let { refreshThenRetry(it) }
             }
 
             else -> {
-                pendingRetry = null
+                lastSaveRetry = null
                 showError(message)
             }
         }
@@ -526,9 +608,13 @@ class BundleVisitDetailsFragment : Fragment() {
                         is BundleVisitsStatus.Loading -> binding.progressLoading.visibility = View.VISIBLE
 
                         is BundleVisitsStatus.SearchCustomer -> {
+                            Log.d("CODExx",  "message sent")
                             binding.progressLoading.visibility = View.GONE
 
-                            handleSearchResponse(it.data)
+                            if (handledSearch !== it) {
+                                handledSearch = it
+                                handleSearchResponse(it.data)
+                            }
                         }
 
                         is BundleVisitsStatus.GetRejectReasons -> {
@@ -538,8 +624,7 @@ class BundleVisitDetailsFragment : Fragment() {
                                 reasons = data.reasons
                                 setupReasons()
                             } else if (it.data.status == 401) {
-                                pendingRetry = { loadReasons() }
-                                refreshToken()
+                                refreshThenRetry { loadReasons() }
                             } else {
                                 showError(it.data.message)
                             }
@@ -556,17 +641,19 @@ class BundleVisitDetailsFragment : Fragment() {
                         }
 
                         is BundleVisitsStatus.RefreshToken -> {
-                            binding.progressLoading.visibility = View.GONE
+                            dialog.dismiss()
+                            isRefreshing = false
                             if (it.data.status == 200) {
                                 val data = Gson().fromJson(
                                     it.data.data,
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                                val retry = pendingRetry
-                                pendingRetry = null
-                                retry?.invoke()
+                                val retries = pendingRetries.toList()
+                                pendingRetries.clear()
+                                retries.forEach { retry -> retry() }
                             } else {
+                                pendingRetries.clear()
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = it.data.message,
@@ -586,6 +673,8 @@ class BundleVisitDetailsFragment : Fragment() {
                         is BundleVisitsStatus.Error -> {
                             Log.d(TAG, "fetchData: ${it.error}")
                             binding.progressLoading.visibility = View.GONE
+                            isRefreshing = false
+                            pendingRetries.clear()
                             showError(it.error.toString())
                         }
 
@@ -596,18 +685,18 @@ class BundleVisitDetailsFragment : Fragment() {
         }
     }
 
-    private fun setupKeyboardInsets() {
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { view, insets ->
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(
-                view.paddingLeft,
-                systemBars.top,
-                view.paddingRight,
-                maxOf(imeInsets.bottom, systemBars.bottom)
-            )
-            insets
+    private fun updateReceiveVisibility() {
+        Log.d("RESETX", "updateReceiveVisibility: isCoded=$isCoded found=$customerFound")
+        val ready = when (isCoded) {
+            true -> customerFound
+            false -> binding.etCustomerName.text.toString().isNotBlank() &&
+                    binding.etCustomerAddress.text.toString().isNotBlank()
+            null -> false
         }
+
+        binding.cardReceive.visibility = if (ready) View.VISIBLE else View.GONE
+
+        if (!ready) resetReceiveSection()
     }
 
     private fun handleTopBottomKeyboard() {
@@ -633,6 +722,7 @@ class BundleVisitDetailsFragment : Fragment() {
         ]
     )
     override fun onResume() {
+        Log.d("RESETX", "onResume")
         super.onResume()
         RequestPermission().enableLocation(requireActivity())
         RequestPermission().permissionCheck(requireActivity())

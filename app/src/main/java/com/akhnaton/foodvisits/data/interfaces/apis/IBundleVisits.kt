@@ -27,9 +27,11 @@ interface IBundleVisits {
     @Multipart
     @POST(ConstantLinks.SAVE_BUNDLE_VISIT)
     suspend fun saveDone(
-        @Part bundleImage: MultipartBody.Part,
+        @Part bundleImage: MultipartBody.Part?,
         @Part("is_coded") isCoded: RequestBody,
         @Part("cust_code") custCode: RequestBody?,
+        @Part("customer_name") customerName: RequestBody?,
+        @Part("customer_address") customerAddress: RequestBody?,
         @Part("takes_bundle") takesBundle: RequestBody,
         @Part("latitude") latitude: RequestBody,
         @Part("longitude") longitude: RequestBody,

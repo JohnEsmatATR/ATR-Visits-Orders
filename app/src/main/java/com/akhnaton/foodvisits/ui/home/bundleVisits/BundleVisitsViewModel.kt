@@ -59,6 +59,7 @@ class BundleVisitsViewModel(application: Application) : AndroidViewModel(applica
 
     private fun searchCustomer(code: String) {
         viewModelScope.launch {
+            _status.value = BundleVisitsStatus.Loading
             _status.value = try {
                 BundleVisitsStatus.SearchCustomer(BundleVisitsRepository().searchCustomer(code))
             } catch (e: Exception) {
@@ -84,7 +85,14 @@ class BundleVisitsViewModel(application: Application) : AndroidViewModel(applica
             _status.value = try {
                 BundleVisitsStatus.SaveDone(
                     BundleVisitsRepository().saveDone(
-                        req.photo, req.isCoded, req.custCode, req.takesBundle, req.latitude, req.longitude
+                        req.photo,
+                        req.isCoded,
+                        req.custCode,
+                        req.customerName,
+                        req.customerAddress,
+                        req.takesBundle,
+                        req.latitude,
+                        req.longitude
                     )
                 )
             } catch (e: Exception) {

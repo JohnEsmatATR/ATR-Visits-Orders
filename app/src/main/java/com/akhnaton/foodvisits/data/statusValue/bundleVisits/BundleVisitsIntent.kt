@@ -11,9 +11,11 @@ sealed class BundleVisitsIntent {
     object GetRejectReasons : BundleVisitsIntent()
 
     data class SaveDone(
-        val photo: MultipartBody.Part,
+        val photo: MultipartBody.Part?,
         val isCoded: RequestBody,
         val custCode: RequestBody?,
+        val customerName: RequestBody?,
+        val customerAddress: RequestBody?,
         val takesBundle: RequestBody,
         val latitude: RequestBody,
         val longitude: RequestBody,
