@@ -93,6 +93,18 @@ class VisitsFragment2 : Fragment() {
             Visits2ViewModelFactory(requireContext())
         )[Visits2ViewModel::class.java]
 
+        if (SharedPreferencesHelper.getInstance().isAllowedToMakeVisit()) {
+            binding.layoutVisits.visibility = View.VISIBLE
+            binding.layoutNotAllowedToMakeVisits.visibility = View.GONE
+
+            setupTabs()
+            loadVisitPlan()
+            fetchData()
+        } else {
+            binding.layoutVisits.visibility = View.GONE
+            binding.layoutNotAllowedToMakeVisits.visibility = View.VISIBLE
+        }
+
         //MainActivity.binding.navView2.visibility = View.VISIBLE
 
         isStartVisitDialogShowsUp = false
@@ -177,10 +189,6 @@ class VisitsFragment2 : Fragment() {
                 it.toString().trim()
             )
         }
-
-        setupTabs()
-        loadVisitPlan()
-        fetchData()
 
     }
 
@@ -529,7 +537,12 @@ class VisitsFragment2 : Fragment() {
                                         com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                     )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                                SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeOrder(data.ALLOWED_TO_MAKE_ORDER)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeReturn(data.ALLOWED_TO_MAKE_RETURN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeVisit(data.ALLOWED_TO_MAKE_VISIT)
                                 loadVisitPlan()
                             } else {
                                 DialogUtils.showResultDialog(

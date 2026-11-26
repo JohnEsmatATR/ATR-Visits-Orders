@@ -581,10 +581,10 @@ class InvoiceFragment2 : Fragment() {
                         "backOrder=${preview.IS_BACK_ORDER}"
             )
             val matchedProduct = allProducts.firstOrNull {
-                it.PRODUCT_NAME
+                it.ITEM_CODE
                     .trim()
                     .replace("'", "") ==
-                        preview.DESCRIPTION
+                        preview.ITEM_CODE
                             .trim()
                             .replace("'", "")
             }
@@ -998,7 +998,12 @@ class InvoiceFragment2 : Fragment() {
                                 com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                             )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeOrder(data.ALLOWED_TO_MAKE_ORDER)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeReturn(data.ALLOWED_TO_MAKE_RETURN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeVisit(data.ALLOWED_TO_MAKE_VISIT)
                             hasRetriedAfterRefresh = true
                             val retries = pendingRetries.toList()
                             pendingRetries.clear()

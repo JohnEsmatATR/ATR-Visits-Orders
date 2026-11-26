@@ -185,7 +185,12 @@ class CustomersFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeOrder(data.ALLOWED_TO_MAKE_ORDER)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeReturn(data.ALLOWED_TO_MAKE_RETURN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeVisit(data.ALLOWED_TO_MAKE_VISIT)
                             getData()
                         } else {
                             DialogUtils.showResultDialog(

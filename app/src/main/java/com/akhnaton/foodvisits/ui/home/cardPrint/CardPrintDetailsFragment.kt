@@ -117,7 +117,12 @@ class CardPrintDetailsFragment : Fragment() {
             View.MeasureSpec.makeMeasureSpec(view.width, View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
         )
-        view.layout(view.left, view.top, view.left + view.measuredWidth, view.top + view.measuredHeight)
+        view.layout(
+            view.left,
+            view.top,
+            view.left + view.measuredWidth,
+            view.top + view.measuredHeight
+        )
 
         val originalWidth = view.measuredWidth
         val originalHeight = view.measuredHeight
@@ -183,6 +188,7 @@ class CardPrintDetailsFragment : Fragment() {
                             binding.tryAgainButtons.root.visibility = View.GONE
                             binding.progressLoading.visibility = View.VISIBLE
                         }
+
                         is CardPrintStatus.GetPrintInvoiceDetails -> {
                             binding.progressLoading.visibility = View.GONE
 
@@ -205,11 +211,14 @@ class CardPrintDetailsFragment : Fragment() {
                                     val totalWithoutTax = info.invoice_total_value - totalVat
 
                                     binding.tvVat.text = NumberFormatter.format(totalVat)
-                                    binding.tvTotalInvoiceWithoutTax.text = NumberFormatter.format(totalWithoutTax)
-                                    binding.tvTotalInvoice.text = NumberFormatter.format(info.invoice_total_value)
+                                    binding.tvTotalInvoiceWithoutTax.text =
+                                        NumberFormatter.format(totalWithoutTax)
+                                    binding.tvTotalInvoice.text =
+                                        NumberFormatter.format(info.invoice_total_value)
 
                                     binding.executePendingBindings()
                                 }
+
                                 401 -> {
                                     if (!hasRetriedAfterRefresh) {
                                         hasRetriedAfterRefresh = true
@@ -218,23 +227,27 @@ class CardPrintDetailsFragment : Fragment() {
                                         binding.tryAgainButtons.root.visibility = View.VISIBLE
                                         DialogUtils.showResultDialog(
                                             context = requireContext(),
-                                            message = status.response.message ?: "حدث خطأ، برجاء المحاولة مرة أخرى",
+                                            message = status.response.message
+                                                ?: "حدث خطأ، برجاء المحاولة مرة أخرى",
                                             isSuccess = false,
                                             showOkButton = true,
                                         )
                                     }
                                 }
+
                                 else -> {
                                     binding.tryAgainButtons.root.visibility = View.VISIBLE
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
-                                        message = status.response.message ?: "حدث خطأ، برجاء المحاولة مرة أخرى",
+                                        message = status.response.message
+                                            ?: "حدث خطأ، برجاء المحاولة مرة أخرى",
                                         isSuccess = false,
                                         showOkButton = true,
                                     )
                                 }
                             }
                         }
+
                         is CardPrintStatus.RefreshToken -> {
                             if (status.data.status == 200) {
                                 val tokenData = com.google.gson.Gson().fromJson(
@@ -242,6 +255,12 @@ class CardPrintDetailsFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeOrder(tokenData.ALLOWED_TO_MAKE_ORDER)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeReturn(tokenData.ALLOWED_TO_MAKE_RETURN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeVisit(tokenData.ALLOWED_TO_MAKE_VISIT)
                                 viewModel.cardPrintIntent.trySend(
                                     CardPrintIntent.GetPrintInvoiceDetails(orderSalesNumber)
                                 )
@@ -253,16 +272,23 @@ class CardPrintDetailsFragment : Fragment() {
                                     showOkButton = true,
                                     onOk = {
                                         SharedPreferencesHelper.getInstance().logOut()
-                                        startActivity(Intent(requireContext(), LoginActivity2::class.java))
+                                        startActivity(
+                                            Intent(
+                                                requireContext(),
+                                                LoginActivity2::class.java
+                                            )
+                                        )
                                         requireActivity().finishAffinity()
                                     })
                             }
                         }
+
                         is CardPrintStatus.Error -> {
                             Log.d(TAG, "fetchData: ${status.message}")
                             binding.progressLoading.visibility = View.GONE
                             binding.tryAgainButtons.root.visibility = View.VISIBLE
                         }
+
                         else -> {}
                     }
                 }

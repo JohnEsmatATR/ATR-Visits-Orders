@@ -214,13 +214,7 @@ class TelephoneVisitFragment : Fragment() {
             binding.cardReport.visibility = View.VISIBLE
         }
 
-        lifecycleScope.launch {
-            viewModel.phoneVisitsIntent.send(
-                PhoneVisitsIntent.VisitsSelect(
-                    saleType, customerCode
-                )
-            )
-        }
+        visitsSelect()
 
         binding.cardVisitReport.setOnClickListener {
             val bundle = Bundle().apply {
@@ -369,6 +363,16 @@ class TelephoneVisitFragment : Fragment() {
         fetchData()
     }
 
+    private fun visitsSelect() {
+        lifecycleScope.launch {
+            viewModel.phoneVisitsIntent.send(
+                PhoneVisitsIntent.VisitsSelect(
+                    saleType, customerCode
+                )
+            )
+        }
+    }
+
 //    private fun getCustomerData() {
 //        lifecycleScope.launch {
 //            viewModel.phoneVisitsIntent.send(
@@ -438,9 +442,9 @@ class TelephoneVisitFragment : Fragment() {
                                 )
                             //VISITS_APK
                             var message = "${data.message}"
+
                             if (data.is_suspended || data.has_open_order ||
-                                !SharedPreferencesHelper.getInstance().isAllowedToMakeOrder() ||
-                                !SharedPreferencesHelper.getInstance().getWebIsOpen()) {
+                                !SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
                                 Log.d("WHATtele", "1")
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -645,7 +649,13 @@ class TelephoneVisitFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                            SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeOrder(data.ALLOWED_TO_MAKE_ORDER)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeReturn(data.ALLOWED_TO_MAKE_RETURN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeVisit(data.ALLOWED_TO_MAKE_VISIT)
+                            visitsSelect()
 //                            getData()
                         } else {
                             DialogUtils.showResultDialog(

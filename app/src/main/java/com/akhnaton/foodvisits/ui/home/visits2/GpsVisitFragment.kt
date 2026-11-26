@@ -838,8 +838,7 @@ class GpsVisitFragment : Fragment() {
                                 //VISITS_APK
                                 var message = "${data.message}"
                                 if (data.is_suspended || data.has_open_order ||
-                                    !SharedPreferencesHelper.getInstance().isAllowedToMakeOrder() ||
-                                    !SharedPreferencesHelper.getInstance().getWebIsOpen()
+                                    !SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()
                                 ) {
                                     message = "${data.message}"
                                     DialogUtils.showResultDialog(
@@ -1043,7 +1042,11 @@ class GpsVisitFragment : Fragment() {
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
                                 SharedPreferencesHelper.getInstance()
-                                    .saveWebIsOpen(data.WEB_IS_OPEN)
+                                    .saveAllowedToMakeOrder(data.ALLOWED_TO_MAKE_ORDER)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeReturn(data.ALLOWED_TO_MAKE_RETURN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeVisit(data.ALLOWED_TO_MAKE_VISIT)
                                 getData()
                             } else {
                                 DialogUtils.showResultDialog(

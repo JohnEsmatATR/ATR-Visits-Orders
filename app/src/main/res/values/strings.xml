@@ -198,6 +198,7 @@
     <string name="no_product_choosen">لم يتم اختيار المنتج</string>
     <string name="price2">السعر</string>
     <string name="no_selected_products">لا يوجد بيانات</string>
+    <string name="not_allowed_to_make_visits">غير مسموح بعمل زيارات</string>
     <string name="selected">المختارة</string>
     <string name="all">الكل</string>
     <string name="total_specified">اجمالي المحدد</string>

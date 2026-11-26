@@ -5,6 +5,7 @@ data class Data(
     val ALLOWED_TO_APPROVE_VISIT: Boolean,
     val ALLOWED_TO_MAKE_ORDER: Boolean,
     val ALLOWED_TO_MAKE_RETURN: Boolean,
+    val ALLOWED_TO_MAKE_VISIT: Boolean,
     val WEB_IS_OPEN: Boolean,
     val ALLOWED_TO_MAKE_RATE: Boolean,
     val ARABIC_USER_NAME: String,

@@ -257,6 +257,17 @@ class OrderCreationCycleFragment : Fragment() {
                                 pendingRetry = { getStartOrderData() }
                                 sendRefreshToken()
                             }
+                        } else if(it.data.status == 400){
+                            DialogUtils.showResultDialog(
+                                requireContext(), it.data.message, false,
+                                showOkButton = true,
+                                onOk = {
+                                    MainActivity.binding.navView2.visibility = View.VISIBLE
+                                    findNavController().navigate(
+                                        R.id.toHome
+                                    )
+                                }
+                            )
                         } else {
                             DialogUtils.showResultDialog(
                                 requireContext(), it.data.message, false,
@@ -270,13 +281,17 @@ class OrderCreationCycleFragment : Fragment() {
                         Log.d(TAG, "refreshToken status=${it.data.status} message=${it.data.message}")
                         if (it.data.status == 200) {
 
-
                             val tokenData = Gson().fromJson(
                                 it.data.data,
                                 com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                             )
                             SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
-                            SharedPreferencesHelper.getInstance().saveWebIsOpen(tokenData.WEB_IS_OPEN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeOrder(tokenData.ALLOWED_TO_MAKE_ORDER)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeReturn(tokenData.ALLOWED_TO_MAKE_RETURN)
+                            SharedPreferencesHelper.getInstance()
+                                .saveAllowedToMakeVisit(tokenData.ALLOWED_TO_MAKE_VISIT)
                             hasRetriedAfterRefresh = true
                             val retry = pendingRetry
                             pendingRetry = null

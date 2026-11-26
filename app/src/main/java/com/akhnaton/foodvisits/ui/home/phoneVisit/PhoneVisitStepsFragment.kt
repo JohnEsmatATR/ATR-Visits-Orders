@@ -89,10 +89,22 @@ class PhoneVisitStepsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         dialog = ProgressDialogHelper().showAlertProgress(requireContext(), "Loading..")
+        dialog.hide()
 
         setupKeyboardInsets()
 
         //MainActivity.binding.navView2.visibility = View.VISIBLE
+
+        if (SharedPreferencesHelper.getInstance().isAllowedToMakeVisit()) {
+            binding.layoutVisits.visibility = View.VISIBLE
+            binding.layoutNotAllowedToMakeVisits.visibility = View.GONE
+
+            getData()
+            fetchData()
+        } else {
+            binding.layoutVisits.visibility = View.GONE
+            binding.layoutNotAllowedToMakeVisits.visibility = View.VISIBLE
+        }
 
         isStartVisitDialogShowsUp = false
 
@@ -122,9 +134,6 @@ class PhoneVisitStepsFragment : Fragment() {
             Log.d("WHAT", "Triggered0")
             checkInZero(customerPartySiteId, saleType)
         }
-
-        getData()
-        fetchData()
 
     }
 
@@ -746,7 +755,12 @@ class PhoneVisitStepsFragment : Fragment() {
                                         com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                     )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
-                                SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeOrder(data.ALLOWED_TO_MAKE_ORDER)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeReturn(data.ALLOWED_TO_MAKE_RETURN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeVisit(data.ALLOWED_TO_MAKE_VISIT)
                                 getData()
                             } else {
                                 DialogUtils.showResultDialog(

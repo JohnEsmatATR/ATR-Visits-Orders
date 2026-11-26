@@ -88,7 +88,6 @@ class SharedPreferencesHelper : Application() {
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
         }
-
     }
 
     fun saveLong(key: String, value: Long) {
@@ -201,6 +200,7 @@ class SharedPreferencesHelper : Application() {
         isSuper: Boolean,
         allowedToMakeOrder: Boolean,
         allowedToMakeReturn: Boolean,
+        allowedToMakeVisit: Boolean,
         allowedToMakeRate: Boolean,
         isSuperProm: Boolean,
         allowedToApproveVisit: Boolean,
@@ -218,6 +218,7 @@ class SharedPreferencesHelper : Application() {
             .putBoolean("is_super", isSuper)
             .putBoolean("allowed_to_make_order", allowedToMakeOrder)
             .putBoolean("allowed_to_make_return", allowedToMakeReturn)
+            .putBoolean("allowed_to_make_visit", allowedToMakeVisit)
             .putBoolean("allowed_to_make_rate", allowedToMakeRate)
             .putBoolean("is_super_prom", isSuperProm)
             .putBoolean("allowed_to_approve_visit", allowedToApproveVisit)
@@ -257,12 +258,32 @@ class SharedPreferencesHelper : Application() {
 
     fun isAllowedToMakeOrder(): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean("allowed_to_make_order", false)
+            .getBoolean("allowed_to_make_order", true)
     }
 
     fun isAllowedToMakeReturn(): Boolean {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .getBoolean("allowed_to_make_return", false)
+            .getBoolean("allowed_to_make_return", true)
+    }
+
+    fun isAllowedToMakeVisit(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("allowed_to_make_visit", true)
+    }
+
+    fun saveAllowedToMakeOrder(allowedToMakeOrder: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean("allowed_to_make_order", allowedToMakeOrder).apply()
+    }
+
+    fun saveAllowedToMakeReturn(allowedToMakeReturn: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean("allowed_to_make_return", allowedToMakeReturn).apply()
+    }
+
+    fun saveAllowedToMakeVisit(allowedToMakeVisit: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean("allowed_to_make_visit", allowedToMakeVisit).apply()
     }
 
     fun isAllowedToMakeRate(): Boolean {

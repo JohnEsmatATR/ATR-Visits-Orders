@@ -227,6 +227,12 @@ class CardPrintFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeOrder(tokenData.ALLOWED_TO_MAKE_ORDER)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeReturn(tokenData.ALLOWED_TO_MAKE_RETURN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveAllowedToMakeVisit(tokenData.ALLOWED_TO_MAKE_VISIT)
                                 hasRetriedAfterRefresh = true
                                 val retry = pendingRetry
                                 pendingRetry = null
