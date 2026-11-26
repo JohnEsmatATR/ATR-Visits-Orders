@@ -2,10 +2,15 @@ package com.akhnaton.foodvisits.ui.home.bundlevisits
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
+import android.media.ExifInterface
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -52,9 +57,11 @@ import com.bumptech.glide.Glide
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
@@ -500,12 +507,10 @@ class BundleVisitDetailsFragment : Fragment() {
         if (received == false) saveReject(location.latitude, location.longitude)
         else saveDone(location.latitude, location.longitude)
     }
-
+//30.04823591980596, 31.245965592700067
     private fun saveDone(lat: Double, lng: Double) {
-
+        val appContext = requireContext().applicationContext
         val uri = imagesAdapter.getImages().firstOrNull()
-        val photoPart = uri?.let { uriToMultipart(it) }
-
 
         fun String.toBody(): RequestBody = this.toRequestBody("text/plain".toMediaTypeOrNull())
 
@@ -517,8 +522,13 @@ class BundleVisitDetailsFragment : Fragment() {
             binding.etCustomerName.text.toString().trim().toBody()
         val addressBody = if (isCoded == true) null else
             binding.etCustomerAddress.text.toString().trim().toBody()
+        val takesBundle = (if (received == true) "1" else "0").toBody()
+        val latBody = lat.toString().toBody()
+        val lngBody = lng.toString().toBody()
+
         val send = {
             lifecycleScope.launch {
+                val photoPart = uri?.let { uriToMultipart(appContext, it) }
                 viewModel.intent.send(
                     BundleVisitsIntent.SaveDone(
                         photo = photoPart,
@@ -526,9 +536,9 @@ class BundleVisitDetailsFragment : Fragment() {
                         custCode = codeBody,
                         customerName = nameBody,
                         customerAddress = addressBody,
-                        takesBundle = (if (received == true) "1" else "0").toBody(),
-                        latitude = lat.toString().toBody(),
-                        longitude = lng.toString().toBody(),
+                        takesBundle = takesBundle,
+                        latitude = latBody,
+                        longitude = lngBody,
                     )
                 )
             }
@@ -537,6 +547,7 @@ class BundleVisitDetailsFragment : Fragment() {
         lastSaveRetry = send
         send()
     }
+
     private fun saveReject(lat: Double, lng: Double) {
 
         val reasonId = selectedReasonId?.toIntOrNull()
@@ -566,12 +577,12 @@ class BundleVisitDetailsFragment : Fragment() {
         send()
     }
 
-    private fun uriToMultipart(uri: Uri): MultipartBody.Part? {
-        val inputStream = requireContext().contentResolver.openInputStream(uri) ?: return null
-        val tempFile = File.createTempFile("bundle_img_", ".jpg", requireContext().cacheDir)
-        FileOutputStream(tempFile).use { output -> inputStream.copyTo(output) }
-        val requestFile = tempFile.asRequestBody("image/*".toMediaTypeOrNull())
-        return MultipartBody.Part.createFormData("bundle_image", tempFile.name, requestFile)
+    private suspend fun uriToMultipart(context: Context, uri: Uri): MultipartBody.Part? {
+        return withContext(Dispatchers.IO) {
+            val file = compressImage(context, uri) ?: return@withContext null
+            val requestFile = file.asRequestBody("image/*".toMediaTypeOrNull())
+            MultipartBody.Part.createFormData("bundle_image", file.name, requestFile)
+        }
     }
 
     private fun handleSaveResponse(status: Int, message: String) {
@@ -683,6 +694,36 @@ class BundleVisitDetailsFragment : Fragment() {
                 }
             }
         }
+    }
+
+    private fun compressImage(context: Context, uri: Uri): File? {
+        val resolver = context.contentResolver
+
+        val options = BitmapFactory.Options().apply { inSampleSize = 2 }
+        var bitmap = resolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, options)
+        } ?: return null
+
+        val orientation = resolver.openInputStream(uri)?.use {
+            ExifInterface(it).getAttributeInt(
+                ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL
+            )
+        }
+
+        val degrees = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+            else -> 0f
+        }
+        if (degrees != 0f) {
+            val matrix = Matrix().apply { postRotate(degrees) }
+            bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+        }
+
+        val file = File.createTempFile("bundle_img_", ".jpg", context.cacheDir)
+        FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.JPEG, 70, it) }
+        return file
     }
 
     private fun updateReceiveVisibility() {
