@@ -532,7 +532,7 @@ class InvoiceFragment2 : Fragment() {
             total = 0.0
             selectedProducts.forEach {
                 if (it.IS_BACK_ORDER == false || it.IS_BACK_ORDER == null)
-                    total += it.selectedQty * it.ITEM_PRICE.toDouble()
+                    total += it.selectedQty * (it.ITEM_PRICE.toDouble() + it.TAX_AMOUNT.toDouble())
             }
         }
 
@@ -629,6 +629,9 @@ class InvoiceFragment2 : Fragment() {
         beforeTax = 0.0
         tax = 0.0
         selectedProducts.forEach {
+            Log.d(
+                "WHATtax", "name=${it.PRODUCT_NAME} tax=${it.TAX_AMOUNT} "
+            )
             if (it.IS_BACK_ORDER == false || it.IS_BACK_ORDER == null) {
                 totalQty += it.selectedQty
                 beforeTax +=
@@ -638,6 +641,7 @@ class InvoiceFragment2 : Fragment() {
                 afterTax = beforeTax + tax
             }
         }
+        Log.d("WHATtax", "TOTAL beforeTax=$beforeTax tax=$tax afterTax=$afterTax")
 //        tax = (beforeTax * .14).toInt()
     }
 
