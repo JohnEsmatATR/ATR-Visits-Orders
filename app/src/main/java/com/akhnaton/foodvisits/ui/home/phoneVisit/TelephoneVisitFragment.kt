@@ -437,36 +437,10 @@ class TelephoneVisitFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.saveVisitPhone.Data::class.java
                                 )
                             //VISITS_APK
-                            var message = "${it.data.message}"
-//                            DialogUtils.showResultDialog(
-//                                context = requireContext(),
-//                                message = message,
-//                                isSuccess = true,
-//                                showOkButton = true,
-//                                onOk = {
-//                                    //MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                    findNavController().navigate(
-//                                        R.id.toHome
-//                                    )
-//                                }
-//                            )
-//                            if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
-//                                DialogUtils.showResultDialog(
-//                                    context = requireContext(),
-//                                    message = "غير مسموح لك بعمل طلبيات , الرجاء التواصل مع الإدارة المالية",
-//                                    isSuccess = true,
-//                                    showOkButton = true,
-//                                    onOk = {
-//                                        //MainActivity.binding.navView2.visibility = View.VISIBLE
-//                                        findNavController().navigate(
-//                                            R.id.toHome
-//                                        )
-//                                    }
-//                                )
-//                                return@collect
-//                            }
-                            message = "${data.message}"
-                            if (data.is_suspended == true) {
+                            var message = "${data.message}"
+                            if (data.is_suspended || data.has_open_order ||
+                                !SharedPreferencesHelper.getInstance().isAllowedToMakeOrder() ||
+                                !SharedPreferencesHelper.getInstance().getWebIsOpen()) {
                                 Log.d("WHATtele", "1")
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
@@ -474,79 +448,47 @@ class TelephoneVisitFragment : Fragment() {
                                     isSuccess = true,
                                     showOkButton = true,
                                     onOk = {
-                                        //MainActivity.binding.navView2.visibility = View.VISIBLE
+                                        MainActivity.binding.navView2.visibility = View.VISIBLE
                                         findNavController().navigate(
                                             R.id.toHome
                                         )
                                     }
                                 )
                             } else {
-                                Log.d("WHATtele", "2")
-                                if (!SharedPreferencesHelper.getInstance().isAllowedToMakeOrder()) {
-                                    Log.d("WHATtele", "3")
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            //MainActivity.binding.navView2.visibility = View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                }
-                                if (data.has_open_order) {
-                                    Log.d("WHATtele", "4")
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            //MainActivity.binding.navView2.visibility = View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                } else {
-                                    Log.d("WHATtele", "5")
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        seconds = 2,
-                                        onAutoDismiss = {
-                                            if (grade == "A") {
-                                                val bundle = Bundle().apply {
-                                                    putString("customerName", customerName)
-                                                    putString("customerCode", customerCode)
-                                                    putString("siteAddress", siteAddress)
-                                                    putString(
-                                                        "customerPartySiteId",
-                                                        customerPartySiteId
-                                                    )
-                                                    putString("saleType", saleType)
-                                                    putString("fragment", "Telephone")
-                                                    putString("visitId", visitId)
-                                                }
-
-                                                findNavController().navigate(
-                                                    R.id.toOrderCreationCycle,
-                                                    bundle
+                                Log.d("WHATtele", "5")
+                                DialogUtils.showResultDialog(
+                                    context = requireContext(),
+                                    message = message,
+                                    isSuccess = true,
+                                    seconds = 2,
+                                    onAutoDismiss = {
+                                        if (grade == "A") {
+                                            val bundle = Bundle().apply {
+                                                putString("customerName", customerName)
+                                                putString("customerCode", customerCode)
+                                                putString("siteAddress", siteAddress)
+                                                putString(
+                                                    "customerPartySiteId",
+                                                    customerPartySiteId
                                                 )
-                                            } else {
-                                                MainActivity.binding.navView2.visibility =
-                                                    View.VISIBLE
-                                                findNavController().navigate(
-                                                    R.id.toHome
-                                                )
+                                                putString("saleType", saleType)
+                                                putString("fragment", "Telephone")
+                                                putString("visitId", visitId)
                                             }
+
+                                            findNavController().navigate(
+                                                R.id.toOrderCreationCycle,
+                                                bundle
+                                            )
+                                        } else {
+                                            MainActivity.binding.navView2.visibility =
+                                                View.VISIBLE
+                                            findNavController().navigate(
+                                                R.id.toHome
+                                            )
                                         }
-                                    )
-                                }
+                                    }
+                                )
                             }
                         } else if (it.data.status == 401) {
                             lifecycleScope.launch {
@@ -703,6 +645,7 @@ class TelephoneVisitFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                            SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
 //                            getData()
                         } else {
                             DialogUtils.showResultDialog(

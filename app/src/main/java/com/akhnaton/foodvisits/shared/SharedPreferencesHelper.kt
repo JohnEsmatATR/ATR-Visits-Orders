@@ -124,6 +124,11 @@ class SharedPreferencesHelper : Application() {
             .getString("api_token", "").toString()
     }
 
+    fun getWebIsOpen(): Boolean {
+        return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .getBoolean("web_is_open", true)
+    }
+
     fun getUsername(): String {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .getString("user_name", "").toString()
@@ -187,6 +192,7 @@ class SharedPreferencesHelper : Application() {
 
     fun setUserData(
         apiToken: String,
+        webIsOpen: Boolean,
         username: String,
         employeeId: String,
         makeOrder: Boolean,
@@ -203,6 +209,7 @@ class SharedPreferencesHelper : Application() {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit()
             .putString("api_token", apiToken)
+            .putBoolean("web_is_open", webIsOpen)
             .putString("user_name", username)
             .putString("employee_id", employeeId)
             .putBoolean("make_order", makeOrder)
@@ -231,6 +238,11 @@ class SharedPreferencesHelper : Application() {
     fun saveUserToken(token: String) {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
             .edit().putString("api_token", token).apply()
+    }
+
+    fun saveWebIsOpen(webIsOpen: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit().putBoolean("web_is_open", webIsOpen).apply()
     }
 
     fun logOut() {

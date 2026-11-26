@@ -836,43 +836,11 @@ class GpsVisitFragment : Fragment() {
                                         Data::class.java
                                     )
                                 //VISITS_APK
-                                var message = "${it.data.message}"
-                                Log.d("WHATorder", data.is_suspended.toString())
-                                Log.d(
-                                    "WHATorder", SharedPreferencesHelper.getInstance()
-                                        .isAllowedToMakeOrder().toString()
-                                )
-//                                DialogUtils.showResultDialog(
-//                                    context = requireContext(),
-//                                    message = message,
-//                                    isSuccess = true,
-//                                    seconds = 2,
-//                                    onAutoDismiss = {
-//                                        if (grade == "A") {
-//                                            val bundle = Bundle().apply {
-//                                                putString("customerName", customerName)
-//                                                putString("customerCode", customerCode)
-//                                                putString("siteAddress", siteAddress)
-//                                                putString(
-//                                                    "customerPartySiteId",
-//                                                    customerPartySiteId
-//                                                )
-//                                                putString("saleType", saleType)
-//                                                putString("fragment", "Gps")
-//                                            }
-//
-//                                            findNavController().navigate(
-//                                                R.id.toOrderCreationCycle, bundle
-//                                            )
-//                                        } else {
-//                                            MainActivity.binding.navView2.visibility =
-//                                                View.VISIBLE
-//                                            findNavController().navigate(
-//                                                R.id.toHome
-//                                            )
-//                                        }
-//                                    })
-                                if (data.is_suspended == true) {
+                                var message = "${data.message}"
+                                if (data.is_suspended || data.has_open_order ||
+                                    !SharedPreferencesHelper.getInstance().isAllowedToMakeOrder() ||
+                                    !SharedPreferencesHelper.getInstance().getWebIsOpen()
+                                ) {
                                     message = "${data.message}"
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
@@ -882,36 +850,6 @@ class GpsVisitFragment : Fragment() {
                                         onOk = {
                                             MainActivity.binding.navView2.visibility =
                                                 View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                } else if (!SharedPreferencesHelper.getInstance()
-                                        .isAllowedToMakeOrder()
-                                ) {
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            MainActivity.binding.navView2.visibility =
-                                                View.VISIBLE
-                                            findNavController().navigate(
-                                                R.id.toHome
-                                            )
-                                        }
-                                    )
-                                } else if (!data.has_open_order) {
-                                    Log.d("WHATtele", "4")
-                                    DialogUtils.showResultDialog(
-                                        context = requireContext(),
-                                        message = message,
-                                        isSuccess = true,
-                                        showOkButton = true,
-                                        onOk = {
-                                            //MainActivity.binding.navView2.visibility = View.VISIBLE
                                             findNavController().navigate(
                                                 R.id.toHome
                                             )
@@ -1104,6 +1042,8 @@ class GpsVisitFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                SharedPreferencesHelper.getInstance()
+                                    .saveWebIsOpen(data.WEB_IS_OPEN)
                                 getData()
                             } else {
                                 DialogUtils.showResultDialog(

@@ -146,6 +146,7 @@ class LoginActivity2 : AppCompatActivity(), View.OnClickListener {
                             SharedPreferencesHelper().setLogged()
                             SharedPreferencesHelper().setUserData(
                                 data.TOKEN,
+                                data.WEB_IS_OPEN,
                                 data.USER_NAME,
                                 data.USER_ID,
                                 true,

@@ -412,6 +412,7 @@ class CompetitorFragment : Fragment() {
                                     com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                 )
                                 SharedPreferencesHelper.getInstance().saveUserToken(tokenData.TOKEN)
+                                SharedPreferencesHelper.getInstance().saveWebIsOpen(tokenData.WEB_IS_OPEN)
                                 hasRetriedAfterRefresh = true
                                 val retry = pendingRetry
                                 pendingRetry = null

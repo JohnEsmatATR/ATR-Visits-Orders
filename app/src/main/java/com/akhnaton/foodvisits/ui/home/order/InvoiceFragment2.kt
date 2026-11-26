@@ -998,6 +998,7 @@ class InvoiceFragment2 : Fragment() {
                                 com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                             )
                             SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                            SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
                             hasRetriedAfterRefresh = true
                             val retries = pendingRetries.toList()
                             pendingRetries.clear()

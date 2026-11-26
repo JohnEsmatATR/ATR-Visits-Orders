@@ -746,6 +746,7 @@ class PhoneVisitStepsFragment : Fragment() {
                                         com.akhnaton.foodvisits.data.model.refreshToken.Data::class.java
                                     )
                                 SharedPreferencesHelper.getInstance().saveUserToken(data.TOKEN)
+                                SharedPreferencesHelper.getInstance().saveWebIsOpen(data.WEB_IS_OPEN)
                                 getData()
                             } else {
                                 DialogUtils.showResultDialog(
