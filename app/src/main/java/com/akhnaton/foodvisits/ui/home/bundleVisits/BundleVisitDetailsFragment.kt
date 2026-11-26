@@ -507,7 +507,7 @@ class BundleVisitDetailsFragment : Fragment() {
         if (received == false) saveReject(location.latitude, location.longitude)
         else saveDone(location.latitude, location.longitude)
     }
-//30.04823591980596, 31.245965592700067
+
     private fun saveDone(lat: Double, lng: Double) {
         val appContext = requireContext().applicationContext
         val uri = imagesAdapter.getImages().firstOrNull()
