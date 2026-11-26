@@ -531,6 +531,12 @@ class InvoiceFragment2 : Fragment() {
             )
             total = 0.0
             selectedProducts.forEach {
+                Log.d("WHATqty", it.PRODUCT_NAME.toString())
+                Log.d("WHATqty", it.selectedQty.toString())
+                Log.d("WHATqty", it.ITEM_PRICE.toString())
+                Log.d("WHATqty", it.TAX_AMOUNT.toString())
+                Log.d("WHATqty", it.IS_BACK_ORDER.toString())
+                Log.d("WHATqty", "--------------------------")
                 if (it.IS_BACK_ORDER == false || it.IS_BACK_ORDER == null)
                     total += it.selectedQty * (it.ITEM_PRICE.toDouble() + it.TAX_AMOUNT.toDouble())
             }
@@ -769,7 +775,7 @@ class InvoiceFragment2 : Fragment() {
                         selectedProducts.removeAt(index)
                         orderAdapter.notifyItemRemoved(index)
                     }
-                    updateTotal(true)
+                    updateTotal(false)
                     updateEmptyView()
                     calculateTotals()
                 }
