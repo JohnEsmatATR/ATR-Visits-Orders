@@ -465,9 +465,9 @@ class TelephoneVisitFragment : Fragment() {
 //                                )
 //                                return@collect
 //                            }
+                            message = "${data.message}"
                             if (data.is_suspended == true) {
                                 Log.d("WHATtele", "1")
-                                message = "${data.message}"
                                 DialogUtils.showResultDialog(
                                     context = requireContext(),
                                     message = message,
@@ -497,7 +497,7 @@ class TelephoneVisitFragment : Fragment() {
                                         }
                                     )
                                 }
-                                if (!data.has_open_order) {
+                                if (data.has_open_order) {
                                     Log.d("WHATtele", "4")
                                     DialogUtils.showResultDialog(
                                         context = requireContext(),
